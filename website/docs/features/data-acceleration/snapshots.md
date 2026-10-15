@@ -79,9 +79,24 @@ snapshots:
     s3_auth: iam_role # Defaults to iam_role for snapshots
 ```
 
-### Snapshots in the runtime state location
+### Supported storage backends
 
-When [`runtime.state`](../../reference/spicepod/runtime#runtimestate) is set and `snapshots.location` is not, snapshots are stored in the `snapshots/` folder of `runtime.state.location`, and the top-level `snapshots` block is optional:
+| Backend              | URL scheme                | Environment variables                                                                                                       |
+| -------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Amazon S3            | `s3://`                   | Standard AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.)                                               |
+| Azure ADLS Gen2      | `abfss://`, `abfs://`     | `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_FEDERATED_TOKEN_FILE` |
+| Google Cloud Storage | `gs://`                   | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity                                                                         |
+| Local filesystem     | `file://`                 | N/A                                                                                                                         |
+
+`location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
+
+When the location is an S3 bucket, `params` accepts these [S3 parameters](../../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url` (an SQS queue that receives the location's S3 event notifications, so [`refresh_mode: snapshot` readers reload on publication](./refresh-modes/snapshot#reload-on-s3-event-notifications)), `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure locations also accept the Azure connector parameters under `params` for explicit credential overrides. GCS locations accept the [GCS data connector](../../components/data-connectors/gcs#authentication-parameters) parameter names, such as `gcs_service_account_key` and `gcs_skip_signature`, and validate them as a [`runtime.state` location](../../reference/spicepod/runtime#state-location-parameters) does. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider. Values in `params` can reference [secrets](../../components/secret-stores) with `${secrets:<name>}` for S3, Azure, and GCS locations.
+
+An invalid S3 parameter value, such as `s3_auth: public`, disables snapshots for the dataset. Spice logs an error that names the dataset, the location, and the parameter, and does not fall back to default parameters. Those defaults would drop every other configured parameter, including `s3_endpoint`, `s3_region`, and the credentials, so snapshots could be written to a different store or with a different identity than the one configured. When `s3_queue_url` is set, the dataset fails to register with the parameter error instead. Fix the parameter and restart Spice.
+
+### Store snapshots under `runtime.state`
+
+When the Spicepod sets [`runtime.state`](../../reference/spicepod/runtime#runtimestate) and `snapshots.location` is not set, snapshots go to the `snapshots/` folder of `runtime.state.location`. The top-level `snapshots` section is then optional:
 
 ```yaml
 runtime:
@@ -98,22 +113,9 @@ datasets:
       snapshots: enabled
 ```
 
-Snapshots of `orders` are written to `s3://my-bucket/spice/snapshots/`, with the same layout as any other snapshot location. A `snapshots.location` takes precedence over `runtime.state`. When `snapshots.params` is set, it replaces `runtime.state.params` for the snapshots folder; otherwise the snapshots use `runtime.state.params`. The other `snapshots` fields, such as `bootstrap_on_failure_behavior`, apply as usual. To [serve these snapshots](#serve-a-dataset-from-published-snapshots) from another instance, set the reader's `from` to the snapshots folder, such as `s3://my-bucket/spice/snapshots/`.
+This fragment omits the PostgreSQL connection settings that the `orders` dataset needs; see the [PostgreSQL connector `params`](../../components/data-connectors/postgres/index.md#params). With them, this Spicepod publishes the `orders` snapshots under `s3://my-bucket/spice/snapshots/`, next to the other [runtime state folders](../../reference/spicepod/runtime#runtime-state-layout), in the same layout as any other snapshot location.
 
-### Supported storage backends
-
-| Backend              | URL scheme                | Environment variables                                                                                                       |
-| -------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Amazon S3            | `s3://`                   | Standard AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.)                                               |
-| Azure ADLS Gen2      | `abfss://`, `abfs://`     | `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`/`AZURE_TENANT_ID`/`AZURE_FEDERATED_TOKEN_FILE` |
-| Google Cloud Storage | `gs://`                   | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity                                                                         |
-| Local filesystem     | `file://`                 | N/A                                                                                                                         |
-
-`location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
-
-When the location is an S3 bucket, `params` accepts these [S3 parameters](../../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url` (an SQS queue that receives the location's S3 event notifications, so [`refresh_mode: snapshot` readers reload on publication](./refresh-modes/snapshot#reload-on-s3-event-notifications)), `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider. Values in `params` can reference [secrets](../../components/secret-stores) with `${secrets:<name>}` for S3, Azure, and GCS locations.
-
-An invalid S3 parameter value, such as `s3_auth: public`, disables snapshots for the dataset. Spice logs an error that names the dataset, the location, and the parameter, and does not fall back to default parameters. Those defaults would drop every other configured parameter, including `s3_endpoint`, `s3_region`, and the credentials, so snapshots could be written to a different store or with a different identity than the one configured. When `s3_queue_url` is set, the dataset fails to register with the parameter error instead. Fix the parameter and restart Spice.
+`snapshots.location`, when set, takes precedence over `runtime.state`. The snapshot location then uses `snapshots.params` alone. For a location taken from `runtime.state`, the snapshots use `runtime.state.params`, unless `snapshots.params` is set, which replaces them as a whole. A `snapshots` section without a `location` still sets `enabled`, `bootstrap_on_failure_behavior`, and `params`, so `snapshots.enabled: false` turns snapshots off for every dataset. To [serve these snapshots](#serve-a-dataset-from-published-snapshots) from another instance, set the reader's `from` to the snapshots folder, such as `s3://my-bucket/spice/snapshots/`.
 
 ### Conditional writes on the snapshot location
 
@@ -382,7 +384,7 @@ datasets:
 
 The dataset name selects the entry in `metadata.json`, so it must match the name of the dataset that publishes the snapshots. Spice reads `metadata.json`, detects the engine that created the dataset's current snapshot (Cayenne, DuckDB, SQLite, or Turso), restores that snapshot into the same engine, and serves queries from it. It then checks for newer snapshots and swaps each one in, as the [`snapshot` refresh mode](./refresh-modes/snapshot) does.
 
-A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceleration.snapshots` setting, and no top-level `snapshots` section. The snapshot location comes from the dataset's own `from` and `s3_*` params. An optional `acceleration` block can set `refresh_check_interval` (default `1m`) and engine params.
+A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceleration.snapshots` setting, and no top-level `snapshots` section. The snapshot location comes from the dataset's own `from` and `s3_*` params, not from `runtime.state`. To read snapshots that a writer [stores under `runtime.state`](#store-snapshots-under-runtimestate), set `from` to that location's `snapshots/` folder, such as `s3://my-bucket/spice/snapshots/`. An optional `acceleration` block can set `refresh_check_interval` (default `1m`) and engine params.
 
 ### Loading and readiness
 

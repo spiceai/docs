@@ -81,8 +81,10 @@ Initialized search results cache; max size: 128.00 MiB, item ttl: 1s, shards: 16
 
 A table invalidation walks every shard to evict the entries that read the table, so its cost is
 proportional to the number of cached entries. The walk runs on a blocking thread, not on the query
-runtime. SQL results are invalidated only by a client write or a dataset reload or unload, not by an
-acceleration refresh (see [Cached Results and Data Changes](#cached-results-and-data-changes)).
+runtime. SQL results are invalidated only by client writes, dataset reload, and dataset unload; an
+accelerated refresh leaves them to expire by age. See
+[Cached Results and Dataset Refresh](#cached-results-and-dataset-refresh). Search results are also
+invalidated by refreshes, and search result invalidations always evict entries.
 
 ### Serving repeated lookups
 
@@ -91,7 +93,7 @@ For a high-throughput lookup path:
 - Compare `eviction_policy: tiny_lfu` and `lfu` with the default `lru` using `results_cache_hit_ratio`.
 - Set `encoding: zstd` on `sql_results` when cached payloads are large. See [Choosing an `encoding`](#choosing-an-encoding).
 
-When memory is tight, give `sql_results.max_size` room for the hot working set before shrinking the Cayenne [segment and footer caches](../components/data-accelerators/cayenne/performance#cache-tuning) below a useful set. A segment cache smaller than the segments a lookup reads mostly misses; the results cache can still answer the repeated query. After the change, read `results_cache_evictions` by `reason`: `size` is capacity pressure, `invalidated` is a client write or a dataset reload or unload, `expired` is `item_ttl`. Pair that with `results_cache_hit_ratio`.
+When memory is tight, give `sql_results.max_size` room for the hot working set before shrinking the Cayenne [segment and footer caches](../components/data-accelerators/cayenne/performance#cache-tuning) below a useful set. A segment cache smaller than the segments a lookup reads mostly misses; the results cache can still answer the repeated query. After the change, read `results_cache_evictions` by `reason`: `size` is capacity pressure, `invalidated` is a client write, dataset reload, or unload, `expired` is `item_ttl`. Pair that with `results_cache_hit_ratio`.
 
 ## `caching.sql_results` Parameters
 
@@ -101,7 +103,7 @@ In addition to the common caching parameters, `sql_results` also supports additi
 | ---------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cache_key_type`             | Yes      | `plan`  | Determines how cache keys are generated. Defaults to `plan`. `plan` uses the query's logical plan, while `sql` uses the raw SQL query string.                                                                         |
 | `encoding`                   | Yes      | `none`  | Compression algorithm for cached results. Defaults to `none`. Supports `none` or `zstd`.                                                                                                                              |
-| `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, expired cache entries continue to be served while a background refresh occurs. Defaults to `0s` (disabled). |
+| `stale_while_revalidate_ttl` | Yes      | `0s`    | Duration to serve stale cache entries while revalidating in the background. When set to a non-zero value, entries past `item_ttl` and within this extra window are served stale while one background revalidation replaces them. Defaults to `0s` (disabled). See [Stale-While-Revalidate](#stale-while-revalidate). |
 | `warmup`                     | Yes      | `disabled` | Whether to warm the cache after a restart. `disabled` or `on_first_refresh`. See [Warming the Cache After a Restart](#warming-the-cache-after-a-restart). |
 
 ### Choosing a `cache_key_type`
@@ -280,7 +282,7 @@ The status header indicates the cache status:
 | `HIT`                | The query result was served from the cache.                                                                                              |
 | `MISS`               | The cache was checked, but the result was not found.                                                                                     |
 | `BYPASS`             | The cache was bypassed for this query (e.g., when `cache-control: no-cache` is specified).                                               |
-| `STALE`              | A stale cache entry was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is set to a non-zero duration). |
+| `STALE`              | An entry past `item_ttl` was served while the cache is being revalidated in the background (when `stale_while_revalidate_ttl` is set to a non-zero duration). |
 | _header not present_ | The cache did not apply to this query (e.g., when caching is disabled, when querying a system table, or when the query is [not cacheable](#queries-that-are-not-cached)). |
 
 The scope header indicates the cache namespace:
@@ -349,7 +351,9 @@ You can control caching behavior for specific requests using HTTP headers. The `
 
 ### Stale-While-Revalidate
 
-The `stale_while_revalidate_ttl` parameter configures a grace period during which stale cache entries continue to be served while a background refresh occurs. This technique reduces latency for end users by serving cached data immediately, even after `item_ttl` expires, while the system fetches fresh data asynchronously.
+The `stale_while_revalidate_ttl` parameter configures a grace period during which stale cache entries continue to be served while a background revalidation runs. This technique reduces latency for end users by serving cached data immediately, even after `item_ttl` expires, while the system fetches fresh data asynchronously.
+
+An entry's age counts from when the query that produced it started, not from when its result was stored. The start time is taken before the cache lookup and before any wait for a query worker, so time spent queued counts toward `item_ttl`. A result that is already older than `item_ttl + stale_while_revalidate_ttl` when its query finishes is not stored.
 
 A SQL result's age counts from when the query that produced it started, including any time the query waited to run. A result that is already older than `item_ttl + stale_while_revalidate_ttl` when its query finishes is not stored.
 
@@ -357,11 +361,11 @@ When `stale_while_revalidate_ttl` is set to a non-zero value:
 
 1. Cache entries are served normally until `item_ttl` expires.
 2. After `item_ttl` expires but before `item_ttl + stale_while_revalidate_ttl` expires, the stale entry is served immediately with a `STALE` cache status.
-3. Simultaneously, a background task refreshes the cache entry. Revalidation is single-flighted per key, so concurrent requests start one query and are all served the stale entry.
-4. Once the background refresh completes, subsequent requests receive the fresh data with a `HIT` cache status.
-5. After `item_ttl + stale_while_revalidate_ttl` expires, the entry is a miss, even while it is still in memory, and the next request runs the query.
+3. Simultaneously, a background task revalidates the cache entry. Revalidation is single-flighted per key, so concurrent requests for the same key start one query and are all served stale.
+4. Once the background revalidation stores its result, subsequent requests receive the new data. The replacement's age counts from when the revalidation query started, so it returns `HIT` while that age is within `item_ttl`. A revalidation that runs longer than `item_ttl` stores a result that is already stale, and one that runs longer than `item_ttl + stale_while_revalidate_ttl` is discarded.
+5. After `item_ttl + stale_while_revalidate_ttl` expires, the entry is not served, and the next request results in a `MISS`.
 
-A failed revalidation leaves the previous entry in place, to be served stale until its age reaches `item_ttl + stale_while_revalidate_ttl`. `results_cache_swr_revalidations` is the only visible symptom of that failure.
+If a revalidation fails or its result is discarded, the previous result keeps being served until `item_ttl + stale_while_revalidate_ttl`, then becomes a miss. `results_cache_swr_revalidations` reports the failure.
 
 #### Example Configuration
 
@@ -376,25 +380,11 @@ runtime:
 
 With this configuration:
 
-- A result is served fresh for 10 seconds after its query started.
-- Between 10 and 20 seconds, it is served stale while a background query revalidates it.
-- After 20 seconds, the next request runs the query, unless a revalidation has replaced the entry.
+- Cache entries are served fresh for 10 seconds after their query started.
+- Between 10 and 20 seconds, stale entries are served while being revalidated in the background.
+- After 20 seconds, the entry is a miss if it has not been revalidated.
 
 This approach is particularly useful for queries that take significant time to execute, providing a better user experience by reducing perceived latency while keeping data reasonably fresh.
-
-#### Cached Results and Data Changes
-
-An acceleration refresh, a CDC change, or a retention pass does not invalidate cached SQL results. A result cached before a refresh is served as `HIT` until its age reaches `item_ttl`, and as `STALE` until `item_ttl + stale_while_revalidate_ttl`. Because entries are stored at different times, they also expire at different times, so the queries that replace them after a refresh are spread out rather than arriving at once.
-
-Set `item_ttl` to how long a result may be served after its query started. For results that follow each refresh, set `item_ttl` to the refresh interval or less. With the default `item_ttl` of `1s`, a cached result is served for at most about one second after a refresh.
-
-The following changes evict the cached results that read a table, whatever `item_ttl` and `stale_while_revalidate_ttl` are set to, so a client reads its own writes:
-
-- **A client write:** DML such as `INSERT`, `UPDATE`, or `DELETE`, a Flight `DoPut`, a Flight SQL update, or a transaction.
-- **A dataset reload:** a hot reload, or any other re-registration of a dataset, invalidates the results cached from its previous contents, both when the reload starts and again once the new registration is in place, so a query that began mid-reload cannot store a result from the previous contents. It invalidates the [logical plan cache](#logical-plan-cache) too. If the invalidation cannot be recorded, the reload still completes, and the runtime warns that queries may be answered from the previous contents until they expire.
-- **A dataset unload:** removing a dataset, for example by deleting it from a Spicepod the runtime watches, evicts every result cached from it and drops the logical plan cache. A repeat of an earlier query then fails with `table '...' not found`, under either `cache_key_type`.
-
-A query that reads a table while one of these changes lands still returns its result to the caller, but the result is not served from the cache, so the next identical query runs again. A lookup that finds such an entry counts it as a miss and in `results_cache_stale_rejections`.
 
 :::warning[Conflict with Caching Accelerator SWR]
 When using a dataset with `refresh_mode: caching`, you cannot configure both the results cache's `stale_while_revalidate_ttl` and the caching accelerator's `caching_stale_while_revalidate_ttl` for the same dataset. These parameters control similar behavior at different layers.
@@ -404,6 +394,22 @@ Choose one approach:
 - **Results cache SWR**: Configure `runtime.caching.sql_results.stale_while_revalidate_ttl` for SQL query results caching
 - **Caching accelerator SWR**: Configure `acceleration.params.caching_stale_while_revalidate_ttl` for [HTTP-based dataset caching](data-acceleration/refresh-modes/caching)
 
+:::
+
+### Cached Results and Dataset Refresh
+
+An accelerated dataset refresh does not invalidate cached SQL results. This applies to every refresh mode, including `changes` (CDC), and to [retention](data-acceleration/data-refresh#retention-policy) passes. A refresh invalidates the [logical plan cache](#logical-plan-cache) and the search results cache, but a cached SQL result is replaced only once it ages past `item_ttl`: the next request is a `MISS` when `stale_while_revalidate_ttl` is unset, or is served `STALE` while a background revalidation runs when it is set. Because entries were stored at different times, they expire at different times, so the queries that replace them are spread out rather than all arriving at the moment of a refresh.
+
+A result can therefore reflect the data from before a refresh for up to `item_ttl` as a `HIT`, and for up to `item_ttl + stale_while_revalidate_ttl` as `STALE`. Set `item_ttl` to how long a result may be served after it was computed. To have results follow each refresh closely, set `item_ttl` to about the refresh interval or less.
+
+Client writes evict dependent results immediately, so a client reads its own writes. These are SQL DML statements such as `INSERT INTO`, Arrow Flight `DoPut`, Flight SQL updates, and transactions. A result whose query started before such a write to a table it read is never served, even inside the `stale_while_revalidate_ttl` window. When the write lands while the query is still running, the query returns its result to the caller but the result is not cached.
+
+A dataset **reload** invalidates the results cached from its previous contents: a hot reload, or any other re-registration of a dataset, invalidates them both when the reload starts and again once the new registration is in place, so a query that began mid-reload cannot store a result from the previous contents. It invalidates the [logical plan cache](#logical-plan-cache) too. If the invalidation cannot be recorded the reload still completes, and the runtime warns that queries may be answered from the previous contents until they expire.
+
+Removing a dataset, for example by deleting it from a Spicepod the runtime watches, evicts every result cached from it, whatever `stale_while_revalidate_ttl` is set to, and drops the logical plan cache. A repeat of an earlier query then fails with `table '...' not found`, under either `cache_key_type`.
+
+:::note[Expiry from memory still counts from storage]
+The cache removes an entry from memory `item_ttl + stale_while_revalidate_ttl` after it was stored, while servability counts from when its query started. An entry can therefore stay in memory, unserved, for about as long as its query ran. A lookup that finds such an entry counts as a miss.
 :::
 
 ### HTTP/Flight API
@@ -419,7 +425,7 @@ The following `Cache-Control` directives are supported:
 | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`no-cache`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache)             | Skips the cache for the current request but caches the results for future requests.                                                                                                                                                                |
 | [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh)           | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` requires the cached entry to be fresh for at least 60 more seconds.                                                                  |
-| [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale)           | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness allowed. For example, `max-stale=30` accepts responses stale for up to 30 seconds. The cache never serves a SQL result older than `item_ttl + stale_while_revalidate_ttl`, so `max-stale` can narrow the stale-while-revalidate window but not widen it. A stale result is served with the `STALE` status and starts a background revalidation. |
+| [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale)           | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness accepted. For example, `max-stale=30` accepts responses stale for up to 30 seconds. It can only narrow what the cache serves: an entry older than `item_ttl + stale_while_revalidate_ttl` is never served, so with `stale_while_revalidate_ttl` unset, `max-stale` cannot return an entry past `item_ttl`. A stale entry served this way returns `STALE` and starts a background revalidation. |
 | [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. If no cached response is available, returns an error instead of fetching fresh data.                                                                                                                                |
 
 #### HTTP Example
@@ -434,7 +440,7 @@ curl -H "cache-control: no-cache" -XPOST http://localhost:8090/v1/sql -d 'SELECT
 # Only use cached response if it will be fresh for at least 30 more seconds
 curl -H "cache-control: min-fresh=30" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
 
-# Accept cached responses that are stale for up to 60 seconds
+# Accept cached responses that are stale for up to 60 seconds, within item_ttl + stale_while_revalidate_ttl
 curl -H "cache-control: max-stale=60" -XPOST http://localhost:8090/v1/sql -d 'SELECT 1'
 
 # Only return cached responses, fail if cache miss
@@ -604,21 +610,23 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | ------------- | ------------------------------------------------------------------------------ |
 | `size`        | The cache exceeded `max_size` and reclaimed an entry.                          |
 | `expired`     | The entry outlived `item_ttl`.                                                 |
-| `invalidated` | A client write, or a dataset reload or unload, dropped the entries that read a table. Search results are also dropped when a dataset they read refreshes. |
+| `invalidated` | An invalidation dropped the entries that read a table, counted once per entry dropped. For SQL results, only a client write, dataset reload, or unload invalidates. For search results, an accelerated refresh also invalidates. |
 
-`invalidated` is a separate label value so that an alert on cache pressure can watch `size` and `expired` alone.
-
-A SQL result that cannot be served to the request, such as an entry past `item_ttl + stale_while_revalidate_ttl` that is still in memory, or one older than the request's own `max-stale`, counts as a miss in `results_cache_misses` and `results_cache_hit_ratio`.
+`invalidated` is a separate label value so that client writes do not mask cache pressure: an alert on cache pressure should watch `size` and `expired`. For the SQL results cache, an accelerated refresh produces no `invalidated` evictions, because refreshes leave cached results to expire by age.
 
 Every cache counter is published at zero when the runtime starts, so a counter that has not yet fired still appears in a scrape as a zero series rather than being absent.
 
-The SQL results cache additionally emits three counters covering [invalidation and revalidation](#cached-results-and-data-changes):
+The SQL results cache additionally emits three counters covering [table invalidation](#cached-results-and-dataset-refresh) and stale-while-revalidate:
 
 | Metric                                 | Labels    | Description                                                                                                                                                                    |
 | -------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `results_cache_stale_rejections`       | `reason`  | Lookups that found an entry but refused to serve it because a client write, dataset reload, or unload changed a table the result read after its query started. Also counted in `results_cache_misses`. The only `reason` is `write_during_read`. |
-| `results_cache_table_invalidations`    | `mode`    | Table invalidations applied to the cache by client writes and by dataset reloads and unloads. `mode` is always `evict`. Counts invalidations, not the entries each one affected. |
+| `results_cache_stale_rejections`       | `reason`  | Lookups that found an entry but refused to serve it because a client write, dataset reload, or unload changed a table it read after its query started. Also counted in `results_cache_misses`. An entry that is only too old is an ordinary miss, not a rejection. |
+| `results_cache_table_invalidations`    | `mode`    | Table invalidations applied to the cache by client writes, dataset reload, and unload. Refreshes, CDC, and retention do not increment it. Counts invalidations, not the entries each one affected. |
 | `results_cache_swr_revalidations`      | `outcome` | Completed background revalidations. Any outcome other than `stored` leaves the previous entry in place to be served stale until it expires.                                     |
+
+`reason` on `results_cache_stale_rejections` is always `write_during_read`.
+
+`mode` on `results_cache_table_invalidations` is always `evict`.
 
 `outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, or `put_failed`. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
 
@@ -661,7 +669,7 @@ Reclamation is driven by the runtime's cache-maintenance loop, not by metric col
 Example metrics output:
 
 ```
-# HELP results_cache_evictions Number of cache evictions, by reason.
+# HELP results_cache_evictions Number of entries evicted, split by `reason`: `expired` past their age, `size` to stay under max_size, or `invalidated` dropped by a client write, dataset reload or unload of a table they read.
 # TYPE results_cache_evictions counter
 results_cache_evictions{reason="size"} 2
 results_cache_evictions{reason="expired"} 5

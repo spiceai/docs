@@ -105,7 +105,7 @@ When using inline certificates or secrets (`certificate` / `key`), changes are n
 
 ## Handshake Timeout
 
-The Arrow Flight listener closes a connection whose client does not complete the TLS handshake within 10 seconds, and logs the failure at `DEBUG`. A connection that opens but never starts the handshake therefore cannot hold one of the listener's handshake slots indefinitely.
+The Arrow Flight listener, and the cluster gRPC listeners in [distributed query](../features/distributed-query), close a connection that does not complete its TLS handshake within 10 seconds. A client that opens a connection and sends nothing cannot keep it open indefinitely, so idle or stalled connections do not stop the listener from accepting new clients. The timeout is fixed and not configurable. A client on a slow or high-latency network that cannot finish the handshake in time sees its connection closed and must reconnect.
 
 ## Output
 
