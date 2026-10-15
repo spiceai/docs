@@ -66,6 +66,8 @@ The built-in rate controller queues and paces outbound requests to stay within t
 
 All configured models are registered for the `/v1/responses` endpoint. For OpenAI-compatible providers, Spice automatically adapts between Chat Completions and Responses API formats, so `/v1/responses` works even when the backend only supports `/v1/chat/completions`.
 
+When a model uses Spice tools, each tool call Spice ran appears in the `/v1/responses` output as an `mcp_call` item ahead of the answer. See [Tool Calls in Responses API Output](../../../features/large-language-models/tools.md#tool-calls-in-responses-api-output).
+
 | Parameter              | Default    | Description                                                                                    |
 | ---------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
 | `responses_api`        | `disabled` | Controls the Chat Completions backend. `disabled` proxies `/v1/chat/completions` to the backend's `/v1/chat/completions`. `enabled` proxies `/v1/chat/completions` to the backend's `/v1/responses`, which can improve tool-use and reasoning for providers that natively support the Responses API. |

@@ -28,6 +28,8 @@ Download the latest version of Spice, connect to a dataset in S3, and query it w
 
 **Step 1.** Install the Spice CLI:
 
+Requires macOS 14+, Linux with glibc 2.39+ (e.g. Ubuntu 24.04+), or Windows via WSL 2, and `curl`. See [System Requirements](../reference/system_requirements.md).
+
 <Tabs>
   <TabItem value="default" label="macOS, Linux, and WSL" default>
     ### Install Script
@@ -44,10 +46,10 @@ Download the latest version of Spice, connect to a dataset in S3, and query it w
 
   </TabItem>
   <TabItem value="windows" label="Windows" default>
-    ### PowerShell Install Script
+    Use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu 24.04+, and run in the WSL terminal:
 
     ```bash
-    iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))
+    curl https://install.spiceai.org | /bin/bash
     ```
 
   </TabItem>
@@ -74,7 +76,7 @@ spice add spiceai/quickstart
 The `spicepod.yaml` file will be updated with the `spiceai/quickstart` dependency. This Spicepod includes a `taxi_trips` dataset sourced from S3.
 
 ```yaml
-version: v1
+version: v2
 kind: Spicepod
 name: spice_qs
 dependencies:
