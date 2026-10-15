@@ -11,7 +11,7 @@ Spice provides monitoring and observability through four mechanisms:
 
 - **Prometheus-compatible metrics endpoint**: Exposes metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) for scraping by monitoring systems like [Datadog](https://www.datadoghq.com/), [New Relic](https://newrelic.com/), and [Chronosphere](https://chronosphere.io/).
 - **OpenTelemetry metrics export**: Pushes metrics to an [OpenTelemetry](https://opentelemetry.io/) collector using gRPC.
-- **OpenTelemetry logs export**: Sends the runtime's log to the same collector as structured OTLP log records, each logged during a query carrying that query's trace id. See [Exporting logs](../../reference/spicepod/runtime#exporting-logs).
+- **OpenTelemetry logs export**: Sends the runtime's log to the same collector as structured OTLP log records, each logged during a query carrying that query's trace id. See [Exporting logs](../reference/spicepod/runtime#exporting-logs).
 - **Distributed tracing**: Integrates with [Zipkin](https://zipkin.io/) and compatible tracing systems for request tracing.
 
 <img width="740" alt="observability" src="https://github.com/user-attachments/assets/2468e3e7-4fb4-4a74-8b26-45eeeee90310" />
