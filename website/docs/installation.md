@@ -13,7 +13,11 @@ import TabItem from '@theme/TabItem';
 
 Installation options for Spice.ai OSS
 
-**Prerequisites:** macOS (Apple Silicon), Linux (x86_64 or aarch64), or Windows 10+/WSL. No other dependencies are required for the pre-built binary.
+**Prerequisites:**
+
+- macOS 14+ (Apple Silicon), or Linux (x86_64 or aarch64) with glibc 2.39+, such as Ubuntu 24.04+ or Debian 13+. See [System Requirements](./reference/system_requirements.md).
+- Windows: use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu 24.04 (`wsl --install -d Ubuntu-24.04`), then follow the Linux steps. The Spice runtime does not run natively on Windows.
+- `curl`, used by the install script. Minimal Linux images and containers often don't include it. On Ubuntu or Debian, install it with `sudo apt-get install -y curl`.
 
 For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
 
@@ -56,14 +60,20 @@ After installing, verify Spice is installed correctly:
 spice version
 ```
 
-Expected output:
+Expected output (the runtime is downloaded on the first `spice run`):
 
 ```
-CLI version:     1.x.x
-Runtime version: 1.x.x
+CLI version:     v2.x.x
+Runtime version: not installed
 ```
 
-If the command is not found, ensure the Spice binary directory is in your `PATH`.
+If the command is not found, the current terminal hasn't picked up the updated `PATH` yet. Open a new terminal, or add the Spice binary directory to the `PATH` of the current shell:
+
+```bash
+export PATH="$HOME/.spice/bin:$PATH"
+```
+
+On Linux, the install script can add the `PATH` entry to `~/.profile`, which some terminals don't read. If `spice` still isn't found in new terminals, add the line above to `~/.bashrc` (or `~/.zshrc` for zsh).
 
 ## What's Next?
 
