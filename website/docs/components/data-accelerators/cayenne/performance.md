@@ -162,11 +162,7 @@ Adaptive tuning needs a non-zero `cayenne_compaction_background_interval_ms`, si
 
 In both modes, setting any `cayenne_*` knob to an explicit value overrides the derived value. With adaptive tuning enabled, an explicitly-set knob is **pinned** — the controller will not move it.
 
-:::note[Renamed in v2.4]
-
-Earlier releases, including v2.4.0-rc.1, set the mode per dataset with `cayenne_tuning` and the targets with `cayenne_goal_*`. Those names are no longer read; Spice logs a warning naming each replacement. See [Migrating from `cayenne_tuning` and `cayenne_goal_*`](../../../reference/spicepod/runtime.md#migrate-from-cayenne-tuning).
-
-:::
+Spice does not read `cayenne_tuning` or `cayenne_goal_*` parameters. It logs a startup warning for each one set, naming the runtime setting to use instead. See [Unsupported tuning parameters](../../../reference/spicepod/runtime.md#unsupported-tuning-parameters).
 
 ### Goal-driven tuning
 

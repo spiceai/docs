@@ -45,7 +45,7 @@ LIMIT 5;
 - `table`: Dataset name (required)
 - `query`: Search text, or an array of strings for [multi-query](#multi-query-late-interaction-form) search (required)
 - `column`: Column name (optional if only one embedding column; required when the table has multiple embedded columns)
-- `limit`: Maximum results (optional). When omitted, the engine-defined maximum is used.
+- `limit`: Maximum results (optional). The search returns the `limit` rows with the highest relevance scores, on scalar, chunked, and multi-vector columns alike. When omitted, the engine-defined maximum is used.
 - `include_score`: Include relevance scores (optional, default `TRUE`)
 - `distance_metric`: Similarity metric used to rank candidate vectors (optional, named argument). Supported values: `'cosine'` (default) and `'l2'` (negated Euclidean distance). `'dot'` is parsed but not yet wired through the scan path.
 - `rank_weight`: Per-query ranking weight (optional, named argument). Only meaningful when `vector_search` is passed as a subquery to [`rrf`](#reciprocal-rank-fusion-rrf).
@@ -170,6 +170,8 @@ LIMIT 10;
 **Arguments:**
 
 Note that `rank_weight` is specified as the last argument to either a `text_search` or `vector_search` UDTF call (as shown above). All other arguments can be specified in any order after the search calls (within an `rrf` invocation).
+
+A nested search call keeps its other named arguments, such as `limit` or `distance_metric`, and applies them as it does when it runs alone. For example, `rrf(text_search(docs, 'coffee', limit => 5), vector_search(docs, 'coffee', limit => 5))` fuses at most 10 rows. `include_score => false` on a nested call fails the query, because `rrf` ranks on each call's score.
 
 | Parameter           | Type             | Required | Description                                                                                                                                  |
 | ------------------- | ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |

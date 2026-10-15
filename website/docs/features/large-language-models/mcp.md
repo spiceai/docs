@@ -211,12 +211,6 @@ tools:
       GITHUB_PERSONAL_ACCESS_TOKEN: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
 ```
 
-:::note
-
-In `v2.4.0-rc.1`, a stdio MCP server inherited the full `spiced` environment. A server that relied on that, for example to read a token, now needs the variable set in `env`.
-
-:::
-
 For more details, see the [MCP Tools Reference](../../components/tools/mcp).
 
 ## Example: Spice as an MCP gateway for GitHub and Jira

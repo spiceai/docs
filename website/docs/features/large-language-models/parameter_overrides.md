@@ -90,6 +90,16 @@ Will be passed to the OpenAI API as:
 }
 ```
 
+### Text-to-SQL Reasoning Effort
+
+The [`/v1/nsql` API](../../api/HTTP/post-nsql) request body accepts `reasoning_effort`, which sets how much the model reasons before it writes SQL: `none`, `minimal`, `low`, `medium`, `high`, or `xhigh`. The requested level replaces the model's `reasoning_effort` default for every attempt, including the retry after generated SQL fails. When the request omits it, the model's default applies. Any other value returns `422`.
+
+```shell
+curl -XPOST http://localhost:8090/v1/nsql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How many orders shipped last week?", "model": "my_model", "reasoning_effort": "low"}'
+```
+
 ### System Prompt
 
 In addition to any system prompts provided in message dialogue, or added by model providers, Spice can configure an additional system prompt.

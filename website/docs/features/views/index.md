@@ -39,6 +39,16 @@ views:
 - `sql`: The SQL query defining the view, supporting joins, subqueries, and aggregations.
 - `acceleration`: Views can be [locally accelerated](../data-acceleration/index.md).
 
+## Loading at Startup
+
+At startup, each view registers once the datasets and views its SQL reads have loaded, so a dataset whose load keeps failing holds back only the views that read it. Until it registers, the view's status is `Initializing`. A view still waiting after 30 seconds logs the tables it waits for, once:
+
+```text
+View 'v_orders' is still waiting for 'orders' to load before it registers.
+```
+
+A view that reads a table that is not a dataset or view loading at startup, such as a [catalog](../../components/catalogs/index.md) table, waits for every startup dataset to load.
+
 ## Limitations and Considerations
 
 - Views are read-only; insert, update, and delete operations are not supported.

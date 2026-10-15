@@ -213,12 +213,6 @@ tools:
       GITHUB_PERSONAL_ACCESS_TOKEN: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
 ```
 
-:::note
-
-In `v2.4.0-rc.1`, a stdio MCP server inherited the full `spiced` environment. A server that relied on that, for example to read a token, now needs the variable set in `env`.
-
-:::
-
 ### `description`
 
 The `description` field provides a textual description of the tool. This description is passed to any language model that uses the tool.

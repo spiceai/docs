@@ -219,17 +219,32 @@ A request that waits for rate-control capacity fails after `rate_control_acquire
 Timed out after 30s waiting for rate-control capacity for origin 'https://api.example.com:443' to admit the request. The configured rate limit could not free a slot in time. Increase the rate limit, raise `rate_control_acquire_timeout`, or lower request concurrency, then try again. See: https://spiceai.org/docs/reference/spicepod/runtime#http-rate-control
 ```
 
+Requests that wait for `max_concurrent_requests`, or for per-second and per-minute limits that are not [coordinated across instances](#limits-across-instances), are admitted in arrival order. The request at the front of the queue is charged the [adaptive](#adaptive-rate-control) admission in force when it reaches the front, so requests that queued while an origin was failing are admitted at the healthy rate once the origin recovers.
+
 #### Components that share an origin
 
-Every dataset and catalog that targets the same origin (`scheme://host:port`) shares one rate controller, so the limits apply to all of their requests together. They must resolve to the same `max_concurrent_requests`, `requests_per_second_limit`, `requests_per_minute_limit`, `rate_control_jitter_min`, `rate_control_jitter_max`, `rate_control_acquire_timeout`, `rate_control_failure_threshold`, and `rate_control_window` values. A component whose values differ from the first one registered for that origin fails to load:
+Every dataset and catalog that targets the same origin (`scheme://host:port`) shares one rate controller, so the limits apply to all of their requests together. They must resolve to the same rate-control settings. Each parameter is compared as it resolves, so an unset `rate_control_window` matches an explicit `10s`, and `33.3%` matches `0.333`:
+
+- `max_concurrent_requests`, `requests_per_second_limit`, `requests_per_minute_limit`, `rate_control_jitter_min`, and `rate_control_jitter_max` are always compared.
+- `rate_control_acquire_timeout` is compared when both components set a limit or a jitter.
+- `rate_control_failure_threshold` and `rate_control_window` are compared when both components adapt: a component with any limit on a single instance, or one with `requests_per_second_limit` or `requests_per_minute_limit` under [cluster rate control](#limits-across-instances).
+
+A component that resolves differently from the components already targeting the origin fails to load. The error names each differing parameter with both values, and explains a value that a default produced:
 
 ```text
-Multiple HTTP-based components target http://api.example.com:80 with different rate-control settings. Use the same max_concurrent_requests, requests_per_second_limit, requests_per_minute_limit, rate_control_jitter_min, rate_control_jitter_max, rate_control_acquire_timeout, rate_control_failure_threshold and rate_control_window values for components sharing an origin.
+Components that target origin 'http://api.example.com:80' share one rate controller and must resolve to the same rate-control settings, but this one differs from those already targeting it: `rate_control_window` is 1s here and 10s there. Set `rate_control_window` to matching values on every component that targets this origin. See: https://spiceai.org/docs/components/data-connectors/https/deployment#rate-control
 ```
 
 #### Limits across instances
 
 In open-source builds, each Spice instance keeps its rate-control state in memory and enforces the configured limits on its own. In Spice.ai Enterprise, instances that share a [`runtime.state`](#runtimestate) location coordinate `requests_per_second_limit` and `requests_per_minute_limit` through that location, so `requests_per_second_limit: 20` means about 20 requests per second across all instances. Adaptive rate control then derives the same admission on every instance from the shared outcomes, and `rate_control_window` defaults to [`runtime.source_rate_control.refresh_interval`](#runtimesource_rate_control). `max_concurrent_requests` stays local to each instance.
+
+Instances that set different `requests_per_second_limit` or `requests_per_minute_limit` values for one origin, such as during a rolling deployment that changes a limit, are held together to the lowest value that a running instance sets. Each instance logs a warning when the values start to differ, and a notice once every running instance sets the same value, including when the instances with other values stop:
+
+```text
+WARN runtime_rate_control::leased: Instances sharing cluster rate control for origin 'https://api.example.com:443' set `requests_per_second_limit` to different values (this instance: 20; other running instances: 10), so the cluster is held to the lowest value, 10, until every running instance sets the same one. Set the same `requests_per_second_limit` on every instance that shares `runtime.state.location`. See: https://spiceai.org/docs/reference/spicepod/runtime#runtimesource_rate_control
+INFO runtime_rate_control::leased: Every running instance sharing cluster rate control for origin 'https://api.example.com:443' now sets `requests_per_second_limit` to 20, so the cluster is held to 20.
+```
 
 ### Spatial SQL Functions (opt-in)
 
@@ -319,11 +334,11 @@ Invalid `runtime.adaptive_tuning` value 'true': expected `enabled` or `disabled`
 
 Setting `adaptive_tuning` under `runtime.params` has no effect; it must be set directly under `runtime`. The adaptive controller runs on the background compaction tick, so a dataset with `cayenne_compaction_background_interval_ms: 0` uses static tuning and logs a warning. See [Self-Tuning](../../components/data-accelerators/cayenne/performance.md#self-tuning) for how both modes work.
 
-### Migrating from `cayenne_tuning` and `cayenne_goal_*` {#migrate-from-cayenne-tuning}
+### Unsupported tuning parameters {#unsupported-tuning-parameters}
 
-Earlier releases, including v2.4.0-rc.1, configured adaptive tuning with the `cayenne_tuning` and `cayenne_goal_*` parameters on each dataset or catalog, and with `cayenne_goal_*` under `runtime.params`. These names are no longer read. Spice logs one startup warning for each old name still in use, naming its replacement, and does not apply the value. The warning covers each name with or without the `cayenne_` prefix.
+Spice does not read the `cayenne_tuning` and `cayenne_goal_*` parameters, on a dataset, on a catalog, or under `runtime.params`. For each one set, with or without the `cayenne_` prefix, Spice logs one startup warning that names the setting to use instead, and does not apply the value.
 
-| Old setting                                                     | Replacement                                                      |
+| Parameter                                                       | Use instead                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
 | Dataset or catalog `cayenne_tuning: adaptive`                   | `runtime.adaptive_tuning: enabled`                               |
 | Dataset or catalog `cayenne_tuning: auto`                       | `runtime.adaptive_tuning: disabled`, or omit it                  |
@@ -333,7 +348,7 @@ Earlier releases, including v2.4.0-rc.1, configured adaptive tuning with the `ca
 | `cayenne_goal_qph`                                              | `runtime.params.target_qph`                                      |
 | Dataset `cayenne_goal_convergence_window`                       | `runtime.params.target_convergence_window`                       |
 
-Adaptive tuning and its targets are now runtime-wide, so per-dataset overrides are no longer supported. Only `runtime.adaptive_tuning` selects the tuning mode. A Spicepod that relies on `cayenne_tuning: adaptive` runs with static tuning until `runtime.adaptive_tuning: enabled` is set. A Spicepod that already sets `runtime.adaptive_tuning: enabled` but still carries an old `cayenne_goal_*` key runs adaptive tuning, and only that old target is ignored.
+Adaptive tuning and its targets are runtime-wide and cannot be set per dataset. Only `runtime.adaptive_tuning` selects the tuning mode, so a Spicepod with `cayenne_tuning: adaptive` runs with static tuning unless `runtime.adaptive_tuning: enabled` is set. With `runtime.adaptive_tuning: enabled`, a `cayenne_goal_*` key does not stop adaptive tuning; only that target is not applied.
 
 ## `runtime.source_rate_control`
 
@@ -1046,7 +1061,7 @@ runtime:
 
 Each entry can be a bare hostname (`example.com`), a host-port pair (`example.com:8090`), or a full origin URL (`https://example.com`).
 
-Only `["*"]` disables the check. An empty list (`allowed_hosts: []`) uses the defaults. In `v2.4.0-rc.1`, an empty list disabled host checking; set `allowed_hosts: ["*"]` to keep that behavior.
+Only `["*"]` disables the check. An empty list (`allowed_hosts: []`) uses the defaults.
 
 ## `runtime.ready_state`
 
@@ -1112,36 +1127,37 @@ The following features store their state under `runtime.state` when their own se
 | [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
 | [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
 | [HTTP rate control](#limits-across-instances) | Always, in a Spice.ai Enterprise build: instances that share the location coordinate per-second and per-minute limits for every origin that sets one. Open-source builds keep rate-control state in memory. Rate control has no location of its own. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#snapshots-in-the-runtime-state-location) | A dataset sets `acceleration.snapshots` and the top-level `snapshots.location` is not set. `snapshots.params`, when set, replace `runtime.state.params` for snapshots. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
 
 ### Runtime state layout
 
-Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, and SQL results cache warmup under `results-cache/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`.
+Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, SQL results cache warmup under `results-cache/`, and acceleration snapshots under `snapshots/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`. The [startup check](#runtime-state-startup-check) keeps its files under `_spice/`.
 
 A location set in a feature's own section is used as given, without a feature folder. With `runtime.scheduler.state_location`, the scheduler writes `cluster.json` and its other state at the root of that location. For an `abfs://` or `abfss://` `state_location`, that root is the container root, and the URL's path is ignored.
 
-:::warning[Migrating from v2.4.0-rc.1]
+### Runtime state startup check
 
-In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, stop every rc.1 instance that shares the location, move each feature's objects from the old path into that feature's folder, and upgrade all of those instances before restarting them, so that no instance keeps writing at the old path or reads a different layout than the others:
+At startup, an instance with `runtime.state` checks the location before it writes state there. It reads `_spice/format.json`, which records the version of the state layout, and probes the store with conditional writes under `_spice/`. When `format.json` is missing, the instance creates it with `{"format-version":1}`. A check that passes logs one line naming the features that keep state in the location:
 
-| Feature | Objects at the old path | Move into |
-| ------- | ----------------------- | --------- |
-| Cluster scheduler | `cluster.json`, `heartbeats/`, `jobs/`, and `scheduler/` | `cluster/` |
-| HTTP rate control | One folder per spicepod, with a name derived from the spicepod's `name` (for example, `my_app/` for `name: my app`). To find it, list the old path for objects named `<origin>-<16 hex digits>.json`. | `rate-control/` |
-| SQL results cache warmup | `results_cache_warmup.json` | `results-cache/` |
+```text
+Shared state location 's3://my-bucket/spice-state/' enforces conditional writes and holds state for source rate control and acceleration snapshots.
+```
 
-For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`.
+The instance needs read and write access to the location. Until the check passes, the instance is not ready (`/v1/ready` returns `503`), writes of cluster scheduler, rate-control, and results cache warmup state wait, and each retry logs a warning with the cause. Spice retries with a backoff and no limit on attempts, so a missing bucket or missing write permission can be fixed without a restart, and the instance becomes ready once the check passes. With [`runtime.ready_state: on_registration`](#runtimeready_state), readiness does not wait for the check.
 
-Move the rate-control objects first, one spicepod folder at a time, and move only the objects named `<origin>-<16 hex digits>.json` in that folder. A spicepod name can match another folder in the table, such as `heartbeats`, `jobs`, `scheduler`, `cluster`, `rate-control`, or `results-cache`, and moving whole folders would then mix rate-control objects with scheduler objects. Move the scheduler and warmup objects after that.
+A store that does not enforce conditional writes, or a `format.json` that is invalid or records a newer format version than the running Spice supports, stops startup: Spice logs the error and exits with code 1. For example:
 
-To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
+```text
+Shared state location 's3://my-bucket/spice-state/' has format version 2, and this version of Spice supports up to version 1. Upgrade Spice to a version that supports state format version 2. See: https://spiceai.org/docs/reference/spicepod/runtime#runtimestate
+```
 
-:::
+Acceleration snapshots do not wait for this check; they use the snapshot location's own [conditional-write probe](../../features/data-acceleration/snapshots#conditional-writes-on-the-snapshot-location).
 
 ### State location parameters
 
-These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) is configured separately, under `snapshots.params`.
+These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) takes the parameters described on the snapshots page, from `snapshots.params`, or from `runtime.state.params` when the snapshots are stored in the `runtime.state` location and `snapshots.params` is not set.
 
 An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` is `iam_role` (the default) or `key`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set. A location that sets `s3_auth: key` without both keys fails instead of connecting with the credentials from the environment, and the error reads:
 

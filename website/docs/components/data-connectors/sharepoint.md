@@ -83,6 +83,8 @@ The SharePoint connector accepts two `from:` URL styles.
 
 Returns one row per drive item, optionally with the parsed `content` column. Use for document workflows over folders of PDF, PPTX, DOCX, XLSX, etc.
 
+A folder in the listing is returned as a row too, with `NULL` `c_tag` and `content`. For an item that an application created rather than a user, `created_by_id` and `last_modified_by_id` can be `NULL`.
+
 ```yaml
 from: 'sharepoint:<drive_type>:<drive_id>/<subpath_type>:<subpath_value>'
 ```

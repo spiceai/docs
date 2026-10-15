@@ -80,7 +80,7 @@ SPICED_LOG='runtime::datafusion::query=debug,info' spice run
 
 When the failure is known before the HTTP response starts, `/v1/sql` returns the error text as the body. An execution error such as divide by zero is HTTP 400. A timeout is HTTP 504. The body names the query and says to increase `runtime.query.timeout` or optimize the query. If rows have already started streaming, the status stays 200 and the stream ends with the error — the same behavior [`runtime.query.timeout`](../reference/spicepod/runtime.md#runtimequerytimeout) describes.
 
-Flight and Flight SQL carry the same text on the gRPC status. A timeout is `DEADLINE_EXCEEDED`. A JDBC client, which talks to Spice over Flight SQL, reads it from `SQLException.getMessage()`.
+Flight and Flight SQL carry the same text on the gRPC status. A query that fails on the values it computes, such as a divide by zero, a failed cast, or an arithmetic overflow, or on an HTTP origin's 4xx answer, has the status code `INVALID_ARGUMENT`. A timeout is `DEADLINE_EXCEEDED`. A JDBC client, which talks to Spice over Flight SQL, reads it from `SQLException.getMessage()`.
 
 [`runtime.task_history`](../reference/task_history.md) keeps the failed query and its `error_message` in memory for the retention period (8 hours by default). Client applications should log the error response so the text is still available when task history is disabled or the retention window has passed.
 

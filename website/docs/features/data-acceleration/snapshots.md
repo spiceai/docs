@@ -79,6 +79,27 @@ snapshots:
     s3_auth: iam_role # Defaults to iam_role for snapshots
 ```
 
+### Snapshots in the runtime state location
+
+When [`runtime.state`](../../reference/spicepod/runtime#runtimestate) is set and `snapshots.location` is not, snapshots are stored in the `snapshots/` folder of `runtime.state.location`, and the top-level `snapshots` block is optional:
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice/
+
+datasets:
+  - from: postgres:orders
+    name: orders
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      snapshots: enabled
+```
+
+Snapshots of `orders` are written to `s3://my-bucket/spice/snapshots/`, with the same layout as any other snapshot location. A `snapshots.location` takes precedence over `runtime.state`. When `snapshots.params` is set, it replaces `runtime.state.params` for the snapshots folder; otherwise the snapshots use `runtime.state.params`. The other `snapshots` fields, such as `bootstrap_on_failure_behavior`, apply as usual. To [serve these snapshots](#serve-a-dataset-from-published-snapshots) from another instance, set the reader's `from` to the snapshots folder, such as `s3://my-bucket/spice/snapshots/`.
+
 ### Supported storage backends
 
 | Backend              | URL scheme                | Environment variables                                                                                                       |
@@ -388,8 +409,6 @@ Snapshot datasets follow the same [metastore location](../../components/data-acc
 ### Disk use of a Cayenne copy
 
 Each reload extracts the new snapshot into the Cayenne data directory beside the snapshot directories already there. Once the new snapshot is serving, Spice marks the directories it no longer references for deletion and deletes each one after a short grace period, once no query still reads it. A query that started before a reload keeps the directories it reads until it finishes, so long-running queries that span several reloads can keep several replaced copies on disk until they complete. A directory still in use when the background cleanup gives up is deleted on a later reload. When a restart restores the first snapshot, Spice applies the same cleanup to the unreferenced directories an earlier run left behind. Partitioned Cayenne tables, and Cayenne copies whose `cayenne_file_path` is an object-store (`s3://`) path, are not reclaimed this way. The [`cayenne_data_dir_snapshot_dirs`](../../components/data-accelerators/cayenne/deployment.md#storage-footprint-metrics) metric reports the number of snapshot directories on disk.
-
-Earlier releases, including v2.4.0-rc.1, keep every replaced directory, so the data directory grows by one copy of the table per reload and a restart does not reclaim it. After an upgrade, the cleanup that follows the first snapshot restore deletes those leftover directories.
 
 ### Configuration constraints
 

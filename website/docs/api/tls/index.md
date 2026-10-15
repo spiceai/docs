@@ -103,6 +103,10 @@ When using inline certificates or secrets (`certificate` / `key`), changes are n
 
 :::
 
+## Handshake Timeout
+
+The Arrow Flight listener closes a connection whose client does not complete the TLS handshake within 10 seconds, and logs the failure at `DEBUG`. A connection that opens but never starts the handshake therefore cannot hold one of the listener's handshake slots indefinitely.
+
 ## Output
 
 When TLS is enabled, the runtime output will print the TLS certificate details.

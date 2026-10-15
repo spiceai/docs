@@ -45,6 +45,8 @@ EXECUTE greater_than(20, 23.3);
 
 A prepared statement belongs to the session that created it. A Flight SQL client starts a session with a Flight `Handshake` call. The runtime returns a session ID in the response and in the `x-session-id` response header. The client then sends that ID in the `x-session-id` header on each later request. Sessions expire after one hour of inactivity.
 
+When [authentication](../../api/auth) is enabled, the runtime binds a request to a session only after the request authenticates. A session that a request creates by sending a new session ID belongs to that request's principal, so a request from another principal that sends the same ID cannot use its prepared statements.
+
 A request that carries no session ID, including every HTTP [`/v1/sql`](../../api/HTTP/post-sql) request, runs in a new context that does not keep the statement. Running `PREPARE` and `EXECUTE` as two separate requests without a session fails on the `EXECUTE`:
 
 ```text

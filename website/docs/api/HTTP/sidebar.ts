@@ -46,6 +46,12 @@ const sidebar: SidebarsConfig = {
           label: "post_responses",
           className: "api-method post",
         },
+        {
+          type: "doc",
+          id: "api/HTTP/post-decisions",
+          label: "Create a decision",
+          className: "api-method post",
+        },
       ],
     },
     {
@@ -97,7 +103,7 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/HTTP/get-namespace",
-          label: "Check if a namespace exists.",
+          label: "Load an Iceberg namespace",
           className: "api-method get",
         },
         {
@@ -115,7 +121,7 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/HTTP/get-table",
-          label: "Get a table.",
+          label: "Load a table.",
           className: "api-method get",
         },
         {

@@ -92,7 +92,7 @@ models:
       tool_recursion_limit: 3
 ```
 
-On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run.
+On `/v1/responses`, streamed or not, a limit of N runs at most N rounds of Spice tool calls, and the round after the last permitted one is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run. The client receives one response for all rounds. Its `usage` covers every round, and its `id` is the last round's, so a request that continues with `previous_response_id` continues from the whole exchange. A streamed response has one `response.created` event and one run of `sequence_number`s across rounds.
 
 ### Tool Calls in Responses API Output
 

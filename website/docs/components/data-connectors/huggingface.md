@@ -98,6 +98,14 @@ CSV and TSV files are read by column position. Every CSV or TSV file a dataset s
 
 The `_location` metadata column, when enabled, holds the commit-pinned location of each row's file. For a public dataset read without `hf_token`, that is `hf://datasets/<owner>/<dataset>@<commit>/<path>`, which DuckDB and `HfFileSystem` can read directly. A dataset read with a token, or through `hf_endpoint`, has its own host instead, `hf://datasets.<key>/...`, so no two datasets with different credentials share a client. The key comes from the endpoint and the dataset's name, never from the token.
 
+## Retries
+
+A Hub request that cannot connect, times out, answers `408`, `500`, `502`, `503` or `504`, or whose response breaks off part way is retried with backoff, up to 5 attempts in total. A rate-limited request (`429`) waits for the reset the Hub names and is retried within the same 5 attempts, unless the reset is more than 30 seconds away. A file download that breaks off resumes from where it stopped. Retries apply while a dataset registers and while queries run, since a scan of a branch resolves it again. When every attempt fails, the error states how many were made:
+
+```text
+Failed to reach the Hugging Face Hub at https://huggingface.co/ for dataset 'stanfordnlp/imdb' after 5 attempt(s): error decoding response body
+```
+
 ## Performance
 
 - Parquet files are read in byte ranges, so a query reads only the row groups and columns it needs.

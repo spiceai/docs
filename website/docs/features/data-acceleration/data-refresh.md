@@ -259,6 +259,8 @@ Connectors that reach their source only when the dataset is first read, such as 
 
 A dataset with no existing acceleration to serve, such as one starting for the first time, is registered once its source is reached. Until then, its status is `Error`, queries fail with `table ... not found`, and `/v1/ready` returns `503`. Spice retries the source with a backoff that starts at about one second and grows to at most five minutes between attempts, with no limit on attempts, and loads the dataset when the source answers. Rejected credentials and TLS failures are configuration errors: Spice logs them as an error and does not retry.
 
+The same applies when Spice cannot create the acceleration itself. A transient failure, such as a [PostgreSQL accelerator](../../components/data-accelerators/postgres) database that cannot be reached, is retried, and the dataset loads once the cause is resolved, without a restart. Acceleration settings that the engine rejects, such as Cayenne `partition_by` with `mode: memory` or a column type the engine cannot store, fail the dataset: Spice logs the error once and does not retry. After the setting is corrected, a [Spicepod reload](../../cli/reference/spiced) or a restart loads the dataset.
+
 #### Readiness and Dataset Status While the Source Is Unavailable
 
 Query availability and source health are reported separately: a dataset can serve its acceleration while its status is `Error`. With the default runtime [`ready_state: on_load`](../../reference/spicepod/runtime#runtimeready_state), the dataset `ready_state` determines when `/v1/ready` returns `200`:
@@ -530,8 +532,6 @@ Failed to register dataset 'user_events' (mysql): `on_zero_results: use_source` 
 ```
 
 To resolve it, remove `on_zero_results: use_source`, or use a `retention_sql` or `retention_period` policy that can be evaluated as a filter on the source columns.
-
-Spice v2.4.0-rc.1 and earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
 
 ## Refresh on Startup
 

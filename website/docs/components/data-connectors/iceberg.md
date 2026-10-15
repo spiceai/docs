@@ -126,7 +126,7 @@ SELECT COUNT(*) FROM transactions;
 | `iceberg_gcs_service_path`    | Custom endpoint URL for GCS (for emulators or custom endpoints).                                                                                                                               |
 | `iceberg_gcs_no_auth`         | Set to `true` to allow anonymous access to GCS (for public buckets).                                                                                                                           |
 | `iceberg_metadata_path`        | The Iceberg metadata file to read the table from, as a path relative to the table root in `from` (for example, `/metadata/00003-8f2c.metadata.json`) or as a full URL. When set, the table is read from exactly this file. A version hint file, such as `/metadata/version-hint.text`, is read on every query instead and names the metadata file to read. Applies only when `from` is a `file://`, `s3://`, `s3a://`, `gs://`, or `gcs://` table root. See [Pin a metadata file](#pin-a-metadata-file). |
-| `metadata_path`                | Deprecated. Use `iceberg_metadata_path`. Still accepted with its earlier meaning: the value is used as given, so it must be the full path to the metadata file, and a deprecation warning is logged. |
+| `metadata_path`                | Deprecated. Use `iceberg_metadata_path`. The value is used as given, so it must be the full path to the metadata file, and a deprecation warning is logged. |
 
 ## Authentication
 
@@ -263,7 +263,7 @@ Spice finds the current metadata file on every query and every acceleration refr
 
 The current metadata file is found as follows:
 
-1. If `metadata/version-hint.text` exists, Spice reads the metadata file it names. The hint holds a version number, such as `3`, or a file name without its suffix, such as `00003-8f2c`. For a version number, Spice looks for `v3` and then `3`, each with the metadata file suffixes listed below.
+1. If `metadata/version-hint.text` exists, Spice reads the metadata file it names. The hint holds a version number, such as `3`, or a file name without its suffix, such as `00003-8f2c`. For a version number, Spice looks for `v3` and then `3`, each with the metadata file suffixes listed below. It then reads the newest consecutive version that exists after it, named the same way (`v4`, `v5`, and so on), because a Hadoop writer commits a new version before it updates the hint.
 2. Otherwise, Spice lists `metadata/` and reads the file with the highest version number. The version is the leading digits of the file name, compared as numbers, so `v10` is newer than `v9`. Leading zeros are padding, and the rest of the name is ignored. If two files share the highest version, the one with the greater `last-updated-ms` is read.
 
 | File name                                                   | Written by                         |
@@ -273,7 +273,7 @@ The current metadata file is found as follows:
 | `<N>-<uuid>.gz.metadata.json`, `v<N>.gz.metadata.json`      | The above, gzip-compressed         |
 | `<N>-<uuid>.metadata.json.gz`, `v<N>.metadata.json.gz`      | The above, older gzip naming       |
 
-More generally, a file is read as a metadata file when its name is an optional `v`, the version number, and optionally `-` followed by any text, ending in one of the suffixes above. Other files are ignored. When Spice finds the file by listing, it logs a warning when the dataset loads, because without a catalog a commit that is in progress or that failed can be read as the current table:
+More generally, a file is read as a metadata file when its name is an optional `v`, the version number, and optionally `-` followed by any text, ending in one of the suffixes above. Other files are ignored, including a file named only by a UUID, such as `12345678-abcd-4ef0-9a12-3456789abcde.metadata.json`: a Hadoop writer writes a new version under that name before it commits it as `v<N>.metadata.json`. When Spice finds the file by listing, it logs a warning when the dataset loads, because without a catalog a commit that is in progress or that failed can be read as the current table:
 
 ```text
 Dataset 'taxis' has no 'metadata/version-hint.text', so each query reads the Iceberg table at 's3://my-bucket/warehouse/db/taxis' from the metadata file with the highest version number (now 's3://my-bucket/warehouse/db/taxis/metadata/00003-8f2c.metadata.json'). Without a catalog, a commit that is in progress or that failed can be read as the current table. To read a fixed snapshot, set `iceberg_metadata_path`. See: https://spiceai.org/docs/components/data-connectors/iceberg
@@ -319,9 +319,9 @@ An Iceberg table read from its metadata file (`iceberg_metadata_path`) has no ca
 
 Writes kept in the acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets#accelerationwrite_mode) never reach the table and are still accepted.
 
-### Migrate from `metadata_path`
+### Deprecated `metadata_path`
 
-`iceberg_metadata_path` replaces `metadata_path`. The earlier name is still accepted, logs a deprecation warning, and keeps its earlier meaning: its value is used as given rather than resolved against `from`. To migrate, rename the parameter. A full URL works unchanged under the new name, and can be shortened to a path relative to `from`. If both are set, `iceberg_metadata_path` is used. When `from` is an object-storage or local-filesystem table root, a dataset that sets `metadata_path` with `access: read_write` now fails to load, as described above; such writes could not commit before this change.
+`metadata_path` is deprecated in favor of `iceberg_metadata_path`. Spice accepts it and logs a deprecation warning. Its value is used as given rather than resolved against `from`, so it must be the full path to the metadata file. If both are set, `iceberg_metadata_path` is used. To switch, rename the parameter: a full URL works unchanged under the new name, and can be shortened to a path relative to `from`. When `from` is an object-storage or local-filesystem table root, a dataset that sets `metadata_path` with `access: read_write` fails to load, as described above.
 
 ## Write Support
 
