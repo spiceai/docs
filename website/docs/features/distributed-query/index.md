@@ -168,23 +168,23 @@ EXPLAIN SELECT count(id) FROM my_dataset;
 For long-running queries, the async queries API enables submitting queries for background execution, polling for status, and retrieving paginated results when ready.
 
 :::warning
-The async queries API is experimental and requires a scheduler state location: `runtime.scheduler.state_location`, or the shared [`runtime.state.location`](../reference/spicepod/runtime#runtimestate) when `state_location` is omitted.
+The async queries API is experimental and requires a scheduler state location: the shared [`runtime.state.location`](../../reference/spicepod/runtime.md#runtimestate), or the deprecated `runtime.scheduler.state_location`.
 :::
 
 ### Prerequisites
 
 - Spice runtime running in cluster mode with `--role scheduler`
-- `runtime.scheduler.state_location` or `runtime.state.location` configured in the Spicepod (see [High Availability > Configuration](#configuration))
+- `runtime.state.location` configured in the Spicepod (see [High Availability > Configuration](#configuration))
 - At least one executor node connected to the scheduler
 
 ### Enabling Async Queries
 
-Configure `runtime.scheduler.state_location` in your `spicepod.yaml` to enable the async queries API. A [`runtime.state`](../reference/spicepod/runtime#runtimestate) location also works when `state_location` is omitted:
+Configure [`runtime.state.location`](../../reference/spicepod/runtime.md#runtimestate) in your `spicepod.yaml` to enable the async queries API. The scheduler keeps its state in the location's `cluster/` folder:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-state
+  state:
+    location: s3://my-bucket/spice-state
     params:
       s3_region: us-east-1
 ```
@@ -195,9 +195,11 @@ For local development:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: "file://.data/scheduler-state"
+  state:
+    location: file:///tmp/spice-state/
 ```
+
+`runtime.scheduler.state_location` and `runtime.scheduler.params` are deprecated. A scheduler that sets them logs a startup warning that shows how to move to `runtime.state`. See [`runtime.scheduler`](../../reference/spicepod/runtime.md#runtimescheduler).
 
 ### Query Ownership
 
@@ -649,7 +651,7 @@ When a query fails, the `error` object contains an `error_code` field:
 
 ### Storage Layout
 
-Job state and result chunks are stored in the shared object store configured via `runtime.scheduler.state_location`, or `runtime.state.location` when that is omitted. `{base_prefix}` is the root of `state_location`, or the `cluster/` folder below the path of `runtime.state.location` (see [Runtime state layout](../../reference/spicepod/runtime.md#runtime-state-layout)):
+Job state and result chunks are stored in the shared object store configured via `runtime.state.location`, or the deprecated `runtime.scheduler.state_location`. `{base_prefix}` is the `cluster/` folder below the path of `runtime.state.location`, or the root of `state_location` (see [Runtime state layout](../../reference/spicepod/runtime.md#runtime-state-layout)):
 
 ```
 {base_prefix}/
@@ -672,7 +674,7 @@ Each scheduler deletes expired jobs, with their result chunks, every 10 minutes.
 | List limit | 100 queries |
 
 - Only available in cluster mode with `--role scheduler`
-- Requires `runtime.scheduler.state_location` or `runtime.state.location` to be configured
+- Requires `runtime.state.location`, or the deprecated `runtime.scheduler.state_location`, to be configured
 - The `format` query parameter on the results endpoint is declared but not yet implemented (results are always JSON over HTTP, Arrow IPC over Flight)
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)
@@ -710,12 +712,12 @@ In an HA cluster:
 
 ### Configuration
 
-Enable HA by configuring `runtime.scheduler.state_location` (or the shared [`runtime.state.location`](../reference/spicepod/runtime#runtimestate)) in the Spicepod to point to an S3-compatible object store:
+Enable HA by configuring the shared [`runtime.state.location`](../../reference/spicepod/runtime.md#runtimestate) in the Spicepod to point to an S3-compatible object store. The schedulers keep their shared state in its `cluster/` folder:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
+  state:
+    location: s3://my-bucket/spice
     params:
       s3_region: us-east-1
 ```
@@ -734,7 +736,7 @@ This failover applies to async queries, which require a scheduler state location
 
 ### S3 Configuration
 
-The `runtime.scheduler.params` section supports the following S3 parameters:
+`runtime.state.params` supports the following S3 parameters for the scheduler's state:
 
 | Parameter          | Description                                           | Default    |
 |--------------------| ----------------------------------------------------- | ---------- |
@@ -751,8 +753,8 @@ Example with explicit credentials:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
+  state:
+    location: s3://my-bucket/spice
     params:
       s3_region: us-east-1
       s3_auth: key
@@ -770,8 +772,8 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
 
    ```yaml
    runtime:
-     scheduler:
-       state_location: s3://my-bucket/spice-cluster
+     state:
+       location: s3://my-bucket/spice
        params:
          s3_region: us-east-1
    ```
