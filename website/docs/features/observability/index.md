@@ -206,6 +206,22 @@ runtime:
         api-key: ${secrets:collector_api_key}
 ```
 
+## OpenTelemetry Logs Export
+
+The same exporter can send the runtime's log as structured OTLP log records. Add `logs` to `signals`, and set [`runtime.query.log_errors`](../reference/spicepod/runtime#runtimequerylog_errors) to also log failed queries:
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector:4317'
+      signals: [metrics, logs]
+  query:
+    log_errors: execution # none (default) | execution | all
+```
+
+A record logged during a query carries that query's trace id, so it can be matched to its [`runtime.task_history`](../reference/task_history) row. `log_errors` also applies when logs are not exported: the records are printed to stdout either way. See [Exporting logs](../reference/spicepod/runtime#exporting-logs) for the record fields and delivery.
+
 ## Metric Naming and Custom Tags
 
 Two runtime fields control how exported metrics are named and labeled across **all** readers (Prometheus scrape, cluster OTLP reader, and the `otel_exporter` push exporter):
