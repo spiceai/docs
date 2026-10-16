@@ -20,10 +20,6 @@ To read snapshots published to S3 without naming the original federated source, 
 ## Configuration
 
 ```yaml
-runtime:
-  state:
-    location: s3://my-bucket/spice/ # snapshots are read from s3://my-bucket/spice/snapshots/
-
 datasets:
   - from: postgres:public.my_table
     name: my_table
@@ -34,9 +30,12 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 30s # Poll interval; defaults to 1m
       snapshots: enabled
+      snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
         duckdb_file: /nvme/my_table.db
 ```
+
+This reader sets [`acceleration.snapshots_location`](../snapshots#override-the-snapshot-location-per-dataset) to the folder the writer publishes to, so it needs only read access to the snapshots. It could instead set [`runtime.state`](../../../reference/spicepod/runtime#runtimestate) to the writer's state location, whose `snapshots/` folder holds the snapshots. An instance with `runtime.state` checks the location at startup, which needs write access under `_spice/`, and does not report ready until the [check](../../../reference/spicepod/runtime#startup-check-of-the-state-location) passes, even though snapshot reads do not wait for it.
 
 ## Requirements
 
@@ -65,12 +64,6 @@ Use `refresh_mode: snapshot` for read-only replicas that should not access the f
 A reader that only polls loads a new snapshot up to one `refresh_check_interval` after a writer publishes it. When the snapshot location is on Amazon S3, set `s3_queue_url` in the location's params (`runtime.state.params`, or a dataset's [`snapshots_params`](../snapshots#override-the-snapshot-location-per-dataset)) to an Amazon SQS queue that receives the location's [S3 event notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html), and `refresh_mode: snapshot` datasets reload as soon as a new snapshot is published:
 
 ```yaml
-runtime:
-  state:
-    location: s3://my-bucket/spice/
-    params:
-      s3_queue_url: https://sqs.us-east-1.amazonaws.com/123456789012/spice-reader-1
-
 datasets:
   - from: postgres:public.my_table
     name: my_table
@@ -81,6 +74,9 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 10m # Fallback check for missed notifications
       snapshots: bootstrap_only
+      snapshots_location: s3://my-bucket/spice/snapshots/
+      snapshots_params:
+        s3_queue_url: https://sqs.us-east-1.amazonaws.com/123456789012/spice-reader-1
 ```
 
 A writer makes a snapshot current by rewriting the location's `metadata.json`, so an `ObjectCreated` notification for that object triggers the reload. Spice reads `metadata.json` once for each batch of such notifications it receives and reloads only the datasets whose current snapshot changed, with the same snapshot id, schema, and checksum checks as a poll. Notifications for snapshot files and for removed objects are deleted from the queue without a reload. A reader that is still waiting for its first snapshot restores it when the notification arrives.
@@ -88,7 +84,7 @@ A writer makes a snapshot current by rewriting the location's `metadata.json`, s
 Set up the queue as follows:
 
 - **One queue per reader process.** SQS delivers each message to one receiver, so readers that share a queue each see only some notifications. To serve several readers, publish the bucket's notifications to an Amazon SNS topic and subscribe one queue per reader process. All `refresh_mode: snapshot` datasets in one process share that process's queue. Snapshot locations in one process that name the same queue share one consumer, which reads the queue with the credentials of the first location. A location that names the queue with other credentials logs a warning that names both locations.
-- **Only this location's notifications.** Filter the bucket notification by the location's prefix. A notification for an object outside the location is logged as an error and left on the queue, which delivers it again after each visibility timeout until it expires. When the location is the `snapshots/` folder of `runtime.state.location`, the notification can cover the whole `runtime.state` prefix: notifications for the other [runtime state folders](../../../reference/spicepod/runtime#runtime-state-layout), such as the scheduler's `cluster/` folder, are deleted from the queue without a log.
+- **Only the notifications of the locations on the queue.** Filter the bucket notification by the prefix of each snapshot location that names the queue. A notification for an object outside every one of those locations is logged as an error and left on the queue, which delivers it again after each visibility timeout until it expires. When the location is the `snapshots/` folder of `runtime.state.location`, the notification can cover the whole `runtime.state` prefix: notifications for the other [runtime state folders](../../../reference/spicepod/runtime#runtime-state-layout), such as the scheduler's `cluster/` folder, are deleted from the queue without a log.
 - **Permissions.** Spice reads the queue with the snapshot location's credentials: `s3_key` and `s3_secret` when both are set, otherwise the default AWS credential chain. The region comes from the queue URL. Grant `sqs:ReceiveMessage` and `sqs:DeleteMessage` on the queue.
 
 Datasets keep checking the location every `refresh_check_interval`, which covers notifications that never arrive. When Spice cannot reach SQS, it logs a warning when the outage starts, an error if it lasts five minutes, and an info message when it recovers. Datasets reload on `refresh_check_interval` in the meantime.

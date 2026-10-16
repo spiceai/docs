@@ -519,7 +519,7 @@ For the per-engine adjustments each profile applies, and for guidance on choosin
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate) or [`acceleration.snapshots_location`](#accelerationsnapshots_location), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 

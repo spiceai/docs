@@ -146,10 +146,6 @@ See [Caching Mode](./refresh-modes/caching) for detailed documentation and examp
 The `snapshot` refresh mode creates a read-only acceleration that reloads exclusively from the [snapshot store](./snapshots). The federated data source is never queried for refreshes — instead, the runtime polls the snapshot store on a configurable interval and atomically swaps in newer snapshots when available.
 
 ```yaml
-runtime:
-  state:
-    location: s3://my-bucket/spice/ # snapshots are read from s3://my-bucket/spice/snapshots/
-
 datasets:
   - from: postgres:public.my_table
     name: my_table
@@ -160,6 +156,7 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 30s  # Poll interval; defaults to 1m
       snapshots: enabled
+      snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
         duckdb_file: /nvme/my_table.db
 ```
