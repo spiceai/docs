@@ -143,4 +143,24 @@ Spice uses Apache Arrow data types internally. For data type compatibility with 
 
 Use `CAST(expression AS type)` or `expression::type` to convert between types.
 
+#### Comparing Decimals with Fractional Literals
+
+A fractional number literal such as `12345678.90` is planned as a `DOUBLE` (`Float64`). When the literal is compared with or cast to a `DECIMAL`, Spice converts it from its decimal digits rather than from its binary floating-point value, so the comparison matches the value as written:
+
+```sql
+SELECT count(*) AS n
+FROM (SELECT CAST('12345678.90' AS DECIMAL(10, 2)) AS price) AS t
+WHERE price = 12345678.90;
+```
+
+```
++---+
+| n |
++---+
+| 1 |
++---+
+```
+
+Bound `Float64` query parameters, such as `$1` in a [prepared statement](sql/prepared_statements), are converted the same way when the value has at most 15 significant digits (6 for `Float32`). A value with more significant digits than that, more fraction digits than the decimal's scale, or more digits than its precision keeps the standard floating-point cast, including its rounding and overflow behavior. To compare against such a value exactly, pass a `Decimal128` parameter or write the value as a string cast, for example `CAST('0.30000000000000004' AS DECIMAL(38, 18))`.
+
 Refer to each section for detailed syntax, supported features, and examples.
