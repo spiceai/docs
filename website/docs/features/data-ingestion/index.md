@@ -162,6 +162,115 @@ datasets:
       enabled: true
 ```
 
+### Logs
+
+Spice stores OpenTelemetry logs in one table. Add a dataset with the `otlp_logs: all` param:
+
+```yaml
+datasets:
+  - from: sink:otel_logs
+    name: otel_logs
+    params:
+      otlp_logs: all
+```
+
+Every log record received over OTLP is stored in that dataset, whatever service sent it. Nothing is declared per service or per attribute, and a new attribute never changes the table's schema.
+
+`otlp_logs: all` defaults the dataset's other settings:
+
+| Setting | Default |
+| ------- | ------- |
+| `access` | `read_write` |
+| `time_column`, `time_format` | `timestamp`, `timestamptz` |
+| `acceleration` (no block) | Cayenne, `mode: file`, `refresh_mode: append`, so stored logs survive a restart |
+| `acceleration.engine`, `acceleration.refresh_mode` (a block without them) | `cayenne`, `append` |
+
+Set `acceleration.mode` and `acceleration.retention_period` to choose durability and how long logs are kept:
+
+```yaml
+    acceleration:
+      mode: file
+      retention_period: 7d
+      retention_check_interval: 1h
+```
+
+The logs dataset requires Cayenne. A dataset with `otlp_logs: all` and another engine, or with acceleration disabled, fails to load with a configuration error naming the fix.
+
+#### Sending logs
+
+- **OTLP/gRPC**: `opentelemetry.proto.collector.logs.v1.LogsService/Export` on the Flight port (default `127.0.0.1:50051`), the same port as OTLP metrics. gzip is accepted, and messages up to 128 MiB.
+- **OTLP/HTTP**: `POST /v1/logs` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`, up to 128 MiB.
+
+Both require write access when [API key authentication](../../api/auth/index.md) is enabled. For example, an OpenTelemetry Collector:
+
+```yaml
+exporters:
+  otlp/spice:
+    endpoint: spice:50051
+    tls:
+      insecure: true
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      exporters: [otlp/spice]
+```
+
+| Export | gRPC | HTTP |
+| ------ | ---- | ---- |
+| Every record stored | `OK` | 200 |
+| No dataset has `otlp_logs: all` | `UNIMPLEMENTED` | 501 |
+| The logs dataset is still loading (for example during startup), or a write failed | `UNAVAILABLE` | 503 — exporters retry |
+| Malformed body | `INVALID_ARGUMENT` | 400 |
+| API key without write access | `PERMISSION_DENIED` | 403 |
+
+An export is acknowledged only after its records are written. Delivery is at least once, as the OTLP specification describes: when an exporter retries an export whose acknowledgement was lost, its records are stored again.
+
+#### Logs schema
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| `timestamp` | `Timestamp(ns, UTC)` | When the event occurred. A record without a time takes its observed time, and one with neither takes the time Spice received it. |
+| `observed_timestamp` | `Timestamp(ns, UTC)` | When the event was observed. `NULL` when unset. |
+| `severity_number` | `Int32` | `1`–`24` (`TRACE` 1–4 … `FATAL` 21–24). `NULL` when unspecified. |
+| `severity_text` | `Utf8` | For example `ERROR`. `NULL` when empty. |
+| `body` | `Utf8` | A string body as sent. Any other body (a map, an array, a number) as JSON. |
+| `attributes` | `Utf8` | Record attributes, as a JSON object with sorted keys. |
+| `trace_id`, `span_id` | `Utf8` | Lowercase hex. `NULL` when absent or all zero. |
+| `flags` | `UInt32` | W3C trace flags in the low 8 bits. |
+| `event_name` | `Utf8` | `NULL` when empty. |
+| `service_name` | `Utf8` | The `service.name` resource attribute. |
+| `resource_attributes`, `scope_attributes` | `Utf8` | JSON objects. |
+| `resource_schema_url`, `scope_schema_url` | `Utf8` | `NULL` when empty. |
+| `scope_name`, `scope_version` | `Utf8` | The instrumentation scope. `NULL` when empty. |
+
+A record whose time is after 2262-04-11, which no nanosecond timestamp can hold, is rejected and counted in the export's partial-success response.
+
+#### Querying logs
+
+```sql
+-- Recent errors for one service
+SELECT timestamp, severity_text, body
+FROM otel_logs
+WHERE service_name = 'checkout' AND severity_number >= 17
+  AND timestamp > now() - INTERVAL '1 hour'
+ORDER BY timestamp DESC
+LIMIT 100;
+
+-- Search log text
+SELECT timestamp, body FROM otel_logs WHERE regexp_like(body, 'timeout after \d+ms');
+
+-- Every log of one trace
+SELECT * FROM otel_logs WHERE trace_id = '5b8efff798038103d269b633813fc60c';
+
+-- Attributes
+SELECT json_get_str(attributes, 'http.route') AS route, count(*) AS errors
+FROM otel_logs
+WHERE severity_number >= 17
+GROUP BY 1
+ORDER BY errors DESC;
+```
+
 ## Benefits
 
 Spice.ai OSS includes built-in data ingestion support for collecting the latest data from edge nodes for use in subsequent queries. This feature eliminates the need for additional ETL pipelines and improves the speed of the feedback loop.
