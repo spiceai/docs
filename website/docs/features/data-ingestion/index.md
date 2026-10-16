@@ -96,9 +96,119 @@ For more details on the `INSERT` statement syntax, see the [SQL INSERT documenta
 
 By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50051 for the OTEL data ingestion.
 
-OTEL metrics will be inserted into datasets with matching names (metric name = dataset name) and optionally replicated to the dataset source.
+Spice stores received metrics in two kinds of dataset. A [metrics store](#metrics-store) dataset holds every metric in one table with a fixed schema. A [per-metric dataset](#per-metric-datasets) holds one metric, takes its name from the metric (metric name = dataset name), has a column per attribute, and is optionally replicated to the dataset source. Both can be configured at once, and each receives the data it matches.
 
-### Supported metric types
+### Sending metrics
+
+Spice receives metrics over both OTLP transports:
+
+- **OTLP/gRPC**: `opentelemetry.proto.collector.metrics.v1.MetricsService/Export` on the Flight port (default `127.0.0.1:50051`).
+- **OTLP/HTTP**: `POST /v1/metrics` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`. The decompressed body is limited to 128 MiB. When [API key authentication](../../api/auth/index.md) is enabled, the request needs a key with write access, and a read-only key gets `403`. A request with a supported `Content-Type` gets its errors as a `google.rpc.Status` in the request's encoding.
+
+For example, an OpenTelemetry Collector that sends metrics over HTTP:
+
+```yaml
+exporters:
+  otlphttp/spice:
+    endpoint: http://spice:8090
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [otlphttp/spice]
+```
+
+The `otlphttp` exporter appends `/v1/metrics` to the endpoint.
+
+### Metrics store
+
+A metrics store dataset receives every data point of every export, whatever the metric name. It stores all five OTLP metric types (gauges, sums, histograms, exponential histograms, and summaries) and keeps each metric's type, temporality, monotonicity, and unit. Attributes are stored as JSON, so a new metric or attribute key never changes the table's schema.
+
+Add a `sink:` dataset with the `otlp_metrics: all` param:
+
+```yaml
+datasets:
+  - from: sink:otel_metrics
+    name: otel_metrics
+    access: read_write
+    params:
+      otlp_metrics: all
+    time_column: time_unix_nano
+    time_format: unix_nanos
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_mode: append
+      primary_key: (time_unix_nano, series_hash)
+```
+
+The metrics store does not default any other setting. The `sink` connector discards what is written to it, so the acceleration holds the stored metrics, and `mode: file` keeps them across restarts. Set `access: read_write`: a store dataset that is not writable is skipped, and the runtime logs a warning once that names the dataset.
+
+`(time_unix_nano, series_hash)` identifies a data point, so the primary key stores a retried export only once. On Cayenne, a table keeps [one row per primary key](../data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne).
+
+#### Metrics store export outcomes
+
+Every data point of an export is written to the metrics store before per-metric datasets are considered, so a metric without its own dataset is not rejected. When a per-metric dataset also exists for a metric, it receives that metric too.
+
+When the write to the metrics store fails, the export falls back to per-metric datasets for that request and then fails with gRPC `UNAVAILABLE` (HTTP `503`) and the message `Failed to write to the OpenTelemetry metrics store; retry the export`. Exporters retry on that status, and the primary key keeps a retried batch from being stored twice.
+
+#### Metrics store schema
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| `metric_name` | `Utf8` | The metric name, for example `http.server.request.duration`. |
+| `metric_type` | `Utf8` | `gauge`, `sum`, `histogram`, `exponential_histogram`, or `summary`. |
+| `description`, `unit` | `Utf8` | The metric's description and unit. |
+| `temporality` | `Utf8` | `delta` or `cumulative` for sums and histograms. `NULL` for gauges and summaries. |
+| `is_monotonic` | `Boolean` | Whether a sum only increases. `NULL` for other types. |
+| `time_unix_nano` | `UInt64` | Data point timestamp, in nanoseconds since the Unix epoch. |
+| `start_time_unix_nano` | `UInt64` | Start of the aggregation interval, in nanoseconds since the Unix epoch. `NULL` when unset. |
+| `series_hash` | `UInt64` | A stable hash of the series identity: metric name, resource attributes, scope name, version, and attributes, and data point attributes. Attribute order does not change it. |
+| `attributes`, `resource_attributes`, `scope_attributes` | `Utf8` | JSON objects with sorted keys. Values keep their OTLP type. |
+| `scope_name`, `scope_version` | `Utf8` | The instrumentation scope. |
+| `flags` | `UInt32` | Data point flags. |
+| `value_double`, `value_int` | `Float64`, `Int64` | The value of a gauge or sum data point. One of the two is set, depending on whether the exporter sent a double or an integer. |
+| `count`, `sum`, `min`, `max` | `UInt64`, `Float64` | Histogram, exponential histogram, and summary aggregates. `sum`, `min`, and `max` are `NULL` when the exporter does not record them. |
+| `explicit_bounds`, `bucket_counts` | `List<Float64>`, `List<UInt64>` | Histogram bucket boundaries and per-bucket counts. |
+| `scale`, `zero_count`, `zero_threshold` | `Int32`, `UInt64`, `Float64` | Exponential histogram parameters. |
+| `positive_offset`, `positive_bucket_counts`, `negative_offset`, `negative_bucket_counts` | `Int32`, `List<UInt64>` | Exponential histogram buckets. |
+| `quantiles`, `quantile_values` | `List<Float64>` | Summary quantiles and their values, as two lists of equal length. |
+
+#### Querying the metrics store
+
+Spice includes three aggregate functions for metrics:
+
+- `histogram_quantile(q, explicit_bounds, bucket_counts)` adds the bucket counts of every row in a group, element by element, and estimates quantile `q` (between 0 and 1) by linear interpolation within the target bucket, as Prometheus does. Every row in a group must have the same `explicit_bounds`; mixed bucket layouts return an error.
+- `increase(value, time)` returns how much a cumulative counter grew across the samples in a group. A decrease is treated as a counter reset to zero. An integer counter keeps its integer type.
+- `rate(value, time)` returns `increase` divided by the seconds between the first and last sample, as `Float64`.
+
+`time` is a timestamp or an integer number of nanoseconds since the Unix epoch, such as `time_unix_nano`. Unlike PromQL, `increase` and `rate` do not extrapolate to the edges of a time window; they use only the samples in the group, so group by `series_hash` to compute them per series.
+
+```sql
+-- p99 request duration per minute, from a delta histogram
+SELECT date_bin(INTERVAL '1 minute', to_timestamp_nanos(time_unix_nano)) AS t,
+       histogram_quantile(0.99, explicit_bounds, bucket_counts) AS p99
+FROM otel_metrics
+WHERE metric_name = 'http.server.request.duration' AND temporality = 'delta'
+GROUP BY 1
+ORDER BY 1;
+
+-- Per-second request rate of each series of a cumulative counter
+SELECT series_hash, json_get_str(attributes, 'http.route') AS route,
+       rate(value_int, time_unix_nano) AS requests_per_second
+FROM otel_metrics
+WHERE metric_name = 'http.server.requests' AND temporality = 'cumulative'
+GROUP BY series_hash, route;
+```
+
+Use [JSON functions](../../reference/sql/json.md) such as `json_get_str` to filter and group by attributes.
+
+### Per-metric datasets
+
+A writable dataset whose name matches a metric's name receives that metric, with a column per attribute.
+
+#### Supported metric types
 
 | OTLP metric type        | Supported | Notes                                                                                            |
 | ----------------------- | --------- | ------------------------------------------------------------------------------------------------ |
@@ -108,7 +218,7 @@ OTEL metrics will be inserted into datasets with matching names (metric name = d
 | `ExponentialHistogram`  | No        | Not written. Its data points are counted as rejected, and an unsupported metric data type error is logged. |
 | `Summary`               | No        | Not written. Its data points are counted as rejected, and an unsupported metric data type error is logged. |
 
-### Export outcomes
+#### Export outcomes
 
 Data points that cannot be written — a metric with no matching writable dataset, an unsupported metric type, or a batch that fails to build — are counted and reported back to the exporter:
 
@@ -121,7 +231,7 @@ Data points that cannot be written — a metric with no matching writable datase
 
 A metric whose existing table has more than one column of the same name (Arrow permits duplicate field names, so an attribute sharing a name with one of the metric's value columns can produce one) can never be matched by a new batch. Rather than warning on every export, the ingest fails the export with an error naming the metric, the duplicated column, and the remedy: drop and recreate that metric's dataset.
 
-### Ingested schema
+#### Ingested schema
 
 `Gauge` and `Sum` metrics produce the following columns:
 
