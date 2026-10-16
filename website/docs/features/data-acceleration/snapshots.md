@@ -57,7 +57,7 @@ Every accelerated dataset must write to its own file (for example, `/nvme/my_dat
 
 Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — DuckDB, SQLite, Cayenne, or Turso — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
 
-A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times how often snapshots are written, until a lifecycle rule expires older objects. DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
+A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times the number of snapshots written during the [14-day retention period](#snapshot-retention). DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
 
 When the workload needs incremental replication of changed data between regions or storage tiers, use a path that publishes the changed objects:
 
@@ -65,6 +65,22 @@ When the workload needs incremental replication of changed data between regions 
 - **Iceberg batched writes with merge-on-read.** [Iceberg writes](../../components/data-connectors/iceberg#write-support) append new data files, and [deletes](../../components/data-connectors/iceberg#deleting-rows) are equality delete files that readers merge on scan. A catalog commit publishes those objects. Use this path when the dataset lives in Iceberg and readers apply delete files during scan.
 
 Neither path bootstraps a file-mode accelerator. Keep snapshots for that.
+
+## Snapshot retention
+
+Each dataset keeps the snapshots it published in the last 14 days. Its current snapshot and its newest snapshot are kept at any age, so the location always holds a snapshot to bootstrap from, however long ago it was published. The retention period is not configurable.
+
+The instance that creates a dataset's snapshots applies retention each time it publishes one. In the same [conditional write](#conditional-writes-on-the-snapshot-location) of `metadata.json` that records the new snapshot, it drops the entries that are older than 14 days. It deletes a dropped snapshot's file 24 hours after the drop, so a reader that is still downloading the file can finish. About once an hour, the publishing instance also lists the dataset's snapshot files and deletes the files that no entry names and that are at least 24 hours old, such as the upload of a publish that failed. A publish that drops entries or deletes files logs a message such as:
+
+```text
+Snapshot cleanup of dataset 'orders' dropped 2 snapshots older than 14d and deleted 2 snapshot files.
+```
+
+Retention runs only when a snapshot is published, so the snapshots of a dataset that no longer publishes stay at the location. Spice v2.4.0-rc.2 and earlier keep every snapshot. After an upgrade, the first publish of each dataset drops its entries older than 14 days, and their files are deleted at a publish 24 hours or more later.
+
+A dropped snapshot is no longer listed by `GET /v1/datasets/{name}/acceleration/snapshots`, and `POST /v1/datasets/{name}/acceleration/snapshots/current` cannot make it current: the request returns `404 Not Found`. To roll back further than 14 days, keep a copy of the snapshot outside the location.
+
+A bucket lifecycle rule on the snapshot location can still delete files that `metadata.json` lists. Spice treats a snapshot whose file is gone as a failed download, and [`bootstrap_on_failure_behavior`](#failure-behavior) applies: `fallback` tries the next older snapshot, `warn` continues with an empty acceleration, and `retry` keeps retrying. When the file of an entry at least 24 hours old is gone, the publishing instance drops the entry and logs a warning that names the snapshot.
 
 ## Configure snapshot storage
 
@@ -438,7 +454,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 - **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts. Local NVMe is the recommended medium for accelerations — see [Storage](../../reference/performance-tuning#storage) for the tiers, the instance-store lifetime, and the capacity figures.
 - **Enable compaction for large datasets:** Use `snapshots_compaction: enabled` for DuckDB accelerations to reduce snapshot size and improve bootstrap performance.
 - **Tune trigger thresholds for stream datasets:** For high-throughput streaming datasets, balance snapshot frequency against I/O overhead by adjusting `snapshots_trigger_threshold`.
-- **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
+- **Let Spice expire snapshots:** Spice keeps [14 days of snapshots](#snapshot-retention) and deletes older files itself. An object storage lifecycle rule on the snapshot location is not needed. When one is required, set its expiration longer than 14 days. Such a rule can still delete the file of a current or newest snapshot older than its expiration.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 - **Search indexes are not all inside the accelerator file.** A DuckDB HNSW index lives in the DuckDB file, so it is part of that dataset's snapshot. A built-in full-text index does not: the default in-memory Tantivy index is rebuilt on every start, and `index_store: file` writes a separate directory (`.spice/data/fts/...` unless `index_directory` is set) that acceleration snapshots do not upload. For restart parity of full-text search, keep that directory on the same durable volume as the acceleration file, or build the index once on a central tier and serve sidecars from the [search results cache](../caching). See [Where indexes are built](../search#where-indexes-are-built).
 

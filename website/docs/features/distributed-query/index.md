@@ -653,7 +653,7 @@ Job state and result chunks are stored in the shared object store configured via
 │       └── ...
 ```
 
-Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that.
+Each scheduler deletes, with their result chunks, the jobs whose results have expired and the jobs that failed or were cancelled at least 12 hours ago. It runs this cleanup about once an hour, at a random time between 30 and 90 minutes after the previous run. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that. A cleanup that deletes jobs logs how many it deleted.
 
 ### Defaults and Limitations
 
