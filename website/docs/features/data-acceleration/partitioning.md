@@ -205,6 +205,28 @@ Partitioned Cayenne tables have these limitations:
   CDC batches with widened schemas are rejected.
 - **No snapshot publication.** [Acceleration snapshots](snapshots) do not support partitioned tables.
 
+### Partitions and primary keys
+
+Each partition is its own Cayenne table, so a [`primary_key`](constraints#one-row-per-primary-key-on-spice-cayenne) is resolved within each partition, not across the table. When every `partition_by` expression reads only key columns (`bucket(50, id)` with `primary_key: id`), a key lands in one partition and the table keeps one row per key as declared. When a partition expression reads a column the key does not include, a key whose value for that column differs between rows is stored once per partition, and the dataset logs a warning at load in place of its key-rule line:
+
+```text
+WARN Dataset 't' partitions by 'region', which its primary key 'id' does not include, so it keeps one row per 'id' within each partition, not across the table: a key whose 'region' differs between rows is stored once per partition. Within a partition it keeps the version that arrived last, which can differ between refreshes; set `time_column` for a reproducible result. If 'region' never changes for a key, add it to `primary_key` to declare that; otherwise partition by a column the key includes. See: https://spiceai.org/docs/features/data-acceleration/partitioning#partitions-and-primary-keys
+```
+
+If the partition column never changes for a key — a creation time partitioned by year, say — adding it to `primary_key` changes nothing about which rows are kept, and states that the partition is part of the key:
+
+```yaml
+acceleration:
+  enabled: true
+  engine: cayenne
+  mode: file
+  primary_key: '(id, created_at)' # created_at never changes for a key
+  partition_by:
+    - year: "date_part('year', created_at)"
+```
+
+Otherwise partition by a column the key includes, or by an expression over one (`bucket(N, id)`).
+
 ## Full refreshes and partitions
 
 A `refresh_mode: full` refresh — and any other whole-table overwrite — replaces the contents of **every** existing partition, not only the ones the new rows reach. A partition the incoming rows never land in is emptied, so a row removed at the source does not stay queryable in a partition the refresh did not visit, and a refresh that returns nothing empties the table. This holds for `engine: arrow` and `engine: cayenne` alike.
