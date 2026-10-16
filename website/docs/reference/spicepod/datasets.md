@@ -519,7 +519,7 @@ For the per-engine adjustments each profile applies, and for guidance on choosin
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate) or [`acceleration.snapshots_location`](#accelerationsnapshots_location), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -587,6 +587,18 @@ Supported values:
 
 - `disabled` (default) – Snapshot expiry is not reset on load; the original expiry time is preserved.
 - `enabled` – Reset the snapshot expiry when it is loaded during bootstrap.
+
+## `acceleration.snapshots_location`
+
+Optional. The object store location of this dataset's snapshots, for example `s3://my-bucket/spice/snapshots/`. Defaults to the `snapshots/` folder of [`runtime.state.location`](./runtime.md#runtimestate). The deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), when set, applies to datasets that do not set this field. See [Override the snapshot location per dataset](../../features/data-acceleration/snapshots#override-the-snapshot-location-per-dataset).
+
+## `acceleration.snapshots_params`
+
+Optional. Object store params for this dataset's snapshots, such as `s3_region` or `s3_queue_url`. When set, they are the only params the dataset's snapshots use. When not set, a dataset with `snapshots_location` uses no params, and a dataset whose snapshots are stored under `runtime.state` uses `runtime.state.params`. The deprecated top-level [`snapshots.params`](./index.md#snapshotsparams), when set, apply to `snapshots.location` and replace `runtime.state.params` for snapshots stored under `runtime.state`. The accepted keys are listed in [Configure snapshot storage](../../features/data-acceleration/snapshots#configure-snapshot-storage).
+
+## `acceleration.snapshots_bootstrap_on_failure_behavior`
+
+Optional. What Spice does when it cannot load this dataset's most recent snapshot: `warn` (default), `retry`, or `fallback`. The deprecated top-level [`snapshots.bootstrap_on_failure_behavior`](./index.md#snapshotsbootstrap_on_failure_behavior), when set, applies to datasets that do not set this field. See [Failure behavior](../../features/data-acceleration/snapshots#failure-behavior).
 
 ## `acceleration.refresh_mode`
 

@@ -146,11 +146,9 @@ See [Caching Mode](./refresh-modes/caching) for detailed documentation and examp
 The `snapshot` refresh mode creates a read-only acceleration that reloads exclusively from the [snapshot store](./snapshots). The federated data source is never queried for refreshes — instead, the runtime polls the snapshot store on a configurable interval and atomically swaps in newer snapshots when available.
 
 ```yaml
-snapshots:
-  enabled: true
-  location: s3://my-bucket/snapshots/
-  params:
-    s3_auth: iam_role
+runtime:
+  state:
+    location: s3://my-bucket/spice/ # snapshots are read from s3://my-bucket/spice/snapshots/
 
 datasets:
   - from: postgres:public.my_table
