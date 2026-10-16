@@ -304,6 +304,15 @@ Every Spice replica must have its own replication slot. Spice hashes the replica
 |---------------------------------|----------------------------------------------------------------|
 | `SPICE_INSTANCE_ID` env         | Preferred — set it explicitly per replica.                     |
 | `HOSTNAME` / `COMPUTERNAME` env | Fallback — works on Kubernetes where each pod has a distinct hostname. |
+| The host name                   | Last fallback, when none of the variables above is set.        |
+
+This is the [instance identity](../../reference/spicepod/runtime#instance-identity) that every Spice feature coordinating through shared state uses. An empty variable counts as unset. When an instance's identity changes, for example when `SPICE_INSTANCE_ID` is set on an instance that had none, its default slot name changes too: Spice creates a new slot, and the old slot keeps retaining WAL on the source until it is dropped. Find slots that no replica consumes with `SELECT slot_name, active FROM pg_replication_slots WHERE slot_name LIKE 'spice_%'`, then drop a confirmed-abandoned slot with `SELECT pg_drop_replication_slot('<slot name>')`.
+
+:::warning[Upgrading from v2.4.0-rc.2 and earlier]
+
+Earlier versions read only `SPICE_INSTANCE_ID`, `HOSTNAME`, and `COMPUTERNAME`. An instance with none of them set, such as a `systemd` service, or with an empty `SPICE_INSTANCE_ID`, now names its default slot from the host name and creates a new slot on upgrade. Its old slot, whose name ends in `_3f484bfe` (or `_38d394c2` for an empty `SPICE_INSTANCE_ID`), keeps retaining WAL until it is dropped. Instances that set one of the variables keep their slot names.
+
+:::
 
 ### Example: Kubernetes StatefulSet
 
