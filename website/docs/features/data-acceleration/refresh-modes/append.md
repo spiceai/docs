@@ -55,11 +55,11 @@ Some table histories cannot be followed. For these, that one refresh reads by ti
 - A snapshot between the saved snapshot and the current one expired, the table was rolled back, or the current snapshot is on another branch. Expiring only the saved snapshot itself does not cause this.
 - An `overwrite` snapshot rewrote rows, and the acceleration does not keep the newest version of each key as described above.
 
-A refresh that reads by time logs a warning naming the reason, and repeats it only when the reason changes. Rows that arrived later than `refresh_append_overlap` before such a refresh are not loaded by it; run a `full` refresh to reload them. The [`dataset_acceleration_refresh_fallbacks`](../../observability/index.md#available-metrics) counter counts each such refresh by `reason`: `table_replaced`, `snapshot_not_ancestor`, `table_has_no_snapshot`, or `rows_rewritten_without_primary_key`.
+A refresh that falls back for one of these reasons logs a warning naming the reason, and repeats it only when the reason changes. Rows that arrived later than `refresh_append_overlap` before such a refresh are not loaded by it; run a `full` refresh to reload them. The [`dataset_acceleration_refresh_fallbacks`](../../observability/index.md#available-metrics) counter counts each fallback by `reason`: `table_replaced`, `snapshot_not_ancestor`, `table_has_no_snapshot`, or `rows_rewritten_without_primary_key`.
 
 A file-mode acceleration keeps the saved snapshot with its data, so following continues across restarts. Other accelerations keep it in memory, and the first refresh after a restart reads by time. The saved snapshot is discarded when a schema change recreates the accelerated table or the acceleration is restored from a [snapshot](../snapshots), so the next refresh reads by time. A `full` refresh saves the snapshot it read, and later `append` refreshes continue from there.
 
-A dataset that computes columns over the Iceberg table, such as [embedding columns](../../../components/embeddings/index.md), and a one-off refresh with its own `refresh_sql`, read by time.
+A dataset that computes columns over the Iceberg table, such as [embedding columns](../../../components/embeddings/index.md), and a one-off refresh with its own `refresh_sql`, read by time. These reads, like the first refresh, are not fallbacks: they log no fallback warning and are not counted in `dataset_acceleration_refresh_fallbacks`.
 
 ## Day-Granular Time Columns
 
