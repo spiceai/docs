@@ -145,7 +145,7 @@ Use `CAST(expression AS type)` or `expression::type` to convert between types.
 
 #### Comparing Decimals with Fractional Literals
 
-A fractional number literal such as `12345678.90` is planned as a `DOUBLE` (`Float64`). When the literal is compared with or cast to a `DECIMAL`, Spice converts it from its decimal digits rather than from its binary floating-point value, so the comparison matches the value as written:
+A fractional number literal such as `12345678.90` is planned as a `DOUBLE` (`Float64`). When the literal is compared with or cast to a `DECIMAL`, Spice converts it from its decimal digits rather than from its binary floating-point value, within the limits described below, so the comparison matches the value as written:
 
 ```sql
 SELECT count(*) AS n
@@ -161,8 +161,12 @@ WHERE price = 12345678.90;
 +---+
 ```
 
-When one statement writes two different numbers that read as the same `Float64`, such as `price = 4.0700000000000003 OR price = 4.07`, Spice cannot tell those literals apart, and both keep the standard floating-point cast. Write such values as string casts to keep them distinct.
+Bound `Float64` and `Float32` query parameters, such as `$1` in a [prepared statement](sql/prepared_statements), have no written digits, so Spice converts them from the shortest decimal spelling of the value.
 
-Bound `Float64` query parameters, such as `$1` in a [prepared statement](sql/prepared_statements), have no written digits, so Spice converts them from the shortest decimal spelling of the value. This applies when that spelling is short: at most 15 significant digits and 15 digits before the decimal point for `Float64` (6 for `Float32`). A longer spelling, which includes large values such as `1e30` even when the target is `DECIMAL(38, 0)`, keeps the standard floating-point cast. So does a spelling with more fraction digits than the decimal's scale or more digits than its precision, which follows the cast's rounding and overflow behavior. To compare against such a value exactly, pass a `Decimal128` parameter or write the value as a string cast, for example `CAST('0.30000000000000004' AS DECIMAL(38, 18))`.
+For both literals and parameters, the conversion applies when the digits fit: at most 15 significant digits and 15 digits before the decimal point (6 for a `Float32` parameter), no more fraction digits than the decimal's scale, and no more digits than its precision. Any other value keeps the standard floating-point cast, with its rounding and overflow behavior. For example, `CAST(1.234 AS DECIMAL(10, 2))` needs rounding, `CAST(0.30000000000000004 AS DECIMAL(38, 18))` has 17 significant digits, and a bound `1e30` cast to `DECIMAL(38, 0)` has 31 digits before the decimal point, so all three keep the floating-point cast.
+
+As an exception, a literal that a `Float64` stores as a different, shorter number, such as `4.0700000000000003` (stored as `4.07`), is converted from its written digits and rounded half away from zero to the decimal's scale. When one statement writes two different numbers that read as the same `Float64`, such as `price = 4.0700000000000003 OR price = 4.07`, Spice cannot tell those literals apart, and both keep the floating-point cast.
+
+To compare against a value outside these limits exactly, write it as a string cast, for example `CAST('0.30000000000000004' AS DECIMAL(38, 18))`, or pass a `Decimal128` parameter.
 
 Refer to each section for detailed syntax, supported features, and examples.
