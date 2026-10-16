@@ -1158,6 +1158,26 @@ Spice stops at startup and exits with an error in these cases:
 
 v2.4.0-rc.1 did not check the location. After an upgrade from rc.1, an instance whose `runtime.state` credentials are read-only does not become ready until they can write, and an instance whose store does not enforce conditional writes stops at startup.
 
+### Instance identity
+
+Every feature that coordinates with other instances through shared state names the instance with one identity. Spice reads the identity once per process from the first of these that is set and not empty: the `SPICE_INSTANCE_ID` environment variable, the `HOSTNAME` environment variable, the `COMPUTERNAME` environment variable, and otherwise the operating system's host name. The identity stays the same across restarts, so a restarted instance resumes the state it held.
+
+| Feature | Uses the identity for |
+| ------- | --------------------- |
+| [Cluster scheduler](../../features/distributed-query#instance-identity) | Its registration in the shared cluster state. |
+| [Cluster executor](../../features/distributed-query#instance-identity) | Its executor ID when it registers with the schedulers. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#several-instances-creating-one-datasets-snapshots) | The holder of a dataset's snapshot writer lease. |
+| [HTTP rate control](#limits-across-instances) | The name of each process's share of the per-window budget, paired with a per-process ID so that a restarted instance does not reuse its earlier run's share. |
+| [PostgreSQL replication](../../features/cdc/postgres-replication#multi-replica-deployments) | The default replication slot name. |
+
+Give each instance that shares state its own identity. On Kubernetes, `HOSTNAME` defaults to the pod name, which is already distinct. Instances on one host share its host name, so two schedulers or two executors started on the same machine each need their own `SPICE_INSTANCE_ID`. When Spice finds another running process with the same identity, it logs an error such as:
+
+```text
+Another running instance uses SPICE_INSTANCE_ID 'spice-0' at state location 's3://my-bucket/spice-state/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
+```
+
+A scheduler logs this error, and its registration is refused, when the scheduler already registered under its identity keeps sending heartbeats. A scheduler restarted after a crash is not reported as a duplicate, because the heartbeat its predecessor left stops advancing. A scheduler also logs the error when a second executor process connects under an ID that a running executor already uses, and a snapshot writer logs it when another process renews its lease. HTTP rate control does not detect a shared identity.
+
 ### State location parameters
 
 These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) set with `snapshots.location` takes its parameters from `snapshots.params`. Snapshots stored under `runtime.state` use `runtime.state.params`, unless `snapshots.params` is set, which replaces them.
