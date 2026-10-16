@@ -108,6 +108,11 @@ Spice receives metrics over both OTLP transports:
 For example, an OpenTelemetry Collector that sends metrics over HTTP:
 
 ```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
 exporters:
   otlphttp/spice:
     endpoint: http://spice:8090
