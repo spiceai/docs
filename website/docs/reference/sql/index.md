@@ -161,6 +161,8 @@ WHERE price = 12345678.90;
 +---+
 ```
 
-Bound `Float64` query parameters, such as `$1` in a [prepared statement](sql/prepared_statements), are converted the same way when the value has at most 15 significant digits (6 for `Float32`). A value with more significant digits than that, more fraction digits than the decimal's scale, or more digits than its precision keeps the standard floating-point cast, including its rounding and overflow behavior. To compare against such a value exactly, pass a `Decimal128` parameter or write the value as a string cast, for example `CAST('0.30000000000000004' AS DECIMAL(38, 18))`.
+When one statement writes two different numbers that read as the same `Float64`, such as `price = 4.0700000000000003 OR price = 4.07`, Spice cannot tell those literals apart, and both keep the standard floating-point cast. Write such values as string casts to keep them distinct.
+
+Bound `Float64` query parameters, such as `$1` in a [prepared statement](sql/prepared_statements), have no written digits, so Spice converts them from the shortest decimal spelling of the value. This applies when that spelling is short: at most 15 significant digits and 15 digits before the decimal point for `Float64` (6 for `Float32`). A longer spelling, which includes large values such as `1e30` even when the target is `DECIMAL(38, 0)`, keeps the standard floating-point cast. So does a spelling with more fraction digits than the decimal's scale or more digits than its precision, which follows the cast's rounding and overflow behavior. To compare against such a value exactly, pass a `Decimal128` parameter or write the value as a string cast, for example `CAST('0.30000000000000004' AS DECIMAL(38, 18))`.
 
 Refer to each section for detailed syntax, supported features, and examples.
