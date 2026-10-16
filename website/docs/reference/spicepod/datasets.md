@@ -832,6 +832,8 @@ Optional. A duration to specify how far back to include records based on the mos
 
 This setting can help mitigate missing data issues caused by late arriving data.
 
+An [Iceberg](../../components/data-connectors/iceberg.md) source applies the overlap only to the refreshes that read by time: the first refresh, and a refresh that cannot follow the table's snapshots. Other refreshes read the data files new snapshots added, whatever their time values. See [Iceberg sources follow table snapshots](../../features/data-acceleration/refresh-modes/append.md#iceberg-sources-follow-table-snapshots).
+
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
 See [Duration](../duration)
