@@ -816,7 +816,7 @@ runtime:
 
 **Supported values:**
 
-- `none` (default): a query refused because the runtime ran out of memory is logged at `WARN`. Every other failure is logged at `DEBUG`, which shows only with `-v`.
+- `none` (default): a query refused because the runtime ran out of memory is logged at `WARN`. Every other failure is logged at `DEBUG`, which shows only when debug logging is on (`-v`, [`runtime.output_level`](#runtimeoutput_level), or `SPICED_LOG`).
 - `execution`: also logs queries that failed while running, such as a source or object-store error, a timeout, or an internal error, at `WARN`.
 - `all`: also logs queries rejected before running, such as a SQL syntax error or an unknown table or column, at `INFO`.
 
