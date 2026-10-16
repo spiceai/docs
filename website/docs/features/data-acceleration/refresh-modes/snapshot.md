@@ -55,7 +55,7 @@ datasets:
 - A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll.
 - With [`bootstrap_on_failure_behavior: retry`](../snapshots#failure-behavior), a failed download retries the whole poll. Each attempt reads the metadata again and validates the snapshot before downloading it, so a snapshot published to replace a broken one is picked up.
 - A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one and the dataset is not pinned to it, in which case every poll logs the `snapshot metadata current id is older than the locally loaded snapshot` warning.
-- When the dataset is [pinned](../snapshots#roll-back-and-pin-a-snapshot) to a snapshot older than the loaded one, the reader loads the pinned snapshot.
+- When the dataset is [pinned](../snapshots#pin-and-unpin-a-snapshot) to a snapshot older than the loaded one, the reader loads the pinned snapshot.
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes.
 - `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots.
 
