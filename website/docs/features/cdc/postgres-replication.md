@@ -310,7 +310,12 @@ This is the [instance identity](../../reference/spicepod/runtime#instance-identi
 
 :::warning[Upgrading from v2.4.0-rc.2 and earlier]
 
-Earlier versions read only `SPICE_INSTANCE_ID`, `HOSTNAME`, and `COMPUTERNAME`. An instance with none of them set, such as a `systemd` service, or with an empty `SPICE_INSTANCE_ID`, now names its default slot from the host name and creates a new slot on upgrade. Its old slot, whose name ends in `_3f484bfe` (or `_38d394c2` for an empty `SPICE_INSTANCE_ID`), keeps retaining WAL until it is dropped. Instances that set one of the variables keep their slot names.
+Earlier versions used the first of `SPICE_INSTANCE_ID`, `HOSTNAME`, and `COMPUTERNAME` that was set, even when its value was empty, and `unknown` when none was set. Later versions skip empty variables and fall back to the host name. Two kinds of instances therefore get a new default slot name, and create a new slot, on upgrade:
+
+- An instance with none of the variables set, such as a `systemd` service. Its old slot's name ends in `_3f484bfe`.
+- An instance whose earlier version selected an empty variable, for example an empty `SPICE_INSTANCE_ID`, or an unset `SPICE_INSTANCE_ID` with an empty `HOSTNAME`. It now uses the next non-empty variable, or the host name. Its old slot's name ends in `_38d394c2`.
+
+The old slot keeps retaining WAL until it is dropped. An instance whose earlier version selected a non-empty variable keeps its slot name.
 
 :::
 

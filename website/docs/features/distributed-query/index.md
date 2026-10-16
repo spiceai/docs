@@ -128,23 +128,7 @@ Specifying `--scheduler-address` implies `--role executor`.
 
 ### Instance Identity
 
-Each scheduler and executor registers under its [instance identity](../../reference/spicepod/runtime.md#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. Nodes on separate hosts or Kubernetes pods already have distinct identities. To run two schedulers, or two executors, on one host, give each its own `SPICE_INSTANCE_ID`. The following example generates a certificate for a second executor and starts two executors on one host:
-
-```bash
-spice cluster tls add executor2
-
-SPICE_INSTANCE_ID=executor1 spiced --role executor \
-  --scheduler-address https://scheduler1:50052 \
-  --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
-  --node-mtls-certificate-file ~/.spice/pki/executor1.crt \
-  --node-mtls-key-file ~/.spice/pki/executor1.key
-
-SPICE_INSTANCE_ID=executor2 spiced --role executor \
-  --scheduler-address https://scheduler1:50052 \
-  --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
-  --node-mtls-certificate-file ~/.spice/pki/executor2.crt \
-  --node-mtls-key-file ~/.spice/pki/executor2.key
-```
+Each scheduler and executor registers under its [instance identity](../../reference/spicepod/runtime.md#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. Nodes on separate hosts or Kubernetes pods already have distinct identities. Processes on one host share its host name, so two schedulers, or two executors, on one host each need their own `SPICE_INSTANCE_ID`. This is in addition to what any two `spiced` processes on one host already need, such as their own instance directory, set with `SPICE_CONFIG_DIR`, because each process holds an exclusive lock on its instance directory.
 
 The identity is stable across restarts, so the scheduler recognizes an executor that restarts under the same identity as the same executor. It logs `Executor '<id>' restarted, so the tasks and shuffle output of its earlier run are rescheduled` and reschedules that work instead of waiting for the earlier run to time out.
 
