@@ -1286,6 +1286,20 @@ Spice stops at startup and exits with an error in these cases:
 
 v2.4.0-rc.1 did not check the location. After an upgrade from rc.1, an instance whose `runtime.state` credentials are read-only does not become ready until they can write, and an instance whose store does not enforce conditional writes stops at startup.
 
+### Metrics for the state location
+
+Spice reports each feature's requests to its state location on the [metrics endpoint](../../features/observability/index.md#available-metrics). The metrics cover the `runtime.state` location and a location set in a feature's own section, such as a dataset's `acceleration.snapshots_location`.
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `state_store_request_duration_ms` | Histogram | Time in milliseconds of each request, labeled by `feature` and `operation`. |
+| `state_store_conflicts_total` | Counter | Conditional writes the store refused because another writer created or changed the object first, labeled by `feature`. |
+| `state_store_cleanup_deleted_total` | Counter | Objects that cleanup deleted, labeled by `feature`. |
+
+`feature` is `scheduler`, `rate_control`, `results_cache_warmup`, or `snapshots`. `operation` is `read`, `conditional_write`, `write`, `list`, or `delete`. A `write` is an unconditional upload, including a multipart upload, a copy, or a rename; snapshot files are uploaded this way. A read is timed until the response starts, a list or delete until it ends, and a multipart upload until it completes or is aborted. The two counters are published at zero for every `feature` when the runtime starts, so a missing series points to a scrape problem rather than an idle feature. The [startup check](#startup-check-of-the-state-location) is not measured.
+
+A rising `state_store_conflicts_total` means instances that share the location are contending for the same objects.
+
 ### Instance identity
 
 Every feature that coordinates with other instances through shared state names the instance with one identity. Spice reads the identity once per process from the first of these that is set and not empty: the `SPICE_INSTANCE_ID` environment variable, the `HOSTNAME` environment variable, the `COMPUTERNAME` environment variable, and otherwise the operating system's host name. The identity stays the same across restarts, so a restarted instance resumes the state it held.
