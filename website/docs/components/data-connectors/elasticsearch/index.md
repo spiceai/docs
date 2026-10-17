@@ -111,15 +111,15 @@ Example:
 
 ```sql
 -- kNN vector search against Elasticsearch
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, 'wireless noise cancelling headphones')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 
 -- BM25 full-text search
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM text_search(products, 'headphones waterproof', description)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 
 -- Hybrid search via RRF

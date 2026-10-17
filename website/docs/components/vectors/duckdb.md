@@ -180,9 +180,9 @@ Vector search uses the standard Spice search surfaces. When the dataset is backe
 ### Vector Search
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, 'wireless noise cancelling headphones')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
