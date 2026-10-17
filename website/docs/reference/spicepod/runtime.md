@@ -210,7 +210,7 @@ coefficient = min( (K × accepts + 1) / (requests + 1), 1 )
 K = 1 / (1 − rate_control_failure_threshold)
 ```
 
-The coefficient scales every configured limit on the origin: per-second, per-minute, and concurrency.
+On a single instance, the coefficient scales every configured limit on the origin: per-second, per-minute, and concurrency. With [limits across instances](#limits-across-instances), it scales the shared per-second and per-minute budgets, and `max_concurrent_requests` stays unscaled.
 
 Spice logs a warning when an origin starts to be throttled, and an informational line when it recovers:
 
@@ -241,10 +241,10 @@ Multiple HTTP-based components target http://api.example.com:80 with different r
 
 In open-source builds, each Spice instance keeps its rate-control state in memory and enforces the configured limits on its own. In Spice.ai Enterprise, instances that share a [`runtime.state`](#runtimestate) location coordinate `requests_per_second_limit` and `requests_per_minute_limit` through that location, so `requests_per_second_limit: 20` means about 20 requests per second across all instances. Adaptive rate control then derives the same admission on every instance from the shared outcomes, and `rate_control_window` defaults to [`runtime.source_rate_control.refresh_interval`](#runtimesource_rate_control). `max_concurrent_requests` stays local to each instance.
 
-An instance that cannot reach the shared `runtime.state` location keeps admitting requests against the lease it already holds. Once that lease expires and the location is still unreachable, it fails closed: requests that need rate-control capacity fail with the error below until the location is reachable again, and `rate_control_fail_closed_total` counts them.
+An instance that cannot reach the shared `runtime.state` location keeps admitting requests against the lease it already holds. Once that lease expires, or if the instance has not obtained a lease yet, it fails closed while the location stays unreachable: a request that needs rate-control capacity fails instead of waiting, and `rate_control_fail_closed_total` counts it. The query error includes:
 
 ```text
-Cluster rate-control budget exhausted for origin https://api.example.com:443; persisted store is unavailable and last lease has expired
+Cluster rate-control budget exhausted for origin https://api.example.com:443; persisted store is unavailable and the lease has expired
 ```
 
 ### Spatial SQL Functions (opt-in)
