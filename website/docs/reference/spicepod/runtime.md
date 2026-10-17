@@ -804,6 +804,32 @@ Behavior:
 
 Any other value is rejected when the Spicepod is loaded.
 
+## `runtime.query.log_errors`
+
+Chooses which failed queries are logged. The records go to stdout and, when [`signals`](#runtimetelemetryotel_exporter) includes `logs`, to the OpenTelemetry endpoint. Failed queries can be frequent, so by default nothing new is logged.
+
+```yaml
+runtime:
+  query:
+    log_errors: execution # none (default) | execution | all
+```
+
+**Supported values:**
+
+- `none` (default): a query refused because the runtime ran out of memory is logged at `WARN`. Every other failure is logged at `DEBUG`, which shows only when debug logging is on (`-v`, [`runtime.output_level`](#runtimeoutput_level), or `SPICED_LOG`).
+- `execution`: also logs queries that failed while running, such as a source or object-store error, a timeout, or an internal error, at `WARN`.
+- `all`: also logs queries rejected before running, such as a SQL syntax error or an unknown table or column, at `INFO`.
+
+The record names the error, with the error code and the datasets the query read as fields. A record logged during a query carries the query's trace id:
+
+```text
+WARN query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed: Arrow error: Divide by zero error error_code=QueryExecutionError datasets="trips"
+```
+
+The SQL text is not logged, because it can contain data. Look it up in [`runtime.task_history`](../task_history) by the trace id.
+
+Any other value is rejected when the Spicepod is loaded.
+
 ## `runtime.output_level`
 
 Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).
@@ -856,7 +882,7 @@ An invalid prefix fails fast with an actionable error rather than producing malf
 
 ### `runtime.telemetry.properties` {#runtimetelemetryproperties}
 
-Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Defaults to empty.
+Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Log records that `otel_exporter` sends carry the same resource attributes. Defaults to empty.
 
 ```yaml
 runtime:
@@ -873,7 +899,7 @@ For backends that map OTLP resource attributes to tags through additional config
 
 ### `runtime.telemetry.otel_exporter`
 
-Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
+Configures an [OpenTelemetry](https://opentelemetry.io/) exporter that pushes metrics, logs, or both to an OpenTelemetry collector or any OTLP endpoint. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
 | Parameter name  | Optional | Default | Description                                                                                                                                                                                                                                                   |
 | --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -881,12 +907,13 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                                                                                                                                                              |
 | `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).                                                                                                                                                                     |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                                                                                                                                                               |
+| `signals`       | Yes      | `[metrics]` | What the exporter sends: `metrics`, `logs`, or both. See [Exporting logs](#exporting-logs). `push_interval` and `metrics` apply to metrics only. |
 | `headers`       | Yes      | `{}`    | Map of headers to send with each export request. For HTTP these are sent as HTTP headers; for gRPC they are sent as metadata entries (keys must be lowercase ASCII). Values support the `${secrets:...}` [replacement syntax](../../components/secret-stores#using-secrets) for loading credentials from a [secret store](../../components/secret-stores). |
 
 **Protocol inference:**
 
 - **gRPC (default):** Use a bare host:port endpoint without a scheme (e.g., `localhost:4317`). gRPC uses port 4317 by default.
-- **HTTP:** Include the `http://` or `https://` scheme and the `/v1/metrics` path (e.g., `http://localhost:4318/v1/metrics`). HTTP uses port 4318 by default.
+- **HTTP:** Include the `http://` or `https://` scheme (e.g., `http://localhost:4318/v1/metrics` or `http://localhost:4318`). HTTP uses port 4318 by default. Metrics are sent to `/v1/metrics` and logs to `/v1/logs` under the endpoint's base URL. An endpoint that ends in `/v1/metrics` is the base URL without that suffix, so `http://localhost:4318/v1/metrics` sends logs to `http://localhost:4318/v1/logs`.
 
 **Examples:**
 
@@ -970,6 +997,56 @@ runtime:
       headers:
         api-key: ${secrets:collector_api_key}
 ```
+
+#### Exporting logs
+
+Add `logs` to `signals` to send the runtime's log to the same endpoint as structured OTLP log records. The collector needs only its `otlp` receiver; there is nothing to parse.
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector:4317'
+      signals: [metrics, logs]
+```
+
+The records are the lines `spiced` prints to stdout, at the same level (`runtime.output_level`, `SPICED_LOG`, or `-v`), from the moment export starts once the Spicepod is loaded. The lines printed before that, such as the startup banner and the CPU budget, are on stdout only. stdout does not change.
+
+| OTLP field                         | Value                                                                                                                                                                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `severity_number`, `severity_text` | `TRACE` 1, `DEBUG` 5, `INFO` 9, `WARN` 13, `ERROR` 17                                                                                                                                                                                      |
+| `body`                             | The message, newlines included                                                                                                                                                                                                             |
+| `attributes`                       | The record's fields, with their types kept (int, double, bool, string)                                                                                                                                                                     |
+| Instrumentation scope name         | The module that logged the record, such as `runtime::init::dataset`                                                                                                                                                                       |
+| `trace_id`                         | For a record logged during a query, the query's trace id: the `spice-trace-id` the response returns and the `trace_id` in [`runtime.task_history`](../task_history), including an id the client pinned. For another task that task history records, that task's trace id. Otherwise empty. |
+| `span_id`                          | The `span_id` of the task's `runtime.task_history` row, when task history is enabled. Otherwise empty.                                                                                                                                    |
+| Resource                           | The same attributes as exported metrics: [`runtime.telemetry.properties`](#runtimetelemetryproperties), `OTEL_SERVICE_NAME`, and `OTEL_RESOURCE_ATTRIBUTES`                                                                              |
+
+What the export itself logs, on the threads that send records (its gRPC or HTTP client, connections, TLS handshakes, and failure reports), is printed to stdout but not exported, so that the export cannot feed back into itself. `runtime.task_history` bookkeeping is neither printed nor exported.
+
+Delivery:
+
+- Records are batched and sent every second from a bounded queue of 2048 records, on a runtime of their own, so logging never blocks a query. When the queue is full, new records are dropped. The standard `OTEL_BLRP_*` environment variables change these limits.
+- On shutdown, `spiced` sends the queued records last, after the error that ended the process, if any, and `Goodbye!`. It waits up to 5 seconds for them. After a crash or `SIGKILL`, queued records are only on stdout.
+- In cluster mode, the scheduler and each executor send their own logs with the scheduler's `otel_exporter` settings. An executor starts sending once it joins the cluster.
+- The records leave the host with whatever the log contains. Use an `https://` endpoint for a collector on another host: gRPC endpoints are sent without TLS.
+
+When export starts, `spiced` logs:
+
+```text
+INFO spiced: OTEL logs exporter enabled endpoint=otel-collector:4317 protocol="grpc"
+```
+
+If the endpoint stops accepting records, `spiced` reports it once on stdout, and again when it recovers:
+
+```text
+WARN runtime::otel_push_exporter: Failed to export logs to the OpenTelemetry endpoint 'otel-collector:4317', so log records are dropped until it recovers. Check that the endpoint is reachable and accepts OTLP logs. Cause: <error>. See: https://spiceai.org/docs/reference/spicepod/runtime#runtimetelemetryotel_exporter
+INFO runtime::otel_push_exporter: Log export to the OpenTelemetry endpoint 'otel-collector:4317' recovered; 42 log records were not delivered while it was failing.
+```
+
+If the cluster also collects container stdout, for example with a `file_log` receiver, exclude Spice pods from that collection when `logs` is exported, or each record arrives twice.
+
+To log failed queries, see [`runtime.query.log_errors`](#runtimequerylog_errors).
 
 ## `runtime.metrics`
 
@@ -1070,10 +1147,11 @@ Configures the cluster scheduler when running Spice in [cluster mode](../../depl
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster-state/
+  state:
+    location: s3://my-bucket/spice-state/
     params:
       s3_region: us-east-1
+  scheduler:
     partition_assignment_interval: 30s
     max_partition_assignments_per_interval: 100
     max_partitions_per_executor: 1000
@@ -1082,12 +1160,22 @@ runtime:
 
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
-| `state_location`                                   | Yes      | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Required unless [`runtime.state`](#runtimestate) is set, in which case `runtime.state.location` is used. |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`). See [State location parameters](#state-location-parameters). When `state_location` is omitted, defaults to `runtime.state.params`. |
+| `state_location`                                   | Yes      | -       | Deprecated. Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Set [`runtime.state.location`](#runtimestate) instead. |
+| `params`                                           | Yes      | -       | Deprecated. Object store parameters (e.g. `s3_region`). See [State location parameters](#state-location-parameters). Set `runtime.state.params` instead. When `state_location` is omitted, defaults to `runtime.state.params`. |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
 | `partition_discovery_timeout`                      | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
+
+The scheduler keeps its shared cluster state in the `cluster/` folder of [`runtime.state.location`](#runtimestate) and reads it with `runtime.state.params`. `runtime.scheduler.state_location` and `runtime.scheduler.params` are deprecated and will be removed in a future release. They still take precedence over `runtime.state`, and a scheduler or standalone instance that sets either one logs a startup warning that shows how to move to `runtime.state`:
+
+| Current setting | What the warning says |
+| --------------- | --------------------- |
+| `state_location` is the `cluster/` folder of `runtime.state.location` | Remove `state_location`: the state is already there. |
+| `state_location` ends in `cluster/` and `runtime.state` is not set | Remove `state_location` and set `runtime.state.location` to its parent, for example `s3://my-bucket/spice/` for `s3://my-bucket/spice/cluster/`, which keeps the state where it is. |
+| Any other `state_location`, and every `abfs://` or `abfss://` `state_location` | No `runtime.state` location holds the current state. Removing `state_location` (and setting `runtime.state.location`, when it is not set) makes the scheduler start empty in the new folder, so partition assignments are rebuilt and async query jobs are lost. An `abfs://` or `abfss://` `state_location` keeps its state at the container root, which is never a `runtime.state` folder. |
+
+The warning also asks to move the keys of `runtime.scheduler.params` into `runtime.state.params`. When `runtime.state.params` are already set, it asks to remove `runtime.scheduler.params` instead, because `runtime.state.params` serve every feature that keeps state under `runtime.state`, and to check that they give the scheduler access to its state. The warning names parameter keys, never their values.
 
 ## `runtime.state`
 
@@ -1112,9 +1200,9 @@ The following features store their state under `runtime.state` when their own se
 | Feature | Uses `runtime.state` when |
 | ------- | ------------------------- |
 | [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
-| [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
+| [Cluster scheduler](#runtimescheduler) | The deprecated `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
 | [HTTP rate control](#limits-across-instances) | Always, in a Spice.ai Enterprise build: instances that share the location coordinate per-second and per-minute limits for every origin that sets one. Open-source builds keep rate-control state in memory. Rate control has no location of its own. |
-| [Acceleration snapshots](../../features/data-acceleration/snapshots#store-snapshots-under-runtimestate) | A dataset enables snapshots and `snapshots.location` is not set. Snapshots are available in Spice.ai Enterprise. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#store-snapshots-under-runtimestate) | A dataset enables snapshots and sets no `acceleration.snapshots_location`, and the deprecated top-level `snapshots.location` is not set. Snapshots are available in Spice.ai Enterprise. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
 
@@ -1138,7 +1226,7 @@ For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.js
 
 Move the rate-control objects first, one spicepod folder at a time, and move only the objects named `<origin>-<16 hex digits>.json` in that folder. A spicepod name can match another folder in the table, such as `heartbeats`, `jobs`, `scheduler`, `cluster`, `rate-control`, or `results-cache`, and moving whole folders would then mix rate-control objects with scheduler objects. Move the scheduler and warmup objects after that.
 
-To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
+To keep the scheduler's previous layout instead of moving its objects, set the deprecated `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
 
 :::
 
@@ -1158,9 +1246,31 @@ Spice stops at startup and exits with an error in these cases:
 
 v2.4.0-rc.1 did not check the location. After an upgrade from rc.1, an instance whose `runtime.state` credentials are read-only does not become ready until they can write, and an instance whose store does not enforce conditional writes stops at startup.
 
+### Instance identity
+
+Every feature that coordinates with other instances through shared state names the instance with one identity. Spice reads the identity once per process from the first of these that is set and not empty: the `SPICE_INSTANCE_ID` environment variable, the `HOSTNAME` environment variable, the `COMPUTERNAME` environment variable, and otherwise the operating system's host name. The identity stays the same across restarts, so a restarted instance resumes the state it held.
+
+| Feature | Uses the identity for |
+| ------- | --------------------- |
+| [Cluster scheduler](../../features/distributed-query#instance-identity) | Its registration in the shared cluster state. |
+| [Cluster executor](../../features/distributed-query#instance-identity) | Its executor ID when it registers with the schedulers. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#several-instances-creating-one-datasets-snapshots) | The holder of a dataset's snapshot writer lease. |
+| [HTTP rate control](#limits-across-instances) | The name of each process's share of the per-window budget, paired with a per-process ID so that a restarted instance does not reuse its earlier run's share. |
+| [PostgreSQL replication](../../features/cdc/postgres-replication#multi-replica-deployments) | The default replication slot name. |
+
+Give each instance that shares state its own identity. On Kubernetes, `HOSTNAME` defaults to the pod name, which is already distinct. Instances on one host share its host name, so two schedulers or two executors started on the same machine each need their own `SPICE_INSTANCE_ID`. When Spice finds another running process with the same identity, it logs an error such as:
+
+```text
+Another running instance uses SPICE_INSTANCE_ID 'spice-0' at state location 's3://my-bucket/spice-state/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
+```
+
+A scheduler logs this error, and its registration is refused, when the scheduler already registered under its identity keeps sending heartbeats. A scheduler restarted after a crash is not reported as a duplicate, because the heartbeat its predecessor left stops advancing. A scheduler also logs the error when a second executor process connects under an ID that a running executor already uses, and a snapshot writer logs it when another process renews its lease. HTTP rate control does not detect a shared identity.
+
 ### State location parameters
 
-These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) set with `snapshots.location` takes its parameters from `snapshots.params`. Snapshots stored under `runtime.state` use `runtime.state.params`, unless `snapshots.params` is set, which replaces them.
+These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). Snapshots stored under `runtime.state` use `runtime.state.params`. A dataset that sets [`acceleration.snapshots_params`](./datasets.md#accelerationsnapshots_params) uses those instead, and a dataset that sets `acceleration.snapshots_location` without `snapshots_params` uses no params. A location set with the deprecated top-level `snapshots.location` takes its parameters from `snapshots.params`, and `snapshots.params`, when set, also replace `runtime.state.params` for snapshots stored under `runtime.state`. See [Configure snapshot storage](../../features/data-acceleration/snapshots#configure-snapshot-storage).
+
+`runtime.state.params` can hold `s3_queue_url`, the SQS queue for [snapshot notifications](../../features/data-acceleration/refresh-modes/snapshot#reload-on-s3-event-notifications). The scheduler, HTTP rate control, and SQL results cache warmup accept it there without a warning and do not use it. A feature's own `params`, such as `runtime.scheduler.params`, still log a warning for it.
 
 An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` is `iam_role` (the default) or `key`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set. A location that sets `s3_auth: key` without both keys fails instead of connecting with the credentials from the environment, and the error reads:
 

@@ -7,10 +7,11 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides monitoring and observability through three mechanisms:
+Spice provides monitoring and observability through four mechanisms:
 
 - **Prometheus-compatible metrics endpoint**: Exposes metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) for scraping by monitoring systems like [Datadog](https://www.datadoghq.com/), [New Relic](https://newrelic.com/), and [Chronosphere](https://chronosphere.io/).
 - **OpenTelemetry metrics export**: Pushes metrics to an [OpenTelemetry](https://opentelemetry.io/) collector using gRPC.
+- **OpenTelemetry logs export**: Sends the runtime's log to the same collector as structured OTLP log records, each logged during a query carrying that query's trace id. See [Exporting logs](../reference/spicepod/runtime#exporting-logs).
 - **Distributed tracing**: Integrates with [Zipkin](https://zipkin.io/) and compatible tracing systems for request tracing.
 
 <img width="740" alt="observability" src="https://github.com/user-attachments/assets/2468e3e7-4fb4-4a74-8b26-45eeeee90310" />
@@ -205,6 +206,22 @@ runtime:
         api-key: ${secrets:collector_api_key}
 ```
 
+## OpenTelemetry Logs Export
+
+The same exporter can send the runtime's log as structured OTLP log records. Add `logs` to `signals`, and set [`runtime.query.log_errors`](../reference/spicepod/runtime#runtimequerylog_errors) to also log failed queries:
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector:4317'
+      signals: [metrics, logs]
+  query:
+    log_errors: execution # none (default) | execution | all
+```
+
+A record logged during a query carries that query's trace id, so it can be matched to its [`runtime.task_history`](../reference/task_history) row. `log_errors` also applies when logs are not exported: the records are printed to stdout either way. See [Exporting logs](../reference/spicepod/runtime#exporting-logs) for the record fields and delivery.
+
 ## Metric Naming and Custom Tags
 
 Two runtime fields control how exported metrics are named and labeled across **all** readers (Prometheus scrape, cluster OTLP reader, and the `otel_exporter` push exporter):
@@ -276,6 +293,7 @@ Component-specific instruments are documented with their component. The `cayenne
 | `dataset_acceleration_max_timestamp_before_refresh_ms`<br/><br/>Maximum value of the dataset's time_column before the refresh operation, in milliseconds. [Disabled by default](../reference/spicepod/runtime#runtimemetrics) | _gauge_     | `dataset`, `mode`                                                                                           |
 | `dataset_acceleration_refresh_data_fetches_skipped`<br/><br/>Number of refresh data fetches skipped due to unchanged file metadata.                                                                                          | _count_     | `dataset`, `mode`                                                                                           |
 | `dataset_acceleration_refresh_duration_ms`<br/><br/>Duration in milliseconds to load a full or appended refresh data.                                                                                                        | _histogram_ | `dataset`, `mode`                                                                                           |
+| `dataset_acceleration_refresh_fallbacks`<br/><br/>Number of `append` refreshes of an Iceberg source that fall back to reading by time because the table's snapshot history cannot be followed, split by `reason`: `table_replaced`, `snapshot_not_ancestor`, `table_has_no_snapshot`, or `rows_rewritten_without_primary_key`. The first refresh, datasets with computed columns, and one-off refreshes with their own `refresh_sql` also read by time but are not counted. See [Iceberg sources follow table snapshots](../data-acceleration/refresh-modes/append.md#iceberg-sources-follow-table-snapshots). | _count_ | `dataset`, `mode`, `reason` |
 | `dataset_acceleration_refresh_errors`<br/><br/>Number of errors refreshing the dataset. Always split by `reason`: `object_generation_changed` (a listed object was replaced while the scan still held the previous generation — a retriable precondition failure, not corruption), `parquet_decode` (the Parquet payload itself failed to decode), or `other`. | _count_ | `dataset`, `mode`, `reason` |
 | `dataset_acceleration_refresh_lag_ms`<br/><br/>Difference between the maximum time_column value after and before the refresh operation, in milliseconds.                                                                     | _gauge_     | `dataset`, `mode`                                                                                           |
 | `dataset_acceleration_refresh_rows_written`<br/><br/>Cumulative number of rows read from the federated source and written into the accelerated table, counted as they are read. A row the table does not keep is also counted in `dataset_acceleration_rows_superseded` once its refresh succeeds.                                                                        | _count_     | `dataset`                                                                                                   |
