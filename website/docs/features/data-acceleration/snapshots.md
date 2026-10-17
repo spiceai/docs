@@ -72,7 +72,7 @@ Each dataset keeps the snapshots it published in the last 28 days. Its current s
 The instance that creates a dataset's snapshots applies retention each time it publishes one. In the same [conditional write](#conditional-writes-on-the-snapshot-location) of `metadata.json` that records the new snapshot, it drops the entries that are older than 28 days. It deletes a dropped snapshot's file 24 hours after the drop, so a reader that is still downloading the file can finish. About once an hour, the publishing instance also lists the dataset's snapshot files and deletes the files that no entry names and that are at least 24 hours old, such as the upload of a publish that failed. A publish that drops entries or deletes files logs a message such as:
 
 ```text
-Snapshot cleanup of dataset 'orders' dropped 2 snapshots older than 14d and deleted 2 snapshot files.
+Snapshot cleanup of dataset 'orders' dropped 2 snapshots older than 28d and deleted 2 snapshot files.
 ```
 
 Retention runs only when a snapshot is published, so the snapshots of a dataset that no longer publishes stay at the location. Spice v2.4.0-rc.2 and earlier keep every snapshot. After an upgrade, the first publish of each dataset drops its entries older than 28 days, and their files are deleted at a publish 24 hours or more later.
