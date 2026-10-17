@@ -90,7 +90,7 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
 | `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Accepts `auto` (default) or an explicit value; `auto` uses the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores. The aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that same entitlement, less a query reserve of a quarter of the cores (at least 2).                                                                                              |
 | `cayenne_write_concurrency`       | Writer partition override for unsorted ingests, controlling how many Vortex files are encoded in parallel during a write. Accepts `auto` (default) or an explicit value. `auto` encodes up to `min(4, session target_partitions)` files in parallel per write — an intentionally small per-table default (not the full CPU entitlement), so many independently-writing tables do not oversubscribe CPU under concurrent CDC. An explicitly-set value is capped at the session `target_partitions`, which defaults to the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores; the aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that entitlement. Values below `1` are clamped to `1`. The sort-and-rewrite compaction path always writes serially regardless of this setting. |
-| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which resolves to `key` for a table that declares a `primary_key` and to `position` (merge-on-read) for a table without one. See [Deletion Strategies](#deletion-strategies).         |
+| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which chooses per table: a small primary-key table on local disk uses position deletes on Linux with at least 8 physical CPU cores, other primary-key tables use key deletes, and a table without a primary key always uses position deletes. See [Deletion Strategies](#deletion-strategies).         |
 | `cayenne_pk_conflict_detection`   | Controls primary-key conflict detection on insert. Accepts `auto` or `none`; defaults to `auto`, which detects existing primary keys and resolves them as merge-on-read upserts. Set to `none` to skip conflict detection (blind append), so repeated keys are stored as written. Registration refuses `none` on a dataset that rewrites stored keys: `refresh_mode: changes`, durable write-back, or writes kept in the accelerator. See [Turning off conflict detection](#turning-off-conflict-detection). |
 | `cayenne_compaction_trigger_files` | Minimum number of small Vortex files in the current snapshot before tiered compaction runs. A "small" file is one whose size is below `cayenne_target_file_size_mb` / 4. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
 | `cayenne_compaction_trigger_protected_snapshots` | Number of protected snapshots before snapshot-maintenance compaction runs. Separate from `cayenne_compaction_trigger_files` so small-file tuning does not silently change scan amplification behavior. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
@@ -194,6 +194,37 @@ datasets:
         # Per-dataset Cayenne tuning
         cayenne_target_file_size_mb: 256
 ```
+
+### Changing settings on an existing acceleration
+
+A `mode: file` table records the settings it was built with in the metastore. When a dataset's settings change between restarts, Cayenne compares them with the recorded ones on the next start. A setting that only changes how new rows are written is applied to the existing table. A setting that changes what the stored rows mean is applied by rebuilding the acceleration from the source, but only when a reload brings back every row the acceleration holds: `refresh_mode: full` with `write_mode: write_through` (the default), from a source other than `sink`.
+
+| Setting changed between restarts | `refresh_mode: full`, `write_mode: write_through` | Any other refresh mode or write mode |
+| --- | --- | --- |
+| `cayenne_sort_columns`, `cayenne_cluster_by`, `cayenne_compression_strategy`, `cayenne_delta_encoding`, `cayenne_shard_key_columns`, or `cayenne_pk_conflict_detection` from `auto` to `none` | Applied in place | Applied in place |
+| `primary_key`, or the data location (`cayenne_file_path`) | Rebuilt from the source | Kept with the recorded settings, with a warning |
+| `partition_by`, or `cayenne_pk_conflict_detection` from `none` to `auto` on a table with a `primary_key` | Rebuilt from the source | Fails to load (see [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh) and [Turning off conflict detection](#turning-off-conflict-detection)) |
+| Source schema | Governed by [`on_schema_change`](../../../reference/spicepod/datasets.md#on_schema_change) | Governed by `on_schema_change` |
+
+A setting applied in place is recorded in the metastore, and the table keeps serving its existing files. Rows already stored keep their current layout until a refresh or compaction rewrites them. The runtime logs the change:
+
+```text
+INFO Applied the changed acceleration settings of dataset 'trips' to its existing acceleration in place (`cayenne_sort_columns`: none -> ['pickup_time']). Rows already stored keep their current layout until a refresh or compaction rewrites them.
+```
+
+A rebuild drops the table and loads it from the source as on a first start, and the runtime logs which setting caused it:
+
+```text
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`primary_key`: none -> ['id']), so it is dropped and reloaded from the source with the new settings.
+```
+
+A rebuild happens only after the source answers a read on the schema the dataset registered with. While the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset keeps serving its existing acceleration with the recorded settings and logs a warning. Restart once the source can be read to rebuild. A changed `partition_by`, or `cayenne_pk_conflict_detection` changed from `none` to `auto`, cannot be served from the stored rows, so in that case the dataset fails to load with an error that names both fixes: revert the setting, or restart once the source can be read.
+
+When the data location changes, the rebuild deletes the local directory the old table was written to and never the newly configured one. Files stored in S3 Express One Zone are not deleted, and a warning lists the prefixes they remain under. A data location change is detected only when the metastore stays in the same directory, such as with an explicit [`cayenne_metadata_dir`](#metastore-location). Without it, moving a local `cayenne_file_path` also moves the metastore, so the dataset starts a new acceleration.
+
+In any other refresh mode or write mode, the acceleration can hold rows a reload does not bring back, such as an append window, a change stream that resumes from a recorded position, or writes that exist only in the acceleration. A layout-only change is still applied in place and needs no rebuild. When a change to `primary_key` or the data location is among the changed settings, Cayenne keeps every recorded setting, including layout settings changed in the same restart, and logs a warning that names the changed settings. To apply those settings, restart once with `mode: file_create`, and with `write_mode: write_through` if the dataset uses `write_mode: write_back`, then set both back. Rows that exist only in the acceleration are lost.
+
+In earlier releases, including v2.4.0-rc.1, a changed `primary_key` or `cayenne_sort_columns` on a `mode: file` Cayenne table was not applied: the table kept its recorded settings and logged a warning that the existing acceleration was not recreated. Now a changed sort order is applied in place, and a `refresh_mode: full` dataset whose `primary_key` changes is rebuilt from the source on the next start.
 
 ## Performance Tuning
 
@@ -445,7 +476,7 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 
 | Mode               | How deletes are applied                                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auto` (default)   | Resolves to `key` for a table that declares a `primary_key`, so deletes compact concurrently with writers. Resolves to `position` for a table without a primary key, which has no key to record. |
+| `auto` (default)   | Chooses per table. A primary-key table uses key deletes, except that a small table on local disk uses position deletes while it stays within a size bound. A table without a primary key uses `position`, since it has no key to record. See [How `auto` chooses a mode](#how-auto-chooses-a-mode). |
 | `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
 | `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. This is the recommended mode for primary-key tables under continuous writes, because compaction can keep running while writes continue. |
 
@@ -461,18 +492,32 @@ datasets:
       refresh_append_overlap: 1h
       primary_key: event_id
       params:
-        cayenne_deletion_mode: key # same as the default `auto` on a primary-key table
+        cayenne_deletion_mode: key # key deletes at any table size, on any host
 ```
 
-For a table with a `primary_key`, the default `auto` resolves to `key` regardless of `refresh_mode`, so no setting is needed. Key-delete compaction runs concurrently with writers, and the in-memory key deletion index is pruned in the background so it stays bounded. Setting `cayenne_deletion_mode: position` on a primary-key table opts into merge-on-read position deletes. Under position deletes, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`.
+Key-delete compaction runs concurrently with writers, and the in-memory key deletion index is pruned in the background so it stays bounded. Setting `cayenne_deletion_mode: position` on a primary-key table opts into merge-on-read position deletes at any table size. With that explicit setting, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`.
+
+#### How `auto` chooses a mode
+
+For a table with a `primary_key`, `auto` uses key deletes unless the table is small enough that rewriting it whole is cheaper than tracking its deletes. A primary-key table starts on position deletes only when all of the following hold:
+
+- **The runtime is on Linux with at least 8 physical CPU cores.** The count comes from the runtime's CPU budget ([`runtime.cpu.cores`](../../../reference/spicepod/runtime.md#runtimecpucores), a cgroup CPU limit, or the CPUs the process may run on), in physical cores: with two SMT threads per core, 8 vCPUs count as 4. When the physical core count cannot be determined, `auto` uses key deletes.
+- **The table's data is on local disk.** A `mode: memory` table, a partitioned table, a table on object storage, a `refresh_mode: changes` dataset, and a [cold-tier](#cold-object-store-tier) table always use key deletes.
+- **The table's size on disk is within its bound.** The bound is 1/32 of the table's `cayenne_target_file_size_mb`, and never more than 8 MiB. With the default 256 MB target the bound is 8 MiB; with a 64 MB target it is 2 MiB.
+
+While a table is on position deletes, Cayenne reclaims its deletes by rewriting the whole table alongside writers, so scans read one compact snapshot with no deletion filter. Each `auto` table spends at most a tenth of its time on whole-table rewrites, and a process-wide budget limits how many tables rewrite at once. Neither limit applies when a table's deletion index is over its memory ceiling: the rewrite then runs right away, without waiting for the pace or the budget, because the rewrite is what bounds the index's memory.
+
+Once the table grows past its bound, it moves to key deletes until it next loads. Queries see every write before and after the change. When whole-table rewrites had kept the table compacted before the move, the runtime logs an `INFO` message that begins `Dataset '<name>' grew past` and names the bound. A table already past its bound when it loads starts on key deletes, as does one whose size on disk cannot be read at load, which the runtime reports with a warning that begins `Failed to read the size on disk of dataset`.
+
+No parameter sets the bound directly. A smaller `cayenne_target_file_size_mb` lowers it, and a larger one does not raise it past 8 MiB. To use one mode at any size, set `cayenne_deletion_mode: key` or `cayenne_deletion_mode: position`. The `Cayenne auto-tuned config` line the runtime logs for each table reports the choice and its reason as `deletion_mode`, for example `auto (position deletes up to 8 MiB, then key deletes)`, `auto (key deletes: 4 physical cores, fewer than 8)`, or `key (auto: CDC dataset)`.
 
 :::note[Change from v2.4.0-rc.1 and earlier]
 
-In v2.4.0-rc.1 and earlier releases, `auto` resolved to `key` only for a CDC dataset (`refresh_mode: changes`) or a [cold-tier](#cold-object-store-tier) table that has a primary key, and to `position` for every other table. A primary-key table that relied on the default, such as an `append` or `full` table, now uses key deletes. Position deletion vectors already on disk continue to load and apply after the mode changes. To keep position deletes, set `cayenne_deletion_mode: position` explicitly.
+In v2.4.0-rc.1 and earlier releases, `auto` resolved to `key` only for a CDC dataset (`refresh_mode: changes`) or a [cold-tier](#cold-object-store-tier) table that has a primary key, and to `position` for every other table. A primary-key table that relied on the default, such as an `append` or `full` table, now uses key deletes unless it qualifies for position deletes as described in [How `auto` chooses a mode](#how-auto-chooses-a-mode). Position deletion vectors already on disk continue to load and apply after the mode changes. To keep position deletes at any size, set `cayenne_deletion_mode: position` explicitly.
 
 :::
 
-Under `position` mode (the `auto` resolution for a table without a primary key, or an explicit `cayenne_deletion_mode: position`):
+Under position deletes (a table without a primary key, a small primary-key table under `auto`, or an explicit `cayenne_deletion_mode: position`):
 
 - **Tables without a primary key** record deletions by row position. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
 - **Tables with a primary key** capture row positions via a `row_idx()` read-back after each write, with a key-based fallback for any row whose position is not yet known. Pushing the deletes into the scan eliminates the per-row `RowConverter` deletion tax above it.
@@ -648,13 +693,15 @@ The unprefixed `pk_conflict_detection` parameter is checked too; when both are s
 Failed to register dataset events (postgres): 'cayenne_pk_conflict_detection: none' turns off the primary-key check Cayenne uses to replace a stored row, but this dataset applies its source's changes ('refresh_mode: changes'), so a change to an existing key would add a second row for that key instead of replacing it. Set 'cayenne_pk_conflict_detection' to 'auto', its default. See: https://spiceai.org/docs/components/data-accelerators/cayenne
 ```
 
-The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. When the table has a primary key, reopening it with `auto` fails. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
+The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. Changing it from `auto` to `none` is applied to the existing table in place. When a keyed table created with `none` is reopened with `auto`, a `refresh_mode: full` dataset with `write_mode: write_through` is rebuilt from the source on that start (see [Changing settings on an existing acceleration](#changing-settings-on-an-existing-acceleration)). Any other keyed table fails to load. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
 
 ```text
 Failed to load table 'events': it was created with 'cayenne_pk_conflict_detection: none', so it can hold more than one row per primary key, and the setting is now 'auto'. An existing table keeps the setting it was created with. To rebuild it from the source with one row per primary key, restart once with 'acceleration.mode: file_create', and with 'write_mode: write_through' if the dataset uses 'write_mode: write_back', then set both back. Rows that exist only in the acceleration are not kept.
 ```
 
-To rebuild the table, restart once with `acceleration.mode: file_create`, then set `mode: file` again. A write-back dataset also restarts with `write_mode: write_through` for that run, because write-back refuses `file_create`. Deleting the table's data directory is not enough, because the table's entry stays in the shared metastore. Rows that exist only in the acceleration are lost.
+When a `refresh_mode: full` dataset's source cannot be read at that start, the dataset fails with a different error that says to set the parameter back to `none` or to restart once the source can be read.
+
+To rebuild any other table, restart once with `acceleration.mode: file_create`, then set `mode: file` again. A write-back dataset also restarts with `write_mode: write_through` for that run, because write-back refuses `file_create`. Deleting the table's data directory is not enough, because the table's entry stays in the shared metastore. Rows that exist only in the acceleration are lost.
 
 #### `on_conflict` is deprecated
 
@@ -1051,7 +1098,7 @@ Before a source deletion, writes must stop and pending keys must reach zero **wh
 Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML and [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) are not among the constraints — see [Writes in memory mode](#writes-in-memory-mode).
-- **No Re-partitioning**: Cayenne does not re-partition stored data. A `mode: file` dataset whose stored data was written with different partition columns fails to load. Changing `partition_by` requires rebuilding the acceleration, which can lose rows that exist only in Cayenne. See [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh).
+- **No Re-partitioning**: Cayenne does not re-partition stored data. A changed `partition_by` rebuilds a `refresh_mode: full`, `write_mode: write_through` dataset from its source on the next start. Any other `mode: file` dataset whose stored data was written with different partition columns fails to load, and changing its `partition_by` requires rebuilding the acceleration by hand, which can lose rows that exist only in Cayenne. See [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh).
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
 - **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires only `primary_key`, with `cayenne_pk_conflict_detection` at its default `auto`. See [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).

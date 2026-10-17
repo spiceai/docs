@@ -12,12 +12,11 @@ Acceleration Snapshots are available in the Spice [Enterprise edition](https://d
 ## Spicepod Example
 
 ```yaml
-snapshots:
-  enabled: true
-  location: s3://some_bucket/some_folder/
-  bootstrap_on_failure_behavior: warn
-  params:
-    s3_auth: iam_role
+runtime:
+  state:
+    location: s3://some_bucket/some_folder/
+    params:
+      s3_region: us-east-1
 
 datasets:
   - name: some_table
@@ -44,7 +43,7 @@ Acceleration snapshots let Spice reuse a pre-built acceleration file on startup 
 Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset` accelerated with DuckDB, Spice writes files such as:
 
 ```bash
-s3://some_bucket/some_folder/month=2025-09/day=2025-09-19/dataset=my_dataset/my_dataset_20250919T134522Z_01996238f1157a59ae4d69b4f18b22a4.duckdb
+s3://some_bucket/some_folder/snapshots/month=2025-09/day=2025-09-19/dataset=my_dataset/my_dataset_20250919T134522Z_01996238f1157a59ae4d69b4f18b22a4.duckdb
 ```
 
 The timestamp is recorded in UTC using ISO 8601 without punctuation. The UUIDv7 after the timestamp gives each snapshot its own object name, so two snapshots written in the same second do not overwrite each other. The file extension names the acceleration engine that wrote the snapshot: `.duckdb`, `.sqlite`, `.cayenne`, or `.turso`. The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
@@ -57,27 +56,34 @@ Every accelerated dataset must write to its own file (for example, `/nvme/my_dat
 
 Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — DuckDB, SQLite, Cayenne, or Turso — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
 
-A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times how often snapshots are written, until a lifecycle rule expires older objects. DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
+A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times the number of snapshots kept. The [14-day retention period](#snapshot-retention) applies to the entries in `metadata.json`; dropped files stay at least 24 more hours, until a later publish deletes them, so budget for about 15 days of snapshot files, plus the current and newest snapshot when they are older. DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
 
 When the workload needs incremental replication of changed data between regions or storage tiers, use a path that publishes the changed objects:
 
-- **Cayenne cold / datalake tier.** [`cayenne_datalake_location`](../../components/data-accelerators/cayenne#cold-object-store-tier) graduates data onto standard object storage (a general-purpose S3 or S3-compatible bucket). Promotion carries unchanged cold files forward and rewrites the cold files a change can touch. The tier requires `refresh_mode: changes` or `append` and a primary key. It is a data tier, separate from `snapshots.location`.
+- **Cayenne cold / datalake tier.** [`cayenne_datalake_location`](../../components/data-accelerators/cayenne#cold-object-store-tier) graduates data onto standard object storage (a general-purpose S3 or S3-compatible bucket). Promotion carries unchanged cold files forward and rewrites the cold files a change can touch. The tier requires `refresh_mode: changes` or `append` and a primary key. It is a data tier, separate from the snapshot location.
 - **Iceberg batched writes with merge-on-read.** [Iceberg writes](../../components/data-connectors/iceberg#write-support) append new data files, and [deletes](../../components/data-connectors/iceberg#deleting-rows) are equality delete files that readers merge on scan. A catalog commit publishes those objects. Use this path when the dataset lives in Iceberg and readers apply delete files during scan.
 
 Neither path bootstraps a file-mode accelerator. Keep snapshots for that.
 
+## Snapshot retention
+
+Each dataset keeps the snapshots it published in the last 14 days. Its current snapshot and its newest snapshot are kept at any age, so the location always holds a snapshot to bootstrap from, however long ago it was published. The retention period is not configurable.
+
+The instance that creates a dataset's snapshots applies retention each time it publishes one. In the same [conditional write](#conditional-writes-on-the-snapshot-location) of `metadata.json` that records the new snapshot, it drops the entries that are older than 14 days. It deletes a dropped snapshot's file 24 hours after the drop, so a reader that is still downloading the file can finish. About once an hour, the publishing instance also lists the dataset's snapshot files and deletes the files that no entry names and that are at least 24 hours old, such as the upload of a publish that failed. A publish that drops entries or deletes files logs a message such as:
+
+```text
+Snapshot cleanup of dataset 'orders' dropped 2 snapshots older than 14d and deleted 2 snapshot files.
+```
+
+Retention runs only when a snapshot is published, so the snapshots of a dataset that no longer publishes stay at the location. Spice v2.4.0-rc.2 and earlier keep every snapshot. After an upgrade, the first publish of each dataset drops its entries older than 14 days, and their files are deleted at a publish 24 hours or more later.
+
+A dropped snapshot is no longer listed by `GET /v1/datasets/{name}/acceleration/snapshots`, and `POST /v1/datasets/{name}/acceleration/snapshots/current` cannot make it current: the request returns `404 Not Found`. To roll back further than 14 days, keep a copy of the snapshot outside the location.
+
+A bucket lifecycle rule on the snapshot location can still delete files that `metadata.json` lists. Spice treats a snapshot whose file is gone as a failed download, and [`bootstrap_on_failure_behavior`](#failure-behavior) applies: `fallback` tries the next older snapshot, `warn` continues with an empty acceleration, and `retry` keeps retrying. When the file of an entry at least 24 hours old is gone, the publishing instance drops the entry and logs a warning that names the snapshot. The current and newest entries are never dropped this way, so a current or newest snapshot whose file is gone stays listed until a newer snapshot is published.
+
 ## Configure snapshot storage
 
-Snapshots are controlled with a top-level `snapshots` block in the Spicepod. The location can point to S3, Azure ADLS Gen2, Google Cloud Storage, or the local filesystem.
-
-```yaml
-snapshots:
-  enabled: true
-  location: s3://some_bucket/some_folder/ # Folder where snapshots are written
-  bootstrap_on_failure_behavior: warn # retry | fallback | warn
-  params:
-    s3_auth: iam_role # Defaults to iam_role for snapshots
-```
+Snapshots are stored in the `snapshots/` folder of [`runtime.state.location`](../../reference/spicepod/runtime#runtimestate), the object store that holds the Spicepod's shared runtime state, and use `runtime.state.params` (see [Store snapshots under `runtime.state`](#store-snapshots-under-runtimestate)). A dataset can store its snapshots elsewhere, with other params, by [setting its own snapshot location](#override-the-snapshot-location-per-dataset). The location can point to S3, Azure ADLS Gen2, Google Cloud Storage, or the local filesystem.
 
 ### Supported storage backends
 
@@ -88,11 +94,84 @@ snapshots:
 | Google Cloud Storage | `gs://`                   | `GOOGLE_APPLICATION_CREDENTIALS`, Workload Identity                                                                         |
 | Local filesystem     | `file://`                 | N/A                                                                                                                         |
 
-`location` must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
+A snapshot location must be a URI with a scheme — a bare filesystem path such as `/nvme/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. Use `file:///nvme/snapshots/` for a local folder.
 
-When the location is an S3 bucket, `params` accepts these [S3 parameters](../../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url` (an SQS queue that receives the location's S3 event notifications, so [`refresh_mode: snapshot` readers reload on publication](./refresh-modes/snapshot#reload-on-s3-event-notifications)), `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure and GCS locations also accept their respective connector parameters under `params` for explicit credential overrides. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider. Values in `params` can reference [secrets](../../components/secret-stores) with `${secrets:<name>}` for S3, Azure, and GCS locations.
+When the location is an S3 bucket, its params accept these [S3 parameters](../../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url` (an SQS queue that receives the location's S3 event notifications, so [`refresh_mode: snapshot` readers reload on publication](./refresh-modes/snapshot#reload-on-s3-event-notifications)), `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set; without them, Spice logs an error and does not use the snapshot location, rather than connecting with credentials from the environment. Azure locations also accept the Azure connector parameters under `params` for explicit credential overrides. GCS locations accept the [GCS data connector](../../components/data-connectors/gcs#authentication-parameters) parameter names, such as `gcs_service_account_key` and `gcs_skip_signature`, and validate them as a [`runtime.state` location](../../reference/spicepod/runtime#state-location-parameters) does. Spice v2.4.0-rc.1 and earlier ignored these names on a snapshot location. When no explicit credentials are supplied, Spice reads standard environment variables for each cloud provider. Values in `params` can reference [secrets](../../components/secret-stores) with `${secrets:<name>}` for S3, Azure, and GCS locations.
 
 An invalid S3 parameter value, such as `s3_auth: public`, disables snapshots for the dataset. Spice logs an error that names the dataset, the location, and the parameter, and does not fall back to default parameters. Those defaults would drop every other configured parameter, including `s3_endpoint`, `s3_region`, and the credentials, so snapshots could be written to a different store or with a different identity than the one configured. When `s3_queue_url` is set, the dataset fails to register with the parameter error instead. Fix the parameter and restart Spice.
+
+### Store snapshots under `runtime.state`
+
+When the Spicepod sets [`runtime.state`](../../reference/spicepod/runtime#runtimestate), datasets that enable snapshots store them in the `snapshots/` folder of `runtime.state.location`:
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice/
+
+datasets:
+  - from: postgres:orders
+    name: orders
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      snapshots: enabled
+```
+
+This fragment omits the PostgreSQL connection settings that the `orders` dataset needs; see the [PostgreSQL connector `params`](../../components/data-connectors/postgres/index.md#params). With them, this Spicepod publishes the `orders` snapshots under `s3://my-bucket/spice/snapshots/`, next to the other [runtime state folders](../../reference/spicepod/runtime#runtime-state-layout), in the same layout as any other snapshot location.
+
+In v2.4.0-rc.1 and earlier, a dataset with `snapshots: enabled` and no `snapshots.location` created and restored no snapshots, and Spice logged `Snapshots enabled but no location configured` when the Spicepod had a `snapshots` section. With `runtime.state` set, such a dataset now publishes snapshots to `<runtime.state.location>/snapshots/` and bootstraps from them. Set `acceleration.snapshots: disabled` on a dataset that should not.
+
+### Override the snapshot location per dataset
+
+A dataset that needs another snapshot location, other params, or another failure behavior sets them in its own `acceleration` block:
+
+```yaml
+runtime:
+  state:
+    location: s3://my-bucket/spice/
+    params:
+      s3_region: us-east-1
+
+datasets:
+  - from: postgres:events
+    name: events
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      snapshots: enabled
+      snapshots_location: s3://archive-bucket/snapshots/
+      snapshots_params:
+        s3_region: eu-west-1
+      snapshots_bootstrap_on_failure_behavior: fallback
+```
+
+| Field | Default |
+| ----- | ------- |
+| `snapshots_location` | The `snapshots/` folder of `runtime.state.location`. |
+| `snapshots_params` | The params of the location the dataset uses: none for a `snapshots_location`, and `runtime.state.params` for the `runtime.state` folder. |
+| `snapshots_bootstrap_on_failure_behavior` | `warn`. See [Failure behavior](#failure-behavior). |
+
+`snapshots_params`, when set, are the only params the dataset's snapshots use. A dataset that sets `snapshots_location` without `snapshots_params` uses no params, so `runtime.state.params`, such as an `s3_endpoint` or credentials, never apply to a location they were not written for. When the dataset's location needs credentials or a region that the environment does not supply, set them in `snapshots_params`.
+
+These fields require a Spice version newer than v2.4.0-rc.2. Spice v2.4.0-rc.2 and earlier reject a Spicepod that sets them.
+
+### Migrate from the top-level `snapshots` section
+
+The top-level `snapshots` section is deprecated and will be removed in a future release. Spicepods that set it still load, and each of its settings applies to every dataset that does not set the matching `acceleration` field:
+
+| Deprecated setting | Replacement |
+| ------------------ | ----------- |
+| `snapshots.location` | `runtime.state.location`, whose `snapshots/` folder holds the snapshots, or `acceleration.snapshots_location` on each dataset. |
+| `snapshots.params` | `runtime.state.params`, or `acceleration.snapshots_params` on each dataset. |
+| `snapshots.bootstrap_on_failure_behavior` | `acceleration.snapshots_bootstrap_on_failure_behavior` on each dataset. |
+| `snapshots.enabled` | No replacement. `acceleration.snapshots` defaults to `disabled`, so leave it unset, or set it to `disabled`, on each dataset that should not use snapshots. |
+
+When the section is set, `snapshots.params` apply to `snapshots.location`, and they replace `runtime.state.params` for snapshots stored under `runtime.state`. `snapshots.enabled: false` still turns snapshots off for every dataset.
+
+At startup, a Spicepod with the section logs one warning that shows the configuration that keeps the existing snapshots where they are. For example, when `snapshots.location` is `s3://my-bucket/spice/snapshots/` and `runtime.state` is not set, the warning asks to delete the section and set `runtime.state.location: s3://my-bucket/spice/`. When the section's location is already the `snapshots/` folder of `runtime.state.location`, the warning asks to delete the section. In other cases, it asks to set `acceleration.snapshots_location` to the section's location on each dataset that enables snapshots. The warning names the keys of `snapshots.params` to move, never their values. A cluster executor does not log it, because the scheduler that shares its Spicepod does.
 
 ### Conditional writes on the snapshot location
 
@@ -100,7 +179,7 @@ Each location holds one `metadata.json` document that records the snapshots of e
 
 The location's store must enforce both conditions. Amazon S3, Azure ADLS Gen2, Google Cloud Storage, and a local `file://` directory do. An S3-compatible store must honor `If-None-Match` and `If-Match` on `PUT`; Spice checks this before it publishes, as described below.
 
-Before each Spice instance creates a dataset's first snapshot, it probes the store by creating, updating, and deleting one `.spice-conditional-write-probe-<id>` object under the location, in at most five requests. When the store rejects conditional writes, or accepts a write whose condition does not hold, Spice uploads no snapshot and does not write `metadata.json`. The snapshot fails with an error that names the dataset, the location, and the reason. Spice keeps this result and does not probe the store again, so restart Spice after moving `location` to a store that enforces conditional writes.
+Before each Spice instance creates a dataset's first snapshot, it probes the store by creating, updating, and deleting one `.spice-conditional-write-probe-<id>` object under the location, in at most five requests. When the store rejects conditional writes, or accepts a write whose condition does not hold, Spice uploads no snapshot and does not write `metadata.json`. The snapshot fails with an error that names the dataset, the location, and the reason. Spice keeps this result and does not probe the store again, so restart Spice after moving the snapshot location to a store that enforces conditional writes.
 
 When the probe cannot reach a result, for example after a transient error or because the credentials cannot write the probe object, the snapshot is not published and the next attempt probes again. The error asks for permission to create, update, and delete `.spice-conditional-write-probe-*` objects under the location. Every instance that publishes snapshots probes with its own credentials, and each needs permission to create and update these objects. Permission to delete them is needed only for cleanup: a failed delete does not change the probe result and leaves one small probe object behind.
 
@@ -124,19 +203,23 @@ Dataset 'orders' is not creating snapshots while instance 'spice-1' holds its sn
 
 A lease lasts twice the dataset's snapshot interval, kept between 30 seconds and 24 hours. The interval is `snapshots_trigger_threshold` with `snapshots_trigger: time_interval` and `refresh_check_interval` with `refresh_complete`, and otherwise 10 minutes. Another instance takes over a lease that has gone unrenewed that long, as measured on its own clock, so clock skew between instances does not expire a live lease. A holder whose snapshot fails releases the lease at once. A holder that loses the lease during an upload does not publish that snapshot over a newer one from the instance that took over.
 
-Each instance is identified by the `SPICE_INSTANCE_ID` environment variable, or by its host name when the variable is unset, so a restarted instance resumes the lease it held. Give each replica a distinct `SPICE_INSTANCE_ID`: two processes with the same identity both upload, and each logs a warning naming the identity.
+Each instance is identified by its [instance identity](../../reference/spicepod/runtime#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. The identity is stable across restarts, so a restarted instance resumes the lease it held. Give each replica a distinct identity: two processes with the same identity both upload, and a process that finds its lease renewed by the other logs an error naming the identity and the snapshot location:
+
+```text
+Another running instance uses SPICE_INSTANCE_ID 'spice-1' at state location 's3://my-bucket/snapshots/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
+```
 
 ### Snapshot location and the Cayenne data tier
 
-Keep `location` on standard object storage: Amazon S3 (`s3://`), Google Cloud Storage (`gs://`), or Azure ADLS Gen2 (`abfss://`, `abfs://`). A local `file://` folder is valid on a single machine. Standard cloud storage is what bucket and object replication, and readers in another region, use.
+Keep the snapshot location on standard object storage: Amazon S3 (`s3://`), Google Cloud Storage (`gs://`), or Azure ADLS Gen2 (`abfss://`, `abfs://`). A local `file://` folder is valid on a single machine. Standard cloud storage is what bucket and object replication, and readers in another region, use.
 
-`location` is independent of Cayenne's S3 Express One Zone data tier. `cayenne_file_path` and the `cayenne_s3_*` parameters (`cayenne_s3_region`, `cayenne_s3_zone_ids`, `cayenne_s3_auth`, and the related keys) store Cayenne Vortex files on an Express One Zone directory bucket. That bucket is single-zone storage for the accelerator's data files. It does not substitute for the snapshot bucket, and it does not provide the replication or multi-region reads a standard snapshot location does. See [S3 Express One Zone storage](../../components/data-accelerators/cayenne#aws-s3-express-one-zone-storage).
+The snapshot location is independent of Cayenne's S3 Express One Zone data tier. `cayenne_file_path` and the `cayenne_s3_*` parameters (`cayenne_s3_region`, `cayenne_s3_zone_ids`, `cayenne_s3_auth`, and the related keys) store Cayenne Vortex files on an Express One Zone directory bucket. That bucket is single-zone storage for the accelerator's data files. It does not substitute for the snapshot bucket, and it does not provide the replication or multi-region reads a standard snapshot location does. See [S3 Express One Zone storage](../../components/data-accelerators/cayenne#aws-s3-express-one-zone-storage).
 
-The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) uses a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`, not GCS or ADLS. That prefix is the cold data tier, separate from `snapshots.location`.
+The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) uses a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`, not GCS or ADLS. That prefix is the cold data tier, separate from the snapshot location.
 
 ### Failure behavior
 
-`bootstrap_on_failure_behavior` controls what Spice does when it cannot load the most recent snapshot.
+`acceleration.snapshots_bootstrap_on_failure_behavior` controls what Spice does when it cannot load a dataset's most recent snapshot.
 
 - `retry` – keep retrying the newest snapshot until it succeeds.
 - `fallback` – try older snapshot files until one loads successfully.
@@ -160,6 +243,9 @@ acceleration:
   snapshots_trigger_threshold: <value> # threshold for time_interval or stream_batches
   snapshots_compaction: enabled | disabled # default: disabled (DuckDB only)
   snapshots_reset_expiry_on_load: enabled | disabled # default: disabled (DuckDB only with Caching refresh mode)
+  snapshots_location: <uri> # default: the snapshots/ folder of runtime.state.location
+  snapshots_params: <params> # default: the params of that location
+  snapshots_bootstrap_on_failure_behavior: warn | retry | fallback # default: warn
 ```
 
 ### Snapshot triggers
@@ -302,12 +388,11 @@ acceleration:
 ## Complete example
 
 ```yaml
-snapshots:
-  enabled: true
-  location: s3://some_bucket/some_folder/
-  bootstrap_on_failure_behavior: warn
-  params:
-    s3_auth: iam_role
+runtime:
+  state:
+    location: s3://some_bucket/some_folder/
+    params:
+      s3_region: us-east-1
 
 datasets:
   # Batch dataset with refresh-triggered snapshots
@@ -361,7 +446,7 @@ datasets:
 
 The dataset name selects the entry in `metadata.json`, so it must match the name of the dataset that publishes the snapshots. Spice reads `metadata.json`, detects the engine that created the dataset's current snapshot (Cayenne, DuckDB, SQLite, or Turso), restores that snapshot into the same engine, and serves queries from it. It then checks for newer snapshots and swaps each one in, as the [`snapshot` refresh mode](./refresh-modes/snapshot) does.
 
-A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceleration.snapshots` setting, and no top-level `snapshots` section. The snapshot location comes from the dataset's own `from` and `s3_*` params. An optional `acceleration` block can set `refresh_check_interval` (default `1m`) and engine params.
+A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceleration.snapshots` setting, and no top-level `snapshots` section. The snapshot location comes from the dataset's own `from` and `s3_*` params, not from `runtime.state`. To read snapshots that a writer [stores under `runtime.state`](#store-snapshots-under-runtimestate), set `from` to that location's `snapshots/` folder, such as `s3://my-bucket/spice/snapshots/`. An optional `acceleration` block can set `refresh_check_interval` (default `1m`) and engine params.
 
 ### Loading and readiness
 
@@ -413,7 +498,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 - **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts. Local NVMe is the recommended medium for accelerations — see [Storage](../../reference/performance-tuning#storage) for the tiers, the instance-store lifetime, and the capacity figures.
 - **Enable compaction for large datasets:** Use `snapshots_compaction: enabled` for DuckDB accelerations to reduce snapshot size and improve bootstrap performance.
 - **Tune trigger thresholds for stream datasets:** For high-throughput streaming datasets, balance snapshot frequency against I/O overhead by adjusting `snapshots_trigger_threshold`.
-- **Align retention policies:** Apply an object storage lifecycle rule that mirrors the desired snapshot retention policy.
+- **Let Spice expire snapshots:** Spice keeps [14 days of snapshots](#snapshot-retention) and deletes older files itself. An expiration rule for current objects on the snapshot location is not needed. When one is required, set its expiration longer than 14 days. Such a rule can still delete the file of a current or newest snapshot older than its expiration. On a bucket with versioning enabled, a Spice delete leaves a noncurrent version, so add a noncurrent-version expiration rule to reclaim that storage. A replication destination keeps deleted files unless the replication carries deletes or the destination has its own lifecycle rule.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
 - **Search indexes are not all inside the accelerator file.** A DuckDB HNSW index lives in the DuckDB file, so it is part of that dataset's snapshot. A built-in full-text index does not: the default in-memory Tantivy index is rebuilt on every start, and `index_store: file` writes a separate directory (`.spice/data/fts/...` unless `index_directory` is set) that acceleration snapshots do not upload. For restart parity of full-text search, keep that directory on the same durable volume as the acceleration file, or build the index once on a central tier and serve sidecars from the [search results cache](../caching). See [Where indexes are built](../search#where-indexes-are-built).
 
