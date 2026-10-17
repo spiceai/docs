@@ -375,6 +375,30 @@ dataset param > runtime.params.http_* default > unset
 
 When instances coordinate limits, the configured per-second and per-minute quota is converted into a token budget per `refresh_interval` window and distributed across instances using a demand-weighted leased token-bucket model.
 
+The shared state records request outcomes one `refresh_interval` window at a time, so a `rate_control_window` shorter than `refresh_interval` is raised to it, and Spice logs an informational line saying so.
+
+:::warning[Breaking change]
+
+`runtime.source_rate_control` no longer accepts `state_location` or `params`, and a Spicepod that still sets either fails to load. Move them to [`runtime.state`](#runtimestate):
+
+```yaml
+# Before
+runtime:
+  source_rate_control:
+    state_location: s3://my-bucket/spice/
+    params:
+      s3_region: us-east-1
+
+# After
+runtime:
+  state:
+    location: s3://my-bucket/spice/
+    params:
+      s3_region: us-east-1
+```
+
+:::
+
 ## `runtime.functions`
 
 Controls whether [functions](../../features/functions) declared in the top-level `functions:` section (and `tools:` entries with `as_sql: true`) are registered with the SQL engine. Defaults to disabled.
