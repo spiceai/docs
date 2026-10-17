@@ -7,10 +7,11 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Spice provides monitoring and observability through three mechanisms:
+Spice provides monitoring and observability through four mechanisms:
 
 - **Prometheus-compatible metrics endpoint**: Exposes metrics in the [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#basic-info) for scraping by monitoring systems like [Datadog](https://www.datadoghq.com/), [New Relic](https://newrelic.com/), and [Chronosphere](https://chronosphere.io/).
 - **OpenTelemetry metrics export**: Pushes metrics to an [OpenTelemetry](https://opentelemetry.io/) collector using gRPC.
+- **OpenTelemetry logs export**: Sends the runtime's log to the same collector as structured OTLP log records, each logged during a query carrying that query's trace id. See [Exporting logs](../reference/spicepod/runtime#exporting-logs).
 - **Distributed tracing**: Integrates with [Zipkin](https://zipkin.io/) and compatible tracing systems for request tracing.
 
 <img width="740" alt="observability" src="https://github.com/user-attachments/assets/2468e3e7-4fb4-4a74-8b26-45eeeee90310" />
@@ -204,6 +205,22 @@ runtime:
         # Keys MUST be lowercase for gRPC
         api-key: ${secrets:collector_api_key}
 ```
+
+## OpenTelemetry Logs Export
+
+The same exporter can send the runtime's log as structured OTLP log records. Add `logs` to `signals`, and set [`runtime.query.log_errors`](../reference/spicepod/runtime#runtimequerylog_errors) to also log failed queries:
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector:4317'
+      signals: [metrics, logs]
+  query:
+    log_errors: execution # none (default) | execution | all
+```
+
+A record logged during a query carries that query's trace id, so it can be matched to its [`runtime.task_history`](../reference/task_history) row. `log_errors` also applies when logs are not exported: the records are printed to stdout either way. See [Exporting logs](../reference/spicepod/runtime#exporting-logs) for the record fields and delivery.
 
 ## Metric Naming and Custom Tags
 

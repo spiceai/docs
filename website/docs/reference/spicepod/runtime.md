@@ -804,6 +804,32 @@ Behavior:
 
 Any other value is rejected when the Spicepod is loaded.
 
+## `runtime.query.log_errors`
+
+Chooses which failed queries are logged. The records go to stdout and, when [`signals`](#runtimetelemetryotel_exporter) includes `logs`, to the OpenTelemetry endpoint. Failed queries can be frequent, so by default nothing new is logged.
+
+```yaml
+runtime:
+  query:
+    log_errors: execution # none (default) | execution | all
+```
+
+**Supported values:**
+
+- `none` (default): a query refused because the runtime ran out of memory is logged at `WARN`. Every other failure is logged at `DEBUG`, which shows only when debug logging is on (`-v`, [`runtime.output_level`](#runtimeoutput_level), or `SPICED_LOG`).
+- `execution`: also logs queries that failed while running, such as a source or object-store error, a timeout, or an internal error, at `WARN`.
+- `all`: also logs queries rejected before running, such as a SQL syntax error or an unknown table or column, at `INFO`.
+
+The record names the error, with the error code and the datasets the query read as fields. A record logged during a query carries the query's trace id:
+
+```text
+WARN query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed: Arrow error: Divide by zero error error_code=QueryExecutionError datasets="trips"
+```
+
+The SQL text is not logged, because it can contain data. Look it up in [`runtime.task_history`](../task_history) by the trace id.
+
+Any other value is rejected when the Spicepod is loaded.
+
 ## `runtime.output_level`
 
 Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).
@@ -856,7 +882,7 @@ An invalid prefix fails fast with an actionable error rather than producing malf
 
 ### `runtime.telemetry.properties` {#runtimetelemetryproperties}
 
-Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Defaults to empty.
+Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Log records that `otel_exporter` sends carry the same resource attributes. Defaults to empty.
 
 ```yaml
 runtime:
@@ -873,7 +899,7 @@ For backends that map OTLP resource attributes to tags through additional config
 
 ### `runtime.telemetry.otel_exporter`
 
-Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
+Configures an [OpenTelemetry](https://opentelemetry.io/) exporter that pushes metrics, logs, or both to an OpenTelemetry collector or any OTLP endpoint. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
 | Parameter name  | Optional | Default | Description                                                                                                                                                                                                                                                   |
 | --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -881,12 +907,13 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                                                                                                                                                              |
 | `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).                                                                                                                                                                     |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                                                                                                                                                               |
+| `signals`       | Yes      | `[metrics]` | What the exporter sends: `metrics`, `logs`, or both. See [Exporting logs](#exporting-logs). `push_interval` and `metrics` apply to metrics only. |
 | `headers`       | Yes      | `{}`    | Map of headers to send with each export request. For HTTP these are sent as HTTP headers; for gRPC they are sent as metadata entries (keys must be lowercase ASCII). Values support the `${secrets:...}` [replacement syntax](../../components/secret-stores#using-secrets) for loading credentials from a [secret store](../../components/secret-stores). |
 
 **Protocol inference:**
 
 - **gRPC (default):** Use a bare host:port endpoint without a scheme (e.g., `localhost:4317`). gRPC uses port 4317 by default.
-- **HTTP:** Include the `http://` or `https://` scheme and the `/v1/metrics` path (e.g., `http://localhost:4318/v1/metrics`). HTTP uses port 4318 by default.
+- **HTTP:** Include the `http://` or `https://` scheme (e.g., `http://localhost:4318/v1/metrics` or `http://localhost:4318`). HTTP uses port 4318 by default. Metrics are sent to `/v1/metrics` and logs to `/v1/logs` under the endpoint's base URL. An endpoint that ends in `/v1/metrics` is the base URL without that suffix, so `http://localhost:4318/v1/metrics` sends logs to `http://localhost:4318/v1/logs`.
 
 **Examples:**
 
@@ -970,6 +997,56 @@ runtime:
       headers:
         api-key: ${secrets:collector_api_key}
 ```
+
+#### Exporting logs
+
+Add `logs` to `signals` to send the runtime's log to the same endpoint as structured OTLP log records. The collector needs only its `otlp` receiver; there is nothing to parse.
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector:4317'
+      signals: [metrics, logs]
+```
+
+The records are the lines `spiced` prints to stdout, at the same level (`runtime.output_level`, `SPICED_LOG`, or `-v`), from the moment export starts once the Spicepod is loaded. The lines printed before that, such as the startup banner and the CPU budget, are on stdout only. stdout does not change.
+
+| OTLP field                         | Value                                                                                                                                                                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `severity_number`, `severity_text` | `TRACE` 1, `DEBUG` 5, `INFO` 9, `WARN` 13, `ERROR` 17                                                                                                                                                                                      |
+| `body`                             | The message, newlines included                                                                                                                                                                                                             |
+| `attributes`                       | The record's fields, with their types kept (int, double, bool, string)                                                                                                                                                                     |
+| Instrumentation scope name         | The module that logged the record, such as `runtime::init::dataset`                                                                                                                                                                       |
+| `trace_id`                         | For a record logged during a query, the query's trace id: the `spice-trace-id` the response returns and the `trace_id` in [`runtime.task_history`](../task_history), including an id the client pinned. For another task that task history records, that task's trace id. Otherwise empty. |
+| `span_id`                          | The `span_id` of the task's `runtime.task_history` row, when task history is enabled. Otherwise empty.                                                                                                                                    |
+| Resource                           | The same attributes as exported metrics: [`runtime.telemetry.properties`](#runtimetelemetryproperties), `OTEL_SERVICE_NAME`, and `OTEL_RESOURCE_ATTRIBUTES`                                                                              |
+
+What the export itself logs, on the threads that send records (its gRPC or HTTP client, connections, TLS handshakes, and failure reports), is printed to stdout but not exported, so that the export cannot feed back into itself. `runtime.task_history` bookkeeping is neither printed nor exported.
+
+Delivery:
+
+- Records are batched and sent every second from a bounded queue of 2048 records, on a runtime of their own, so logging never blocks a query. When the queue is full, new records are dropped. The standard `OTEL_BLRP_*` environment variables change these limits.
+- On shutdown, `spiced` sends the queued records last, after the error that ended the process, if any, and `Goodbye!`. It waits up to 5 seconds for them. After a crash or `SIGKILL`, queued records are only on stdout.
+- In cluster mode, the scheduler and each executor send their own logs with the scheduler's `otel_exporter` settings. An executor starts sending once it joins the cluster.
+- The records leave the host with whatever the log contains. Use an `https://` endpoint for a collector on another host: gRPC endpoints are sent without TLS.
+
+When export starts, `spiced` logs:
+
+```text
+INFO spiced: OTEL logs exporter enabled endpoint=otel-collector:4317 protocol="grpc"
+```
+
+If the endpoint stops accepting records, `spiced` reports it once on stdout, and again when it recovers:
+
+```text
+WARN runtime::otel_push_exporter: Failed to export logs to the OpenTelemetry endpoint 'otel-collector:4317', so log records are dropped until it recovers. Check that the endpoint is reachable and accepts OTLP logs. Cause: <error>. See: https://spiceai.org/docs/reference/spicepod/runtime#runtimetelemetryotel_exporter
+INFO runtime::otel_push_exporter: Log export to the OpenTelemetry endpoint 'otel-collector:4317' recovered; 42 log records were not delivered while it was failing.
+```
+
+If the cluster also collects container stdout, for example with a `file_log` receiver, exclude Spice pods from that collection when `logs` is exported, or each record arrives twice.
+
+To log failed queries, see [`runtime.query.log_errors`](#runtimequerylog_errors).
 
 ## `runtime.metrics`
 
