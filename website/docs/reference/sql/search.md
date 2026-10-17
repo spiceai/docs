@@ -36,11 +36,15 @@ Vector search retrieves records by semantic similarity using embeddings. It is i
 ### Usage
 
 ```sql
-SELECT id, score
+SELECT id, _score
 FROM vector_search(table, 'search query')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
+
+:::note
+The relevance column returned by `vector_search` and `text_search` is named `_score`. Earlier versions of these docs incorrectly referred to it as `score`; queries selecting `score` fail with `No field named score`.
+:::
 
 - `table`: Dataset name (required)
 - `query`: Search text, or an array of strings for [multi-query](#multi-query-late-interaction-form) search (required)
@@ -54,25 +58,25 @@ LIMIT 5;
 
 `WHERE` predicates on base table columns (e.g., `created_at`, `product_category`) are pushed down as **pre-filters** — they are applied before the similarity ranking, so only matching rows are scored and returned. This means results reflect the top-K _within the filtered set_, not the top-K of the entire table filtered afterward.
 
-Predicates on computed columns like `score` are applied as post-filters after ranking.
+Predicates on computed columns like `_score` are applied as post-filters after ranking.
 
 #### Example
 
 ```sql
 -- Filters on created_at are pushed down before ranking
-SELECT review_id, rating, customer_id, body, score
+SELECT review_id, rating, customer_id, body, _score
 FROM vector_search(reviews, 'issues with same day shipping', 1500)
 WHERE created_at >= to_unixtime(now() - INTERVAL '7 days')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 2;
 ```
 
 To override the similarity metric, pass `distance_metric` as a named argument:
 
 ```sql
-SELECT id, body, score
+SELECT id, body, _score
 FROM vector_search(reviews, 'issues with shipping', distance_metric => 'l2')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -83,9 +87,9 @@ See [Vector-Based Search](../../features/search/vector-search) for configuration
 When the target column is a [multi-vector column](../../features/search/multi-vector), `vector_search` also accepts an array of query strings. Each query is embedded independently and the per-row score is `Σ_q max_e cos(q, e)` — ColBERT-style late interaction. Passing an array to a scalar or chunked column returns an error. At most 32 query strings are accepted per call.
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, ['hiking', 'waterproof', 'lightweight'], tags)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -98,9 +102,9 @@ Full-text search uses BM25 scoring to retrieve records matching keywords in inde
 ### Usage
 
 ```sql
-SELECT id, score
+SELECT id, _score
 FROM text_search(table, 'search terms', col)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -119,7 +123,7 @@ With the built-in Tantivy engine, `WHERE` predicates on columns carried in the f
 
 ```sql
 -- state and additions are applied inside the index, before the limit of 5
-SELECT id, title, score
+SELECT id, title, _score
 FROM text_search(doc.pulls, 'search keywords', body, 5)
 WHERE state = 'open' AND additions > 100;
 ```
@@ -133,9 +137,9 @@ The Tantivy warm tier used with [`engine: elasticsearch`](../../features/search/
 #### Example
 
 ```sql
-SELECT id, title, score
+SELECT id, title, _score
 FROM text_search(doc.pulls, 'search keywords', body)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 

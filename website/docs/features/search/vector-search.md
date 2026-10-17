@@ -129,9 +129,9 @@ Response:
 The embedding index can also be used to perform search in SQL, via a user-defined table function (UDTF).
 
 ```sql
-SELECT id, title, score
+SELECT id, title, _score
 FROM vector_search('sales', 'cutting edge AI')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -146,15 +146,15 @@ vector_search(
   include_score BOOLEAN  -- Include relevance scores (default: TRUE)
 )
 RETURNS TABLE                -- The original table and:
-                             --  - A FLOAT column `score` (if `include_score`).
+                             --  - A FLOAT column `_score` (if `include_score`).
 ```
 
 By default, `vector_search` retrieves up to 1000 results. To adjust this limit, specify the `limit` parameter in the function call. When using a specific vector engine, such as `s3_vectors` the limit defaults to that of the vector engine.
 
 ```sql
-SELECT id, title, score
+SELECT id, title, _score
 FROM vector_search('sales', 'cutting edge AI', 1500)
-ORDER BY score DESC;
+ORDER BY _score DESC;
 ```
 
 `WHERE` predicates on base table columns are pushed down as pre-filters — only matching rows are scored and ranked. See [Search in SQL](../../reference/sql/search#vector-search-vector_search) for details.

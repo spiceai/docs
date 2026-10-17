@@ -104,7 +104,7 @@ columns:
 ```
 
 ```sql
-SELECT id, score FROM text_search(doc.pulls, 'search keywords', body, 5)
+SELECT id, _score FROM text_search(doc.pulls, 'search keywords', body, 5)
 WHERE state = 'open';
 ```
 
@@ -266,9 +266,9 @@ Spice also provides full-text search through SQL using a user-defined table func
 Here's how you can query using SQL:
 
 ```sql
-SELECT id, title, score
+SELECT id, title, _score
 FROM text_search(doc.pulls, 'search keywords', body)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -286,7 +286,7 @@ text_search(
   limit INTEGER,             -- Maximum results returned (optional, defaults to 1000)
   include_score BOOLEAN      -- Include relevance scores in results (optional, defaults to TRUE)
 )
-RETURNS TABLE                -- Original table columns plus an optional FLOAT column `score`
+RETURNS TABLE                -- Original table columns plus an optional FLOAT column `_score`
 ```
 
 By default, `text_search` retrieves up to 1000 results. To adjust this, specify the `limit` parameter in the function call.

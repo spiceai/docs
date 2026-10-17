@@ -45,10 +45,10 @@ Vector search uses embeddings—numerical representations of data—to identify 
 **Example SQL Vector Search:**
 
 ```sql
-SELECT id, extra_column, score
+SELECT id, extra_column, _score
 FROM vector_search(my_table, 'search query')
 WHERE date_published > '2021-01-01'
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -69,9 +69,9 @@ Multi-vector search operates on columns that store many vectors per row, such as
 **Example SQL Multi-Vector Search:**
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, ['hiking', 'waterproof'], tags)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -90,10 +90,10 @@ Full-text search efficiently retrieves records matching specific keywords.
 **Example SQL Full-Text Search:**
 
 ```sql
-SELECT id, extra_column, score
+SELECT id, extra_column, _score
 FROM text_search(my_table, 'search terms')
 WHERE date_published > '2021-01-01'
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
