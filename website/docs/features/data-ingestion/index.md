@@ -300,12 +300,13 @@ Every log record received over OTLP is stored in that dataset, whatever service 
 | `acceleration` (no block) | Cayenne, `mode: file`, `refresh_mode: append`, so stored logs survive a restart |
 | `acceleration.engine`, `acceleration.refresh_mode` (a block without them) | `cayenne`, `append` |
 
-Set `acceleration.mode` and `acceleration.retention_period` to choose durability and how long logs are kept:
+Set `acceleration.mode` to choose durability, and `acceleration.retention_period` with `retention_check_enabled: true` to delete logs older than the period on the `retention_check_interval` schedule:
 
 ```yaml
     acceleration:
       mode: file
       retention_period: 7d
+      retention_check_enabled: true
       retention_check_interval: 1h
 ```
 
@@ -319,6 +320,11 @@ The logs dataset requires Cayenne. A dataset with `otlp_logs: all` and another e
 Both require write access when [API key authentication](../../api/auth/index.md) is enabled. For example, an OpenTelemetry Collector:
 
 ```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
 exporters:
   otlp/spice:
     endpoint: spice:50051
@@ -336,7 +342,7 @@ service:
 | Every record stored | `OK` | 200 |
 | No dataset has `otlp_logs: all` | `UNIMPLEMENTED` | 501 |
 | The logs dataset is still loading (for example during startup), or a write failed | `UNAVAILABLE` | 503 — exporters retry |
-| Malformed body | `INVALID_ARGUMENT` | 400 |
+| Malformed body, or every record rejected (below) | `INVALID_ARGUMENT` | 400 |
 | API key without write access | `PERMISSION_DENIED` | 403 |
 
 An export is acknowledged only after its records are written. Delivery is at least once, as the OTLP specification describes: when an exporter retries an export whose acknowledgement was lost, its records are stored again.
@@ -359,7 +365,7 @@ An export is acknowledged only after its records are written. Delivery is at lea
 | `resource_schema_url`, `scope_schema_url` | `Utf8` | `NULL` when empty. |
 | `scope_name`, `scope_version` | `Utf8` | The instrumentation scope. `NULL` when empty. |
 
-A record whose time is after 2262-04-11, which no nanosecond timestamp can hold, is rejected and counted in the export's partial-success response.
+A record whose time or observed time is after 2262-04-11, which no nanosecond timestamp can hold, is rejected. When an export has other records, they are stored and the rejected ones are counted in the export's partial-success response. When every record in an export is rejected, including a single record sent alone, the export fails with `INVALID_ARGUMENT` (HTTP 400) and nothing is stored.
 
 #### Querying logs
 
