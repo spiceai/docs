@@ -11,6 +11,14 @@ To use a specific model, include its model ID in the `from` field (see example b
 
 The default deliberately trails Anthropic's newest model. Claude 5 models reject `temperature` and `top_p` individually, so a request that sets either of them fails against them; `claude-sonnet-4-6` is the newest model that still accepts each of them. It accepts them one at a time, not in every combination — Claude 4 and later reject `temperature` and `top_p` set *together*, and reject a trailing assistant message (a response prefill). Set `from: anthropic:<model_id>` to use a newer model, and drop these parameters when you do.
 
+When a model refuses `temperature` or `top_p`, Spice returns HTTP `400` with an error that names the model, the parameter, and where to remove it:
+
+```
+Failed to run a chat completion with Anthropic model 'claude-sonnet-5': the model does not accept the `temperature` parameter. Remove `temperature` from the request and from the model's `params` (as `temperature`, `anthropic_temperature` or `openai_temperature`), or set `from: anthropic:<model_id>` to a model that accepts it. Cause: `temperature` is deprecated for this model. See: https://spiceai.org/docs/components/models/anthropic
+```
+
+A streaming request receives the same message in an SSE `error` event.
+
 Per-token log probabilities are not available from any Anthropic model — the Messages API returns none. A request that sets `logprobs: true` or `top_logprobs` is therefore refused by Spice before it reaches Anthropic, rather than answered with a completion that silently omits what was asked for. The refusal is an `invalid_request_error` naming the parameter:
 
 ```
@@ -21,12 +29,13 @@ Either field can arrive from the request or from the model's [parameter override
 
 The following parameters are specific to Anthropic models:
 
-| Parameter              | Description                                                     | Default                        |
-| ---------------------- | --------------------------------------------------------------- | ------------------------------ |
-| `anthropic_api_key`    | The Anthropic API key.                                          | -                              |
-| `anthropic_auth_token` | The Anthropic Auth Token.                                       | -                              |
-| `anthropic_usage_tier` | Anthropic usage tier (1-4). Used for rate limit defaults.       | -                              |
-| `endpoint`             | The Anthropic API base endpoint.                                | `https://api.anthropic.com/v1` |
+| Parameter                | Description                                                                                                                      | Default                        |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `anthropic_api_key`      | The Anthropic API key.                                                                                                           | -                              |
+| `anthropic_auth_token`   | The Anthropic Auth Token.                                                                                                        | -                              |
+| `anthropic_workspace_id` | The Anthropic workspace ID, sent as the `anthropic-workspace-id` header. Required when the API key is not scoped to a workspace. | -                              |
+| `anthropic_usage_tier`   | Anthropic usage tier (1-4). Used for rate limit defaults.                                                                        | -                              |
+| `endpoint`               | The Anthropic API base endpoint.                                                                                                 | `https://api.anthropic.com/v1` |
 
 Example `spicepod.yml` configuration:
 
@@ -36,6 +45,17 @@ models:
     name: claude_4_5_sonnet
     params:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
+```
+
+An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic runs a request from a multi-workspace key in the workspace named by its `anthropic-workspace-id` header (see [API keys and resource scoping](https://platform.claude.com/docs/en/manage-claude/workspaces#api-keys-and-resource-scoping)). When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
+
+```yaml
+models:
+  - from: anthropic:claude-sonnet-4-6
+    name: anthropic
+    params:
+      anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
+      anthropic_workspace_id: wrkspc_...
 ```
 
 See [Anthropic Model Names](https://platform.claude.com/docs/en/about-claude/models/overview) for a list of supported model names.

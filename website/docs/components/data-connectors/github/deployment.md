@@ -43,7 +43,7 @@ GitHub's REST API rate limits:
 | GitHub App installation     | 15,000 requests/hr    |
 | Enterprise Server (typical) | Configurable          |
 
-The connector respects GitHub's `Retry-After` and `X-RateLimit-Reset` headers and backs off accordingly. It stops issuing requests while the primary limit's remaining budget is at or below **10%** of the limit, so other users of the same token keep a reserve, and resumes at the next reset window.
+The connector respects GitHub's `Retry-After` and `X-RateLimit-Reset` headers and backs off accordingly. It stops issuing requests while the primary limit's remaining budget is at or below **10%** of the limit, so other users of the same token keep a reserve, and resumes at the next reset window. GitHub meters the REST quota per token, so every dataset that uses the same token or GitHub App installation shares one REST rate limiter.
 
 GraphQL is paced separately. GitHub's GraphQL [secondary rate limit](https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api#secondary-rate-limits) is **2,000 points per minute**, and a non-mutation GraphQL request costs **1 point** regardless of how many nodes or nested connections it asks for. The connector paces itself to 90% of that — a sustained **1,800 requests per minute** — and every GraphQL-backed table on one authentication context shares a single limiter, so adding datasets divides that budget rather than multiplying it. Because every query costs the same 1 point, the shared limiter is first-come-first-served across tables: one large scan cannot starve the others. A secondary-limit `403` is retried on the same page using the response's `retry-after`.
 
@@ -53,7 +53,7 @@ GraphQL CPU time is not estimated locally: HTTP duration is not GitHub's CPU acc
 
 Page width is chosen per table, not fixed at GitHub's 100-item maximum. GitHub enforces a **per-request compute budget** ([GraphQL API resource limits announcement](https://github.blog/changelog/2025-09-01-graphql-api-resource-limits/)) that is separate from — and reached long before — the [500,000-node ceiling](https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api#node-limit), and a page wide enough to exceed it is rejected outright with `Resource limits for this query exceeded`, every node in the page returned as `null`. Tables whose rows expand into many nested connections therefore request narrower pages: `pulls` is requested 25 at a time in both comment modes, while `issues` and `milestones` still use 100.
 
-**Nested connections are paged too.** `reviews`, `review_threads` and `release_assets` exist only underneath a parent in GitHub's GraphQL schema, and GitHub caps a nested connection page at 100 nodes and will not page it from inside the parent query. The connector fetches the remainder with follow-up requests addressed at the parent, so a pull request with more than 100 reviews is read completely rather than truncated — a truncated nested connection would drop whole rows, and a short `COUNT(*)` gives no sign it is short. When a nested connection cannot be continued, the scan fails and names the parent rather than returning a partial set.
+**Nested connections are paged too.** `reviews`, `review_threads` and `release_assets` exist only underneath a parent in GitHub's GraphQL schema, and GitHub caps a nested connection page at 100 nodes and will not page it from inside the parent query. The connector fetches the remainder with follow-up requests addressed at the parent, so a pull request with more than 100 reviews is read completely rather than truncated — a truncated nested connection would drop whole rows, and a short `COUNT(*)` gives no sign it is short. A follow-up page that fails is retried on its own, without fetching the parent page again; a gateway error retries it with a smaller page. When a nested connection cannot be continued, the scan fails and names the parent rather than returning a partial set. This happens when a follow-up page repeats the previous cursor, when a page reports more nodes but returns no cursor, or when the last page leaves the connection with fewer nodes than its `totalCount`.
 
 Datasets backed by high-volume endpoints (e.g., `repos.commits` on a monorepo) may require many hours to initially hydrate. Use incremental acceleration with a `since` filter where possible.
 
@@ -65,7 +65,11 @@ The page was wider in earlier releases, putting the arithmetic ceiling at 100,10
 
 ### Retry Behavior
 
-Transient 5xx responses are retried with exponential backoff up to a bounded retry count. Permanent errors (401 Unauthorized, 404 Not Found, 422 Validation Failed) surface immediately.
+Tables read through the GitHub GraphQL API, such as `pulls`, `issues`, `commits`, and `stargazers`, use the GraphQL connector's retry policy. Each page, and each GraphQL request sent when the dataset loads to check the repository or organization and infer its schema, is retried up to 5 times with Fibonacci backoff, honoring `Retry-After`. An empty HTTP 200, which the GitHub GraphQL API returns intermittently, is retried on a new connection, and a 502, a 504, or a GitHub backend-timeout error is retried with a smaller page. See [Retry Behavior](../graphql/deployment.md#retry-behavior) in the GraphQL deployment guide for the full list of retried responses.
+
+The `files` table and the workflow tables read through the GitHub REST API, as do the ref lookups for `commits`. A [REST request](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/data-connectors/connector-github/src/github.rs) retries connection errors and timeouts with Fibonacci backoff, up to 5 times for the `files` tree request and 3 times for other requests. An HTTP error status from the REST API, including 5xx and 429, is not retried.
+
+Permanent errors (401 Unauthorized, 404 Not Found, 422 Validation Failed) surface immediately.
 
 ## Capacity & Sizing
 

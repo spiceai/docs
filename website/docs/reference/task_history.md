@@ -35,7 +35,7 @@ For the full list of parameters, see the [`runtime.task_history` reference](./sp
 
 ## Captured Context
 
-Tasks that carry user or model content — `ai_chat`, `ai_completion`, `responses`, `text_embed`, `search`, `nsql`, `scheduled_worker`, and every `tool_use::*` task — store that content in the `input` and `captured_output` columns. `captured_context` controls how much of it is written:
+Tasks that carry user or model content — `ai_chat`, `ai_decision`, `ai_completion`, `responses`, `text_embed`, `search`, `nsql`, `scheduled_worker`, and every `tool_use::*` task — store that content in the `input` and `captured_output` columns. `captured_context` controls how much of it is written:
 
 ```yaml
 runtime:
@@ -83,7 +83,7 @@ For a SQL query, over HTTP (`/v1/sql`), Arrow Flight, or Flight SQL:
   DEBUG query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed (InternalError): ...
   ```
 
-`/v1/chat/completions`, `/v1/responses`, `/v1/nsql`, and `/v1/evaluate` also record a client-supplied ID in the `trace_id` column of their `task_history` rows.
+`/v1/chat/completions`, `/v1/responses`, `/v1/nsql`, and `/v1/decisions` also record a client-supplied ID in the `trace_id` column of their `task_history` rows.
 
 A value that is not 32 hexadecimal characters, or is all zeros, does not fail the request. The runtime logs a warning and generates an ID instead:
 

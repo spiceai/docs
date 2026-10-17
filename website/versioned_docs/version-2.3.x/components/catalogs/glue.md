@@ -230,4 +230,4 @@ debug logs provide each reason. Warnings are rate-limited unless the set of skip
 
 ## Cookbook
 
-There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure an AWS Glue Data Connector in Spice.
+There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure the AWS Glue Catalog Connector in Spice.

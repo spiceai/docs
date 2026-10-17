@@ -86,6 +86,12 @@ Append-mode accelerations that define a `time_column` wait to report ready until
 
 Pair `refresh_mode: append` with a `primary_key` and `on_conflict: upsert` to handle source rows that are occasionally updated. See [End-to-End Incremental Ingestion Example](../data-refresh#end-to-end-incremental-ingestion-example).
 
+On [Spice Cayenne](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write), duplicate keys are collapsed inside one incoming batch. The same key in a later batch of that refresh is rejected. When one poll can contain two versions of a key — a cold load of a log, or a [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) window that holds both — append without a `primary_key` and read the latest row from a view. DuckDB, which the example above uses, upserts across batches.
+
+## Iceberg table layout
+
+An append poll of an Iceberg source skips files and Parquet row groups from partition values and column statistics. How much it skips depends on whether the table is partitioned or sorted by the time column, or compacted so that old and new rows share a file. See [Append refresh and table layout](../../../components/data-connectors/iceberg.md#append-refresh-and-table-layout).
+
 ## Related Topics
 
 - [Refresh Interval](../data-refresh#refresh-interval)

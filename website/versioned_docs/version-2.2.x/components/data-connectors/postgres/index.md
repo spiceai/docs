@@ -312,6 +312,6 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 ## Cookbook
 
-- A cookbook recipe to configure PostgreSQL as a data connector in Spice. [PostgreSQL Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/postgres/accelerator#readme)
+- A cookbook recipe to configure PostgreSQL as a data connector in Spice. [Postgres Data Connector](https://github.com/spiceai/cookbook/tree/trunk/postgres/connector#readme)
 - A cookbook recipe to configure AWS RDS for PostgreSQL as a data connector in Spice. [AWS RDS for PostgreSQL](https://github.com/spiceai/cookbook/tree/trunk/postgres/rds#readme)
-- A cookbook recipe to configure Supabase a data connector in Spice. [Supabase (PostgreSQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/postgres/supabase#readme)
+- A cookbook recipe to configure Supabase as a data connector in Spice. [Supabase (PostgreSQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/postgres/supabase#readme)

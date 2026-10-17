@@ -21,18 +21,18 @@ Spice is dual-era. It serves the [`2026-07-28`](https://modelcontextprotocol.io/
 | **Modern** (`2026-07-28`) | `server/discover`, then `tools/list` and `tools/call` with per-request `_meta` — no `initialize` first | Sessionless. No `Mcp-Session-Id`. |
 | **Legacy** (`2025-11-25` and earlier, including `2025-03-26`) | `initialize`, then `notifications/initialized` | Spice mints an `Mcp-Session-Id` and requires it on subsequent requests. |
 
-Spice advertises `2026-07-28`; a legacy client negotiates the revision it requests in `initialize`.
+Spice advertises `2026-07-28` and accepts `2024-11-05`, `2025-03-26`, `2025-06-18`, `2025-11-25`, and `2026-07-28`, the list `server/discover` returns in `supportedVersions`. A legacy client negotiates the revision it requests in `initialize`. An `initialize` that requests `2026-07-28`, or a revision Spice does not support, is answered with `2025-11-25`, the newest legacy revision.
 
 Modern clients send the `MCP-Protocol-Version`, `Mcp-Method`, and — for `tools/call` — `Mcp-Name` Streamable HTTP headers. A tool argument annotated with `x-mcp-header` additionally requires a matching `Mcp-Param-<name>` header whose value equals that argument in the JSON-RPC body.
 
 | Condition | Response |
 | --- | --- |
-| A protocol version this runtime does not support | JSON-RPC `-32022`; `data.supported` lists the revisions it accepts |
+| A modern request whose protocol version this runtime does not support | HTTP `400` with JSON-RPC `-32022`; `data.supported` lists the revisions it accepts |
 | A Streamable HTTP header that disagrees with the JSON-RPC body | HTTP `400` with JSON-RPC `-32020` |
 
-`GET /v1/mcp` (the server-to-client SSE stream) and `DELETE /v1/mcp` (session teardown) are legacy-era only — both act on an `Mcp-Session-Id`. A `2026-07-28` client POSTs `subscriptions/listen` instead of opening a GET stream.
+`GET /v1/mcp` (the server-to-client SSE stream) and `DELETE /v1/mcp` (session teardown) are legacy-era only — both act on an `Mcp-Session-Id`. Spice does not serve `subscriptions/listen`, the `2026-07-28` notification stream: the request returns HTTP `404` with JSON-RPC `-32601` (method not found).
 
-When Spice connects _to_ another MCP server (`from: mcp:<url>`, or a stdio server), it negotiates the same two eras automatically: it prefers `server/discover` at `2026-07-28` and falls back to `initialize` at `2025-03-26` when the peer is pre-2026. Liveness is probed with `ping`, and — because `2026-07-28` has no `ping` — a failed ping is retried as an uncached `tools/list` before the connection is treated as dead.
+When Spice connects _to_ another MCP server (`from: mcp:<url>`, or a stdio server), it negotiates the same two eras automatically: it prefers `server/discover` at `2026-07-28` and falls back to `initialize` at `2025-03-26` when the peer answers `server/discover` with an error or does not answer it within 10 seconds. A peer that never answers `server/discover` therefore delays runtime startup by 10 seconds. Liveness is probed with `ping`, and — because `2026-07-28` has no `ping` — a failed ping is retried as an uncached `tools/list` before the connection is treated as dead.
 
 ## Configuring MCP Tools
 
@@ -124,7 +124,7 @@ runtime:
       - my-host.internal:8090
 ```
 
-Set `allowed_hosts: ["*"]` to disable host checking entirely.
+Set `allowed_hosts: ["*"]` to disable host checking entirely. An empty list (`allowed_hosts: []`) uses the localhost defaults; it does not disable the check.
 
 ### Allowed Origins
 
@@ -194,6 +194,31 @@ tools:
       API_KEY: your_api_key
 ```
 
+A stdio MCP server does not inherit the `spiced` environment, so secrets in that environment do not reach the server. The server process starts with only these variables from the `spiced` environment, when they are set, plus the variables in `env`:
+
+| Platform | Inherited variables |
+| --- | --- |
+| Linux and macOS | `HOME`, `LOGNAME`, `PATH`, `SHELL`, `TERM`, `USER` |
+| Windows | `APPDATA`, `HOMEDRIVE`, `HOMEPATH`, `LOCALAPPDATA`, `PATH`, `PATHEXT`, `PROCESSOR_ARCHITECTURE`, `SYSTEMDRIVE`, `SYSTEMROOT`, `TEMP`, `USERNAME`, `USERPROFILE` |
+
+This is the same set the [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) passes to stdio servers. A variable in `env` overrides an inherited variable of the same name. Pass any other variable the server needs through `env`, for example from a [secret store](../secret-stores/):
+
+```yaml
+tools:
+  - name: github
+    from: mcp:npx
+    params:
+      mcp_args: -y @modelcontextprotocol/server-github
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${secrets:GITHUB_PERSONAL_ACCESS_TOKEN}
+```
+
+:::note
+
+In `v2.4.0-rc.1`, a stdio MCP server inherited the full `spiced` environment. A server that relied on that, for example to read a token, now needs the variable set in `env`.
+
+:::
+
 ### `description`
 
 The `description` field provides a textual description of the tool. This description is passed to any language model that uses the tool.
@@ -204,5 +229,7 @@ tools:
     from: mcp:npx
     description: Provides geocoding and mapping capabilities.
 ```
+
+For a tool that proxies an MCP server, Spice adds the `description` before the description of each tool the server provides, separated by a blank line. A proxied tool without an upstream description uses the `description` alone. The combined description appears to models, in `GET /v1/tools`, and in the `/v1/mcp` `tools/list` response.
 
 For more details, see the [MCP Tools Reference](../../reference/spicepod/tools).

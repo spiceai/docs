@@ -479,6 +479,14 @@ Will produce the following Spice dataset:
 
 :::
 
+## Query Pushdown
+
+Spice sends the selected columns and the supported `WHERE` conditions to DynamoDB. An equality on the partition key turns the read into a DynamoDB `Query` instead of a `Scan`, and conditions on the sort key in the same query become part of its key condition expression. Other supported conditions become a filter expression.
+
+DynamoDB evaluates `NOT`, `<>`, and `NOT IN` with two-valued logic, so they match an item that does not have the attribute or holds `NULL` in it, while SQL excludes that item. Spice sends these conditions to narrow the read and evaluates them again on the items DynamoDB returns, so the result matches SQL. For example, `WHERE v <> 30` does not return an item without a `v` attribute.
+
+Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the request: the `DynamoDBTableProviderExec` node shows a `Query` or `Scan` request plan with its key condition, filter, and projection expressions.
+
 ## Data Manipulation (DML)
 
 The DynamoDB connector supports `INSERT`, `UPDATE`, and `DELETE` operations.

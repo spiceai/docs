@@ -87,3 +87,7 @@ For the same reason `--pods-watcher-enabled` is ignored on an instance serving a
 `spice cloud unlink` releases the instance in Spice Cloud, uninstalls its service, and clears the local identity. It refuses while the instance is running, and it leaves the project in place — delete that with `spice cloud project delete <org>/<project>`.
 
 `spice cloud service uninstall` is the narrower operation: it removes the service and keeps the Cloud identity, so a later install resumes the same enrollment.
+
+## Cookbook
+
+- A cookbook recipe to connect a local Spice instance to Spice Cloud, deploy changes without restarting, deliver a secret, and restart the instance. [Cloud Connect on a Development Machine](https://github.com/spiceai/cookbook/tree/trunk/cloud-connect-dev#readme)

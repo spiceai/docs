@@ -247,6 +247,8 @@ When using [`refresh_mode: caching`](../../features/data-acceleration/refresh-mo
 If you set `refresh_check_interval: 15m` but leave `caching_ttl` at its default, cached entries are considered stale after only **30 seconds** — not 15 minutes. Always set `caching_ttl` explicitly to match your intended freshness window.
 :::
 
+To prefer the origin and fall back to the accelerator only when the origin fails, set `caching_ttl: 0s`, `caching_stale_while_revalidate_ttl: 0s`, and `caching_stale_if_error: enabled`. While the origin is healthy, Spice does not serve the accelerator. A successful response is still stored and is consulted only after a later origin failure. A zero TTL does not mean every read is served from the accelerator. Pair `enabled` with `caching_max_size`, `caching_max_items`, or retention. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
+
 :::warning[A TTL does not bound the cache]
 A workload that keeps fetching new request paths grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are kept as fallback material and never expire away. Set `caching_max_size` or `caching_max_items` — see [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
 :::

@@ -110,4 +110,5 @@ Re-snapshotting a large collection is opt-in by default to prevent silent expens
 ## See also
 
 - [MongoDB Data Connector](../../components/data-connectors/mongodb.md) — complete parameter reference and connection options.
+- [MongoDB Change Streams](https://github.com/spiceai/cookbook/tree/trunk/mongodb/change-streams#readme) — cookbook recipe.
 - [`refresh_mode: changes`](../data-acceleration/refresh-modes/changes.md) — refresh-mode reference.

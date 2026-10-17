@@ -84,7 +84,7 @@ When configured as a vector engine, Spice:
 3. Writes vectors and source fields to the configured Elasticsearch index, provisioning the index mapping when needed (`dense_vector` of the correct dimension plus text fields for full-text search).
 4. At query time, routes `vector_search`, `text_search`, and `rrf` against the Elasticsearch index using native kNN and BM25 queries.
 
-Source fields on the dataset are indexed as `text` in Elasticsearch so they can be used as full-text search targets. Primary key columns are indexed as `keyword` and included in kNN results so that matches can be joined back to the Spice base table when additional columns are requested.
+Source fields on the dataset are indexed as `text` in Elasticsearch so they can be used as full-text search targets. Primary key columns are mapped for exact matching — a string key as `keyword`, other key types as their native Elasticsearch type, such as `long` — and are included in kNN results so that matches can be joined back to the Spice base table when additional columns are requested.
 
 :::warning[Limitations]
 
@@ -146,9 +146,9 @@ Vector, full-text, and hybrid search use the standard Spice UDTFs. When the data
 ### Vector Search
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, 'wireless noise cancelling headphones')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -159,9 +159,9 @@ The query text is embedded with the configured embedding model and sent to Elast
 Any `Utf8`/`LargeUtf8` column on the dataset is available as a full-text search target:
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM text_search(products, 'bluetooth waterproof', description)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -194,3 +194,7 @@ When `elasticsearch_user` and `elasticsearch_pass` are provided, the vector engi
 | Ingest data from another source and have Spice manage vectors in ES.    | Elasticsearch Vector Engine (this page).                                  |
 
 Both paths surface `vector_search`, `text_search`, and `rrf`; pick the one that matches which system owns the data.
+
+## Cookbook
+
+- A cookbook recipe to use Elasticsearch for both full-text and vector search. [Elasticsearch Full-Text and Vector Search](https://github.com/spiceai/cookbook/tree/trunk/search/elasticsearch#readme)

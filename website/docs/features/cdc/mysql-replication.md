@@ -58,7 +58,7 @@ datasets:
         id: upsert
 ```
 
-`primary_key` + `on_conflict: upsert` are **required** (except on the append-only `arrow` engine): UPDATE events apply as upserts keyed on the primary key and DELETE events are routed by it. The connector fails fast at startup with an actionable message if either is missing.
+`primary_key` is **required** (except on the append-only `arrow` engine): UPDATE events apply as upserts keyed on the primary key and DELETE events are routed by it. On `duckdb`, `sqlite`, `postgres`, and `turso`, `on_conflict: upsert` on that key is also required; `cayenne` keeps one row per primary key without it. The connector fails fast at startup with an actionable message if a required setting is missing.
 
 All upsert-capable accelerator engines are supported — `duckdb`, `sqlite`, `cayenne`, `postgres`, and `turso` — and each persists the binlog resume position in its `spice_sys_mysql_binlog` sidecar when file-backed. The `arrow` engine works append-only (UPDATEs insert new rows).
 
@@ -235,3 +235,8 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 - **Schema evolution is block-mode only** — compatible `ALTER TABLE` is tolerated (see [Schema changes](#schema-changes)), but `on_schema_change` policies that _adopt_ new columns (`append_new_columns` / `sync_all_columns`) are not yet wired to this connector.
 - **XA (two-phase) transactions are not supported.** An XA transaction that touches the replicated table stops the stream with an error; XA activity on other tables logs a warning and is ignored.
 - Not supported source types: geometry/spatial, vectors, negative `TIME`.
+
+## Cookbook
+
+- A cookbook recipe to stream changes from a MySQL table over the binary log. [MySQL CDC (Binlog Replication)](https://github.com/spiceai/cookbook/tree/trunk/mysql/cdc#readme)
+- A cookbook recipe to stream changes from an AWS-hosted Aurora MySQL cluster over the binary log. [Aurora MySQL CDC (Binlog Replication, AWS Hosted)](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora-cdc#readme)

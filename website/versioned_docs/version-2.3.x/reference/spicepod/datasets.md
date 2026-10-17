@@ -210,11 +210,11 @@ Optional. The format of the `time_column`. The following values are supported:
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 - `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
-Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
+For an accelerated dataset, Spice checks `time_format` against the data type of the `time_column` when the dataset loads. When `time_format` is omitted, `timestamp` is assumed. A `time_format` that does not match the column's data type fails the dataset with an error that names the column's data type and the configured `time_format`.
 
 :::warning[Limitations]
 
-- String-based columns are assumed to be ISO8601 format.
+- String columns are parsed as ISO 8601. An accelerated dataset with a string `time_column` requires `time_format: iso8601`, because the default `timestamp` format does not match a string column.
 
 :::
 
@@ -617,6 +617,8 @@ datasets:
       refresh_check_interval: 30s # Periodic background refresh
 ```
 
+A `caching_ttl` of `0s` marks entries stale immediately. With `caching_stale_while_revalidate_ttl: 0s` and `caching_stale_if_error: enabled`, Spice does not serve the accelerator while the origin is healthy. A successful origin response is still stored, and that entry is consulted only when a later origin request fails. Zero TTL alone does not mean every read is served from the accelerator. Pair `enabled` with `caching_max_size`, `caching_max_items`, or retention. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
+
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
 
 See [Duration](../duration)
@@ -911,6 +913,8 @@ The possible conflict resolution strategies are:
 - `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
+
+On Spice Cayenne, an append refresh collapses a key repeated within one batch instead of failing, and rejects a key repeated across batches of one write. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
 
 See [Constraints](../../features/data-acceleration/constraints)
 

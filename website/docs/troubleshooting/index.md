@@ -66,11 +66,39 @@ SPICED_LOG="WARN,opendal::layers::retry=DEBUG" spice run
 - **Check cache status**: For repeated queries, verify caching is active by inspecting the `Results-Cache-Status` HTTP header. A `MISS` on repeated identical queries may indicate a low `item_ttl`.
 - **Check where acceleration files and spill live**: a file-mode acceleration on a network file system (NFS, SMB, EFS, Azure Files) or on a network block volume runs at that storage's per-I/O latency — a millisecond or more per dependent read, against tens of microseconds on NVMe — and a spill directory left at its default lands on the root volume. Move both to local NVMe/SSD — see [Storage](reference/performance-tuning#storage).
 
+### Query execution errors
+
+A rise in [`query_failures`](../features/observability/index.md) means queries are failing. The `err_code` label is one of `SyntaxError`, `QueryPlanningError`, `QueryExecutionError`, `ResourcesExhausted`, or `InternalError`. A parse error is `SyntaxError`. A planning error can be `QueryPlanningError`, but many planning errors, such as an unknown table or column, are labeled `InternalError`, so read the logged error text before treating `InternalError` as a runtime fault. A [`runtime.query.timeout`](../reference/spicepod/runtime.md#runtimequerytimeout) expiry is `QueryExecutionError`, together with other execution failures such as divide by zero. The counter records the count and the code. It does not record the SQL or the error text.
+
+The text is logged on `runtime::datafusion::query`. A memory-pool refusal is logged at WARN as `Query refused, out of memory` and returned as HTTP 503. Every other failure is logged at DEBUG as `Query failed (<err_code>): ...`. Enable that line without raising every target:
+
+```bash
+SPICED_LOG='runtime::datafusion::query=debug,info' spice run
+```
+
+`SPICED_LOG` applies only when neither `--verbose` nor `--very-verbose` is set — see [Trace Levels](../cli/tracing.md).
+
+When the failure is known before the HTTP response starts, `/v1/sql` returns the error text as the body. An execution error such as divide by zero is HTTP 400. A timeout is HTTP 504. The body names the query and says to increase `runtime.query.timeout` or optimize the query. If rows have already started streaming, the status stays 200 and the stream ends with the error — the same behavior [`runtime.query.timeout`](../reference/spicepod/runtime.md#runtimequerytimeout) describes.
+
+Flight and Flight SQL carry the same text on the gRPC status. A timeout is `DEADLINE_EXCEEDED`. A JDBC client, which talks to Spice over Flight SQL, reads it from `SQLException.getMessage()`.
+
+[`runtime.task_history`](../reference/task_history.md) keeps the failed query and its `error_message` in memory for the retention period (8 hours by default). Client applications should log the error response so the text is still available when task history is disabled or the retention window has passed.
+
 ### AI chat returns incorrect or empty results
 
 - **Verify model deployment**: Check the runtime logs for `Model [name] deployed, ready for inferencing`. If the model failed to load, review error messages in the logs.
 - **Check tools configuration**: Ensure `tools: auto` is set in the model params so the model can discover and query datasets.
 - **Use `spice trace ai_chat`**: Inspect the trace output to see which tools the model called and whether SQL queries succeeded or failed.
+
+### A configured model fails with "failed to load"
+
+When a model in the Spicepod fails to load, `/v1/chat/completions`, `/v1/nsql` (streaming or not), the `ai()` SQL function, and the SQL [decision functions](../features/large-language-models/decisions.md) such as `ai_if` name the model and the load error. For example, a provider account with no balance returns:
+
+```
+Model 'deepseek' failed to load, so it cannot serve requests. Cause: Failed to load LLM: deepseek. Failed to initialize LLM model: Failed to check the status of the model. An error occurred: unknown_error: Insufficient Balance (code: invalid_request_error) Verify the model configuration.
+```
+
+`POST /v1/decisions` returns the same message with status `404` and `code` `model_not_found`, the status and code it returns for a model name that is not in the Spicepod. `GET /v1/models?status=true` reports the same cause in the model's `error_message`.
 
 ### Container OOM-killed despite a configured memory limit
 

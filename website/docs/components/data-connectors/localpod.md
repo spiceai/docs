@@ -36,7 +36,27 @@ datasets:
   - from: localpod:test
     name: test_local
     acceleration:
-      enabled: true # This dataset accelerates the parent `test` dataset into in-memory Arrow records and is synchronized with the parent
+      enabled: true # This dataset accelerates the parent `test` dataset in memory and is synchronized with the parent
+```
+
+## Multiple Children and Load Order
+
+Any number of `localpod` datasets can read from the same parent, and a `localpod` dataset can appear before its parent in the Spicepod. At startup, each child loads after the dataset it reads from. `from` accepts the parent's dataset name or its full table name, so `localpod:taxi_trips` and `localpod:spice.public.taxi_trips` read the same parent.
+
+```yaml
+datasets:
+  - from: localpod:taxi_trips
+    name: taxi_trips_local
+    acceleration:
+      enabled: true
+  - from: https://public-data.spiceai.org/taxi_sample.parquet
+    name: taxi_trips
+    acceleration:
+      enabled: true
+  - from: localpod:spice.public.taxi_trips
+    name: taxi_trips_local_2
+    acceleration:
+      enabled: true
 ```
 
 ## Hot Reload

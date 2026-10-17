@@ -59,8 +59,6 @@ datasets:
       mode: file
       refresh_mode: changes
       primary_key: id
-      on_conflict:
-        id: upsert
     params:
       # Avro only — Confluent-compatible Schema Registry base URL:
       # cdc_schema_registry_url: https://schema-registry:8081
@@ -74,7 +72,7 @@ datasets:
 - `acceleration.enabled: true`
 - `acceleration.refresh_mode: changes`
 - Explicitly declared `columns` with types — there is no upstream bus or catalog to infer the schema from.
-- `primary_key` and an `on_conflict` upsert mapping, except for the append-only [Arrow](../../components/data-accelerators/arrow/index.md) accelerator.
+- `primary_key`, except for the append-only [Arrow](../../components/data-accelerators/arrow/index.md) accelerator. On Spice Cayenne, DuckDB, and SQLite, an update event or a repeated create event replaces the row with the same key.
 
 ### Parameters
 

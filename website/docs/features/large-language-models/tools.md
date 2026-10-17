@@ -91,3 +91,35 @@ models:
     params:
       tool_recursion_limit: 3
 ```
+
+On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run.
+
+### Tool Calls in Responses API Output
+
+On the [`/v1/responses`](../../api/HTTP/post-responses) endpoint, each Spice tool call the model made appears in the response `output` as an `mcp_call` item, at the position where the model made the call. Spice has already run the call, so clients that follow the OpenAI convention for server-run tool calls, including the OpenAI Agents SDKs, do not try to run it themselves.
+
+```json
+{
+  "type": "mcp_call",
+  "id": "mcp_spice_call_Zx3",
+  "server_label": "spice",
+  "name": "sql",
+  "arguments": "{\"query\":\"SELECT region, SUM(quantity * unit_price) AS revenue FROM orders GROUP BY region\"}",
+  "output": "[{\"region\":\"north\",\"revenue\":124.0}]",
+  "error": null,
+  "approval_request_id": null,
+  "status": "completed"
+}
+```
+
+The item's `server_label` is `spice`, and its `id` is `mcp_spice_` followed by the model's call ID. `output` is the tool result exactly as the model received it: a string result as is, and any other value as JSON. A call that failed has `"status": "failed"` and the error message the model received in `output`.
+
+Because Spice tool calls precede the answer, `output[0]` is not necessarily the model's message. Read the answer from the `message` items in `output`, or with the `output_text` property of the OpenAI SDKs.
+
+When streaming, a Spice tool call produces the same events OpenAI streams for a hosted MCP call: `response.output_item.added`, `response.mcp_call.in_progress`, `response.mcp_call_arguments.delta` and `response.mcp_call_arguments.done` as the model writes the arguments, then `response.mcp_call.completed` or `response.mcp_call.failed` and `response.output_item.done` after Spice runs the call.
+
+A client that keeps its own conversation history can send the `output` items back as the next request's `input` unchanged. Before calling the model provider, Spice converts each of its `mcp_call` items back into the `function_call` and `function_call_output` pair the model originally saw, so the model knows which tools it called and what they returned. If an item comes back without its `output`, as the OpenAI Agents SDK for JavaScript sends it, the model receives a note that the result was not sent back, and still sees the call and its arguments. Spice does not run a replayed call again. Hosted MCP calls from other servers pass through unchanged, and requests that continue a conversation with `previous_response_id` are unaffected.
+
+## Cookbook
+
+- A cookbook recipe to query data with natural language using the built-in text-to-SQL tools. [Text-to-SQL (NSQL)](https://github.com/spiceai/cookbook/tree/trunk/text-to-sql#readme)

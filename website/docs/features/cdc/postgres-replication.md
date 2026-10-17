@@ -77,18 +77,22 @@ On managed Postgres services:
 | Azure Database       | Under **Replication**, set *Replication support* to `LOGICAL`.                      |
 | Supabase / Neon      | Logical replication is enabled by default.                                          |
 
-### 3. The source table must have a replica identity
+### 3. Every row needs a primary key
 
-Spice needs the primary key columns in every `UPDATE`/`DELETE` event, so one of the following must be true:
+Spice applies each `UPDATE` and `DELETE` to the row with the same primary key, so the key columns must be in every event. One of the following must be true:
 
 - The table has a **primary key** (default — nothing to do).
-- Or the table has `REPLICA IDENTITY FULL`:
+- Or the table has no primary key: set [`acceleration.primary_key`](../../reference/spicepod/datasets.md#accelerationprimary_key) to columns that identify a row, and make Postgres send those columns with every event, with `REPLICA IDENTITY USING INDEX` on a unique index over them or with `REPLICA IDENTITY FULL`:
 
   ```sql
   ALTER TABLE public.users REPLICA IDENTITY FULL;
   ```
 
-Tables with `REPLICA IDENTITY NOTHING` are rejected at startup.
+  PostgreSQL accepts an index for `REPLICA IDENTITY USING INDEX` only when it is unique, non-partial, and non-deferrable, and every indexed column is `NOT NULL`. Otherwise the `ALTER TABLE ... REPLICA IDENTITY USING INDEX` statement fails. See [Replica identity](https://www.postgresql.org/docs/current/logical-replication-publication.html#LOGICAL-REPLICATION-PUBLICATION-REPLICA-IDENTITY) and [`ALTER TABLE`](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY) in the PostgreSQL documentation.
+
+  The `cayenne` and `arrow` engines need only the `primary_key`. Other engines, such as `duckdb`, `sqlite`, and `postgres`, also need a matching `acceleration.on_conflict` upsert entry for the key.
+
+`REPLICA IDENTITY FULL` alone is not enough: it does not give a row a unique identity, because identical rows are indistinguishable. A `refresh_mode: changes` dataset over a table with no primary key and no `acceleration.primary_key` fails to load with an error that names both fixes. Tables with `REPLICA IDENTITY NOTHING` are rejected at startup.
 
 ### 4. The Postgres role needs these privileges
 
@@ -121,7 +125,7 @@ datasets:
       refresh_mode: changes    # <-- triggers WAL streaming
       primary_key: id
       on_conflict:
-        id: upsert             # required for UPDATE to become an upsert
+        id: upsert             # required for UPDATE to become an upsert, except on cayenne and arrow
 ```
 
 Start the runtime. Spice will:
@@ -207,7 +211,7 @@ When the connection is configured with [`pg_connection_string`](#connecting-with
 | `duckdb`   |    ✅    | ✅ (upsert)                  |    ✅    | Recommended for most workloads.                                                                                                                                                                        |
 | `sqlite`   |    ✅    | ✅ (upsert)                  |    ✅    | Great for small/medium datasets.                                                                                                                                                                       |
 | `postgres` |    ✅    | ✅ (upsert)                  |    ✅    | Use when the accelerator is another Postgres.                                                                                                                                                          |
-| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | S3-backed Vortex format, good for read-heavy analytics.                                                                                                                                                |
+| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | S3-backed Vortex format, good for read-heavy analytics. Keeps one row per `primary_key` without `on_conflict`.                                                                                        |
 | `arrow`    |    ✅    | ✅ (upsert with primary key) |    ✅    | Arrow's in-memory engine uses a hash index for primary-key upserts. Without a primary key, `UPDATE`s are appended as new rows. `DELETE` and `TRUNCATE` are applied via Arrow's `DeletionTableProvider`. |
 
 For Arrow workloads that need true upsert semantics (so `UPDATE`s replace existing rows instead of duplicating them), configure a `primary_key`. DuckDB, SQLite, PostgreSQL, and Cayenne also support upsert behavior.
@@ -300,6 +304,20 @@ Every Spice replica must have its own replication slot. Spice hashes the replica
 |---------------------------------|----------------------------------------------------------------|
 | `SPICE_INSTANCE_ID` env         | Preferred — set it explicitly per replica.                     |
 | `HOSTNAME` / `COMPUTERNAME` env | Fallback — works on Kubernetes where each pod has a distinct hostname. |
+| The host name                   | Last fallback, when none of the variables above is set.        |
+
+This is the [instance identity](../../reference/spicepod/runtime#instance-identity) that every Spice feature coordinating through shared state uses. An empty variable counts as unset. When an instance's identity changes, for example when `SPICE_INSTANCE_ID` is set on an instance that had none, its default slot name changes too: Spice creates a new slot, and the old slot keeps retaining WAL on the source until it is dropped. Find slots that no replica consumes with `SELECT slot_name, active FROM pg_replication_slots WHERE slot_name LIKE 'spice_%'`, then drop a confirmed-abandoned slot with `SELECT pg_drop_replication_slot('<slot name>')`.
+
+:::warning[Upgrading from v2.4.0-rc.2 and earlier]
+
+Earlier versions used the first of `SPICE_INSTANCE_ID`, `HOSTNAME`, and `COMPUTERNAME` that was set, even when its value was empty, and `unknown` when none was set. Later versions skip empty variables and fall back to the host name. Two kinds of instances therefore get a new default slot name, and create a new slot, on upgrade:
+
+- An instance with none of the variables set, such as a `systemd` service. Its old slot's name ends in `_3f484bfe`.
+- An instance whose earlier version selected an empty variable, for example an empty `SPICE_INSTANCE_ID`, or an unset `SPICE_INSTANCE_ID` with an empty `HOSTNAME`. It now uses the next non-empty variable, or the host name. Its old slot's name ends in `_38d394c2`.
+
+The old slot keeps retaining WAL until it is dropped. An instance whose earlier version selected a non-empty variable keeps its slot name.
+
+:::
 
 ### Example: Kubernetes StatefulSet
 
@@ -396,16 +414,35 @@ The watermark is written by the same call that acknowledges the slot, so it can 
 
 On each start the decision is arithmetic rather than an inference:
 
-| Recorded watermark | Slot state | Action |
+Each start matches exactly one row. "The slot can serve it" means the slot has acknowledged no further than the watermark and its `restart_lsn` is at or before it, so the WAL in between is still retained. "A snapshot is going to run" means one of the [`creation_cause`](#unplanned-source-reads) conditions holds — the acceleration does not persist, `pg_replication_initial_snapshot: always`, the table was only just added to the publication, or the slot was created by this process — and `pg_replication_initial_snapshot` is not `disabled`.
+
+| Recorded watermark | Slot and acceleration state | Action |
 | --- | --- | --- |
-| None, on an accelerator that does not survive restarts | any | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
-| None, on a durable acceleration that can record one | any | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
-| Present | Slot's `restart_lsn` is at or before the watermark | **Resume** — the WAL in between is still retained and is replayed |
-| Present | Slot's `restart_lsn` is past the watermark, or the slot is gone | **Rebuild** — the missing changes no longer exist on the source |
-| Present, but the accelerated table is empty or unreadable | Slot can still stream from it | **Rebuild** — changes before the watermark will not be replayed |
-| Recorded against a different source | any | **Rebuild** — LSNs are only comparable within one source's history |
+| None, on an accelerator that does not survive restarts | `pg_replication_initial_snapshot` is not `disabled` | **First bootstrap** — snapshot, then stream (the accelerator boots empty every start) |
+| None, on an accelerator that does not survive restarts | `pg_replication_initial_snapshot: disabled` | **Stream only** — no snapshot ever runs, so the retained WAL is replayed onto whatever the accelerator holds; the documented workflow is to pre-seed it yourself |
+| None, on a durable acceleration that has nowhere to record one | any | **No rebuild** — slot loss cannot be detected for it, and Spice warns at startup (see below) |
+| None, on a durable acceleration that can record one | The acceleration is observed to hold **no rows**, and a snapshot is going to run | **Bootstrap** — a table holding nothing cannot be hiding a row the source deleted, and the snapshot is what loads it |
+| None, on a durable acceleration that can record one | Anything else: rows present, the acceleration could not be read, or no snapshot is going to run | **Rebuild** — a table that outlives the process may already hold rows this start did not load |
+| Recorded against a different source, unreadable, or ahead of a source that was rewound | any | **Rebuild** — LSNs are only comparable within one source's history |
+| Present | The slot cannot serve it: it acknowledged past the watermark, its `restart_lsn` is past it, or the slot is gone | **Rebuild** — the missing changes can no longer be streamed |
+| Present | The slot can serve it, and a snapshot is going to run | **Snapshot, then resume** — the snapshot loads the table, and the retained WAL is replayed on top of it |
+| Present | The slot can serve it, no snapshot is going to run, and the accelerated table is observed to hold rows | **Resume** — the WAL in between is still retained and is replayed |
+| Present | The slot can serve it, no snapshot is going to run, and the accelerated table is observed to hold **no rows** | **Rebuild** — the watermark asserts every change below it is already applied, so those rows will never be resent |
+| Present | The slot can serve it, no snapshot is going to run, and the accelerated table **could not be read** to check | **Rebuild** — an unanswered probe cannot license resuming onto a table that may have been recreated |
 
 A rebuild replaces the accelerated table's contents through the ordinary full-refresh write path, so it is atomic: on Cayenne, readers keep seeing the pre-rebuild table until the new snapshot swaps in.
+
+:::note Why an empty acceleration with a usable watermark is a gap
+
+A watermark says every change below it has already been applied here, so the slot will never resend those changes however much WAL it retains. An acceleration that is nonetheless empty is missing every row committed before that position, with nothing left anywhere to supply them — resuming completes without error and the table stays permanently short of the source.
+
+This is reachable without anything being broken: `mode: file_update` recreates the accelerated table when the source schema changes incompatibly, while the `spice_sys_postgres_replication` sidecar lives in the same accelerator and survives, so the next start finds an empty table and a perfectly usable watermark. Restoring an older accelerator file, or clearing the table by hand, lands in the same state.
+
+A legitimately empty acceleration — every source row deleted, or retention having aged them all out — is rebuilt too. The two states are indistinguishable from here, and the rebuild of a genuinely empty source reads nothing.
+
+Emptiness only counts when nothing else is going to load the table. Against a *missing* watermark the reading is the opposite: an acceleration observed to hold no rows has nothing stale and no missing deletion, so a snapshot bootstrap loads it and no rebuild is needed.
+
+:::
 
 :::note Why a rebuild rather than another snapshot
 
@@ -428,9 +465,86 @@ Replacement is rate-limited to **3 slots per hour per replication connection**. 
 
 If a durable acceleration has nowhere to record a watermark, Spice logs a warning at startup naming the dataset: slot loss cannot be detected for it, and rows deleted at the source while the slot was gone would survive in the acceleration.
 
+### Detecting an unplanned source read {#unplanned-source-reads}
+
+Reading the source is the most expensive thing an acceleration does, and both paths that do it say so in the log, naming the dataset, the condition that fired, and where to read about changing it.
+
+A **rebuild** re-reads a table the dataset was already serving, so it is logged at `warn!`:
+
+```text
+WARN Dataset 'orders' will have its acceleration rebuilt from the source before changes are applied,
+which re-reads the whole table: the slot no longer retains the changes following the position it
+recorded as applied. See: https://spiceai.org/docs/components/data-connectors/postgres
+```
+
+The line carries a `rebuild_cause` field holding a stable identifier to select on, alongside `recorded_position` and `slot_acknowledged_position`:
+
+| `rebuild_cause` | What happened | Where to look |
+| --- | --- | --- |
+| `no_record` | No position was recorded, on a durable acceleration that could have recorded one. | Expected exactly once per dataset on the first start after upgrading to a watermark-recording version. Recurring means the sidecar is not surviving restarts. |
+| `foreign_source` | The recorded position names a different server, database, or table than the dataset streams from now. | An endpoint or table was repointed under an existing accelerator. |
+| `unreadable` | The recorded position could not be read or parsed. | The `spice_sys_postgres_replication` sidecar in the dataset's own accelerator. |
+| `rewound_source` | The source no longer contains the recorded position, because it was restored or rewound afterwards. | Worth chasing: one rewind escapes detection entirely, so check whether **other** datasets on the same source resumed when they should not have. |
+| `acknowledged_past` | The slot acknowledged past the recorded position, so it can no longer be streamed from. | Not a WAL retention problem — the WAL may still be on disk. |
+| `retention_lost` | The slot no longer retains the WAL following the recorded position. | `max_slot_wal_keep_size` on the source, and replication lag. |
+| `empty_with_usable_position` | The accelerated table was observed to hold no rows while recording a position the slot can still stream from, and no snapshot was going to load it. | The accelerator itself — a `mode: file_update` recreate, a restored accelerator file, or a source whose rows were all legitimately deleted. |
+| `unproven_contents_with_usable_position` | The accelerated table could not be read to check whether it still holds rows, while recording a usable position, and no snapshot was going to load it. | The accelerator being unreadable is its own problem, and is what forced the re-read. |
+
+A **creation** is the connector taking its initial snapshot of the source, which is ordinary, so it is logged at `info!` with a `creation_cause` field. Three of the four causes below fire because there is nothing to resume from; `snapshot_always` is the exception, and re-reads the source even on a start that resumes an existing slot:
+
+| `creation_cause` | Why the source is read |
+| --- | --- |
+| `ephemeral_acceleration` | The acceleration does not persist across restarts, so it starts empty on every start and only the source can fill it. |
+| `snapshot_always` | `pg_replication_initial_snapshot: always` asks for the source to be re-read on every start, including one that resumes an existing slot. |
+| `table_added` | The table was only just added to the replication publication, so the slot carries no change history it could be built from. |
+| `slot_created` | The replication slot was created in this process, so the source retains no change history from before now. |
+
+#### What the metrics report
+
+The two paths are timed differently, because they are performed by different halves of the system.
+
+A **rebuild** is the runtime's: it replaces the accelerated table as an ordinary full refresh, so it reports on the shared acceleration refresh family — `dataset_acceleration_refresh_duration_ms{mode="full"}` for how long the re-read took, `dataset_acceleration_refresh_processed_rows` / `_processed_bytes` and `_rows_written` / `_bytes_written` for how much moved, and `dataset_acceleration_last_refresh_unix_time_ms` for when it finished.
+
+A dataset on `refresh_mode: changes` emits `mode="full"` for no other reason — the refresh-task runner is not built at all on a changes-mode dataset except to serve a rebuild. So **on a changes-mode dataset, every `mode="full"` observation is a rebuild**, which makes any new one the signal to alert on, and it arrives with the duration and row counts a bare "it rebuilt" flag could not carry.
+
+A **creation** is the connector's: it is read as the slot's initial snapshot, which reports rows and completion on `dataset_postgres_replication_bootstrap_rows_total`, `_bootstrap_rows_expected` and `_bootstrap_complete` — but is never timed, because at the apply loop a bootstrap row is indistinguishable from a live change, so there is no start and no end to measure. For a creation the `info!` line is the whole account of why it happened.
+
+The cause is deliberately **not** a metric label on either path. A source read is an event rather than a rate, so a per-cause series would carry a single point per dataset with no proportion to watch; the log line names it instead, where it can also name the dataset and say what to do about it.
+
 ### Rebuilding an accelerator from scratch
 
-Delete the accelerator's local storage (DuckDB file, SQLite file, etc.) and drop the replication slot. On next start, Spice will create a fresh slot, snapshot the table, and resume streaming.
+Stop Spice, delete the dataset's acceleration data, drop the replication slot with `pg_drop_replication_slot`, then start Spice again. Spice creates a fresh slot, snapshots the table with its current source schema, and resumes streaming. Keep the default `pg_replication_initial_snapshot: auto`: a fresh slot is snapshotted under it, while `always` re-reads the source on every later start.
+
+What to delete depends on the engine, and deleted data is gone, so copy it first if it must be kept:
+
+- **DuckDB and SQLite**: the dataset's database file. A `mode: file` dataset without `duckdb_file` or `sqlite_file` shares the default file (`accelerated_duckdb.db` or `accelerated_sqlite.db`) with every other such dataset, and several datasets can also set the same `duckdb_file` or `sqlite_file`. Deleting a file discards the acceleration of every dataset that resolves to it, so check all datasets for that path first.
+- **Turso**: the dataset's database file, `turso_file` or, without it, `.spice/data/<dataset_name>.turso`. As with DuckDB and SQLite, check whether another dataset sets the same `turso_file` first.
+- **Cayenne**: the data directory and the shared metastore, which also reloads every other Cayenne dataset that uses the metastore. Follow the steps in [Changing `partition_by` after refresh](../data-acceleration/partitioning.md#changing-partition_by-after-refresh), without changing `partition_by`.
+- **PostgreSQL**: there is no local file. Drop the dataset's accelerated table in the accelerator database.
+- **Arrow, `mode: memory`, and `mode: file_create`**: nothing to delete. These accelerations start empty on every start, so dropping the slot is enough.
+
+Dropping a slot that other datasets share makes each of them [rebuild from the source](#recovering-from-a-lost-replication-slot) on the next start.
+
+### Source column type changes {#source-column-type-changes}
+
+When a replicated column's type changes on the source (`ALTER TABLE ... ALTER COLUMN ... TYPE`), the dataset's [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) policy and the accelerator engine decide what happens. When a dataset joins the replication stream, Spice reads each column's type from the Postgres catalog (`pg_attribute`). Under a policy other than `block`, Spice compares each `Relation` message against those types, so a type change is detected even when the first change Spice receives for the table was written after the `ALTER`.
+
+| `on_schema_change`                         | What happens to a type change                                                                                                                                                                                                                                                                                         |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `block` (default)                          | The column keeps its registered type. Each incoming number is decoded as its source type and stored only if the column's type holds it exactly: after `integer` becomes `double precision`, `2.0` is stored as `2`, and `2.5` is an error that names the column. A column of a fixed-width type (a number, `boolean`, date, time, or timestamp) rejects a value of another known source type. The exception is a number that converts exactly: an integer source value (`smallint`, `integer`, `bigint`, `oid`, or `"char"`) is stored in an integer, floating-point, or `numeric` column, and a `real` or `double precision` value is stored in an integer or floating-point column. A floating-point value written to a `numeric` column is an error. A `numeric` source value is rejected by a column of any other type. A text column, or a change such as `varchar` to `text`, keeps decoding as before. |
+| `fail`                                     | The stream stops with an error that names the column and the type change.                                                                                                                                                                                                                                             |
+| `append_new_columns`                       | A lossless widening is not adopted, and a warning is logged. Values are cast to the current column type, and a change is applied only if every value it writes casts exactly.                                                                                                                                               |
+| `sync_all_columns` or `drop_and_recreate` on non-partitioned `cayenne` | A lossless widening, such as `integer` to `bigint` or `double precision`, is adopted while the stream runs. The accelerated column takes the new type and changes keep applying.                                                                                                                                  |
+| `sync_all_columns` or `drop_and_recreate` on other engines, such as `duckdb` | These engines cannot change a column's type mid-stream, so a lossless widening is logged as a warning. Values are cast to the current column type, and a change is applied only if every value it writes casts exactly. When the acceleration persists across restarts (`engine: postgres`, or `mode: file` or `mode: file_update` on other engines), a restart keeps the stored column and does not adopt the widening, and the refused change can then be stored rounded in the old column type ([spiceai/spiceai#15024](https://github.com/spiceai/spiceai/issues/15024)). To adopt the new type on a persistent acceleration, [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch). When it does not persist (`mode: file_create`, or `mode: memory` on an engine other than `postgres`), the table is created from the current source schema on each start, so a restart adopts it. |
+| `sync_all_columns` or `drop_and_recreate` on partitioned `cayenne` | A partitioned table cannot change a column's type in place, so a change that carries the widening is refused before anything is written, even when its values fit the current type. The source position is kept. Under `mode: file_create` or `mode: memory`, restart Spice: the table is created from the current source schema and reloaded from the source under the default `pg_replication_initial_snapshot: auto`. Under `mode: file` or `mode: file_update`, a restart keeps the stored table and refuses again: [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch). Removing `partition_by` alone does not recover the table. |
+
+On a `refresh_mode: changes` dataset, `drop_and_recreate` behaves like `sync_all_columns`: the replication stream never drops and recreates the accelerated table, because the source cannot replay the history that would be lost.
+
+A change whose values do not cast exactly is refused rather than stored rounded, and the source position is kept. The refusal's error text suggests a restart, but on a persistent acceleration of an engine that cannot evolve mid-stream the recovery is a [rebuild](#rebuilding-an-accelerator-from-scratch). A delete is applied by primary key, so only its key values are checked: a key value that does not fit the registered key type still refuses the delete.
+
+Under `append_new_columns`, `sync_all_columns`, and `drop_and_recreate`, a type change that is not a lossless widening, such as `double precision` to `integer`, stops the stream with an error. A widening of a `primary_key` column cannot be applied in place and stops the stream too. To recover, revert the source column type, or [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch) so the dataset registers the new schema.
+
+A change that keeps the column's type OID, such as `numeric(10,2)` to `numeric(14,4)`, is not detected ([spiceai/spiceai#15067](https://github.com/spiceai/spiceai/issues/15067)).
 
 ### Resilience
 
@@ -470,19 +584,22 @@ each full-refresh event is a rebuild; the preceding log gives its reason.
 
 | Symptom                                                                      | Cause and fix                                                                                                                     |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| Error: *`Table public.X has REPLICA IDENTITY NOTHING`*                       | Run `ALTER TABLE public.X REPLICA IDENTITY FULL;` (or add a primary key).                                                         |
+| Error: *`Table public.X has REPLICA IDENTITY NOTHING`*                       | If the table has a primary key, run `ALTER TABLE public.X REPLICA IDENTITY DEFAULT;`. Otherwise run `ALTER TABLE public.X REPLICA IDENTITY FULL;` and set `acceleration.primary_key`. See [Every row needs a primary key](#3-every-row-needs-a-primary-key) for engines that also need `acceleration.on_conflict`. |
+| Error: *`Table public.X has no primary key and REPLICA IDENTITY DEFAULT`*    | Add a primary key to the table, or run `ALTER TABLE public.X REPLICA IDENTITY FULL;` and set `acceleration.primary_key`. See [Every row needs a primary key](#3-every-row-needs-a-primary-key) for engines that also need `acceleration.on_conflict`. |
+| Error: *`Table public.X has no primary key, and refresh_mode: changes needs one`* | Set `acceleration.primary_key` to columns that identify a row, under `REPLICA IDENTITY FULL` or `REPLICA IDENTITY USING INDEX` on an eligible unique index over them. Engines other than `cayenne` and `arrow` also need a matching `acceleration.on_conflict` upsert entry. See [Every row needs a primary key](#3-every-row-needs-a-primary-key). |
 | Error: *`replication slot "..." already exists`* on startup                  | Another Spice replica is using the same slot name. Set `pg_replication_slot` uniquely, or ensure `SPICE_INSTANCE_ID` differs.     |
 | Error mentioning *permission denied for database* during setup               | The role needs `CREATE` on the database, or pre-create the publication/slot yourself.                                             |
 | `pg_replication_slots.active` is `true` but the accelerator isn't updating   | Check Spice logs for schema-mismatch errors. The replication task holds the slot even after failure — restart after fixing.       |
+| Error: *`cannot be stored in the accelerated column's type ... without loss, so the change is refused rather than stored rounded`* | A source column's type changed, and the acceleration has not adopted it. On a persistent acceleration (`engine: postgres`, or `mode: file` or `mode: file_update` on other engines), do not restart to apply it: a restart keeps the stored column, and the refused change can be stored rounded ([spiceai/spiceai#15024](https://github.com/spiceai/spiceai/issues/15024)). [Rebuild the acceleration](#rebuilding-an-accelerator-from-scratch) instead. On a non-persistent acceleration (`mode: file_create`, or `mode: memory` on an engine other than `postgres`), a restart creates the table from the current source schema. A rebuild or a fresh start adopts the current source type under any `on_schema_change` policy. To have later widenings adopted without a rebuild where the engine supports it, use `on_schema_change: sync_all_columns`. Partitioned `cayenne` reports a different error and needs a mode-specific recovery. See [Source column type changes](#source-column-type-changes). |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
-| The whole table is re-read on a restart that used to resume                  | The slot's WAL no longer reaches the recorded position, or none was recorded (first start after an upgrade). See [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
+| The whole table is re-read on a restart that used to resume                  | The recorded position was missing or unusable on attach, or the accelerated table was empty beneath a usable one, so resume was not possible. The `rebuild_cause` field on the `warn!` line says which — see [Detecting an unplanned source read](#unplanned-source-reads) and [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
 | `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
 | Huge `TEXT`/`JSONB` columns show as `NULL` after `UPDATE`                    | Unchanged TOASTed columns are omitted by pgoutput. Run `ALTER TABLE ... REPLICA IDENTITY FULL;` if you need them in every event.  |
 
 ## Limitations
 
 - **One table per dataset.** Each Spice dataset replicates exactly one source table; each dataset gets its own slot and publication.
-- **No DDL replication.** Schema changes on the source are not propagated automatically. Add new columns as nullable on the source first, update the Spice dataset, then reload the Spicepod.
+- **Limited DDL replication.** New columns and column type changes are applied only as [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) permits. See [Source column type changes](#source-column-type-changes). Other DDL, such as a column rename, is not propagated. Add new columns as nullable on the source first, update the Spice dataset, then reload the Spicepod.
 - **Arrow engine** supports `on_conflict` upserts when a `primary_key` is configured. Without a primary key, `UPDATE`s appear as additional inserts rather than replacing existing rows. `DELETE` and `TRUNCATE` are applied either way.
 
 ## Comparison with Debezium + Kafka
@@ -502,4 +619,6 @@ For greenfield Postgres → Spice CDC, prefer native WAL streaming. If Kafka is 
 
 - [Change Data Capture overview](./index.md)
 - [PostgreSQL Data Connector](../../components/data-connectors/postgres)
+- [PostgreSQL CDC (Logical Replication)](https://github.com/spiceai/cookbook/tree/trunk/postgres/cdc#readme) — cookbook recipe.
+- [PostgreSQL Catalog CDC Acceleration](https://github.com/spiceai/cookbook/tree/trunk/catalogs/postgres-cdc#readme) — catalog-wide CDC cookbook recipe.
 - [PostgreSQL: Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html)

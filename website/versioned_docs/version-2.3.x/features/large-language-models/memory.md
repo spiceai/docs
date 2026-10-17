@@ -36,3 +36,7 @@ models:
 ```
 
 For more information on tools, see [Tool components](../../components/tools).
+
+## Cookbook
+
+- A cookbook recipe to give language models persistent memory across conversations. [LLM Memory: Persistent Memory for Language Models with Spice](https://github.com/spiceai/cookbook/tree/trunk/llm-memory#readme)

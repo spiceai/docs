@@ -211,6 +211,20 @@ Any field other than `_id`, `status`, and `data_json` is folded into `data_json`
 
 :::
 
+## Query Pushdown
+
+Spice sends the selected columns, the supported `WHERE` conditions, and a `LIMIT` to MongoDB, so MongoDB returns only the documents and fields that the query needs. A condition is sent only in a form that selects the same documents as SQL. MongoDB's `$ne` and `$nin` operators match a document whose field is missing or `null`, while SQL's `age <> 30` and `age NOT IN (25, 30)` exclude it, so Spice adds type checks to the filter it sends. For an `age` column of type `Int32`, `WHERE age <> 30` becomes:
+
+```json
+{"age":{"$type":["int","long"],"$ne":30,"$gte":-2147483648,"$lte":2147483647,"$not":{"$type":"array"}}}
+```
+
+When MongoDB can compare values differently from SQL, for example a string comparison such as `s > 'Z'` over a field that some documents store as another BSON type, Spice sends a wider filter and evaluates the condition again on the documents MongoDB returns. The result matches a query that sends no filter to MongoDB.
+
+Spice evaluates `ORDER BY` itself. It sorts the documents MongoDB returns, so `ORDER BY ... LIMIT` reads every document that matches the filter.
+
+Run [`EXPLAIN`](../../reference/sql/explain) to see what is sent: the `MongoDBExec` node lists the projection, the filter as `filters=[...]`, and the limit as `limit=[...]`.
+
 ## Examples
 
 ### Connecting using username and password and custom auth table
@@ -315,7 +329,7 @@ File-accelerated datasets persist resume tokens and resume from the last committ
 - The MongoDB user must have `changeStream` privileges.
 - The accelerator must support upsert behavior. Use `duckdb`, `sqlite`, `postgres`, `turso`, or `cayenne`.
 - `acceleration.primary_key: _id` is required. Delete events only include the document key, so Spice needs `_id` to route deletes.
-- `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows.
+- On engines other than `cayenne`, `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows. Cayenne keeps one row per `_id` without it.
 
 #### Minimal configuration
 
@@ -380,3 +394,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 ## Cookbook
 
 - A cookbook recipe to configure MongoDB as a data connector in Spice. [MongoDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mongodb/connector#readme)
+- A cookbook recipe to stream changes from a MongoDB collection into Spice with Change Streams. [MongoDB Change Streams](https://github.com/spiceai/cookbook/tree/trunk/mongodb/change-streams#readme)

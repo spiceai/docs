@@ -61,6 +61,7 @@ Using `WITHIN GROUP` with other aggregates (such as `SUM` or `COUNT`) results in
 
 ## General Functions
 
+- [any_value](#any_value)
 - [array_agg](#array_agg)
 - [avg](#avg)
 - [bit_and](#bit_and)
@@ -84,6 +85,29 @@ Using `WITHIN GROUP` with other aggregates (such as `SUM` or `COUNT`) results in
 - [var_population](#var_population)
 - [var_samp](#var_samp)
 - [var_sample](#var_sample)
+
+### `any_value`
+
+Returns an arbitrary non-`NULL` value from the group, or `NULL` if every value in the group is `NULL`. Use it to select a column that has the same value for every row in a group without adding it to `GROUP BY`.
+
+```sql
+any_value(expression)
+```
+
+#### Arguments
+
+- **expression**: The expression to operate on. Can be a constant, column, or function, and any combination of operators.
+
+#### Example
+
+```sql
+> SELECT any_value(v) FROM (VALUES (NULL), (5), (NULL)) t(v);
++----------------+
+| any_value(t.v) |
++----------------+
+| 5              |
++----------------+
+```
 
 ### `array_agg`
 

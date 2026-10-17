@@ -30,7 +30,7 @@ Spice is primarily used for:
 
 - **Data Federation**: SQL query across any database, data warehouse, or data lake. [Learn More](features/query-federation).
 - **Data Materialization and Acceleration**: Materialize, accelerate, and cache database queries. [Read the MaterializedView interview - Building a CDN for Databases](https://materializedview.io/p/building-a-cdn-for-databases-spice-ai)
-- **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](https://github.com/spiceai/cookbook/tree/trunk/rag#readme).
+- **AI apps and agents**: An AI-database powering retrieval-augmented generation (RAG) and intelligent agents. [Learn More](../use-cases/rag/index.md).
 
 For example, deploy Spice as a sidecar alongside applications served by centralized platforms like Databricks or Snowflake, materializing hot datasets locally to reduce latency and offload query volume from the source.
 
@@ -108,7 +108,7 @@ For a real-world architecture using DynamoDB Streams to sync data to thousands o
 
 ## 16. How do I keep an accelerated dataset incrementally up-to-date?
 
-For sources with a monotonically-increasing version column (e.g. `updated_at`), Spice incrementally ingests new and modified records using [`time_column`](reference/spicepod/datasets#time_column) + [`refresh_mode: append`](features/data-acceleration/data-refresh#append), with [`refresh_append_overlap`](reference/spicepod/datasets#accelerationrefresh_append_overlap) to tolerate clock skew and [`retention_period`](reference/spicepod/datasets#accelerationretention_period) to evict old or soft-deleted records. Pair with `primary_key` + `on_conflict: upsert` to deduplicate re-read rows within the overlap window. See [Data Refresh](features/data-acceleration/data-refresh) for configuration details and examples.
+For sources with a monotonically-increasing version column (e.g. `updated_at`), Spice incrementally ingests new and modified records using [`time_column`](reference/spicepod/datasets#time_column) + [`refresh_mode: append`](features/data-acceleration/data-refresh#append), with [`refresh_append_overlap`](reference/spicepod/datasets#accelerationrefresh_append_overlap) to tolerate clock skew and [`retention_period`](reference/spicepod/datasets#accelerationretention_period) to evict old or soft-deleted records. Pair with a `primary_key` to deduplicate re-read rows within the overlap window. On [Spice Cayenne](components/data-accelerators/cayenne#duplicate-primary-keys-in-one-write), the default engine on Linux and macOS, each key keeps its newest version by `time_column` when the `time_column` is not part of the `primary_key`. See [Data Refresh](features/data-acceleration/data-refresh) for configuration details and examples.
 
 ## 17. How can I control the load Spice puts on a source system during refresh?
 
@@ -230,7 +230,7 @@ Yes. Spice integrates with BI tools through standard SQL interfaces (ODBC, JDBC,
 
 ## 33. Where can developers find examples and recipes?
 
-The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 65 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
+The [Spice.ai Cookbook](https://github.com/spiceai/cookbook) provides over 120 quickstarts and examples demonstrating Spice capabilities, including federated queries, RAG, text-to-SQL, and more.
 
 ## 34. How can developers get started quickly?
 

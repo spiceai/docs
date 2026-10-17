@@ -16,7 +16,7 @@ The following anonymous information is collected:
 - An anonymous identifier for the Spice instance, computed as `sha256(hostname + ":" + spicepod.name)`.
 - An anonymous identifier for the Spicepod, computed as `sha256(spicepod.name)`.
   - The code to calculate these identifiers is here: [https://github.com/spiceai/spiceai/blob/42eefac87d23ecc6c658c81231267b0177c8cecf/crates/telemetry/src/anonymous.rs#L61-L108](https://github.com/spiceai/spiceai/blob/42eefac87d23ecc6c658c81231267b0177c8cecf/crates/telemetry/src/anonymous.rs#L61-L108)
-- The shape of the host: its vCPU count, GPU count, and total memory in bytes, reported as `host.cpu.count`, `host.gpu.count`, and `host.memory.bytes`.
+- The shape of the host: its vCPU count, GPU count, and total memory in bytes, reported as `host.cpu.count`, `host.gpu.count`, and `host.memory.bytes`. The vCPU count is the number of CPUs available to the runtime: the CPU limit of its container or cgroup when one applies, and otherwise the host's logical CPU count. When [`runtime.cpu.cores`](../reference/spicepod/runtime#runtimecpucores), `SPICE_CPU_CORES`, or `--cpu-cores` sets a number of cores, `host.cpu.count` reports that number instead, rounded up to a whole core.
 - Various metrics related to usage of features of the runtime, see the full list here: [https://github.com/spiceai/spiceai/blob/42eefac87d23ecc6c658c81231267b0177c8cecf/crates/telemetry/src/lib.rs](https://github.com/spiceai/spiceai/blob/42eefac87d23ecc6c658c81231267b0177c8cecf/crates/telemetry/src/lib.rs)
 
 Data collected is sent to `https://telemetry.spiceai.org` once every hour.

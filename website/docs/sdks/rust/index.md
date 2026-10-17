@@ -91,3 +91,7 @@ async fn main() {
 ```
 
 For more details, see [Parameterized Queries](../features/query-federation/parameterized-queries).
+
+## Cookbook
+
+- A cookbook recipe to query a local Spice runtime from Rust with the Rust SDK. [Spice with Rust SDK](https://github.com/spiceai/cookbook/tree/trunk/client-sdk/spice-rs-sdk-sample#readme)

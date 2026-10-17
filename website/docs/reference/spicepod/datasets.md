@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
+      engine: cayenne # / arrow / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: arrow # / cayenne / duckdb / sqlite / postgres / turso
+      engine: cayenne # / arrow / duckdb / sqlite / postgres / turso
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -179,7 +179,7 @@ The description of the dataset. Used as part of the [Semantic Data Model](../../
 Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
-- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write).
+- `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write), unless the dataset is accelerated with [`acceleration.write_mode: acceleration`](#accelerationwrite_mode), which keeps writes in the acceleration.
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -210,11 +210,33 @@ Optional. The format of the `time_column`. The following values are supported:
 - `ISO8601` - [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.
 - `date` - Date in YYYY-MM-DD format. E.g. `2024-01-01`.
 
-Spice emits a warning if the `time_column` from the data source is incompatible with the `time_format` config.
+For an accelerated dataset, Spice checks `time_format` against the data type of the `time_column` when the dataset loads. Each `time_format` value matches these Arrow data types:
+
+| `time_format`                               | Matching `time_column` data types                   |
+| ------------------------------------------- | --------------------------------------------------- |
+| `timestamp` (default)                       | `Timestamp` without a timezone                      |
+| `timestamptz`                               | `Timestamp` with a timezone                         |
+| `unix_seconds`, `unix_millis`, `unix_nanos` | Integer and floating-point types                    |
+| `iso8601`                                   | String types (`Utf8`, `LargeUtf8`, `Utf8View`)      |
+| `date`                                      | `Date32`, `Date64`                                  |
+
+Because `timestamp` is the default, a string, integer, floating-point, date, or timezone-aware `time_column` needs an explicit `time_format`. A pair that does not match fails the dataset with an error that names the column's data type and the value to set. For example, `time_format: unix_seconds` on a `Timestamp(s)` column named `ts` in a dataset named `events` fails with:
+
+```text
+`time_column` 'ts' in dataset 'events' has data type 'Timestamp(s)', but `time_format` is configured as 'unix_seconds'. Set `time_format` to `timestamp`, or remove `time_format` if the column is already a timestamp. See: https://spiceai.org/docs/reference/spicepod/datasets#time_format
+```
+
+`iso8601` on a column that is already a native timestamp (any unit, with or without a timezone) or date is the one exception. Spice ignores `time_format`, logs a warning when the dataset loads, and builds refresh and retention filters from the column's native type. This happens, for example, when the [File](../../components/data-connectors/file/index.md) connector infers ISO 8601 strings in a CSV file as timestamps. The warning names the setting to change:
+
+```text
+Dataset 'events' ignores `time_format: iso8601` on `time_column` 'ts' because the column is already a timestamp (Timestamp(s)). Remove `time_format` from the dataset configuration. See: https://spiceai.org/docs/reference/spicepod/datasets#time_format
+```
+
+To clear the warning, remove `time_format` for a timestamp without a timezone, or set it to `timestamptz` for a timestamp with a timezone or `date` for a date column. Spice v2.3.x and earlier reject `iso8601` on these columns with the mismatch error instead. The checks are implemented in [`validate_time_format_for_column`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh.rs#L628-L669).
 
 :::warning[Limitations]
 
-- String-based columns are assumed to be ISO8601 format.
+- String columns are parsed as ISO 8601. An accelerated dataset with a string `time_column` requires `time_format: iso8601`, because the default `timestamp` format does not match a string column.
 
 :::
 
@@ -224,7 +246,7 @@ Spice emits a warning if the `time_column` from the data source is incompatible 
 
 ## `time_partition_format`
 
-(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options as `time_format` are supported for `time_partition_column`.
+(Optional) Define the format of the `time_partition_column`. For instance, if the physical partitions follow a date format (YYYY-MM-DD), set this value to `date`. The same format options and data type checks as [`time_format`](#time_format) apply to `time_partition_column`, including the `iso8601` exception. Spice checks `time_partition_column` only when `time_column` is also set.
 
 ## Schema Inference and Evolution
 
@@ -260,14 +282,16 @@ datasets:
 :::note
 
 In-place evolution is supported by `duckdb`, `sqlite`, `turso`, and non-partitioned Spice Cayenne
-(`cayenne`), including PostgreSQL CDC (`refresh_mode: changes`). Partitioned Cayenne tables log a
-warning and use the recreate fallback. Other engines, including `arrow` and PostgreSQL, log an
+(`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
+while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
+see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
+Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow` and PostgreSQL, log an
 unsupported message and apply additive changes on restart. Constraint and primary-key columns
 cannot be widened in place.
 
 For column removals or narrowing, `on_schema_change: drop_and_recreate` with `refresh_mode: full`
-recreates the table from the source. [`mode: file_update`](#accelerationmode) recreates the
-acceleration file on any schema change.
+recreates the table from the source. [`mode: file_update`](#accelerationmode) drops and recreates
+the accelerated table on an incompatible schema change.
 
 :::
 
@@ -307,9 +331,11 @@ For the previous opt-in `standard` / `extended` behavior, see the [v2.1.x docume
 
 Supports one of three values (defaults to `on_load`):
 
-- `on_registration`: Mark the dataset as ready immediately, and queries on this table will fall back to the underlying source directly until the initial acceleration is complete. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
-- `on_load`: (default) Mark the dataset as ready only after the initial acceleration. Queries against the dataset will return an error before the load has been completed.
-- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Queries fall back to the federated source until the initial load completes; subsequent refresh failures are still reported via dataset status and metrics.
+- `on_registration`: Mark the dataset as ready immediately. Until the initial acceleration is complete, queries are served from an existing acceleration if there is one, and otherwise fall back to the underlying source directly. When combined with fully declared [`columns[].type`](#columnstype) entries, enables [deferred dataset initialization](#deferred-dataset-initialization) — the source connector is not created until the first query.
+- `on_load`: (default) Mark the dataset as ready only after the initial acceleration, or immediately when an existing acceleration from a previous run can serve it. Queries against the dataset will return an error before the load has been completed.
+- `on_schema_resolved`: Mark the dataset as ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Until the initial load completes, queries are served from an existing acceleration if there is one, and otherwise fall back to the federated source. An existing acceleration does not make the dataset ready while the source is unavailable. Subsequent refresh failures are still reported via dataset status and metrics.
+
+See [Serving an Existing Acceleration While the Source Is Unavailable](../../features/data-acceleration/data-refresh#serving-an-existing-acceleration-while-the-source-is-unavailable) for which datasets are served from an existing acceleration and how readiness and status behave while the source is unavailable.
 
 ```yaml
 datasets:
@@ -446,7 +472,7 @@ Dataset 'my_dataset' sets `acceleration.enabled: false`, so these settings in it
 
 ## `acceleration.engine`
 
-The acceleration engine to use, defaults to `arrow`. The following engines are supported:
+Optional. The acceleration engine to use. Defaults to `cayenne`, or to `arrow` on Windows, where Cayenne is not available. Spice v2.3 and earlier default to `arrow`. See [Default Engine](../../components/data-accelerators/index.md#default-engine). The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).
@@ -462,7 +488,7 @@ Optional. The mode of acceleration. The following values are supported:
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
 - `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 - `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the file is snapshotted (if [snapshots](../../features/data-acceleration/snapshots) are enabled) and recreated from scratch. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
 
 ## `acceleration.storage_profile`
 
@@ -493,7 +519,7 @@ For the per-engine adjustments each profile applies, and for guidance on choosin
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -562,6 +588,18 @@ Supported values:
 - `disabled` (default) – Snapshot expiry is not reset on load; the original expiry time is preserved.
 - `enabled` – Reset the snapshot expiry when it is loaded during bootstrap.
 
+## `acceleration.snapshots_location`
+
+Optional. The object store location of this dataset's snapshots, for example `s3://my-bucket/spice/snapshots/`. Defaults to the `snapshots/` folder of [`runtime.state.location`](./runtime.md#runtimestate). The deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), when set, applies to datasets that do not set this field. See [Override the snapshot location per dataset](../../features/data-acceleration/snapshots#override-the-snapshot-location-per-dataset).
+
+## `acceleration.snapshots_params`
+
+Optional. Object store params for this dataset's snapshots, such as `s3_region` or `s3_queue_url`. When set, they are the only params the dataset's snapshots use. When not set, a dataset with `snapshots_location` uses no params, and a dataset whose snapshots are stored under `runtime.state` uses `runtime.state.params`. The deprecated top-level [`snapshots.params`](./index.md#snapshotsparams), when set, apply to `snapshots.location` and replace `runtime.state.params` for snapshots stored under `runtime.state`. The accepted keys are listed in [Configure snapshot storage](../../features/data-acceleration/snapshots#configure-snapshot-storage).
+
+## `acceleration.snapshots_bootstrap_on_failure_behavior`
+
+Optional. What Spice does when it cannot load this dataset's most recent snapshot: `warn` (default), `retry`, or `fallback`. The deprecated top-level [`snapshots.bootstrap_on_failure_behavior`](./index.md#snapshotsbootstrap_on_failure_behavior), when set, applies to datasets that do not set this field. See [Failure behavior](../../features/data-acceleration/snapshots#failure-behavior).
+
 ## `acceleration.refresh_mode`
 
 Optional. How to refresh the dataset. The following values are supported:
@@ -574,12 +612,51 @@ Optional. How to refresh the dataset. The following values are supported:
 
 ## `acceleration.write_mode`
 
-Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write` and the source connector supports writes.
+Optional. Controls how writes to a `read_write` accelerated dataset propagate between the local accelerator and the federated source. Only applies when the dataset has `access: read_write`. `write_through` and `write_back` require a source connector that supports writes.
 
 Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
 - `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
+- `acceleration` – Writes, including Spice Cayenne `BEGIN … COMMIT` [transactions](../../components/data-accelerators/cayenne/index.md#transactions), go only to the acceleration and never reach the federated source, which need not accept writes. Refreshes still load the source's data into the acceleration, so a `full` refresh discards rows that were written only to the acceleration. An `append` refresh keeps them, unless it reads a version of the same key that replaces the written row, but acceleration-only writes can cause it to skip source rows (see the warning below). Not valid with `refresh_mode: changes`, set explicitly or by the connector's default, because the source's changes would overwrite the writes.
+
+A `read_write` dataset whose source connector only supports reads fails to load unless it sets `write_mode: acceleration`:
+
+```text
+Dataset 'orders' sets `access: read_write`, but its source connector only supports reads, so the dataset cannot load. Set `acceleration.write_mode: acceleration` to keep its writes in the acceleration, or set `access: read`. See: https://spiceai.org/docs/reference/spicepod/datasets#accelerationwrite_mode
+```
+
+A dataset that sets `write_mode: acceleration` and refreshes by `changes` also fails to load:
+
+```text
+Dataset 'orders' sets `acceleration.write_mode: acceleration` and refreshes by `changes` (set by `refresh_mode` or by its connector's default), but the source's changes would overwrite writes kept only in the acceleration, so the dataset cannot load. Use `write_mode: write_through` or `write_back` with a change stream, or another `refresh_mode`. See: https://spiceai.org/docs/reference/spicepod/datasets#accelerationwrite_mode
+```
+
+Both are configuration errors: the dataset fails to load once and is not retried. See [`select_accelerated_write_mode`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/datafusion/mod.rs) for how the write destination is chosen.
+
+:::warning Append refreshes and acceleration-only writes
+An `append` refresh reads only the source rows newer than the latest `time_column` value stored in the acceleration, less `refresh_append_overlap`. For a [day-granular `time_column`](../../features/data-acceleration/refresh-modes/append.md#day-granular-time-columns) (`Date32` or `Date64`), the overlap is subtracted first and the result is rounded down to the start of its day, and the refresh reads from that day, inclusive. A positive overlap can therefore start the read on an earlier day. That latest value includes rows written only to the acceleration ([`max_timestamp_df`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task.rs#L2994) reads the acceleration table). A write whose `time_column` is later than that latest value moves the refresh's starting point forward. Source rows that the acceleration has not loaded yet, and whose times are at or before the new starting point, are then not loaded by any later `append` refresh. On a day-granular column, the starting day itself is still read, so only rows on earlier days are skipped. This can happen even when the write's time is earlier than the source's newest row.
+
+To avoid this, give acceleration-only writes a `time_column` value no later than the latest value already stored in the acceleration, or set `refresh_append_overlap` to at least how far past that value a write's time can be.
+:::
+
+```yaml
+datasets:
+  - from: s3://my-bucket/orders/
+    name: orders
+    access: read_write
+    time_column: updated_at
+    params:
+      file_format: parquet
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_mode: append
+      refresh_append_overlap: 1h
+      primary_key: id
+      write_mode: acceleration
+```
 
 ## `acceleration.refresh_check_interval`
 
@@ -616,6 +693,8 @@ datasets:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
       refresh_check_interval: 30s # Periodic background refresh
 ```
+
+A `caching_ttl` of `0s` marks entries stale immediately. With `caching_stale_while_revalidate_ttl: 0s` and `caching_stale_if_error` set to `enabled` or a finite duration, Spice does not serve the accelerator while the origin is healthy. A successful origin response is still stored, and that entry is consulted only when a later origin request fails. Zero TTL alone does not mean every read is served from the accelerator. Pair unbounded `caching_stale_if_error: enabled` with `caching_max_size`, `caching_max_items`, or retention. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
 
 See [Caching Mode](../../features/data-acceleration/refresh-modes/caching#cache-ttl-time-to-live) for detailed TTL configuration and behavior.
 
@@ -765,6 +844,8 @@ Optional. A duration to specify how far back to include records based on the mos
 
 This setting can help mitigate missing data issues caused by late arriving data.
 
+An [Iceberg](../../components/data-connectors/iceberg.md) source applies the overlap only to the refreshes that read by time: the first refresh, a refresh that cannot follow the table's snapshots, every refresh of a dataset that computes columns over the table (such as embedding columns), and a one-off refresh with its own `refresh_sql`. Other refreshes read the data files new snapshots added, whatever their time values. See [Iceberg sources follow table snapshots](../../features/data-acceleration/refresh-modes/append.md#iceberg-sources-follow-table-snapshots).
+
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 
 See [Duration](../duration)
@@ -906,6 +987,10 @@ datasets:
 
 ## `acceleration.on_conflict`
 
+:::warning Deprecated
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams on engines other than Spice Cayenne and Arrow still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets. Cayenne durable write-back does not require it.
+:::
+
 Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
@@ -920,6 +1005,8 @@ The possible conflict resolution strategies are:
 - `upsert_dedup` - Same as `upsert`, but also deduplicates the data if there are duplicate rows that trigger a violation constraint within a single update. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `upsert_dedup_by_row_id` - Same as `upsert`, but resolves any violations by arbitrarily choosing the row with the highest row id. See [Advanced upsert behavior](../../features/data-acceleration/constraints#advanced-upsert-options).
 - `drop` - Drop the data when the primary key constraint is violated.
+
+On Spice Cayenne, these values do not change which version of a key is kept. See [Duplicate primary keys in one write](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
@@ -950,6 +1037,8 @@ The following values are supported:
 
 The fallback check runs at the accelerator's scan, so a subquery predicate (`IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST`) does not take part in the zero-results decision. See [Behavior on Zero Results](../../features/data-acceleration/data-refresh#behavior-on-zero-results) for what that means for a partially-populated acceleration.
 
+When `on_zero_results: use_source` is set with `retention_sql` or `retention_period`, the fallback query applies the inverse of the retention policy, so rows that retention removes from the acceleration are not read back from the source. A dataset whose retention policy cannot be evaluated as a filter on the source columns fails to load. In `refresh_mode: caching`, `on_zero_results` is ignored, so neither the filter nor this check applies. See [Fallback with a Retention Policy](../../features/data-acceleration/data-refresh#fallback-with-a-retention-policy).
+
 ```yaml
 datasets:
   - from: spice.ai/eth.recent_blocks
@@ -961,7 +1050,7 @@ datasets:
 
 ## `acceleration.partition_by`
 
-Optional. Specifies columns to partition the accelerated data by, enabling partition-level operations and optimized storage. Defaults to no partitioning (empty).
+Optional. Specifies columns to partition the accelerated data by, enabling partition-level operations and optimized storage. Defaults to no partitioning (empty). Spice Cayenne supports partitioning in a file mode, such as `mode: file`, and Arrow in `mode: memory`. See [Partitioning](../../features/data-acceleration/partitioning).
 
 ```yaml
 datasets:
@@ -969,6 +1058,8 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
+      engine: cayenne
+      mode: file
       partition_by: block_date
 ```
 

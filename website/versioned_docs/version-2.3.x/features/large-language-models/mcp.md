@@ -289,3 +289,8 @@ curl -sS -X POST http://localhost:8090/v1/mcp \
 ```
 
 Responses are returned as SSE frames prefixed with `data:`.
+
+## Cookbook
+
+- A cookbook recipe to connect to MCP servers and use MCP tools with Spice. [Model Context Protocol with Spice](https://github.com/spiceai/cookbook/tree/trunk/mcp#readme)
+- A cookbook recipe to run Spice as an MCP server and connect an AI assistant to it. [Spice as MCP Server](https://github.com/spiceai/cookbook/tree/trunk/mcp-server#readme)

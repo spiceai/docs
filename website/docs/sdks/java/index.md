@@ -157,3 +157,7 @@ SpiceClient client = SpiceClient.builder()
 client.refresh("taxi_trips")
 
 ```
+
+## Cookbook
+
+- A cookbook recipe to query Spice from Java with the Java SDK. [Spice with Java SDK](https://github.com/spiceai/cookbook/tree/trunk/client-sdk/spice-java-sdk-sample#readme)

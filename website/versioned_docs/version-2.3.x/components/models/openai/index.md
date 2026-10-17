@@ -124,7 +124,7 @@ models:
       openai_api_key: ${ secrets:SPICE_NIM_API_KEY }
 ```
 
-View the Spice cookbook for an example of setting up NVIDIA NIM with Spice [here](https://github.com/spiceai/cookbook/tree/trunk/nvidia-nim/ec2).
+For examples of setting up NVIDIA NIM with Spice, see the [Nvidia NIM on AWS EC2](https://github.com/spiceai/cookbook/tree/trunk/nvidia-nim/ec2#readme) and [Nvidia NIM on Kubernetes](https://github.com/spiceai/cookbook/tree/trunk/nvidia-nim/kubernetes#readme) cookbook recipes.
 
 ### Parasail
 
@@ -140,3 +140,10 @@ models:
 ```
 
 Refer to the respective provider documentation for more details on available models and configurations.
+
+## Cookbook
+
+- A cookbook recipe to use OpenAI language and embedding models in Spice. [OpenAI Models](https://github.com/spiceai/cookbook/tree/trunk/models/openai#readme)
+- A cookbook recipe to use the OpenAI SDK with models served by Spice. [Spice with the OpenAI SDK](https://github.com/spiceai/cookbook/tree/trunk/openai_sdk#readme)
+- A cookbook recipe to use OpenAI's Responses API with Spice. [Using OpenAI's Responses API with Spice](https://github.com/spiceai/cookbook/tree/trunk/openai-responses-api#readme)
+- A cookbook recipe to use a DeepSeek model through its OpenAI-compatible API. [DeepSeek Model](https://github.com/spiceai/cookbook/tree/trunk/deepseek#readme)

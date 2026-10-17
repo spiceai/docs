@@ -16,15 +16,17 @@ Spice.ai supports the following operating systems and architectures:
 - **Linux (x86_64)**: Linux 5.10 or later, Intel 64-bit processor
 - **Linux (ARM64)**: Linux 5.10 or later, ARM 64-bit processor
 - **Apple macOS (ARM64)**: macOS 14 "Sonoma" or later, Apple 64-bit processor (M-series)
-- **Microsoft Windows (x64)**: Windows 11 or later, Intel 64-bit processor
+- **Microsoft Windows (x64)**: Windows 11 or later with [WSL 2](https://learn.microsoft.com/windows/wsl/install) running Ubuntu 24.04 or later. The Spice runtime does not run natively on Windows in v2.x.
 
 ## Linux Distribution Support
 
-Spice.ai supports the following Linux distributions:
+The pre-built Spice Linux binaries (the `spice` CLI and the `spiced` runtime) require **glibc 2.39 or later**. Spice.ai supports the following Linux distributions:
 
-- **Ubuntu Server LTS**: 22.04 "Jammy Jellyfish" or later
-- **Debian**: 12 "Bookworm" or later
-- **Amazon Linux**: 2 or later
+- **Ubuntu LTS**: 24.04 "Noble Numbat" or later
+- **Debian**: 13 "Trixie" or later
+- Other distributions that ship glibc 2.39 or later
+
+Check the glibc version with `ldd --version`. Distributions with an older glibc, such as Ubuntu 22.04, Debian 12, Amazon Linux 2, Amazon Linux 2023, and RHEL 9, cannot run the pre-built binaries and fail with an error such as ``version `GLIBC_2.39' not found``. On these systems, run Spice with the [Docker image](../deployment/docker/index.md) instead.
 
 ## Server or Instance Hardware Requirements
 

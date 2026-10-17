@@ -44,6 +44,15 @@ Spice includes built-in SQL dialect support for BigQuery, translating federated 
 
 `ILIKE` and `NOT ILIKE` are the exception: GoogleSQL has no such operator, so Spice keeps both local for `bigquery` datasets and catalogs and evaluates them after the rows arrive. Ordinary `LIKE`, comparisons and the JSON rewrites above still push down, and a query that mixes them sends the supported parts to BigQuery. An `ILIKE` anywhere in the predicate — including nested inside an `OR` — also holds any `LIMIT` local, so the filter runs before rows are discarded.
 
+A cast that Spice pushes down to BigQuery follows BigQuery's [conversion rules](https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/conversion_functions). An ISO 8601 string with a UTC offset or a trailing `Z`, such as `2026-01-01T12:34:56Z`, must be cast to `TIMESTAMP`: BigQuery's `DATETIME` and `DATE` casts accept no time zone and fail on it. To get a `DATE`, cast through `TIMESTAMP` first. The result is the date in UTC, so `2026-01-01T20:00:00-07:00` becomes `2026-01-02`. For a BigQuery dataset `events` whose `STRING` column `event_time` holds such values:
+
+```sql
+SELECT
+  CAST(event_time AS TIMESTAMP) AS event_ts,
+  CAST(CAST(event_time AS TIMESTAMP) AS DATE) AS event_date
+FROM events;
+```
+
 ## Configuration
 
 ### `from`
@@ -114,7 +123,7 @@ The dataset name cannot be a [reserved keyword](../../reference/spicepod/keyword
 | `adbc_schema`              | Optional. Sets the default schema for the connection.                                                                                |
 | `connection_pool_size`     | Optional. Maximum number of connections in the connection pool. Default: `5`.                                                        |
 | `connection_pool_min_idle` | Optional. Minimum number of idle connections in the pool. Default: `1`.                                                              |
-| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`.              |
+| `query_federation`         | Optional. Controls whether queries are federated to the ADBC source. Values: `enabled`, `disabled`. Default: `enabled`. `disabled` stops whole-query federation, but the table scan still pushes supported filters down to the source.              |
 
 :::warning[In-memory databases]
 In-memory database URIs (e.g., `:memory:` or URIs containing `mode=memory`) are not supported.
@@ -293,6 +302,18 @@ The ADBC connector pushes SQL operations down to the source database when possib
 Join pushdown requires matching driver, URI, credentials, driver options, and explicit `adbc_catalog`/`adbc_schema` settings. BigQuery tables in different datasets within one project can share a job: dataset qualifiers in `from:` do not need to match, but explicit `adbc_schema` settings do.
 
 No special configuration is required. Pushdown happens automatically when the source database supports the operation.
+
+Spice-only SQL functions are not sent to the source unless the active dialect has a translation for that function. A translated function is evaluated by the source, with the source's semantics. Setting `query_federation: disabled` stops whole-query federation, but it does not keep a translated function in Spice: the table scan still pushes down each filter the dialect can translate, so the source evaluates that filter.
+
+#### SQLite Date, Time, and Interval Values
+
+SQLite has no date, time, or interval types, and the ADBC connector writes the SQL it sends to SQLite in a generic dialect that SQLite does not evaluate correctly for these values. For example, SQLite reads `CAST('2026-01-30 23:00:00' AS TIMESTAMP)` as the integer `2026`. When `adbc_driver` is `sqlite`, Spice keeps the following expressions out of the SQL sent to SQLite, for both datasets and [catalogs](../catalogs/adbc), and evaluates them over the rows SQLite returns:
+
+- Date, time, timestamp, duration, and interval literals, such as `TIMESTAMP '2026-01-30 23:00:00'`, `DATE '2026-01-31'`, and `INTERVAL '1 hour'`.
+- A `CAST` into a date, time, timestamp, duration, or interval type.
+- `TRY_CAST`, and each `CAST` the SQLite accelerator also evaluates in Spice. See [Casts and Federation](../data-accelerators/sqlite#casts-and-federation). Unlike the accelerator, this route also keeps `DATE '1994-01-01'` in Spice.
+
+A query that contains one of these expressions still runs. A filter that involves none of them, such as `id >= 2`, still pushes down to SQLite. The handling is keyed to the exact `adbc_driver` value `sqlite` ([source](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-datafusion/src/function_support.rs#L326)).
 
 ## Auth
 

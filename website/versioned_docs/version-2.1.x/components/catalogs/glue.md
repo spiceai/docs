@@ -223,4 +223,4 @@ Write operations require `s3:PutObject` permission on the target S3 bucket and `
 
 ## Cookbook
 
-There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure an AWS Glue Data Connector in Spice.
+There is a [cookbook recipe](https://github.com/spiceai/cookbook/tree/trunk/catalogs/glue) to configure the AWS Glue Catalog Connector in Spice.

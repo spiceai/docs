@@ -46,11 +46,11 @@ For optimal performance, store Cayenne data files **and the metastore** on local
 
 Network block storage (Amazon EBS, Azure Managed Disks, GCP Persistent Disk) works as a durable fallback: Cayenne detects it as the network-attached storage tier and adapts — larger inline flushes, an `O_DIRECT` compaction writer, and a write-concurrency cap derived from the volume's bandwidth — but every cache miss still pays the volume's per-read latency, so prefer a sub-millisecond tier such as `io2` Block Express. Network file systems (NFS, SMB, EFS, Azure Files) are **not recommended**: the metastore is a SQLite database, and SQLite locking is unreliable on them. See [Storage](./performance.md#storage) in the Cayenne performance guide and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
 
-Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
+Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release. Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`) only. [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS, and the [cold tier](#cold-object-store-tier) uses `cayenne_datalake_location` on a general-purpose S3 or S3-compatible bucket. An Express directory bucket does not substitute for the snapshot bucket.
 
 ## Configuration
 
-To use Spice Cayenne as the data accelerator, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports two storage modes:
+Spice Cayenne is the default data accelerator on Linux and macOS: an acceleration that sets no `engine` uses Cayenne, in `mode: memory` unless it sets another `mode`. Cayenne is not available on Windows, where the default is [Arrow](../arrow/index.md). See [Default Engine](../index.md#default-engine). To select Spice Cayenne explicitly, specify `cayenne` as the `engine` for acceleration. Spice Cayenne supports two storage modes:
 
 - **`mode: file`** (durable) — data is written as Vortex files on local disk or S3 Express One Zone, with a SQLite/Turso metastore, and the acceleration survives restarts. This is the recommended mode for Cayenne and is used in the examples throughout this page. The `mode: file_create` and `mode: file_update` variants control how an existing on-disk acceleration is reused or rebuilt on startup.
 - **`mode: memory`** (ephemeral) — all data lives fully in RAM with an in-memory metastore; nothing is written to disk. The dataset is ephemeral and reloads from its source on restart (like the [Arrow](arrow) accelerator). Memory mode works for all refresh modes (`full`/`append`/`changes`) and for both keyed and no-primary-key datasets, but does not support partitioned tables (`partition_by`), and it enforces a hard per-table RAM bound rather than spilling to disk (see [`cayenne_cdc_mem_tier_max_bytes`](#acceleration-parameters-accelerationparams)). `INSERT`, `UPDATE` and `DELETE` apply to the in-RAM tier the same way they apply to a `mode: file` acceleration — see [Writes in memory mode](#writes-in-memory-mode).
@@ -79,11 +79,6 @@ Set under a dataset's `acceleration.params`:
 
 | Parameter                         | Description                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cayenne_tuning`                  | Auto-tuning mode. Accepts `auto` or `adaptive` (preview). `auto` derives the memory-, CPU-, and storage-sensitive knobs statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key) — no feedback loop. `adaptive` additionally runs a per-table closed-feedback controller that measures the live CDC ingest rate (and delete fraction and arrival burstiness) and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, the in-memory CDC tier byte cap, compaction cadence/trigger, and write concurrency over time, within the environment-derived bounds. **`adaptive` is reached only by setting it here — nothing else turns the closed loop on.** An unset value, an unrecognized value (warned about, then treated as `auto`), inferred schema, and a configured `cayenne_goal_*` SLO all resolve to `auto`. `adaptive` needs a non-zero `cayenne_compaction_background_interval_ms` (the controller runs on the background compaction tick); if it is `0`, Cayenne falls back to `auto`. Schema inference (always on) sharpens the `adaptive` warm-start but is not required — without inferred metadata the controller relearns the observed row width from live ingest. In both modes an explicit per-knob value overrides the derived value; under `adaptive` an explicitly-set knob is pinned (the loop will not move it). See [Self-Tuning](./performance.md#self-tuning). |
-| `cayenne_goal_replication_lag`    | Goal-driven adaptive tuning (preview): target end-to-end CDC replication lag, as a duration (e.g. `5s`). **Best set globally** under `runtime.params`; a value here overrides the global setpoint for this dataset. When set, the closed-loop controller converges toward this SLO in small, bounded steps within `cayenne_goal_convergence_window`. **Requires `cayenne_tuning: adaptive` on the dataset** — a goal never enables the loop by itself; on a table left at the `auto` default it is ignored, with a warning. Goal-seeking also requires a non-zero `cayenne_compaction_background_interval_ms`. See [Goal-driven tuning](./performance.md#goal-driven-tuning). |
-| `cayenne_goal_freshness`          | Goal-driven adaptive tuning (preview): target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). Best set globally under `runtime.params`; a value here overrides the global setpoint for this dataset. |
-| `cayenne_goal_query_latency`      | Goal-driven adaptive tuning (preview): target p99 query latency on this table, as a duration (e.g. `250ms` or `10s`). Best set globally under `runtime.params`; a value here overrides the global setpoint for this dataset. |
-| `cayenne_goal_convergence_window` | Goal-driven adaptive tuning (preview): the time budget to converge toward the configured `cayenne_goal_*` SLOs, as a duration (e.g. `1m`). Defaults to `60s`. A per-dataset control-cadence knob — it paces how fast the loop chases the goals rather than declaring an outcome, so it is not part of the global SLO surface and has no `runtime.params` form. |
 | `cayenne_compression_strategy`    | Compression algorithm for accelerated data. Defaults to `btrblocks`. Supports `btrblocks` or `zstd`.                                                                                          |
 | `cayenne_delta_encoding`          | Encoding effort applied to delta (incremental) writes such as appends and inline-memtable flushes. Accepts `auto` (default) or a fixed level `0`–`10`. Higher levels search more encoding schemes for a better compression ratio at the cost of more write-time CPU; `auto` encodes every delta write at a light level regardless of size, because deltas are transient staged streams that compaction later re-encodes with the full cascade. Levels `7`–`10` all apply the full default cascade, so set `7` to encode every delta with the full cascade instead. Applies at write time only — changing it never re-encodes existing data or forces a table re-create. Invalid values fall back to `auto` with a warning. |
 | `cayenne_unsupported_type_action` | Action when an unsupported data type is encountered. Defaults to `error`. See [Data Type Support](#data-type-support).                                                                        |
@@ -95,8 +90,8 @@ Set under a dataset's `acceleration.params`:
 | `cayenne_metastore`               | Metastore backend type. Supports `sqlite` (default) or `turso` (requires `turso` feature flag).                                                                                               |
 | `cayenne_upload_concurrency`      | Maximum number of concurrent file uploads when writing multiple Vortex files to S3 Express One Zone. Accepts `auto` (default) or an explicit value; `auto` uses the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores. The aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that same entitlement, less a query reserve of a quarter of the cores (at least 2).                                                                                              |
 | `cayenne_write_concurrency`       | Writer partition override for unsorted ingests, controlling how many Vortex files are encoded in parallel during a write. Accepts `auto` (default) or an explicit value. `auto` encodes up to `min(4, session target_partitions)` files in parallel per write — an intentionally small per-table default (not the full CPU entitlement), so many independently-writing tables do not oversubscribe CPU under concurrent CDC. An explicitly-set value is capped at the session `target_partitions`, which defaults to the runtime's [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) in whole cores; the aggregate encode concurrency across all Cayenne tables is separately bounded by a process-global budget sized from that entitlement. Values below `1` are clamped to `1`. The sort-and-rewrite compaction path always writes serially regardless of this setting. |
-| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which resolves to `position` (merge-on-read) for most tables, or to `key` for CDC datasets (`refresh_mode: changes`) that declare a `primary_key`. See [Deletion Strategies](#deletion-strategies).         |
-| `cayenne_pk_conflict_detection`   | Controls primary-key conflict detection on insert. Accepts `auto` or `none`; defaults to `auto`, which detects existing primary keys and resolves them as merge-on-read upserts. Set to `none` to skip conflict detection (blind append) for append-only CDC workloads where the source guarantees primary-key uniqueness. |
+| `cayenne_deletion_mode`           | How primary-key deletions are recorded and applied. Accepts `auto`, `key`, or `position`; defaults to `auto`, which chooses per table: a small primary-key table on local disk uses position deletes on Linux with at least 8 physical CPU cores, other primary-key tables use key deletes, and a table without a primary key always uses position deletes. See [Deletion Strategies](#deletion-strategies).         |
+| `cayenne_pk_conflict_detection`   | Controls primary-key conflict detection on insert. Accepts `auto` or `none`; defaults to `auto`, which detects existing primary keys and resolves them as merge-on-read upserts. Set to `none` to skip conflict detection (blind append), so repeated keys are stored as written. Registration refuses `none` on a dataset that rewrites stored keys: `refresh_mode: changes`, durable write-back, or writes kept in the accelerator. See [Turning off conflict detection](#turning-off-conflict-detection). |
 | `cayenne_compaction_trigger_files` | Minimum number of small Vortex files in the current snapshot before tiered compaction runs. A "small" file is one whose size is below `cayenne_target_file_size_mb` / 4. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
 | `cayenne_compaction_trigger_protected_snapshots` | Number of protected snapshots before snapshot-maintenance compaction runs. Separate from `cayenne_compaction_trigger_files` so small-file tuning does not silently change scan amplification behavior. Defaults to `4` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `8` otherwise. A value of `1` is clamped to a minimum of `2`. |
 | `cayenne_compaction_trigger_snapshot_age_ms` | Maximum age in milliseconds of the oldest protected snapshot before snapshot-maintenance compaction runs. Set to `0` to disable the age trigger. Defaults to `60000` for `refresh_mode: caching` / `changes`, or `append` with `refresh_check_interval` ≤ 5m; `300000` otherwise. |
@@ -160,9 +155,9 @@ The cold store is authenticated independently from the warm tier (which uses the
 
 #### Runtime parameters (`runtime.params`)
 
-Set once under the top-level `runtime.params` and applied to every Cayenne-accelerated dataset in the instance. With the exception of the goal-driven SLO setpoints (`cayenne_goal_*`) — which set a global default that a dataset can override under its own `acceleration.params` (except `cayenne_goal_qph`, which is global-only) — these are **not** valid under a dataset's `acceleration.params`.
+Set once under the top-level `runtime.params` and applied to every Cayenne-accelerated dataset in the instance. These are **not** valid under a dataset's `acceleration.params`.
 
-A global `cayenne_goal_*` setpoint steers only the datasets that run the closed loop: it takes effect on a dataset that sets `cayenne_tuning: adaptive` and is ignored (with a warning) on every dataset left at the `auto` default.
+Adaptive tuning is turned on for every Cayenne dataset and catalog with [`runtime.adaptive_tuning`](../../../reference/spicepod/runtime.md#runtimeadaptive_tuning), and its service-level targets are the runtime-wide [`runtime.params.target_*`](../../../reference/spicepod/runtime.md#adaptive-tuning-targets) parameters. See [Self-Tuning](./performance.md#self-tuning).
 
 | Parameter                                  | Description                                                                                                                                                                                                                                                            |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -173,10 +168,6 @@ A global `cayenne_goal_*` setpoint steers only the datasets that run the closed 
 | `cayenne_compaction_memory_fraction`       | Fraction of the query memory pool carved out for a dedicated Cayenne compaction memory pool. Defaults to `0.2` and is clamped to a supported range. Only applied when at least one enabled Cayenne dataset can accumulate files to compact — a file acceleration `mode` on a refresh mode that is not a whole-table replace — and dedicated thread pools are not disabled. A pod whose Cayenne datasets are all `refresh_mode: full`, or all `mode: memory`, carves no compaction pool and brings up no compaction runtime. |
 | `cayenne_sort_merge_min_rows`              | Advanced anti-join tuning: row-count threshold above which the filter-propagation optimizer switches to a sort-merge strategy. Defaults to an internally tuned value; override only when profiling indicates a need.                                                    |
 | `cayenne_sort_merge_memory_pool_fraction`  | Advanced anti-join tuning: fraction of the memory pool the sort-merge anti-join strategy may use. Defaults to an internally tuned value.                                                                                                                                |
-| `cayenne_goal_replication_lag`             | Goal-driven adaptive tuning (preview): global target end-to-end CDC replication lag, as a duration (e.g. `5s`), applied to every Cayenne dataset. Override per-dataset under a dataset's `acceleration.params`. See [Goal-driven tuning](./performance.md#goal-driven-tuning).            |
-| `cayenne_goal_freshness`                   | Goal-driven adaptive tuning (preview): global target data freshness — the age of the newest queryable data — as a duration (e.g. `30s`). Override per-dataset under a dataset's `acceleration.params`.                                                                   |
-| `cayenne_goal_query_latency`               | Goal-driven adaptive tuning (preview): global target p99 query latency, as a duration (e.g. `250ms` or `10s`). Override per-dataset under a dataset's `acceleration.params`.                                                                                             |
-| `cayenne_goal_qph`                         | Goal-driven adaptive tuning (preview): target query throughput in queries per hour (higher is better), e.g. `5000`. Must be a positive number. **Global-only** — query throughput is measured system-wide (a query spanning multiple datasets, such as a join, is counted once), so it has no per-dataset form; a value set under `acceleration.params` is ignored. |
 | `cayenne_metastore_cache_mb`               | SQLite metastore page-cache size in megabytes. Applies to the default `sqlite` metastore backend (see `cayenne_metastore`); the `turso` backend uses MVCC and ignores the `cayenne_metastore_*` family. Defaults to `256`. |
 | `cayenne_metastore_mmap_mb`                | SQLite metastore memory-mapped I/O size in megabytes. Defaults to `1024` (1 GiB). |
 | `cayenne_metastore_busy_timeout_ms`        | SQLite metastore `busy_timeout` in milliseconds — how long a blocked connection waits for a lock before erroring. Defaults to `30000`. |
@@ -203,6 +194,37 @@ datasets:
         # Per-dataset Cayenne tuning
         cayenne_target_file_size_mb: 256
 ```
+
+### Changing settings on an existing acceleration
+
+A `mode: file` table records the settings it was built with in the metastore. When a dataset's settings change between restarts, Cayenne compares them with the recorded ones on the next start. A setting that only changes how new rows are written is applied to the existing table. A setting that changes what the stored rows mean is applied by rebuilding the acceleration from the source, but only when a reload brings back every row the acceleration holds: `refresh_mode: full` with `write_mode: write_through` (the default), from a source other than `sink`.
+
+| Setting changed between restarts | `refresh_mode: full`, `write_mode: write_through` | Any other refresh mode or write mode |
+| --- | --- | --- |
+| `cayenne_sort_columns`, `cayenne_cluster_by`, `cayenne_compression_strategy`, `cayenne_delta_encoding`, `cayenne_shard_key_columns`, or `cayenne_pk_conflict_detection` from `auto` to `none` | Applied in place | Applied in place |
+| `primary_key`, or the data location (`cayenne_file_path`) | Rebuilt from the source | Kept with the recorded settings, with a warning |
+| `partition_by`, or `cayenne_pk_conflict_detection` from `none` to `auto` on a table with a `primary_key` | Rebuilt from the source | Fails to load (see [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh) and [Turning off conflict detection](#turning-off-conflict-detection)) |
+| Source schema | Governed by [`on_schema_change`](../../../reference/spicepod/datasets.md#on_schema_change) | Governed by `on_schema_change` |
+
+A setting applied in place is recorded in the metastore, and the table keeps serving its existing files. Rows already stored keep their current layout until a refresh or compaction rewrites them. The runtime logs the change:
+
+```text
+INFO Applied the changed acceleration settings of dataset 'trips' to its existing acceleration in place (`cayenne_sort_columns`: none -> ['pickup_time']). Rows already stored keep their current layout until a refresh or compaction rewrites them.
+```
+
+A rebuild drops the table and loads it from the source as on a first start, and the runtime logs which setting caused it:
+
+```text
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`primary_key`: none -> ['id']), so it is dropped and reloaded from the source with the new settings.
+```
+
+A rebuild happens only after the source answers a read on the schema the dataset registered with. While the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset keeps serving its existing acceleration with the recorded settings and logs a warning. Restart once the source can be read to rebuild. A changed `partition_by`, or `cayenne_pk_conflict_detection` changed from `none` to `auto`, cannot be served from the stored rows, so in that case the dataset fails to load with an error that names both fixes: revert the setting, or restart once the source can be read.
+
+When the data location changes, the rebuild deletes the local directory the old table was written to and never the newly configured one. Files stored in S3 Express One Zone are not deleted, and a warning lists the prefixes they remain under. A data location change is detected only when the metastore stays in the same directory, such as with an explicit [`cayenne_metadata_dir`](#metastore-location). Without it, moving a local `cayenne_file_path` also moves the metastore, so the dataset starts a new acceleration.
+
+In any other refresh mode or write mode, the acceleration can hold rows a reload does not bring back, such as an append window, a change stream that resumes from a recorded position, or writes that exist only in the acceleration. A layout-only change is still applied in place and needs no rebuild. When a change to `primary_key` or the data location is among the changed settings, Cayenne keeps every recorded setting, including layout settings changed in the same restart, and logs a warning that names the changed settings. To apply those settings, restart once with `mode: file_create`, and with `write_mode: write_through` if the dataset uses `write_mode: write_back`, then set both back. Rows that exist only in the acceleration are lost.
+
+In earlier releases, including v2.4.0-rc.1, a changed `primary_key` or `cayenne_sort_columns` on a `mode: file` Cayenne table was not applied: the table kept its recorded settings and logged a warning that the existing acceleration was not recreated. Now a changed sort order is applied in place, and a `refresh_mode: full` dataset whose `primary_key` changes is rebuilt from the source on the next start.
 
 ## Performance Tuning
 
@@ -316,7 +338,7 @@ Cayenne is not the only engine that can apply a change stream — `arrow`, `duck
 - **Incrementally maintained aggregate views (IVM).** Aggregate views declared with `maintained_aggregates` are updated in place as each change event is applied, rather than recomputed, so `GROUP BY` rollups stay fresh at CDC speed. See [Maintained Aggregates](#maintained-aggregates).
 - **Key-based incremental deletes.** With a primary key, `cayenne_deletion_mode: auto` resolves to key-based deletion vectors so source `DELETE` and `UPDATE` events apply efficiently. See [Deletion Vectors](#deletion-vectors).
 - **In-memory CDC tier.** Change events can be staged through an in-memory tier (`cayenne_cdc_durability` and the `cayenne_cdc_mem_tier_*` parameters) for low apply latency, with exactly-once semantics via primary-key-idempotent replay. The [deployment guide](./deployment.md#cdc-apply-metrics) documents the CDC apply metrics for monitoring lag and throughput.
-- **Replication-lag and freshness SLOs.** The adaptive self-tuner can target an end-to-end replication-lag or data-freshness goal (`cayenne_goal_replication_lag`, `cayenne_goal_freshness`) and adjust its apply behavior to meet it. See [Goal-driven tuning](./performance.md#goal-driven-tuning).
+- **Replication-lag and freshness SLOs.** The adaptive self-tuner can target an end-to-end replication-lag or data-freshness goal (`runtime.params.target_replication_lag`, `runtime.params.target_freshness`) and adjust its apply behavior to meet it. See [Goal-driven tuning](./performance.md#goal-driven-tuning).
 
 ### Visibility of applied changes
 
@@ -329,7 +351,7 @@ Schema evolution and retention invalidate cached views in both modes, so neither
 
 ### CDC Requirements
 
-- **A primary key is required.** In `changes` mode Cayenne always applies an inferred or declared primary key and routes source updates through an upsert. Declare `primary_key` on the dataset (and, where the connector requires it, `on_conflict: upsert`); the per-connector CDC pages document the exact requirement.
+- **A primary key is required.** In `changes` mode Cayenne always applies an inferred or declared primary key and routes source updates through an upsert. Declare `primary_key` on the dataset; change streams on Cayenne do not need `on_conflict`. The per-connector CDC pages document each connector's key requirement.
 - **File or memory mode.** Durable resume across restarts requires `mode: file`. `mode: memory` is supported for ephemeral, in-RAM CDC where the accelerator is rebuilt from the source on restart.
 
 ## Maintained Aggregates
@@ -386,16 +408,47 @@ Supported input column types by function:
 
 A query is served from a maintained view only when it matches the view exactly:
 
-- The query's `GROUP BY` keys match the view's `group_by`, in order.
-- The query's `WHERE` predicate matches the view's `filter_sql` exactly — an unfiltered view (no `filter_sql`) answers only unfiltered queries, and a filtered view answers only a query carrying the identical predicate. A view whose `filter_sql` mirrors a common dashboard filter lets that filtered analytical query be served incrementally instead of by a full re-scan.
+- The query's `GROUP BY` keys match the view's `group_by`, in order. A query without `GROUP BY`, such as `SELECT COUNT(*), SUM(amount) FROM orders`, matches a view that omits `group_by`.
+- The query computes the view's aggregates: the same functions over the same columns, in the order the view declares them. Each aggregate input is a table column, so a query that aggregates a computed value, such as `SUM(amount * 2)`, is not served. `COUNT(*)` and `COUNT` of a non-NULL literal such as `COUNT(1)` count every row and match a `count` declared without a `column`. An aggregate call with `DISTINCT`, a `FILTER (WHERE ...)` clause, or an `ORDER BY` inside it is not served, and neither is a query that uses `GROUPING SETS`, `ROLLUP`, or `CUBE`.
+- The query's `WHERE` predicate matches the view's `filter_sql`. An unfiltered view (no `filter_sql`) answers only unfiltered queries, and a filtered view answers only a query whose predicate has the same conjuncts. A view whose `filter_sql` mirrors a common dashboard filter lets that filtered analytical query be served incrementally instead of by a full re-scan.
+
+Predicates are compared as sets of `AND`-ed conjuncts, so the order of the conjuncts does not matter. A query with an extra conjunct, or with one fewer, does not match. The comparison holds whether the query planner keeps the `WHERE` above the scan or pushes it into the scan. Before comparison, `filter_sql` is simplified the same way the planner simplifies a query's `WHERE` clause: a string compared with a timestamp column becomes a timestamp literal, and `BETWEEN` becomes two comparisons. Writing `filter_sql` exactly as the query writes its `WHERE` clause gives the most reliable match. A query is not served when its predicate calls a volatile function such as `random()`, when a join pushes a runtime filter into the dataset's scan, or when a `LIMIT` in a subquery limits the rows the aggregate reads.
+
+A view also answers only when its maintained state is at the same table snapshot the query's scan reads, so a served result never includes changes that other scans in the same query do not see. Views are updated in the background after each write is published. A query planned before that update completes, or a query on a read-only `refresh_mode: changes` dataset that reuses a cached scan view captured before the latest update (see [Visibility of applied changes](#visibility-of-applied-changes)), reads the base table instead.
 
 Any query that does not match a declared view (or that reaches the view while it is stale) falls back to the base-table scan — correct, but not accelerated.
+
+The matching rules are implemented in [`MaintainedAggregateView::matches_query`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/maintained_aggregate.rs#L2067) and [`plan_relation_predicate`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/scan.rs#L634).
 
 ### Constraints
 
 - Maintained aggregates are a Spice Cayenne feature designed for CDC-accelerated datasets (`refresh_mode: changes`).
 - `min` and `max` are retraction-hard: they require a `primary_key` on the acceleration so that `UPDATE` and `DELETE` changes can retract a prior extremum. Set `acceleration.primary_key`, enable extended schema inference for a source primary key, or omit `min`/`max`. `count`, `sum`, and `avg` do not require a primary key.
 - Maintained aggregates are not supported on partitioned tables (`partition_by`).
+
+### Memory budget and recovery
+
+On a dataset with a primary key, Cayenne keeps a retraction index: for each row that at least one view selects (every row, when a view has no `filter_sql`), the group the row joined in each view and the values it contributed, so an `UPDATE` or `DELETE` can subtract exactly what the row added. One index serves every view on the dataset. The distinct-value state that `min` and `max` keep counts toward the same budget.
+
+Each view also keeps one entry per group: the group's key and its running aggregates. This group state is allocated outside the query pool and is not counted toward the budget below, so its memory grows with the number of distinct groups the view holds.
+
+Each dataset's budget is 10% of the query memory pool set by [`runtime.query.memory_limit`](../../../reference/memory.md#memory-limit-configuration), with a floor of 8 MiB that never exceeds the pool itself. When the query pool has no limit, the budget is 512 MiB. The index is allocated outside the query pool, so it adds to the memory described in [What the Memory Limit Does Not Cover](../../../reference/memory.md#what-the-memory-limit-does-not-cover), and each dataset with maintained aggregates has a budget of its own (see [`maintained_aggregate_max_index_bytes`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L252)).
+
+When the retained state, the retraction index plus the `min` and `max` distinct-value state, grows past its budget, the dataset's views go stale, queries run on base-table scans, and the runtime logs a warning. For a dataset named `orders` on a 4 GiB query pool, the line looks like this:
+
+```text
+WARN cayenne::provider::table: Failed to apply maintained aggregate delta off the write path; queries will fall back to base table scans table=orders epoch=1842 error=Execution error: Maintained aggregate indexes exceeded their memory budget (2210000 retained entries, ~431227904 bytes, budget 429496729 bytes); falling back to base table scan. Raise 'runtime.query.memory_limit' or narrow the maintained aggregate's filter.
+```
+
+The entry count, sizes, and epoch are the dataset's own. To make the retained state fit, narrow the view with `filter_sql`, or give the query pool more memory. The retained state lives outside the query pool, so a larger budget also raises the process's total memory. When `runtime.query.memory_limit` is unset, give the container more memory and let the runtime derive a larger pool. Raising an explicit limit, as the log line suggests, needs matching container headroom, or the process can be killed for running out of memory (see [Tuning the Memory Limit Safely](../../../reference/memory.md#tuning-the-memory-limit-safely)).
+
+Cayenne rebuilds stale views from a scan of the table when the dataset opens and after in-memory CDC tier checkpoints: at the first checkpoint after the views go stale, then at every 32nd. Without in-memory tier checkpoints, stale views are rebuilt only when the dataset next opens, such as after a runtime restart.
+
+Writes that land while a rebuild reads the table are held and applied once it finishes, so a rebuild completes on a dataset that is written continuously. A rebuild is abandoned and retried later when the held writes exceed a quarter of the budget.
+
+A rebuild whose state still does not fit the budget is retried at the next interval. A rebuild that fails with an error, such as an error reading the table's files during its scan, is attempted three times and then stops until the runtime restarts. A `filter_sql` that cannot be planned against the table, or that is not a Boolean predicate, is rejected when the dataset loads, and the dataset fails to load.
+
+When a rebuild succeeds after the views went stale, the runtime logs `Maintained aggregate state rebuilt after staleness; queries are served from maintained state again` (see [`try_rearm_maintained_aggregates`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/table.rs#L27023)).
 
 ### Retaining specs without maintaining them
 
@@ -423,23 +476,48 @@ How deletions are recorded and applied is controlled by the `cayenne_deletion_mo
 
 | Mode               | How deletes are applied                                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auto` (default)   | Resolves to `position` (merge-on-read) for most tables. For CDC datasets (`refresh_mode: changes`) that declare a `primary_key`, `auto` resolves to `key` instead, so deletes compact concurrently with the continuous writer. |
+| `auto` (default)   | Chooses per table. A primary-key table uses key deletes, except that a small table on local disk uses position deletes while it stays within a size bound. A table without a primary key uses `position`, since it has no key to record. See [How `auto` chooses a mode](#how-auto-chooses-a-mode). |
 | `position`         | Per-file row-position `RoaringBitmap`s are pushed into the Vortex scan, skipping deleted rows at the storage layer with no per-row CPU cost.                                            |
-| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. The explicit opt-out from merge-on-read for primary-key tables.    |
+| `key`              | Deletes are applied above the Vortex scan via a per-row probe on the byte representation of the primary key columns. This is the recommended mode for primary-key tables under continuous writes, because compaction can keep running while writes continue. |
 
 ```yaml
 datasets:
   - from: s3://bucket/events/
     name: events
+    time_column: updated_at
     acceleration:
       engine: cayenne
       mode: file
+      refresh_mode: append
+      refresh_append_overlap: 1h
       primary_key: event_id
       params:
-        cayenne_deletion_mode: auto # default; set to `key` to opt out of merge-on-read
+        cayenne_deletion_mode: key # key deletes at any table size, on any host
 ```
 
-Under `position` mode (the `auto` resolution for all tables except CDC datasets with a primary key):
+Key-delete compaction runs concurrently with writers, and the in-memory key deletion index is pruned in the background so it stays bounded. Setting `cayenne_deletion_mode: position` on a primary-key table opts into merge-on-read position deletes at any table size. With that explicit setting, compaction must take the table's write lock, so a continuous writer can block it on every attempt, and the table's file count grows until writes pause. The runtime then logs a warning that begins `Protected-snapshot compaction is being starved`.
+
+#### How `auto` chooses a mode
+
+For a table with a `primary_key`, `auto` uses key deletes unless the table is small enough that rewriting it whole is cheaper than tracking its deletes. A primary-key table starts on position deletes only when all of the following hold:
+
+- **The runtime is on Linux with at least 8 physical CPU cores.** The count comes from the runtime's CPU budget ([`runtime.cpu.cores`](../../../reference/spicepod/runtime.md#runtimecpucores), a cgroup CPU limit, or the CPUs the process may run on), in physical cores: with two SMT threads per core, 8 vCPUs count as 4. When the physical core count cannot be determined, `auto` uses key deletes.
+- **The table's data is on local disk.** A `mode: memory` table, a partitioned table, a table on object storage, a `refresh_mode: changes` dataset, and a [cold-tier](#cold-object-store-tier) table always use key deletes.
+- **The table's size on disk is within its bound.** The bound is 1/32 of the table's `cayenne_target_file_size_mb`, and never more than 8 MiB. With the default 256 MB target the bound is 8 MiB; with a 64 MB target it is 2 MiB.
+
+While a table is on position deletes, Cayenne reclaims its deletes by rewriting the whole table alongside writers, so scans read one compact snapshot with no deletion filter. Each `auto` table spends at most a tenth of its time on whole-table rewrites, and a process-wide budget limits how many tables rewrite at once. Neither limit applies when a table's deletion index is over its memory ceiling: the rewrite then runs right away, without waiting for the pace or the budget, because the rewrite is what bounds the index's memory.
+
+Once the table grows past its bound, it moves to key deletes until it next loads. Queries see every write before and after the change. When whole-table rewrites had kept the table compacted before the move, the runtime logs an `INFO` message that begins `Dataset '<name>' grew past` and names the bound. A table already past its bound when it loads starts on key deletes, as does one whose size on disk cannot be read at load, which the runtime reports with a warning that begins `Failed to read the size on disk of dataset`.
+
+No parameter sets the bound directly. A smaller `cayenne_target_file_size_mb` lowers it, and a larger one does not raise it past 8 MiB. To use one mode at any size, set `cayenne_deletion_mode: key` or `cayenne_deletion_mode: position`. The `Cayenne auto-tuned config` line the runtime logs for each table reports the choice and its reason as `deletion_mode`, for example `auto (position deletes up to 8 MiB, then key deletes)`, `auto (key deletes: 4 physical cores, fewer than 8)`, or `key (auto: CDC dataset)`.
+
+:::note[Change from v2.4.0-rc.1 and earlier]
+
+In v2.4.0-rc.1 and earlier releases, `auto` resolved to `key` only for a CDC dataset (`refresh_mode: changes`) or a [cold-tier](#cold-object-store-tier) table that has a primary key, and to `position` for every other table. A primary-key table that relied on the default, such as an `append` or `full` table, now uses key deletes unless it qualifies for position deletes as described in [How `auto` chooses a mode](#how-auto-chooses-a-mode). Position deletion vectors already on disk continue to load and apply after the mode changes. To keep position deletes at any size, set `cayenne_deletion_mode: position` explicitly.
+
+:::
+
+Under position deletes (a table without a primary key, a small primary-key table under `auto`, or an explicit `cayenne_deletion_mode: position`):
 
 - **Tables without a primary key** record deletions by row position. Cayenne uses `RoaringBitmap` for memory-efficient storage of deleted row IDs, providing 50-90% memory savings compared to `HashSet` for sparse deletions.
 - **Tables with a primary key** capture row positions via a `row_idx()` read-back after each write, with a key-based fallback for any row whose position is not yet known. Pushing the deletes into the scan eliminates the per-row `RowConverter` deletion tax above it.
@@ -489,7 +567,7 @@ datasets:
         '(tenant_id, pool_id)': enabled
 ```
 
-There are no Cayenne-specific parameters for this. Nothing about an index is persisted with the table: the entries are read on every registration, so adding, changing or removing one takes effect the next time the dataset is registered.
+There are no Cayenne-specific parameters for this. The `indexes` entries are read on every registration, so adding, changing or removing one takes effect the next time the dataset is registered. In `mode: file` the index itself is persisted with the table, so a restart does not rebuild it (see **Persistence in `mode: file`** below).
 
 **When an index is used.** For a lookup whose filters pin **every** column of one index to one or more literals, compared against the bare column: an equality, an `IN` list, or an `OR` of equalities. `WHERE tenant_id = 7 AND service_id IN ('a', 'b')` probes two key tuples. The index takes every combination of the columns' values, up to 2,048 tuples. A cast on the column side (`CAST(score AS BIGINT) = 5`, which also holds for `5.2`), a range the query writes itself (`BETWEEN`, `>=` and `<=`), a negated list, or more than 2,048 tuples scans as before. A cast on the value side is evaluated, not stripped.
 
@@ -505,7 +583,17 @@ There are no Cayenne-specific parameters for this. Nothing about an index is per
 Dataset '<name>' (cayenne): a `unique` entry in `indexes` speeds up lookups but does not constrain writes, so duplicate rows are not rejected. Set `primary_key` with `on_conflict` to deduplicate on a column set.
 ```
 
-**Freshness in `mode: file`.** Each write indexes the rows it writes, so the index follows appends, compactions, overwrites and full refreshes without a rebuild. The index covers the files of the current snapshot and of every protected snapshot, so an upsert table's recent rows are found through it. A file no index run covers is read in full. That happens for an append of more than 2^20 rows until its index finishes in the background, for an append whose indexing fell more than 256 MiB behind the write, and for files written before a restart. A single background build indexes those files; builds run one at a time and are paced (at least `max(1s, 10 × the previous build)` apart, backing off after a build that publishes nothing, capped at one hour). A compaction, overwrite or full refresh publishes its index before its files become visible, so it never leaves files uncovered. A schema change that alters a key column's type or nullability in place, such as `on_schema_change: sync_all_columns` widening an integer key to a float, resets that index, and lookups read every file until the background build covers them again. In `mode: memory` each memory-tier segment carries its own index, so no rebuild is needed.
+**Freshness in `mode: file`.** Each write indexes the rows it writes, so the index follows appends, compactions, overwrites and full refreshes without a rebuild. The index covers the files of the current snapshot and of every protected snapshot, so an upsert table's recent rows are found through it. A file no index run covers is read in full. That happens for an append of more than 2^20 rows until its index finishes in the background, and for an append whose indexing fell more than 256 MiB behind the write. A single background build indexes those files; builds run one at a time and are paced (at least `max(1s, 10 × the previous build)` apart, backing off after a build that publishes nothing, capped at one hour). A compaction, overwrite or full refresh publishes its index before its files become visible, so it never leaves files uncovered. A schema change that alters a key column's type or nullability in place, such as `on_schema_change: sync_all_columns` widening an integer key to a float, resets that index, and lookups read every file until the background build covers them again. In `mode: memory` each memory-tier segment carries its own index, so no rebuild is needed.
+
+**Persistence in `mode: file`.** Each write's index is also written in the background to the table's directory, under `_lookup_index/`, and registered in the Cayenne metastore. When the dataset is registered again after a restart, or is restored from an [acceleration snapshot](../../features/data-acceleration/snapshots), the table loads the persisted index instead of reading its files back to rebuild it, and logs:
+
+```
+Dataset '<name>' (cayenne): loaded its secondary index from disk (<size> MiB), covering all <n> of its files
+```
+
+When some files have no persisted index, such as files written just before the runtime stopped, the message ends with `covering <c> of its <n> files; the other <m> are indexed in the background`. The table indexes those files before it serves queries, so when that build succeeds its first lookups read no file in full. This applies at startup and when `refresh_mode: snapshot` reopens a table before swapping it in, while the previous table keeps serving. A table whose persisted index covers every file starts no build and is not delayed. A persisted index file that is missing or unreadable is discarded, and its files are indexed again before the table is served. Files that build cannot index, for example when the query memory pool refuses it or a read fails, are read in full and indexed in the background.
+
+An [acceleration snapshot](../../features/data-acceleration/snapshots) first persists every published index run, so a snapshot taken immediately after a refresh, such as with `snapshots_trigger: refresh_complete`, carries the index for that refresh's files. If a run cannot be written, the snapshot keeps the runs already persisted, and the restored table indexes the rest when it opens. A snapshot does not wait for an index run still being finished in the background, such as a large append's, so a dataset restored from it indexes those files when it opens and reads in full any file that build cannot index. If the query memory pool cannot fit the persisted index when the table opens, the table reads its files in full and keeps the persisted index for a later start. Removing every `indexes` entry deletes the persisted index the next time the dataset is registered. `cayenne_data_dir_bytes{kind="lookup_index"}` reports the index's size on disk. `mode: memory` persists nothing, so its index is built again when the dataset reloads.
 
 **Memory.** Index bytes are admitted against the query memory pool ([`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit)) and reported on `cayenne_memory_account_bytes{kind="lookup_index"}`. When the pool cannot fit an index, `mode: file` reads the files that index would cover in full and `mode: memory` reads that batch whole; results never change.
 
@@ -522,7 +610,7 @@ Each lookup an index serves, including a join lookup, is counted on `cayenne_loo
 
 ### Upsert Support
 
-When `on_conflict` is configured, Cayenne supports upsert semantics using sequence numbers (Iceberg-style ordering):
+A Cayenne table with a `primary_key` upserts on that key, with no `on_conflict` setting. Cayenne does not use `on_conflict` to resolve keys (see [`on_conflict` is deprecated](#on_conflict-is-deprecated)). Upserts use sequence numbers (Iceberg-style ordering):
 
 ```yaml
 datasets:
@@ -532,8 +620,6 @@ datasets:
       engine: cayenne
       mode: file
       primary_key: id
-      on_conflict:
-        id: upsert
 ```
 
 When a primary key is deleted and then re-inserted:
@@ -542,13 +628,105 @@ When a primary key is deleted and then re-inserted:
 2. During scan, the delete doesn't apply to data with higher sequence numbers
 3. The new data is visible without requiring separate tracking of "undeleted" records
 
+### Duplicate primary keys in one write
+
+A Cayenne table with a `primary_key` keeps one row per key. Because Cayenne is the [default engine](../index.md#default-engine), this also applies to an acceleration that sets no `engine` on Linux and macOS. When a write carries the same key more than once, or carries a key the table already stores, the dataset's configuration decides which version is kept:
+
+| Dataset                                                                | Version kept for a repeated key in a refresh                                                                      |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `primary_key` and a `time_column` that is not part of the `primary_key`, with `refresh_mode: full` or `append` | The newest by `time_column`. On equal times, the version that arrived last. A `NULL` time is older than any time. |
+| `refresh_mode: changes`                                                | Each source change is applied in order, so a later change of a key supersedes an earlier one.                     |
+| Any other dataset with a `primary_key`, such as one with no `time_column` or with the `time_column` in its `primary_key` | The version that arrived last.                                                                                 |
+
+Ordering by `time_column` applies to refreshes. A SQL `INSERT`, including one inside a `BEGIN … COMMIT` transaction, keeps the version that arrived last and replaces a stored row with the same key. An `INSERT` reports the rows it inserted or replaced. An `UPDATE` does not replace another row: one that would give a row a key another row keeps fails and changes nothing, as described below. Time ordering also does not apply when the `time_column` is part of the `primary_key`; that table keeps the version that arrived last.
+
+Each write is resolved as a whole, not one record batch at a time, so a key repeated across record batches of one refresh is resolved like any other repeat. A refresh is one write, and so is each `INSERT` and each write statement inside a `BEGIN … COMMIT` transaction. Statements are resolved separately, not across the transaction.
+
+Arrival order is the order rows reach the table. It follows the source order when the source is read as one partition, and it is not defined when the source is read in parallel, so the version kept without a `time_column` can differ between refreshes. Set a `time_column` for a reproducible result. The rules are implemented in [`key_conflicts.rs`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/cayenne/src/provider/key_conflicts.rs) (Cayenne) and [`latest_by_time.rs`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task/latest_by_time.rs) (time ordering for a refresh).
+
+At load, each Cayenne dataset with a `primary_key` logs the rule it applies. For example:
+
+```text
+Dataset 'events' keeps one row per 'id': the newest by 'updated_at', or the version that arrived last when times are equal.
+Dataset 'events' keeps one row per 'id': the version that arrived last, which can differ between refreshes; set `time_column` for a reproducible result.
+Dataset 'orders' keeps one row per 'id', applying each source change in order.
+```
+
+A refresh that orders versions by `time_column` must read that column. When the rows a refresh reads do not include it, for example because a [`refresh_sql`](../../../features/data-acceleration/data-refresh.md#refresh-sql) leaves it out, the refresh fails instead of falling back to the version that arrived last, and the acceleration keeps its previous data. The refresh log line names the column:
+
+```text
+'time_column' 'updated_at' is not in the rows the refresh reads, so versions of a key cannot be ordered. Include it in 'acceleration.refresh_sql'. See: https://spiceai.org/docs/features/data-acceleration/constraints
+```
+
+An append refresh reads only rows newer than the latest stored time, so a late update to an older row is not loaded unless [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) re-reads it. A [day-granular `time_column`](../../../features/data-acceleration/refresh-modes/append.md#day-granular-time-columns) (`Date32` or `Date64`) is the exception: the refresh re-reads the whole latest stored day, so a late row on that day is loaded without an overlap, and a late row on an earlier day still needs one. Within that window, an append compares each row it reads with the version already stored, so a late row never replaces a newer stored version. A dataset that keeps the newest version by `time_column` with `refresh_mode: append` and no `refresh_append_overlap` logs a warning at load, including for a day-granular column:
+
+```text
+Dataset 'events' keeps the newest version of each key by 'updated_at', but without `refresh_append_overlap` an append never re-reads late rows, so a late update is not loaded. Set `refresh_append_overlap` to how late rows can arrive. See: https://spiceai.org/docs/features/data-acceleration/constraints
+```
+
+Rows a refresh or statement received but did not keep are counted in the [`dataset_acceleration_rows_superseded`](../../../features/observability/index.md#available-metrics) metric. The `reason` label is `older` when a version with a later `time_column` was kept, and `arrival` when a version that arrived later was kept. A row that an append re-reads from the overlap window unchanged writes nothing and is counted as `arrival`.
+
+An `UPDATE` that would give a row a key another row keeps fails and changes nothing, including in a partitioned acceleration. This covers a new key that matches a stored row the statement does not update, a key two updated rows would share, and a `NULL` key:
+
+```text
+Failed to update dataset 'events': the new 'id' of 1 row matches a key already stored, so nothing was changed.
+Failed to update dataset 'events': 2 rows would get the same new 'id', so nothing was changed.
+Failed to update dataset 'events': the new 'id' of 1 row is NULL, and a primary key cannot be NULL, so nothing was changed.
+```
+
+A partitioned acceleration (`partition_by`) stores each partition as its own table, so a write resolves repeated keys within each partition. When a partition column is not part of the `primary_key`, a key that lands in two partitions in one write is stored once in each. Include every partition column in the `primary_key` to avoid this.
+
+#### Turning off conflict detection
+
+[`cayenne_pk_conflict_detection: none`](#parameters) turns off conflict detection, so repeated keys are not resolved. A write to a stored key then adds a second row for that key instead of replacing it, and a durable write-back commit is not recorded for delivery to the source.
+
+Registration refuses `none` on any Cayenne dataset that rewrites a stored key:
+
+- `refresh_mode: changes`, set explicitly or by the connector's default.
+- `write_mode: write_back` ([durable write-back](#transactions)).
+- `write_mode: acceleration`, which keeps writes in the accelerator.
+- A `sink` source, whose writes also stay in the accelerator.
+
+The unprefixed `pk_conflict_detection` parameter is checked too; when both are set, `cayenne_pk_conflict_detection` takes precedence. A read-only dataset takes no writes, so a read-only dataset with a full or append refresh still loads with `none`. Neither refresh mode is guaranteed to keep one row per key under `none`. Use it with a full refresh only when the source guarantees primary-key uniqueness. An append refresh also must not read a stored key again: it filters the source from the stored `time_column` high-water mark inclusively and drops only rows identical to stored ones, so a new version of a stored key, or a refresh without a `time_column` that re-reads the source, adds a second row for that key. Use `none` with an append refresh only when each key arrives once, with a `time_column` whose values only increase. The refusal names the parameter and what would go wrong for the dataset:
+
+```text
+Failed to register dataset events (postgres): 'cayenne_pk_conflict_detection: none' turns off the primary-key check Cayenne uses to replace a stored row, but this dataset applies its source's changes ('refresh_mode: changes'), so a change to an existing key would add a second row for that key instead of replacing it. Set 'cayenne_pk_conflict_detection' to 'auto', its default. See: https://spiceai.org/docs/components/data-accelerators/cayenne
+```
+
+The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. Changing it from `auto` to `none` is applied to the existing table in place. When a keyed table created with `none` is reopened with `auto`, a `refresh_mode: full` dataset with `write_mode: write_through` is rebuilt from the source on that start (see [Changing settings on an existing acceleration](#changing-settings-on-an-existing-acceleration)). Any other keyed table fails to load. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
+
+```text
+Failed to load table 'events': it was created with 'cayenne_pk_conflict_detection: none', so it can hold more than one row per primary key, and the setting is now 'auto'. An existing table keeps the setting it was created with. To rebuild it from the source with one row per primary key, restart once with 'acceleration.mode: file_create', and with 'write_mode: write_through' if the dataset uses 'write_mode: write_back', then set both back. Rows that exist only in the acceleration are not kept.
+```
+
+When a `refresh_mode: full` dataset's source cannot be read at that start, the dataset fails with a different error that says to set the parameter back to `none` or to restart once the source can be read.
+
+To rebuild any other table, restart once with `acceleration.mode: file_create`, then set `mode: file` again. A write-back dataset also restarts with `write_mode: write_through` for that run, because write-back refuses `file_create`. Deleting the table's data directory is not enough, because the table's entry stays in the shared metastore. Rows that exist only in the acceleration are lost.
+
+#### `on_conflict` is deprecated
+
+`acceleration.on_conflict` is deprecated. Cayenne does not use it to resolve keys: the values `drop`, `upsert`, `upsert_dedup`, and `upsert_dedup_by_row_id` all behave as described above. A Cayenne dataset that sets `on_conflict` logs a warning at load, which names the change in the version kept when there is one:
+
+```text
+Dataset 'events' sets `acceleration.on_conflict`, which Cayenne no longer uses; `drop` kept the first version of a key, and now the newest by 'updated_at' is kept. Remove `on_conflict`. See: https://spiceai.org/docs/features/data-acceleration/constraints
+```
+
+The following behaviors differ from Spice v2.3 and earlier:
+
+- `on_conflict: drop` kept the first version of a key. Cayenne now keeps the newest or last-arriving version, and an `INSERT` of a stored key replaces the stored row instead of being ignored.
+- `on_conflict: upsert_dedup` failed a write whose rows repeated a key with different values. Cayenne now keeps one version.
+- An `UPDATE` that moved a row onto another row's key, or set a key to `NULL`, could remove a row. It now fails and changes nothing.
+- Setting `on_conflict` on a read-write dataset kept its writes in the acceleration when the source accepts only reads. Set [`acceleration.write_mode: acceleration`](../../../reference/spicepod/datasets.md#accelerationwrite_mode) instead.
+
+[Durable write-back](#transactions) and [PostgreSQL](../../../features/cdc/postgres-replication.md), [MySQL](../../../features/cdc/mysql-replication.md), and [MongoDB](../../../features/cdc/mongodb-streams.md) change streams need only `primary_key`, so `on_conflict` can be removed from them. Spice v2.4.0-rc.1 refused a write-back dataset without an `on_conflict` upsert on the primary key.
+
 ### Writes in memory mode
 
 A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-tier is the permanent store — nothing is ever checkpointed to Vortex — so writes and deletes are applied to that tier directly:
 
 - `DELETE` evaluates its predicate against the mem-tier and rebuilds it without the matching rows. An unfiltered `DELETE FROM <table>` purges the tier.
-- `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, incoming rows are validated against it as the input streams in, and conflicts resolve through [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict): `upsert` supersedes the existing row, while a `primary_key` with no `on_conflict` configured drops the conflicting incoming row instead.
-- `UPDATE` combines the two, so both rules above apply.
+- `INSERT` appends to the tier. Where the acceleration declares a `primary_key`, the table keeps one row per key: an incoming row replaces a stored row with the same key, as described in [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
+- `UPDATE` combines the two, but it does not replace another row by key: an `UPDATE` that would give a row a key another row keeps fails and changes nothing.
 
 [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) applies to the tier the same way. Each write queues a retention pass, and the pass deletes the rows its predicate matches from the tier, as it does in `mode: file`.
 
@@ -662,7 +840,9 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 ### Important Considerations
 
-- **Standard S3 not supported**: Cayenne currently only supports S3 Express One Zone, not standard S3 buckets.
+- **Warm data files use S3 Express One Zone.** `cayenne_file_path` and the `cayenne_s3_*` parameters store Cayenne data files on an S3 Express One Zone directory bucket. A general-purpose S3 bucket is not accepted as `cayenne_file_path`.
+- **Express One Zone does not replace the snapshot bucket.** [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS so bucket or object replication and readers in another region can use the prefix. An Express directory bucket, and the `cayenne_file_path` / `cayenne_s3_*` settings, are the data tier only. See [Snapshot location and the Cayenne data tier](../../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+- **The cold tier is standard object storage.** [`cayenne_datalake_location`](#cold-object-store-tier) is a general-purpose S3 or S3-compatible prefix, separate from both the Express data tier and `snapshots.location`.
 - **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (a 2-minute per-request timeout by default, configurable via `cayenne_s3_client_timeout`) and retries.
 - **Bucket auto-creation**: When using `cayenne_s3_zone_ids`, Spice automatically creates the S3 Express directory bucket if it doesn't exist (requires appropriate IAM permissions).
 - **Metadata locality**: Cayenne metadata (SQLite catalog) remains on local disk. Only data files are stored in S3 Express.
@@ -671,7 +851,7 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 Cayenne can cascade data across three storage tiers — an in-RAM mem-tier, a local-disk **warm** tier, and an object-store **cold** tier — with each row living in exactly one tier. The cold tier is optional and disabled by default; it is enabled by setting [`cayenne_datalake_location`](#cold-object-store-tier-parameters). When unset, a table is warm-only and behaves byte-identically to before.
 
-The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data.
+The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data. Promotion is incremental: unchanged cold files are carried forward. The cold prefix is standard object storage, separate from [acceleration snapshots](../../features/data-acceleration/snapshots) (a full copy of the acceleration file on each write) and from the S3 Express One Zone data tier.
 
 ### How it works
 
@@ -856,7 +1036,7 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 
 ## Transactions
 
-Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
+Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables (a read-write dataset with [`acceleration.write_mode: acceleration`](../../../reference/spicepod/datasets.md#accelerationwrite_mode), or a `sink` dataset) and on Cayenne tables configured for durable write-back. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
 
 ```sql
 BEGIN;
@@ -873,7 +1053,7 @@ COMMIT;
 - **Preconditions with `assert()`.** The `assert(<boolean expression>)` function evaluates its argument at execution time. If the expression is `false` or `NULL`, the transaction aborts with `assertion failed: gate expression was false or NULL`. Use it to enforce invariants (for example, a sufficient balance) as part of the transaction. Comparison gates such as `… >= cap` are NULL-safe.
 - **Return value.** On success, `/v1/sql` returns the final statement's result (for the canonical gate-plus-write shape, the last write's row-count summary), or `COMMIT` when the body produces no rows.
 
-**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode), `on_conflict`, and `refresh_mode: changes` (CDC) stages its committed writes to the accelerator and then reconciles them asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
+**Durable federated write-back:** A Cayenne dataset configured with [`write_mode: write_back`](../../reference/spicepod/datasets#accelerationwrite_mode) and `refresh_mode: changes` (CDC) stages its committed writes to the accelerator and then reconciles them asynchronously back to the federated source by a per-table write-back worker. `write_mode: write_back` requires `replication.enabled: true` as an explicit opt-in to asynchronous source durability.
 
 :::warning PostgreSQL is the only supported source
 Reconciling a row to the source has to happen in **one atomic step**. Delivered as a separate `DELETE` followed by an `INSERT`, the standalone `DELETE` echoes back over the changes stream — the accelerator is CDC-fed from that same source — and removes the committed row from the accelerator; if the follow-up `INSERT` then fails, the write is silently gone from both sides.
@@ -882,7 +1062,7 @@ The [PostgreSQL connector](../../data-connectors/postgres/index.md) delivers eac
 
 > Failed to register dataset `<name>` (`<connector>`): durable write-back needs a source that can apply a delivered row in one atomic step, and the `<connector>` connector cannot yet.
 
-Remove `on_conflict` to keep writes on the accelerator, or choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). Atomic delivery for other connectors is planned.
+Choose a different [`acceleration.write_mode`](../../reference/spicepod/datasets#accelerationwrite_mode). The full message suggests `write_mode: write_through`, which sends writes to the source directly, together with `access: read` if the source does not accept writes. Atomic delivery for other connectors is planned.
 :::
 
 **Durable write-back requirements:**
@@ -892,6 +1072,8 @@ Remove `on_conflict` to keep writes on the accelerator, or choose a different [`
 - [`acceleration.mode`](../../reference/spicepod/datasets#accelerationmode) must be **`file`**.
 - No acceleration retention may be configured, to preserve undelivered rows.
 - The accelerator must be the **sole writer** of these source rows; delivery can overwrite changes made directly at the source.
+- [`cayenne_pk_conflict_detection`](#turning-off-conflict-detection) must stay at its default, `auto`.
+- `on_conflict` is not required.
 
 **Supported writes:**
 
@@ -916,9 +1098,10 @@ Before a source deletion, writes must stop and pending keys must reach zero **wh
 Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML and [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) are not among the constraints — see [Writes in memory mode](#writes-in-memory-mode).
+- **No Re-partitioning**: Cayenne does not re-partition stored data. A changed `partition_by` rebuilds a `refresh_mode: full`, `write_mode: write_through` dataset from its source on the next start. Any other `mode: file` dataset whose stored data was written with different partition columns fails to load, and changing its `partition_by` requires rebuilding the acceleration by hand, which can lose rows that exist only in Cayenne. See [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh).
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
-- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires `primary_key` with [`on_conflict`](../../reference/spicepod/datasets#accelerationon_conflict).
+- **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires only `primary_key`, with `cayenne_pk_conflict_detection` at its default `auto`. See [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
 - **SQL Retention**: [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) runs during maintenance after writes, full refreshes, and CDC checkpoints, independently of periodic retention settings. In `mode: memory`, it runs after writes, because that mode has no checkpoints.
 - **Time-Based Retention**: [`retention_period`](../../reference/spicepod/datasets#accelerationretention_period) hides expired rows in either mode. Scheduled deletion requires both [`retention_check_enabled: true`](../../reference/spicepod/datasets#accelerationretention_check_enabled) and [`retention_check_interval`](../../reference/spicepod/datasets#accelerationretention_check_interval), which has no default. Without both, a warning is logged and storage is reclaimed only when compaction rewrites affected files.
 - **No MVCC**: Multi-version concurrency control is not yet implemented. Snapshots and time-travel queries are planned for future releases.
@@ -943,7 +1126,7 @@ runtime:
     cayenne_segment_cache_mb: 512
 
 datasets:
-  # Local file storage example with upsert
+  # Local file storage example with a primary key
   - from: s3://source-bucket/analytics/
     name: analytics_data
     params:
@@ -954,10 +1137,9 @@ datasets:
       enabled: true
       mode: file
       primary_key: id
-      on_conflict:
-        id: upsert
       refresh_mode: append
       refresh_check_interval: 1h
+      refresh_append_overlap: 1h
       params:
         cayenne_compression_strategy: btrblocks
         cayenne_target_file_size_mb: 64
@@ -984,6 +1166,8 @@ datasets:
 ## Cookbook
 
 - A cookbook recipe to configure Cayenne as a data accelerator in Spice. [Cayenne Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/cayenne#readme)
+- A cookbook recipe to partition a Cayenne-accelerated dataset with hashed partitioning. [Hashed Partitioning with Cayenne](https://github.com/spiceai/cookbook/tree/trunk/hashed_partitioning#readme)
+- A cookbook recipe to run gated, serializable transactions on Cayenne tables with durable write-back to PostgreSQL. [Serializable Transactions with Durable Write-Back](https://github.com/spiceai/cookbook/tree/trunk/serializable-transactions#readme)
 
 ## Related Documentation
 

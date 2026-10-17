@@ -57,3 +57,7 @@ For Arrow acceleration, see [Hash Index](./hash-index) (experimental, v1.11.0-rc
 Even without `indexes`, [Vortex](https://github.com/vortex-data/vortex) provides [100x faster random access reads](https://bench.vortex.dev) compared to Parquet through segment statistics (similar to zone-maps), fast random access encodings ([FSST](https://www.vldb.org/pvldb/vol13/p2649-boncz.pdf), [FastLanes](https://www.vldb.org/pvldb/vol16/p2132-afroozeh.pdf)), and compute push-down on compressed data. For many point lookup workloads, Spice Cayenne matches or exceeds indexed query performance without requiring explicit index configuration. See the [Spice Cayenne documentation](../../components/data-accelerators/cayenne#point-lookups-and-random-access) for details.
 
 :::
+
+## Cookbook
+
+- A cookbook recipe to create an index on an accelerated dataset and compare query performance with and without the index. [Indexes on Accelerated Data](https://github.com/spiceai/cookbook/tree/trunk/acceleration/indexes#readme)

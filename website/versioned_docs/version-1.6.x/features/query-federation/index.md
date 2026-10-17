@@ -15,7 +15,7 @@ For a full list of supported sources, see [Data Connectors](../components/data-c
 
 ## Getting Started
 
-To start using federated queries in Spice, follow these steps:
+To start using federated queries in Spice, follow these steps from the [Federated SQL Query](https://github.com/spiceai/cookbook/tree/trunk/federation#readme) cookbook recipe, which joins NYC taxi trips stored in S3 with taxi zone names stored in PostgreSQL:
 
 **Step 1.** Install Spice by following the [installation instructions](../getting-started).
 
@@ -26,125 +26,121 @@ git clone https://github.com/spiceai/cookbook.git
 cd cookbook/federation
 ```
 
-**Step 3.** Login to the demo Dremio.
+**Step 3.** Start a local PostgreSQL instance and load the NYC taxi zone lookup table. This step requires [Docker](https://docs.docker.com/get-docker/).
 
 ```bash
-spice login dremio -u demo -p demo1234
+make
 ```
 
-**Step 4.** Create a new Spice app called `demo`.
+`make` starts PostgreSQL in Docker on host port `15432`, loads the `taxi_zones` table, and prints its row count:
 
 ```bash
-# Create Spice app "demo"
-spice init demo
-
-# Change to demo directory.
-cd demo
+ taxi_zones
+------------
+        265
+(1 row)
 ```
 
-**Step 5.** Add the `spiceai/fed-demo` Spicepod.
+**Step 4.** Store the PostgreSQL password. Run this command in the `federation` directory.
 
 ```bash
-# Change to demo directory.
-cd demo
-
-spice add spiceai/fed-demo
+spice login postgres -p postgres
 ```
 
-Note in the Spice runtime output several datasets are loaded.
+The password is written to a local `.env` file, which the Spice runtime reads on startup.
 
-**Step 6.** Start the Spice runtime.
+**Step 5.** Start the Spice runtime.
 
 ```bash
 spice run
 ```
 
-**Step 7.** Show available tables and query them, regardless of source.
+The recipe's `spicepod.yaml` defines four datasets:
+
+| Dataset                  | Data                                                             |
+| ------------------------ | ---------------------------------------------------------------- |
+| `taxi_trips`             | 2,964,624 NYC yellow taxi trips, stored as Parquet in public S3 |
+| `taxi_zones`             | NYC taxi zone lookup table, stored in PostgreSQL                 |
+| `taxi_trips_accelerated` | `taxi_trips`, accelerated locally in memory with Arrow           |
+| `taxi_zones_accelerated` | `taxi_zones`, accelerated locally in memory with Arrow           |
+
+Wait for `Spice runtime is ready!` in the runtime output before querying. Loading the accelerated copy of `taxi_trips` takes several seconds, depending on network speed.
+
+**Step 6.** In another terminal, start the Spice SQL REPL.
 
 ```bash
-# Start the Spice SQL REPL.
 spice sql
 ```
 
-Show the available tables:
+Join trips in S3 with zone names in PostgreSQL to find the 10 busiest pickup zones. The trip data uses mixed-case column names, so `"PULocationID"` is quoted.
 
 ```sql
-show tables;
+SELECT z.zone,
+       z.borough,
+       COUNT(*) AS trips,
+       ROUND(AVG(t.fare_amount), 2) AS avg_fare,
+       ROUND(AVG(t.tip_amount), 2) AS avg_tip
+FROM taxi_trips t
+JOIN taxi_zones z ON t."PULocationID" = z.location_id
+GROUP BY z.zone, z.borough
+ORDER BY trips DESC
+LIMIT 10;
 ```
 
-Execute the queries:
+```bash
++------------------------------+-----------+--------+----------+---------+
+|             zone             |  borough  |  trips | avg_fare | avg_tip |
+|            varchar           |  varchar  |  int64 |  float64 | float64 |
++------------------------------+-----------+--------+----------+---------+
+| JFK Airport                  | Queens    | 145240 | 59.4     | 8.86    |
+| Midtown Center               | Manhattan | 143471 | 15.21    | 3.08    |
+| Upper East Side South        | Manhattan | 142708 | 12.18    | 2.59    |
+| Upper East Side North        | Manhattan | 136465 | 12.71    | 2.64    |
+| Midtown East                 | Manhattan | 106717 | 14.79    | 3.02    |
+| Times Sq/Theatre District    | Manhattan | 106324 | 17.54    | 3.3     |
+| Penn Station/Madison Sq West | Manhattan | 104523 | 15.79    | 3.09    |
+| Lincoln Square East          | Manhattan | 104080 | 13.43    | 2.79    |
+| LaGuardia Airport            | Queens    | 89533  | 41.46    | 8.67    |
+| Upper West Side South        | Manhattan | 88474  | 13.45    | 2.79    |
++------------------------------+-----------+--------+----------+---------+
 
-```sql
--- Query S3 (Parquet)
-SELECT *
-FROM s3_source LIMIT 10;
-
--- Query S3 (Parquet) accelerated
-SELECT *
-FROM s3_source_accelerated LIMIT 10;
-
--- Query Dremio
-SELECT *
-FROM dremio_source LIMIT 10;
-
--- Query Dremio accelerated
-SELECT *
-FROM dremio_source_accelerated LIMIT 10;
+Time: 4.922428459 seconds. 10 rows.
 ```
 
-**Step 8.** Join tables across remote sources and locally accelerated source
+**Step 7.** Run the same join against the locally accelerated datasets.
 
 ```sql
--- Query across S3 and Dremio
-WITH all_sales AS (
-   SELECT sales FROM s3_source
-   UNION ALL
-   select fare_amount+tip_amount as sales from dremio_source
-)
-SELECT SUM(sales) as total_sales,
-       COUNT(*) AS total_transactions,
-       MAX(sales) AS max_sale,
-       AVG(sales) AS avg_sale
-FROM all_sales;
-
-+--------------------+--------------------+----------+--------------------+
-| total_sales        | total_transactions | max_sale | avg_sale           |
-+--------------------+--------------------+----------+--------------------+
-| 11501140.079999998 | 102823             | 14082.8  | 111.85376890384445 |
-+--------------------+--------------------+----------+--------------------+
-
-Time: 1.079320792 seconds. 1 rows.
+SELECT z.zone,
+       z.borough,
+       COUNT(*) AS trips,
+       ROUND(AVG(t.fare_amount), 2) AS avg_fare,
+       ROUND(AVG(t.tip_amount), 2) AS avg_tip
+FROM taxi_trips_accelerated t
+JOIN taxi_zones_accelerated z ON t."PULocationID" = z.location_id
+GROUP BY z.zone, z.borough
+ORDER BY trips DESC
+LIMIT 10;
 ```
 
-**Step 9.** Join tables across locally accelerated sources and query
+The query returns the same 10 rows without contacting S3 or PostgreSQL:
 
-```sql
--- Query across S3 accelerated and Dremio accelerated
-WITH all_sales AS (
-   SELECT sales FROM s3_source_accelerated
-   UNION ALL
-   select fare_amount+tip_amount as sales from dremio_source_accelerated
-)
-SELECT SUM(sales) as total_sales,
-       COUNT(*) AS total_transactions,
-       MAX(sales) AS max_sale,
-       AVG(sales) AS avg_sale
-FROM all_sales;
+```bash
+Time: 0.022001709 seconds. 10 rows.
+```
 
-+-------------+--------------------+----------+--------------------+
-| total_sales | total_transactions | max_sale | avg_sale           |
-+-------------+--------------------+----------+--------------------+
-| 11501140.08 | 102823             | 14082.8  | 111.85376890384447 |
-+-------------+--------------------+----------+--------------------+
+Query times vary between runs, and federated query times depend on network latency to S3.
 
-Time: 0.011524375 seconds. 1 rows.
+**Step 8.** Stop the Spice runtime with `Ctrl+C`. Then stop PostgreSQL and remove its container and volume.
+
+```bash
+make clean
 ```
 
 ### Acceleration
 
-While the query in step 8 successfully returned results from federated remote data sources, the performance was suboptimal due to data transfer overhead.
+The join in step 6 reads trips from S3 and zones from PostgreSQL at query time, so its response time includes network latency and data transfer.
 
-To improve query performance, step 9 demonstrates the same query executed against locally materialized and accelerated datasets using [Data Accelerators](../../components/data-accelerators), resulting in significant performance gains.
+Step 7 runs the same join against copies of both datasets materialized locally with [Data Accelerators](../../components/data-accelerators/index.md). Because the query reads only local data, it returns the same rows in milliseconds instead of seconds.
 
 :::warning[Limitations]
 

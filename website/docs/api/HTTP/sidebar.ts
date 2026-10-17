@@ -70,6 +70,12 @@ const sidebar: SidebarsConfig = {
           label: "Refresh Dataset",
           className: "api-method post",
         },
+        {
+          type: "doc",
+          id: "api/HTTP/post-dataset-cdc",
+          label: "Ingest Debezium CDC changes",
+          className: "api-method post",
+        },
       ],
     },
     {

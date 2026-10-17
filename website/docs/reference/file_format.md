@@ -95,7 +95,9 @@ Supported data encodings:
 
 ## ORC
 
-[Apache ORC](https://orc.apache.org/) objects are read everywhere Parquet is — the S3, GCS, ABFS, file, FTP/SFTP, SMB and NFS connectors. Set `file_format: orc` or use a `.orc` path extension (auto-detection also resolves `.orc` when `file_format` is omitted or set to `auto`).
+[Apache ORC](https://orc.apache.org/) objects are read by the listing connectors: S3, GCS, ABFS, file, FTP/SFTP, SMB and NFS. Set `file_format: orc` or use a `.orc` path extension (auto-detection also resolves `.orc` when `file_format` is omitted or set to `auto`).
+
+The HTTP/HTTPS connector does not read ORC. With `file_format: orc`, an HTTP dataset returns the raw response body in a `content` column instead of the file's rows.
 
 ORC has no format-specific parameters, and the reader is read-only: `INSERT INTO` an ORC dataset is not supported.
 

@@ -138,78 +138,71 @@ The runtime warns at startup when the data or metastore volume has under 10% or 
 
 Cayenne sizes its memory-, CPU-, and storage-sensitive knobs automatically so it runs well on any host without hand-tuning, from a small container to a large multi-core box across different storage classes. Every numeric `cayenne_*` knob also accepts the literal `auto`, which lets the runtime derive that knob's value while leaving the rest of the configuration untouched.
 
-The mode is controlled by the `cayenne_tuning` acceleration parameter:
+The mode is controlled by the runtime-wide [`runtime.adaptive_tuning`](../../../reference/spicepod/runtime.md#runtimeadaptive_tuning) setting, which applies to every Cayenne-accelerated dataset and to Cayenne catalogs:
 
-- **`auto`** — derive the correct configuration values statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key). No feedback loop runs.
-- **`adaptive`** (preview) — in addition to the static derivation, run a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time. Adjustments are bounded by the same environment-derived `[floor, ceiling]` the static tier uses, so the loop can only ever pick a value the static tier could have picked.
+- **`disabled`** (default) — derive the correct configuration values statically from the detected environment (cgroup-aware cores and memory, storage class) and the inferred schema (cardinality, row width, primary key). No feedback loop runs.
+- **`enabled`** (preview) — in addition to the static derivation, run a per-table closed-feedback controller that measures the live CDC ingest rate and the runtime's response (apply latency vs. offered load, read amplification, memory pressure) and adjusts the inline-memtable flush caps, compaction cadence/trigger, and write concurrency over time. Adjustments are bounded by the same environment-derived `[floor, ceiling]` the static tier uses, so the loop can only ever pick a value the static tier could have picked.
 
 Environment detection feeds both modes: the storage classes and measured throughput of the data and metastore volumes, and on AWS EC2 the instance's burstable-CPU status and EBS baseline bandwidth — see [Storage tier detection](#storage-tier-detection). A slow storage tier biases both the static warm-start (per-tier file-size pre-sizing) and the closed loop (which then amortizes commits and withholds write shards sooner, and reacts to an I/O latency cliff such as an EBS burst-credit exhaustion with one decisive backoff rather than an additive crawl).
 
-`adaptive` is reached **only** by setting `cayenne_tuning: adaptive` on the dataset — nothing else turns the closed loop on. An unset value, an unrecognized value (logged as a warning, then treated as `auto`), schema inference, and a configured `cayenne_goal_*` SLO all resolve to `auto`. Schema inference is always attempted and seeds the controller's warm-start, but is not what selects the mode.
+The closed loop runs **only** when `runtime.adaptive_tuning` is `enabled`. Any other value fails the Spicepod load, and neither schema inference nor a configured target turns the loop on. Schema inference is always attempted and seeds the controller's warm-start, but is not what selects the mode.
 
 ```yaml
-acceleration:
-  engine: cayenne
-  params:
-    cayenne_tuning: adaptive
+runtime:
+  adaptive_tuning: enabled
 ```
 
 :::warning[Preview]
 
-`cayenne_tuning: adaptive` is in preview. Cayenne logs a startup warning when it is enabled; verify query correctness and performance before using it for production workloads. The static `auto` mode is recommended for production.
+`runtime.adaptive_tuning: enabled` is in preview. Cayenne logs a startup warning when it is enabled; verify query correctness and performance before using it for production workloads. The static `disabled` mode is recommended for production.
 
 :::
 
-`adaptive` needs a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick; if it is `0`, Cayenne logs a warning and falls back to `auto`. A `refresh_mode: full` dataset defaults that interval to `0` — a whole-table replace has nothing for background compaction to consolidate — so `adaptive` falls back to `auto` on such a table unless you also set `cayenne_compaction_background_interval_ms` explicitly. Schema inference (always on) sharpens the `adaptive` warm-start — the loop's data-aware warm-start uses the inferred cardinality and size — but is not required for an explicit `cayenne_tuning: adaptive`; without inferred metadata the controller relearns the observed row width from live ingest and converges from the hardware-derived warm-start.
+Adaptive tuning needs a non-zero `cayenne_compaction_background_interval_ms`, since the controller runs on the background compaction tick; if it is `0`, Cayenne logs a warning and uses static tuning for that dataset. A `refresh_mode: full` dataset defaults that interval to `0` — a whole-table replace has nothing for background compaction to consolidate — so such a table uses static tuning unless you also set `cayenne_compaction_background_interval_ms` explicitly. Schema inference (always on) sharpens the adaptive warm-start — the loop's data-aware warm-start uses the inferred cardinality and size — but is not required; without inferred metadata the controller relearns the observed row width from live ingest and converges from the hardware-derived warm-start.
 
-In both modes, setting any `cayenne_*` knob to an explicit value overrides the derived value. Under `adaptive`, an explicitly-set knob is **pinned** — the controller will not move it.
+In both modes, setting any `cayenne_*` knob to an explicit value overrides the derived value. With adaptive tuning enabled, an explicitly-set knob is **pinned** — the controller will not move it.
+
+:::note[Renamed in v2.4]
+
+Earlier releases, including v2.4.0-rc.1, set the mode per dataset with `cayenne_tuning` and the targets with `cayenne_goal_*`. Those names are no longer read; Spice logs a warning naming each replacement. See [Migrating from `cayenne_tuning` and `cayenne_goal_*`](../../../reference/spicepod/runtime.md#migrate-from-cayenne-tuning).
+
+:::
 
 ### Goal-driven tuning
 
-Under `adaptive`, you can give the controller high-level service-level objectives (SLOs) instead of leaving it to optimize from its built-in signals alone. Set one or more `cayenne_goal_*` SLOs — **globally under `runtime.params`**, where they apply to every Cayenne-accelerated dataset — and the closed loop converges toward each target in small, bounded steps:
+With adaptive tuning enabled, the controller can steer toward high-level service-level objectives (SLOs) instead of optimizing from its built-in signals alone. Set one or more [`target_*` parameters](../../../reference/spicepod/runtime.md#adaptive-tuning-targets) under `runtime.params`, where they apply to every Cayenne-accelerated dataset and Cayenne catalog, and the closed loop converges toward each target in small, bounded steps:
 
-:::info A goal does not enable the loop
+:::info A target does not enable the loop
 
-A goal declares a target, not a choice of controller. `cayenne_goal_*` is read on every Cayenne dataset, but it steers the loop only where the loop is already running — set on a dataset left at the `auto` default it is **ignored**, and Cayenne logs a warning naming the dataset once at registration. Because the SLOs are designed to be set once under `runtime.params`, enable the loop per dataset with `cayenne_tuning: adaptive` on each table you want it to steer.
+A target declares an outcome, not a choice of controller. While `runtime.adaptive_tuning` is `disabled`, the targets are **ignored**, and Cayenne logs a warning naming each dataset or catalog once.
 
 :::
 
 | Goal | Parameter | Example |
 | --- | --- | --- |
-| End-to-end CDC replication lag | `cayenne_goal_replication_lag` | `5s` |
-| Data freshness (age of the newest queryable data) | `cayenne_goal_freshness` | `30s` |
-| p99 query latency | `cayenne_goal_query_latency` | `250ms` |
-| Query throughput (queries per hour, higher is better) | `cayenne_goal_qph` | `5000` |
+| End-to-end CDC replication lag | `target_replication_lag` | `5s` |
+| Data freshness (age of the newest queryable data) | `target_freshness` | `30s` |
+| p99 query latency | `target_query_latency` | `250ms` |
+| Query throughput (queries per hour, higher is better) | `target_qph` | `5000` |
 
-The time-based goals accept a duration string (e.g. `5s`, `1m`, `250ms`); `cayenne_goal_qph` is a positive number.
+The time-based targets accept a duration string (e.g. `5s`, `1m`, `250ms`); `target_qph` is a positive number. Query throughput is measured system-wide, so a query spanning multiple datasets (such as a join) is counted once. `target_convergence_window` (duration, default `60s`) sets the time budget the controller targets for convergence; it paces how fast the loop chases the other targets rather than declaring an outcome. All targets are runtime-wide; there are no per-dataset overrides.
 
-Scope each goal where the runtime reads it:
-
-- **Time-based goals** (`cayenne_goal_replication_lag`, `cayenne_goal_freshness`, `cayenne_goal_query_latency`) are set globally under `runtime.params` and may be overridden per-dataset under a dataset's `acceleration.params`.
-- **`cayenne_goal_qph`** is **global-only**: query throughput is measured system-wide — a query spanning multiple datasets (such as a join) is counted once — so it is read only from `runtime.params`, and a value set under `acceleration.params` is ignored.
-- **`cayenne_goal_convergence_window`** (duration, default `60s`) sets the time budget the controller targets for convergence. It is a per-dataset control-cadence knob (set under `acceleration.params`) and is not part of the global SLO surface.
-
-Goal-seeking runs only where the closed loop runs, so it needs `cayenne_tuning: adaptive` on the dataset and — like `adaptive` itself — a non-zero `cayenne_compaction_background_interval_ms`. A goal the environment cannot meet is reported rather than chased indefinitely: `cayenne_goal_slo_infeasible` is `1` for a table whose configured SLO is out of reach within the tuner's bounds.
+Goal-seeking runs only where the closed loop runs, so it needs `runtime.adaptive_tuning: enabled` and a non-zero `cayenne_compaction_background_interval_ms`. A goal the environment cannot meet is reported rather than chased indefinitely: `cayenne_goal_slo_infeasible` is `1` for a table whose configured SLO is out of reach within the tuner's bounds.
 
 ```yaml
 runtime:
+  adaptive_tuning: enabled
   params:
-    # Global SLOs — apply to every Cayenne dataset that runs the closed loop
-    cayenne_goal_replication_lag: 5s
-    cayenne_goal_query_latency: 250ms
-    cayenne_goal_qph: 5000 # global-only — no per-dataset form
+    target_replication_lag: 5s
+    target_query_latency: 250ms
+    target_qph: 5000
+    target_convergence_window: 1m
 
 datasets:
   - from: postgres:public.orders
     name: orders
     acceleration:
       engine: cayenne
-      params:
-        # Required — without it this table runs static `auto` and the goals are ignored
-        cayenne_tuning: adaptive
-        # Per-dataset override of the global query-latency SLO
-        cayenne_goal_query_latency: 100ms
-        cayenne_goal_convergence_window: 1m
 ```
 
 ## Cache Tuning
@@ -323,7 +316,7 @@ The write path is sized from the CPU entitlement and the storage tier and rarely
 | `cayenne_upload_concurrency`      | `auto` — the CPU entitlement in whole cores                                               | Tune against S3 Express throughput; 8–16 parallel uploads usually saturate a same-AZ bucket                                                                                    |
 | `cayenne_delta_encoding`          | `auto` — a light encoding level for every delta write                                     | Set `7` to encode deltas with the full cascade when deltas are long-lived on disk and storage is the constraint; deltas are otherwise re-encoded by compaction                  |
 | `cayenne_compression_strategy`    | `btrblocks`                                                                               | `zstd` for write-heavy streams or large text/binary columns                                                                                                                    |
-| `cayenne_pk_conflict_detection`   | `auto` — detect existing keys and resolve them as upserts                                 | `none` for append-only CDC streams whose source guarantees key uniqueness, to skip the per-batch keyset probe                                                                   |
+| `cayenne_pk_conflict_detection`   | `auto` — detect existing keys and resolve them as upserts                                 | `none` to skip the per-batch keyset probe, for a full refresh whose source guarantees key uniqueness, or an append refresh that never reads a stored key again (each key arrives once, with a `time_column` whose values only increase). Refused with `refresh_mode: changes`, durable write-back, and writes kept in the accelerator |
 | `cayenne_cdc_durability`          | `memory` — batches land in an in-RAM tier and are checkpointed periodically                | `file` to persist every CDC batch before acknowledging the source slot, at the cost of per-batch durability latency                                                             |
 | `cayenne_cdc_mem_tier_max_bytes`  | ~1/64 of RAM, clamped to 256 MiB–1 GiB                                                     | Raise on a memory-rich host to absorb larger bursts before a checkpoint; lower when the data volume is slow, since the checkpoint writes there                                   |
 

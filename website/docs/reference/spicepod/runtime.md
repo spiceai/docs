@@ -16,7 +16,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
-`runtime.flight` · `runtime.params` · `runtime.source_rate_control`
+`runtime.adaptive_tuning` · `runtime.flight` · `runtime.params` · `runtime.source_rate_control`
 
 **Applied on reload — no restart needed:**
 
@@ -184,9 +184,9 @@ HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following ra
 | `http_requests_per_minute_limit`  | Default maximum HTTP requests per minute per upstream origin. Can be overridden per-dataset with `requests_per_minute_limit`.                                  |
 | `http_rate_control_jitter_min`    | Default minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a rate limit is configured. Can be overridden per-dataset. |
 | `http_rate_control_jitter_max`    | Default maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Can be overridden per-dataset. |
-| `http_rate_control_failure_threshold` | Default upstream error rate above which [adaptive rate control](../../components/data-connectors/https/deployment#adaptive-rate-control) throttles an origin, as a percentage (`10%`) or a fraction (`0.1`) greater than 0 and less than 1. Defaults to `10%`. Can be overridden per-dataset with `rate_control_failure_threshold`. |
-| `http_rate_control_window`        | Default half-life over which request outcomes decay for adaptive rate control, as a positive duration such as `10s`. Defaults to `10s`, or to `runtime.source_rate_control.refresh_interval` with [cluster rate control](#cluster-rate-control). Can be overridden per-dataset with `rate_control_window`. |
-| `http_rate_control_acquire_timeout` | Default maximum time a request waits for a rate-control permit before it fails, as a duration such as `30s`. `0` waits indefinitely. Defaults to the connector's `client_timeout`. Can be overridden per-dataset with `rate_control_acquire_timeout`. |
+| `http_rate_control_acquire_timeout`   | Default maximum time a request waits for rate-control capacity (a concurrency slot and the per-second and per-minute quota) before it fails, as a duration such as `30s`. Defaults to the component's client timeout. `0` waits without a bound. Can be overridden per-dataset with `rate_control_acquire_timeout`. |
+| `http_rate_control_failure_threshold` | Default upstream error rate above which [adaptive rate control](#adaptive-rate-control) admits fewer requests, as a percentage (`25%`) or a fraction (`0.25`) above 0 and below 1. Defaults to `10%`. Can be overridden per-dataset with `rate_control_failure_threshold`. |
+| `http_rate_control_window`            | Default reaction and recovery window of [adaptive rate control](#adaptive-rate-control), as a duration such as `10s`. Defaults to `10s`. Can be overridden per-dataset with `rate_control_window`.                                |
 
 ```yaml
 runtime:
@@ -196,9 +196,56 @@ runtime:
     http_requests_per_minute_limit: 200
 ```
 
-HTTP rate control is adaptive. On a healthy origin the configured limits apply unchanged. While the origin fails or times out, Spice sends it fewer requests than the limits, and returns to the full limits as it recovers. An origin with no limit is not affected. The HTTP/HTTPS and GraphQL connectors report request outcomes and adapt. The Databricks connector applies its configured limits unchanged and ignores `http_rate_control_failure_threshold` and `http_rate_control_window`. See [Rate Control](../../components/data-connectors/https/deployment#rate-control) for details.
+#### Adaptive rate control
 
-A request that cannot get a rate-control permit within `http_rate_control_acquire_timeout` (or the dataset's `rate_control_acquire_timeout`) fails.
+Rate control adapts to the health of each origin. While an origin's error rate stays at or below `rate_control_failure_threshold`, Spice applies the configured limits unchanged. When the error rate rises above it, Spice admits a smaller share of the configured limits, in proportion to the origin's success rate, and returns to the full limits as the origin recovers. Admission never goes above the configured limits, and an origin with no `max_concurrent_requests`, `requests_per_second_limit`, or `requests_per_minute_limit` is never throttled.
+
+A `2xx` response counts as a success. A `408`, `429`, or `5xx` response, a connection failure, and a timeout count as failures. Other responses, such as `401` or `404`, are not counted, because sending fewer requests does not fix them. Each outcome loses half its weight every `rate_control_window`, so a shorter window reacts to failures and recovers from them faster, and a longer window changes admission more smoothly.
+
+The share Spice admits is an admission coefficient between 0 and 1, computed from the decayed counts of requests and accepted (successful) requests:
+
+```text
+coefficient = min( (K × accepts + 1) / (requests + 1), 1 )
+
+K = 1 / (1 − rate_control_failure_threshold)
+```
+
+The coefficient scales every configured limit on the origin: per-second, per-minute, and concurrency.
+
+Spice logs a warning when an origin starts to be throttled, and an informational line when it recovers:
+
+```text
+WARN runtime_rate_control::adaptive: Upstream 'https://api.example.com:443' is failing more than the 10% `rate_control_failure_threshold`, so adaptive rate control is reducing requests to it below the configured limits until it recovers. See: https://spiceai.org/docs/components/data-connectors/https/deployment#rate-control
+INFO runtime_rate_control::adaptive: Upstream 'https://api.example.com:443' has recovered, so adaptive rate control is sending it the full configured limits again.
+```
+
+The HTTP/HTTPS and GraphQL connectors report request outcomes and accept `rate_control_failure_threshold` and `rate_control_window`. The Databricks connector does not report outcomes, so its configured limits always apply unchanged and it does not support those two parameters. The `rate_control_adaptive_admission_ratio` and `rate_control_adaptive_throttled_total` [metrics](../../components/data-connectors/https/deployment#metrics) report the current state for each origin.
+
+#### Bounded waits
+
+A request that waits for rate-control capacity fails after `rate_control_acquire_timeout`, which defaults to the component's client timeout (`client_timeout` for the HTTP/HTTPS and Databricks connectors, 30 seconds for GraphQL). The query error includes:
+
+```text
+Timed out after 30s waiting for rate-control capacity for origin 'https://api.example.com:443' to admit the request. The configured rate limit could not free a slot in time. Increase the rate limit, raise `rate_control_acquire_timeout`, or lower request concurrency, then try again. See: https://spiceai.org/docs/reference/spicepod/runtime#http-rate-control
+```
+
+#### Components that share an origin
+
+Every dataset and catalog that targets the same origin (`scheme://host:port`) shares one rate controller, so the limits apply to all of their requests together. They must resolve to the same `max_concurrent_requests`, `requests_per_second_limit`, `requests_per_minute_limit`, `rate_control_jitter_min`, `rate_control_jitter_max`, `rate_control_acquire_timeout`, `rate_control_failure_threshold`, and `rate_control_window` values. A component whose values differ from the first one registered for that origin fails to load:
+
+```text
+Multiple HTTP-based components target http://api.example.com:80 with different rate-control settings. Use the same max_concurrent_requests, requests_per_second_limit, requests_per_minute_limit, rate_control_jitter_min, rate_control_jitter_max, rate_control_acquire_timeout, rate_control_failure_threshold and rate_control_window values for components sharing an origin.
+```
+
+#### Limits across instances
+
+In open-source builds, each Spice instance keeps its rate-control state in memory and enforces the configured limits on its own. In Spice.ai Enterprise, instances that share a [`runtime.state`](#runtimestate) location coordinate `requests_per_second_limit` and `requests_per_minute_limit` through that location, so `requests_per_second_limit: 20` means about 20 requests per second across all instances. Adaptive rate control then derives the same admission on every instance from the shared outcomes, and `rate_control_window` defaults to [`runtime.source_rate_control.refresh_interval`](#runtimesource_rate_control). `max_concurrent_requests` stays local to each instance.
+
+An instance that cannot reach the shared `runtime.state` location keeps admitting requests against the lease it already holds. Once that lease expires and the location is still unreachable, it fails closed: requests that need rate-control capacity fail with the error below until the location is reachable again, and `rate_control_fail_closed_total` counts them.
+
+```text
+Cluster rate-control budget exhausted for origin https://api.example.com:443; persisted store is unavailable and last lease has expired
+```
 
 ### Spatial SQL Functions (opt-in)
 
@@ -243,9 +290,70 @@ runtime:
     cayenne_filter_propagation: enabled
 ```
 
+### Adaptive tuning targets
+
+Runtime-wide service-level targets for [adaptive tuning](#runtimeadaptive_tuning). The adaptive controller steers every Cayenne-accelerated dataset and every Cayenne catalog toward these targets in small, bounded steps, within the same bounds that static tuning derives. A target never turns adaptive tuning on: while `runtime.adaptive_tuning` is `disabled`, the targets are ignored and Cayenne logs one warning per dataset or catalog.
+
+| Parameter Name              | Description                                                                                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target_replication_lag`    | Target end-to-end CDC replication lag, as a duration such as `5s`.                                                                                                           |
+| `target_freshness`          | Target data freshness, which is the age of the newest queryable data, as a duration such as `30s`.                                                                           |
+| `target_query_latency`      | Target p99 query latency, as a duration such as `250ms`.                                                                                                                     |
+| `target_qph`                | Target query throughput in queries per hour (higher is better), as a positive number such as `5000`. Throughput is measured system-wide, so a query that spans several datasets, such as a join, is counted once. |
+| `target_convergence_window` | Time budget the controller targets for converging toward the other targets, as a duration such as `1m`. Defaults to `60s`. It paces the controller rather than declaring an outcome. |
+
+An invalid value logs a warning and is ignored. See [Goal-driven tuning](../../components/data-accelerators/cayenne/performance.md#goal-driven-tuning) for how the controller uses the targets.
+
+```yaml
+runtime:
+  adaptive_tuning: enabled
+  params:
+    target_replication_lag: 5s
+    target_query_latency: 250ms
+    target_qph: 5000
+```
+
+## `runtime.adaptive_tuning`
+
+Turns adaptive tuning on or off for the [Spice Cayenne](../../components/data-accelerators/cayenne) data accelerator across the whole runtime. It applies to every Cayenne-accelerated dataset and to Cayenne catalogs.
+
+| Value                | Description                                                                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `disabled` (default) | Cayenne derives its memory-, CPU-, and storage-sensitive settings statically from the detected environment and the inferred schema. No feedback loop runs.                                                                                                         |
+| `enabled` (preview)  | In addition to the static derivation, Cayenne runs a closed-loop controller per table that adjusts those settings over time from the live workload, steering toward any [adaptive tuning targets](#adaptive-tuning-targets). Cayenne logs a startup warning that the mode is in preview. |
+
+```yaml
+runtime:
+  adaptive_tuning: enabled
+```
+
+Only the exact values `enabled` and `disabled` are accepted. Any other value, including `true` or a different letter case, fails the Spicepod load with an error that includes:
+
+```text
+Invalid `runtime.adaptive_tuning` value 'true': expected `enabled` or `disabled`. See: https://spiceai.org/docs/reference/spicepod/runtime
+```
+
+Setting `adaptive_tuning` under `runtime.params` has no effect; it must be set directly under `runtime`. The adaptive controller runs on the background compaction tick, so a dataset with `cayenne_compaction_background_interval_ms: 0` uses static tuning and logs a warning. See [Self-Tuning](../../components/data-accelerators/cayenne/performance.md#self-tuning) for how both modes work.
+
+### Migrating from `cayenne_tuning` and `cayenne_goal_*` {#migrate-from-cayenne-tuning}
+
+Earlier releases, including v2.4.0-rc.1, configured adaptive tuning with the `cayenne_tuning` and `cayenne_goal_*` parameters on each dataset or catalog, and with `cayenne_goal_*` under `runtime.params`. These names are no longer read. Spice logs one startup warning for each old name still in use, naming its replacement, and does not apply the value. The warning covers each name with or without the `cayenne_` prefix.
+
+| Old setting                                                     | Replacement                                                      |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Dataset or catalog `cayenne_tuning: adaptive`                   | `runtime.adaptive_tuning: enabled`                               |
+| Dataset or catalog `cayenne_tuning: auto`                       | `runtime.adaptive_tuning: disabled`, or omit it                  |
+| `cayenne_goal_replication_lag`                                  | `runtime.params.target_replication_lag`                          |
+| `cayenne_goal_freshness`                                        | `runtime.params.target_freshness`                                |
+| `cayenne_goal_query_latency`                                    | `runtime.params.target_query_latency`                            |
+| `cayenne_goal_qph`                                              | `runtime.params.target_qph`                                      |
+| Dataset `cayenne_goal_convergence_window`                       | `runtime.params.target_convergence_window`                       |
+
+Adaptive tuning and its targets are now runtime-wide, so per-dataset overrides are no longer supported. Only `runtime.adaptive_tuning` selects the tuning mode. A Spicepod that relies on `cayenne_tuning: adaptive` runs with static tuning until `runtime.adaptive_tuning: enabled` is set. A Spicepod that already sets `runtime.adaptive_tuning: enabled` but still carries an old `cayenne_goal_*` key runs adaptive tuning, and only that old target is ignored.
+
 ## `runtime.source_rate_control`
 
-Optional. Tunes how Spice limits outbound requests to upstream data sources.
+Optional. Configures the GitHub connector's request limit, and how often instances that coordinate HTTP rate limits exchange state.
 
 ```yaml
 runtime:
@@ -256,46 +364,16 @@ runtime:
 
 | Parameter Name                        | Optional | Default | Description                                                                                                                                                                                                                       |
 | ------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `refresh_interval`                    | Yes      | `30s`   | With [cluster rate control](#cluster-rate-control), how often each instance refreshes its lease and publishes its counts to the shared state. It is also the length of one lease window, and the default `rate_control_window` for cluster rate control. Longer intervals reduce object-store writes but adapt more slowly to demand changes and failures. Must be greater than `0`. |
+| `refresh_interval`                    | Yes      | `30s`   | How often each instance refreshes and persists per-origin rate-control state at [`runtime.state`](#runtimestate). Applies only to Spice.ai Enterprise instances that [coordinate limits](#limits-across-instances). Longer intervals reduce object-store writes but adapt more slowly to demand changes. |
 | `github_concurrent_connections_limit` | Yes      | `4`     | Maximum number of concurrent GitHub HTTP requests per authentication context. Replaces the deprecated `runtime.params.github_max_concurrent_connections`.                                                                          |
 
-HTTP/API rate limits are configured through [`runtime.params`](#http-rate-control) (defaults for every HTTP-based dataset) and per-dataset overrides. Precedence is:
+HTTP/API rate limits are configured through [`runtime.params`](#runtimeparams) (cluster defaults) and per-dataset overrides. Precedence is:
 
 ```text
 dataset param > runtime.params.http_* default > unset
 ```
 
-### Cluster rate control
-
-:::info Enterprise Feature
-Cluster rate control is included in the Enterprise distribution of Spice.ai. [Learn more](https://docs.spice.ai/docs/enterprise).
-:::
-
-Without cluster rate control, each Spice instance applies the configured limits on its own. When [`runtime.state`](#runtimestate) is set, Spice instances that share `runtime.state.location` coordinate through object storage, so that a configured request-rate limit is shared across the cluster. For example, `requests_per_second_limit: 20` means approximately 20 requests per second in total across all replicas, not 20 per replica. The object store parameters come from `runtime.state.params`. There is no separate setting to turn cluster rate control on: `runtime.state` also serves the [scheduler](#runtimescheduler) and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart), and setting it for those features also turns on cluster rate control for every origin with a request-rate limit.
-
-```yaml
-runtime:
-  state:
-    location: s3://my-bucket/spice-state
-    params:
-      s3_region: us-east-1
-  source_rate_control:
-    refresh_interval: 30s
-
-datasets:
-  - from: https://api.example.com/v1
-    name: api_data
-    params:
-      file_format: json
-      requests_per_second_limit: 20 # About 20 requests per second across all instances
-```
-
-The configured quota becomes a token budget per lease window (one `refresh_interval`). Replicas divide that budget with a demand-weighted leased token-bucket model, so a busy replica gets a larger share and an idle replica releases budget to the others.
-
-Cluster rate control applies to `requests_per_second_limit` and `requests_per_minute_limit` only. `max_concurrent_requests` is a per-instance limit that is not shared through object storage. Cluster rate control are instantiated at startup. [Adaptive rate control](../../components/data-connectors/https/deployment#adaptive-rate-control) also works with cluster rate control, with the exception of `max_concurrent_requests` not being supported in a cluster.
-
-If an instance cannot read or write the shared state, it keeps using the lease it already holds. 
-
+When instances coordinate limits, the configured per-second and per-minute quota is converted into a token budget per `refresh_interval` window and distributed across instances using a demand-weighted leased token-bucket model.
 
 ## `runtime.functions`
 
@@ -568,6 +646,8 @@ A CPU limit outranks a request: bursting past a quota does not produce CPU, it p
 
 A process that declares **no** CPU request skips rung 2 entirely and is sized for every CPU it can see. That covers every bare-metal deployment, `docker run` without CPU flags, and every benchmark.
 
+If the host or cgroup metadata reports more CPUs than the process should use, set `runtime.cpu.cores` explicitly to the process allocation. This keeps thread pools and CPU-derived defaults sized to the deployment's intended CPU budget instead of the host total.
+
 #### Sizing from a CPU request
 
 A pod that sets `resources.requests.cpu` without `resources.limits.cpu` has no cgroup quota. Sizing for the whole node would build thread pools and query fan-out for a machine the pod does not own, so the entitlement is derived from the request instead — as a **bounded multiple** of it, currently 2×.
@@ -740,6 +820,32 @@ Behavior:
 
 Any other value is rejected when the Spicepod is loaded.
 
+## `runtime.query.log_errors`
+
+Chooses which failed queries are logged. The records go to stdout and, when [`signals`](#runtimetelemetryotel_exporter) includes `logs`, to the OpenTelemetry endpoint. Failed queries can be frequent, so by default nothing new is logged.
+
+```yaml
+runtime:
+  query:
+    log_errors: execution # none (default) | execution | all
+```
+
+**Supported values:**
+
+- `none` (default): a query refused because the runtime ran out of memory is logged at `WARN`. Every other failure is logged at `DEBUG`, which shows only when debug logging is on (`-v`, [`runtime.output_level`](#runtimeoutput_level), or `SPICED_LOG`).
+- `execution`: also logs queries that failed while running, such as a source or object-store error, a timeout, or an internal error, at `WARN`.
+- `all`: also logs queries rejected before running, such as a SQL syntax error or an unknown table or column, at `INFO`.
+
+The record names the error, with the error code and the datasets the query read as fields. A record logged during a query carries the query's trace id:
+
+```text
+WARN query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed: Arrow error: Divide by zero error error_code=QueryExecutionError datasets="trips"
+```
+
+The SQL text is not logged, because it can contain data. Look it up in [`runtime.task_history`](../task_history) by the trace id.
+
+Any other value is rejected when the Spicepod is loaded.
+
 ## `runtime.output_level`
 
 Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).
@@ -792,7 +898,7 @@ An invalid prefix fails fast with an actionable error rather than producing malf
 
 ### `runtime.telemetry.properties` {#runtimetelemetryproperties}
 
-Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Defaults to empty.
+Map of custom key/value attributes attached to telemetry metrics emitted by `spiced`. Applied as OpenTelemetry resource attributes on the runtime's `MeterProvider`, so they appear as dimensions/tags on every metric exported via the Prometheus scrape endpoint, the cluster on-demand OTLP reader, and the `otel_exporter` push exporter. Log records that `otel_exporter` sends carry the same resource attributes. Defaults to empty.
 
 ```yaml
 runtime:
@@ -809,7 +915,7 @@ For backends that map OTLP resource attributes to tags through additional config
 
 ### `runtime.telemetry.otel_exporter`
 
-Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to push metrics to an OpenTelemetry collector. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
+Configures an [OpenTelemetry](https://opentelemetry.io/) exporter that pushes metrics, logs, or both to an OpenTelemetry collector or any OTLP endpoint. The exporter automatically infers the protocol (gRPC or HTTP) based on the endpoint configuration.
 
 | Parameter name  | Optional | Default | Description                                                                                                                                                                                                                                                   |
 | --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -817,12 +923,13 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) metrics exporter to pus
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                                                                                                                                                              |
 | `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).                                                                                                                                                                     |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                                                                                                                                                               |
+| `signals`       | Yes      | `[metrics]` | What the exporter sends: `metrics`, `logs`, or both. See [Exporting logs](#exporting-logs). `push_interval` and `metrics` apply to metrics only. |
 | `headers`       | Yes      | `{}`    | Map of headers to send with each export request. For HTTP these are sent as HTTP headers; for gRPC they are sent as metadata entries (keys must be lowercase ASCII). Values support the `${secrets:...}` [replacement syntax](../../components/secret-stores#using-secrets) for loading credentials from a [secret store](../../components/secret-stores). |
 
 **Protocol inference:**
 
 - **gRPC (default):** Use a bare host:port endpoint without a scheme (e.g., `localhost:4317`). gRPC uses port 4317 by default.
-- **HTTP:** Include the `http://` or `https://` scheme and the `/v1/metrics` path (e.g., `http://localhost:4318/v1/metrics`). HTTP uses port 4318 by default.
+- **HTTP:** Include the `http://` or `https://` scheme (e.g., `http://localhost:4318/v1/metrics` or `http://localhost:4318`). HTTP uses port 4318 by default. Metrics are sent to `/v1/metrics` and logs to `/v1/logs` under the endpoint's base URL. An endpoint that ends in `/v1/metrics` is the base URL without that suffix, so `http://localhost:4318/v1/metrics` sends logs to `http://localhost:4318/v1/logs`.
 
 **Examples:**
 
@@ -907,6 +1014,56 @@ runtime:
         api-key: ${secrets:collector_api_key}
 ```
 
+#### Exporting logs
+
+Add `logs` to `signals` to send the runtime's log to the same endpoint as structured OTLP log records. The collector needs only its `otlp` receiver; there is nothing to parse.
+
+```yaml
+runtime:
+  telemetry:
+    otel_exporter:
+      endpoint: 'otel-collector:4317'
+      signals: [metrics, logs]
+```
+
+The records are the lines `spiced` prints to stdout, at the same level (`runtime.output_level`, `SPICED_LOG`, or `-v`), from the moment export starts once the Spicepod is loaded. The lines printed before that, such as the startup banner and the CPU budget, are on stdout only. stdout does not change.
+
+| OTLP field                         | Value                                                                                                                                                                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `severity_number`, `severity_text` | `TRACE` 1, `DEBUG` 5, `INFO` 9, `WARN` 13, `ERROR` 17                                                                                                                                                                                      |
+| `body`                             | The message, newlines included                                                                                                                                                                                                             |
+| `attributes`                       | The record's fields, with their types kept (int, double, bool, string)                                                                                                                                                                     |
+| Instrumentation scope name         | The module that logged the record, such as `runtime::init::dataset`                                                                                                                                                                       |
+| `trace_id`                         | For a record logged during a query, the query's trace id: the `spice-trace-id` the response returns and the `trace_id` in [`runtime.task_history`](../task_history), including an id the client pinned. For another task that task history records, that task's trace id. Otherwise empty. |
+| `span_id`                          | The `span_id` of the task's `runtime.task_history` row, when task history is enabled. Otherwise empty.                                                                                                                                    |
+| Resource                           | The same attributes as exported metrics: [`runtime.telemetry.properties`](#runtimetelemetryproperties), `OTEL_SERVICE_NAME`, and `OTEL_RESOURCE_ATTRIBUTES`                                                                              |
+
+What the export itself logs, on the threads that send records (its gRPC or HTTP client, connections, TLS handshakes, and failure reports), is printed to stdout but not exported, so that the export cannot feed back into itself. `runtime.task_history` bookkeeping is neither printed nor exported.
+
+Delivery:
+
+- Records are batched and sent every second from a bounded queue of 2048 records, on a runtime of their own, so logging never blocks a query. When the queue is full, new records are dropped. The standard `OTEL_BLRP_*` environment variables change these limits.
+- On shutdown, `spiced` sends the queued records last, after the error that ended the process, if any, and `Goodbye!`. It waits up to 5 seconds for them. After a crash or `SIGKILL`, queued records are only on stdout.
+- In cluster mode, the scheduler and each executor send their own logs with the scheduler's `otel_exporter` settings. An executor starts sending once it joins the cluster.
+- The records leave the host with whatever the log contains. Use an `https://` endpoint for a collector on another host: gRPC endpoints are sent without TLS.
+
+When export starts, `spiced` logs:
+
+```text
+INFO spiced: OTEL logs exporter enabled endpoint=otel-collector:4317 protocol="grpc"
+```
+
+If the endpoint stops accepting records, `spiced` reports it once on stdout, and again when it recovers:
+
+```text
+WARN runtime::otel_push_exporter: Failed to export logs to the OpenTelemetry endpoint 'otel-collector:4317', so log records are dropped until it recovers. Check that the endpoint is reachable and accepts OTLP logs. Cause: <error>. See: https://spiceai.org/docs/reference/spicepod/runtime#runtimetelemetryotel_exporter
+INFO runtime::otel_push_exporter: Log export to the OpenTelemetry endpoint 'otel-collector:4317' recovered; 42 log records were not delivered while it was failing.
+```
+
+If the cluster also collects container stdout, for example with a `file_log` receiver, exclude Spice pods from that collection when `logs` is exported, or each record arrives twice.
+
+To log failed queries, see [`runtime.query.log_errors`](#runtimequerylog_errors).
+
 ## `runtime.metrics`
 
 Specifies metrics that are disabled by default.
@@ -947,6 +1104,8 @@ runtime:
 | `max_message_size`          | Yes      | -       | Maximum size of a single Arrow Flight message.                       |
 | `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
 
+The `DoPut` rate limit admits 100 writes per minute, shared by all clients of the runtime. Arrow Flight data writes, Flight SQL bulk ingestion (`CommandStatementIngest`), and Flight SQL statement updates (`CommandStatementUpdate`, sent by a Flight SQL client's execute-update call) count against it. Prepared statement calls, including parameter binding, do not. A write over the limit fails with the gRPC status `RESOURCE_EXHAUSTED`.
+
 ## `runtime.mcp`
 
 Configures settings for the Spice MCP server endpoint (`/v1/mcp`).
@@ -959,7 +1118,7 @@ Controls which `Host` header values are accepted on the `/v1/mcp` endpoint. This
 
 | Behavior | Configuration |
 | --- | --- |
-| **Default** (not set) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
+| **Default** (not set, or an empty list `[]`) | Only `localhost`, `127.0.0.1`, and `::1` are permitted. Requests with any other `Host` value receive `403 Forbidden`. |
 | **Explicit list** | Replaces the defaults entirely. Only the listed hosts are accepted. |
 | **Wildcard** (`["*"]`) | Disables host checking — all `Host` header values are accepted. |
 
@@ -982,6 +1141,8 @@ runtime:
 
 Each entry can be a bare hostname (`example.com`), a host-port pair (`example.com:8090`), or a full origin URL (`https://example.com`).
 
+Only `["*"]` disables the check. An empty list (`allowed_hosts: []`) uses the defaults. In `v2.4.0-rc.1`, an empty list disabled host checking; set `allowed_hosts: ["*"]` to keep that behavior.
+
 ## `runtime.ready_state`
 
 Controls when the runtime readiness probe (`/v1/ready`) reports the runtime as ready. This is particularly useful for Kubernetes readiness probes.
@@ -1002,10 +1163,11 @@ Configures the cluster scheduler when running Spice in [cluster mode](../../depl
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster-state/
+  state:
+    location: s3://my-bucket/spice-state/
     params:
       s3_region: us-east-1
+  scheduler:
     partition_assignment_interval: 30s
     max_partition_assignments_per_interval: 100
     max_partitions_per_executor: 1000
@@ -1014,16 +1176,26 @@ runtime:
 
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
-| `state_location`                                   | Yes      | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Required unless [`runtime.state`](#runtimestate) is set, in which case `runtime.state.location` is used. |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`). When `state_location` is omitted, defaults to `runtime.state.params`. |
+| `state_location`                                   | Yes      | -       | Deprecated. Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Set [`runtime.state.location`](#runtimestate) instead. |
+| `params`                                           | Yes      | -       | Deprecated. Object store parameters (e.g. `s3_region`). See [State location parameters](#state-location-parameters). Set `runtime.state.params` instead. When `state_location` is omitted, defaults to `runtime.state.params`. |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
 | `partition_discovery_timeout`                      | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
 
+The scheduler keeps its shared cluster state in the `cluster/` folder of [`runtime.state.location`](#runtimestate) and reads it with `runtime.state.params`. `runtime.scheduler.state_location` and `runtime.scheduler.params` are deprecated and will be removed in a future release. They still take precedence over `runtime.state`, and a scheduler or standalone instance that sets either one logs a startup warning that shows how to move to `runtime.state`:
+
+| Current setting | What the warning says |
+| --------------- | --------------------- |
+| `state_location` is the `cluster/` folder of `runtime.state.location` | Remove `state_location`: the state is already there. |
+| `state_location` ends in `cluster/` and `runtime.state` is not set | Remove `state_location` and set `runtime.state.location` to its parent, for example `s3://my-bucket/spice/` for `s3://my-bucket/spice/cluster/`, which keeps the state where it is. |
+| Any other `state_location`, and every `abfs://` or `abfss://` `state_location` | No `runtime.state` location holds the current state. Removing `state_location` (and setting `runtime.state.location`, when it is not set) makes the scheduler start empty in the new folder, so partition assignments are rebuilt and async query jobs are lost. An `abfs://` or `abfss://` `state_location` keeps its state at the container root, which is never a `runtime.state` folder. |
+
+The warning also asks to move the keys of `runtime.scheduler.params` into `runtime.state.params`. When `runtime.state.params` are already set, it asks to remove `runtime.scheduler.params` instead, because `runtime.state.params` serve every feature that keeps state under `runtime.state`, and to check that they give the scheduler access to its state. The warning names parameter keys, never their values.
+
 ## `runtime.state`
 
-Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `abfs://`, and `abfss://`.
+Optional. Sets one shared object store for runtime state, so each feature that persists state does not need its own location. Supported URI schemes are `file://`, `s3://`, `gs://` (or its alias `gcs://`), `abfs://`, and `abfss://`.
 
 ```yaml
 runtime:
@@ -1039,12 +1211,99 @@ runtime:
 | `location`     | No       | -       | Root URI for runtime state storage (e.g. `s3://bucket/path/`). |
 | `params`       | Yes      | -       | Object store parameters (e.g. `s3_region`, `s3_auth`). Supports `${ secrets:NAME }` references. |
 
-The following features store their state under `runtime.state`:
+The following features store their state under `runtime.state` when their own section does not set a location:
 
 | Feature | Uses `runtime.state` when |
 | ------- | ------------------------- |
 | [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
-| [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
-| [Cluster rate control](#cluster-rate-control) | Always, in Spice.ai Enterprise builds. Rate control has no location of its own: setting `runtime.state` turns on cluster rate control for every origin with a request-rate limit. |
+| [Cluster scheduler](#runtimescheduler) | The deprecated `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
+| [HTTP rate control](#limits-across-instances) | Always, in a Spice.ai Enterprise build: instances that share the location coordinate per-second and per-minute limits for every origin that sets one. Open-source builds keep rate-control state in memory. Rate control has no location of its own. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#store-snapshots-under-runtimestate) | A dataset enables snapshots and sets no `acceleration.snapshots_location`, and the deprecated top-level `snapshots.location` is not set. Snapshots are available in Spice.ai Enterprise. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
+
+### Runtime state layout
+
+Each feature writes under its own folder below the `runtime.state` location's path: the cluster scheduler under `cluster/`, HTTP rate control under `rate-control/`, SQL results cache warmup under `results-cache/`, and acceleration snapshots under `snapshots/`. The [startup check](#startup-check-of-the-state-location) keeps its files under `_spice/`. For `location: s3://my-bucket/spice-state`, the scheduler writes `spice-state/cluster/cluster.json` and warmup writes `spice-state/results-cache/results_cache_warmup.json`. The location's path is kept for every scheme, including `abfs://` and `abfss://`.
+
+A location set in a feature's own section is used as given, without a feature folder. With `runtime.scheduler.state_location`, the scheduler writes `cluster.json` and its other state at the root of that location. For an `abfs://` or `abfss://` `state_location`, that root is the container root, and the URL's path is ignored.
+
+:::warning[Migrating from v2.4.0-rc.1]
+
+In v2.4.0-rc.1, every feature that used `runtime.state` wrote at the root of the location, and `abfs://` and `abfss://` locations wrote at the container root. Later versions do not read state at those paths. To keep it, stop every rc.1 instance that shares the location, move each feature's objects from the old path into that feature's folder, and upgrade all of those instances before restarting them, so that no instance keeps writing at the old path or reads a different layout than the others:
+
+| Feature | Objects at the old path | Move into |
+| ------- | ----------------------- | --------- |
+| Cluster scheduler | `cluster.json`, `heartbeats/`, `jobs/`, and `scheduler/` | `cluster/` |
+| HTTP rate control | One folder per spicepod, with a name derived from the spicepod's `name` (for example, `my_app/` for `name: my app`). To find it, list the old path for objects named `<origin>-<16 hex digits>.json`. | `rate-control/` |
+| SQL results cache warmup | `results_cache_warmup.json` | `results-cache/` |
+
+For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.json`, and `spice-state/my_app/` moves to `spice-state/rate-control/my_app/`.
+
+Move the rate-control objects first, one spicepod folder at a time, and move only the objects named `<origin>-<16 hex digits>.json` in that folder. A spicepod name can match another folder in the table, such as `heartbeats`, `jobs`, `scheduler`, `cluster`, `rate-control`, or `results-cache`, and moving whole folders would then mix rate-control objects with scheduler objects. Move the scheduler and warmup objects after that.
+
+To keep the scheduler's previous layout instead of moving its objects, set the deprecated `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
+
+:::
+
+### Startup check of the state location
+
+Each instance with `runtime.state` checks the location when it starts. The check reads `_spice/format.json`, which records the version of the state format, and probes whether the store enforces conditional writes by creating, updating, and deleting a `.spice-conditional-write-probe-<id>` object under `_spice/`. When `format.json` does not exist yet, the instance creates it with `{"format-version": 1}`. The instance therefore needs read and write access to the location, even when no enabled feature keeps state there.
+
+Until the check passes, the instance does not report ready, and the features that keep state under `runtime.state` wait to write it: HTTP rate control, SQL results cache warmup, and the cluster scheduler when `runtime.scheduler.state_location` is not set. A scheduler with its own `state_location` does not wait for the check. Reads do not wait. With [`ready_state: on_registration`](#runtimeready_state), readiness does not wait for the check. Acceleration snapshots are not held back by the check: they keep their own [probe before the first publish](../../features/data-acceleration/snapshots#conditional-writes-on-the-snapshot-location).
+
+When the check cannot finish, for example because the bucket does not exist, the credentials cannot write, or `runtime.state.params` are rejected, Spice logs a warning with the cause and retries with backoff and no retry limit. Fixing the bucket or its permissions lets the instance become ready without a restart. When the check passes, Spice logs the location and the features that keep state in it.
+
+Spice stops at startup and exits with an error in these cases:
+
+- The store does not support conditional writes, or accepts a write whose condition does not hold. Instances that share such a store could overwrite each other's state. Amazon S3, Azure Blob Storage and ADLS Gen2, Google Cloud Storage, and a local `file://` directory enforce conditional writes. An S3-compatible store must honor `If-None-Match` and `If-Match` on `PUT`.
+- `_spice/format.json` records a newer format version than this version of Spice supports, because a newer version of Spice wrote to the location. Upgrade Spice.
+- `_spice/format.json` is not valid.
+
+v2.4.0-rc.1 did not check the location. After an upgrade from rc.1, an instance whose `runtime.state` credentials are read-only does not become ready until they can write, and an instance whose store does not enforce conditional writes stops at startup.
+
+### Instance identity
+
+Every feature that coordinates with other instances through shared state names the instance with one identity. Spice reads the identity once per process from the first of these that is set and not empty: the `SPICE_INSTANCE_ID` environment variable, the `HOSTNAME` environment variable, the `COMPUTERNAME` environment variable, and otherwise the operating system's host name. The identity stays the same across restarts, so a restarted instance resumes the state it held.
+
+| Feature | Uses the identity for |
+| ------- | --------------------- |
+| [Cluster scheduler](../../features/distributed-query#instance-identity) | Its registration in the shared cluster state. |
+| [Cluster executor](../../features/distributed-query#instance-identity) | Its executor ID when it registers with the schedulers. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#several-instances-creating-one-datasets-snapshots) | The holder of a dataset's snapshot writer lease. |
+| [HTTP rate control](#limits-across-instances) | The name of each process's share of the per-window budget, paired with a per-process ID so that a restarted instance does not reuse its earlier run's share. |
+| [PostgreSQL replication](../../features/cdc/postgres-replication#multi-replica-deployments) | The default replication slot name. |
+
+Give each instance that shares state its own identity. On Kubernetes, `HOSTNAME` defaults to the pod name, which is already distinct. Instances on one host share its host name, so two schedulers or two executors started on the same machine each need their own `SPICE_INSTANCE_ID`. When Spice finds another running process with the same identity, it logs an error such as:
+
+```text
+Another running instance uses SPICE_INSTANCE_ID 'spice-0' at state location 's3://my-bucket/spice-state/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
+```
+
+A scheduler logs this error, and its registration is refused, when the scheduler already registered under its identity keeps sending heartbeats. A scheduler restarted after a crash is not reported as a duplicate, because the heartbeat its predecessor left stops advancing. A scheduler also logs the error when a second executor process connects under an ID that a running executor already uses, and a snapshot writer logs it when another process renews its lease. HTTP rate control does not detect a shared identity.
+
+### State location parameters
+
+These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). Snapshots stored under `runtime.state` use `runtime.state.params`. A dataset that sets [`acceleration.snapshots_params`](./datasets.md#accelerationsnapshots_params) uses those instead, and a dataset that sets `acceleration.snapshots_location` without `snapshots_params` uses no params. A location set with the deprecated top-level `snapshots.location` takes its parameters from `snapshots.params`, and `snapshots.params`, when set, also replace `runtime.state.params` for snapshots stored under `runtime.state`. See [Configure snapshot storage](../../features/data-acceleration/snapshots#configure-snapshot-storage).
+
+`runtime.state.params` can hold `s3_queue_url`, the SQS queue for [snapshot notifications](../../features/data-acceleration/refresh-modes/snapshot#reload-on-s3-event-notifications). The scheduler, HTTP rate control, and SQL results cache warmup accept it there without a warning and do not use it. A feature's own `params`, such as `runtime.scheduler.params`, still log a warning for it.
+
+An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` is `iam_role` (the default) or `key`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set. A location that sets `s3_auth: key` without both keys fails instead of connecting with the credentials from the environment, and the error reads:
+
+```text
+'s3_auth' is 'key', but 's3_key' and 's3_secret' are not both set. Set both, or set 's3_auth: iam_role' to use the credentials from the environment.
+```
+
+To use the credentials from the environment, set `s3_auth: iam_role` or omit `s3_auth`. `s3_key` and `s3_secret` set without `s3_auth` are used as given.
+
+A `gs://` or `gcs://` location takes the [GCS data connector](../../components/data-connectors/gcs#authentication-parameters) parameter names: `gcs_service_account_path`, `gcs_service_account_key`, `gcs_application_default_credentials`, `gcs_skip_signature`, the [retry parameters](../../components/data-connectors/gcs#retry-parameters) (`gcs_max_retries`, `gcs_retry_timeout`, `gcs_backoff_initial_duration`, `gcs_backoff_max_duration`, `gcs_backoff_base`), `client_timeout`, and `allow_http`. As for the connector, set at most one authentication method. An invalid value, or more than one authentication method, is an error. A parameter name that the location does not support is logged as a warning and ignored.
+
+```yaml
+runtime:
+  state:
+    location: gs://my-bucket/spice-state
+    params:
+      gcs_service_account_key: ${ secrets:GCS_SERVICE_ACCOUNT_JSON }
+```
+
+When a location's `params` are rejected, Spice logs the error and the feature runs without that location. The [cluster scheduler](#runtimescheduler) does not initialize its shared state, and the [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) stores its query plans on the local disk instead. When `runtime.state.params` are rejected, the [startup check](#startup-check-of-the-state-location) also cannot reach the location, so the instance does not become ready. Fix the parameters and restart Spice.

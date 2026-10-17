@@ -58,8 +58,10 @@ Multi-entry mappings (`- year: "…", month: "…"` on one list item) are reject
 
 | Engine    | Required `mode:` | Multi-expression | Layout                                          |
 | --------- | ---------------- | ---------------- | ----------------------------------------------- |
-| `arrow`   | (memory; default)| Yes              | One Arrow `MemTable` per partition value.       |
+| `arrow`   | `memory`         | Yes              | One Arrow `MemTable` per partition value.       |
 | `cayenne` | `file`           | Yes              | One Vortex table per partition; catalog in a SQLite metadata file. |
+
+An acceleration with no `engine` uses Cayenne on Linux and macOS, so `partition_by` with no `engine` needs a file mode, such as `mode: file`. Set `engine: arrow` to partition in memory. See [Default Engine](../../components/data-accelerators/index.md#default-engine).
 
 `duckdb`, `sqlite`, `postgres`, and `turso` accelerators do **not** support `partition_by`; configuring it on those engines is rejected at load time. Use `arrow` or `cayenne` for partitioned acceleration.
 
@@ -209,18 +211,42 @@ A `refresh_mode: full` refresh — and any other whole-table overwrite — repla
 
 ## Changing `partition_by` after refresh
 
-Once partitions exist on disk, changing `partition_by` is rejected:
+Spice does not re-partition existing acceleration data. An Arrow acceleration lives in memory and is rebuilt from the source on every start, so a new `partition_by` takes effect on restart. A Cayenne acceleration in `mode: file` keeps its data and catalog on disk, so its stored layout must match `partition_by` when the dataset loads. A change is detected when it adds `partition_by` to unpartitioned data, removes it from partitioned data, or changes the partition column names.
 
-> The `partition_by` expressions are different from the expressions used to create the existing partition files. Revert the `partition_by` expressions, delete the partition files, or change the location the partition files are stored to create new partitions.
+### Rebuilt from the source with `refresh_mode: full`
 
-To re-partition:
+A file-mode Cayenne dataset with `refresh_mode: full` and `write_mode: write_through` (the default), from a source other than `sink`, is rebuilt with the new `partition_by` on the next start. Every full refresh rewrites every row from the source, so dropping the stored rows loses nothing a reload does not bring back. The runtime drops the acceleration, reloads it from the source as on a first start, and logs the change:
 
-1. Stop the runtime.
-2. Delete the partitioned acceleration directory or point `accelerator_dir` at a fresh location.
-3. Update `partition_by`.
-4. Restart — Spice will rebuild from the source.
+```text
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`partition_by`: none -> ['bucket(2, id)']), so it is dropped and reloaded from the source with the new settings.
+```
 
-There is no automatic in-place re-partitioning.
+The rebuild happens only after the source answers a read on the schema the dataset registered with. Stored rows cannot be read under another partitioning, so while the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset fails to load with an error that says to restore the previous `partition_by` or to restart once the source can be read. See [Changing settings on an existing acceleration](../../components/data-accelerators/cayenne/index.md#changing-settings-on-an-existing-acceleration) for the other Cayenne settings that are applied on restart.
+
+### Rebuilt by hand in other refresh modes
+
+Any other file-mode Cayenne dataset, such as one with `refresh_mode: append` or `changes`, `write_mode: write_back` or `acceleration`, or a `sink` source, can hold rows a reload does not bring back, so Spice does not rebuild it. It fails to load when its stored data was written with a different partitioning than its current `partition_by`. The runtime logs one error and does not retry. The error has this form, with the values in angle brackets filled in:
+
+```text
+Failed to load dataset <dataset> (cayenne): its acceleration data was written <stored partitioning>, but the dataset now sets <configured partition_by>. Cayenne does not re-partition existing acceleration data. To keep using the existing data, <remove or restore partition_by>. To apply the new 'partition_by' instead, stop Spice, delete the acceleration data directory '<data_dir>' and the Cayenne metastore directory '<metadata_dir>', then start Spice to reload the dataset from the source. Other Cayenne datasets that use this metastore also reload from their sources. See: https://spiceai.org/docs/features/data-acceleration/partitioning
+```
+
+The stored partitioning reads `without 'partition_by'` or `partitioned by [<columns>]`, and the configured value reads `no 'partition_by'` or `'partition_by: [<expressions>]'`.
+
+The check compares partition column names, not expressions. An entry whose expression is a plain column is compared by the column name, even when it is written as a `{ name: column }` mapping. Any other expression is compared by its mapping key, or by `expr0`, `expr1`, and so on when it has none. A change that keeps these names is not detected, such as `bucket(10, id)` to `bucket(20, id)` as `expr0`, or renaming the key of a `{ name: id }` entry: the dataset loads, and its existing partitions keep the layout of the old expression. For a dataset that is not rebuilt automatically, follow the steps below for any change to a partition expression, not only for changes the error reports. With `refresh_mode: full`, a change that keeps these names is not detected either, so it is not rebuilt automatically.
+
+To keep the existing data, restore the `partition_by` the data was written with, or remove `partition_by` if the data was written without it.
+
+Deleting the metastore removes the catalog for every Cayenne dataset that shares it, and those datasets reload from their sources. Rows that exist only in Cayenne cannot be reloaded and are lost: rows in accelerator-only datasets ([`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) or `sink` datasets), and write-back rows not yet written to the source.
+
+To apply the new `partition_by`:
+
+1. Stop Spice with a graceful shutdown (`SIGTERM`).
+2. Unless every dataset sharing the metastore can be fully reloaded from its source, back up the whole metastore directory, including every sidecar file next to `cayenne.db`, and every data directory it catalogs. Take the backup only after Spice has stopped.
+3. Identify the active metastore directory. A process opens one shared catalog, from whichever Cayenne dataset initializes first, and the error names the directory resolved for the failing dataset, which can be a different one when datasets resolve different directories (see [Metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location)). When every Cayenne dataset resolves the same directory, that directory is the active one. Otherwise, treat every directory a Cayenne dataset resolves as a candidate, include each in the backup, and set the same explicit `cayenne_metadata_dir` on every Cayenne dataset before restarting.
+4. Delete the active metastore directory, or every candidate directory, and every data directory the deleted metastore catalogs, not only the failing dataset's. Deleting only the data directory is not enough, because the metastore keeps the dataset's file list and refresh checkpoint. A data directory left behind is no longer referenced by any catalog, so its files stay on disk while the dataset reloads into new files.
+5. Update `partition_by`.
+6. Start Spice. The dataset reloads from its source.
 
 ## Validation rules
 
@@ -318,6 +344,11 @@ acceleration:
 -- One partition read:
 SELECT * FROM events WHERE region = 'EU';
 ```
+
+## Cookbook
+
+- A cookbook recipe to partition an accelerated dataset so queries skip partitions they do not need. [Dataset Partitioning](https://github.com/spiceai/cookbook/tree/trunk/acceleration/partitioning#readme)
+- A cookbook recipe to partition a Cayenne-accelerated dataset with the `bucket` function. [Hashed Partitioning with Cayenne](https://github.com/spiceai/cookbook/tree/trunk/hashed_partitioning#readme)
 
 ## Related
 

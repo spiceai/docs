@@ -46,7 +46,7 @@ For optimal performance, store Cayenne data files **and the metastore** on local
 
 Network block storage (Amazon EBS, Azure Managed Disks, GCP Persistent Disk) works as a durable fallback: Cayenne detects it as the network-attached storage tier and adapts — larger inline flushes, an `O_DIRECT` compaction writer, and a write-concurrency cap derived from the volume's bandwidth — but every cache miss still pays the volume's per-read latency, so prefer a sub-millisecond tier such as `io2` Block Express. Network file systems (NFS, SMB, EFS, Azure Files) are **not recommended**: the metastore is a SQLite database, and SQLite locking is unreliable on them. See [Storage](./performance.md#storage) in the Cayenne performance guide and [Storage](../../reference/performance-tuning#storage) in the Performance Tuning guide.
 
-Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release.
+Use [S3 Express One Zone](#aws-s3-express-one-zone-storage) when persistence of accelerations across restarts is required. S3 Express One Zone adds network latency compared to local NVMe but provides durability. Sharing accelerated data across multiple Spice instances is planned for a future release. Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`) only. [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS, and the [cold tier](#cold-object-store-tier) uses `cayenne_datalake_location` on a general-purpose S3 or S3-compatible bucket. An Express directory bucket does not substitute for the snapshot bucket.
 
 ## Configuration
 
@@ -531,6 +531,33 @@ When a primary key is deleted and then re-inserted:
 2. During scan, the delete doesn't apply to data with higher sequence numbers
 3. The new data is visible without requiring separate tracking of "undeleted" records
 
+### Duplicate primary keys in one write
+
+With a `primary_key`, an append refresh checks keys as each batch of the write arrives. Duplicate keys inside one batch are collapsed. `on_conflict: upsert` keeps the last row, and `on_conflict: drop` keeps the first row and drops the later copies. `upsert_dedup` and `upsert_dedup_by_row_id` are also applied per batch. The same key in a later batch of that write is rejected, with or without `on_conflict`:
+
+```text
+Incoming data contains duplicate primary key across batches
+```
+
+A key already stored in the acceleration is a separate case. `upsert` replaces the stored row, and `drop` drops the incoming row.
+
+An append refresh hits the error when one poll's incoming rows contain two versions of a key in different batches. A cold load of a history or log does this, and so does a [`refresh_append_overlap`](../../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) window that itself holds two source rows for the key. Append refresh drops a re-read that matches a stored row on every column before the write, so that re-read is not a second incoming copy. With `on_conflict: upsert`, a single changed version of a stored key replaces the stored row.
+
+[DuckDB](../duckdb/index.md) applies `on_conflict: upsert` across batches of one write. The [end-to-end incremental ingestion example](../../../features/data-acceleration/data-refresh.md#end-to-end-incremental-ingestion-example) uses DuckDB.
+
+When the source is a log of versions, append without a `primary_key` and read the latest version from a view:
+
+```yaml
+views:
+  - name: events_latest
+    sql: |
+      SELECT *
+      FROM events
+      QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY event_time DESC) = 1
+```
+
+See [`QUALIFY`](../../../reference/sql/select.md#qualify-clause) and [Views](../../../reference/spicepod/views.md). Each changed version is appended, and the view returns the row with the latest `event_time` for that key.
+
 ### Writes in memory mode
 
 A `mode: memory` acceleration accepts the same DML as `mode: file`. The RAM mem-tier is the permanent store — nothing is ever checkpointed to Vortex — so writes and deletes are applied to that tier directly:
@@ -651,7 +678,9 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 ### Important Considerations
 
-- **Standard S3 not supported**: Cayenne currently only supports S3 Express One Zone, not standard S3 buckets.
+- **Warm data files use S3 Express One Zone.** `cayenne_file_path` and the `cayenne_s3_*` parameters store Cayenne data files on an S3 Express One Zone directory bucket. A general-purpose S3 bucket is not accepted as `cayenne_file_path`.
+- **Express One Zone does not replace the snapshot bucket.** [Acceleration snapshots](../../features/data-acceleration/snapshots) use `snapshots.location` on standard S3, GCS, or ADLS so bucket or object replication and readers in another region can use the prefix. An Express directory bucket, and the `cayenne_file_path` / `cayenne_s3_*` settings, are the data tier only. See [Snapshot location and the Cayenne data tier](../../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+- **The cold tier is standard object storage.** [`cayenne_datalake_location`](#cold-object-store-tier) is a general-purpose S3 or S3-compatible prefix, separate from both the Express data tier and `snapshots.location`.
 - **Same-AZ optimization**: S3 Express One Zone is optimized for same-availability-zone access. For external access, Cayenne uses extended timeouts (a 2-minute per-request timeout by default, configurable via `cayenne_s3_client_timeout`) and retries.
 - **Bucket auto-creation**: When using `cayenne_s3_zone_ids`, Spice automatically creates the S3 Express directory bucket if it doesn't exist (requires appropriate IAM permissions).
 - **Metadata locality**: Cayenne metadata (SQLite catalog) remains on local disk. Only data files are stored in S3 Express.
@@ -660,7 +689,7 @@ See AWS documentation for the complete list of [S3 Express One Zone availability
 
 Cayenne can cascade data across three storage tiers — an in-RAM mem-tier, a local-disk **warm** tier, and an object-store **cold** tier — with each row living in exactly one tier. The cold tier is optional and disabled by default; it is enabled by setting [`cayenne_datalake_location`](#cold-object-store-tier-parameters). When unset, a table is warm-only and behaves byte-identically to before.
 
-The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data.
+The cold tier lets a table grow beyond local NVMe capacity while keeping recent, hot data on fast local storage and graduating older data to cheaper, durable object storage — without sacrificing pushdown on the cold data. Promotion is incremental: unchanged cold files are carried forward. The cold prefix is standard object storage, separate from [acceleration snapshots](../../features/data-acceleration/snapshots) (a full copy of the acceleration file on each write) and from the S3 Express One Zone data tier.
 
 ### How it works
 
@@ -830,7 +859,7 @@ Query performance scales with available CPU cores. Vortex's columnar format supp
 
 ## Transactions
 
-Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
+Cayenne supports serializable, gated transactions on accelerator-only Cayenne tables and on Cayenne tables configured for durable write-back. A client submits a single `BEGIN … COMMIT` SQL body — over the HTTP `/v1/sql` endpoint or FlightSQL — and every statement in the body commits atomically, or not at all:
 
 ```sql
 BEGIN;
@@ -958,6 +987,8 @@ datasets:
 ## Cookbook
 
 - A cookbook recipe to configure Cayenne as a data accelerator in Spice. [Cayenne Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/cayenne#readme)
+- A cookbook recipe to partition a Cayenne-accelerated dataset with hashed partitioning. [Hashed Partitioning with Cayenne](https://github.com/spiceai/cookbook/tree/trunk/hashed_partitioning#readme)
+- A cookbook recipe to run gated, serializable transactions on Cayenne tables with durable write-back to PostgreSQL. [Serializable Transactions with Durable Write-Back](https://github.com/spiceai/cookbook/tree/trunk/serializable-transactions#readme)
 
 ## Related Documentation
 

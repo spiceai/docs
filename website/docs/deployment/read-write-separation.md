@@ -33,7 +33,7 @@ Running both on the same Spice instance forces a single hardware shape, refresh 
 
 The two tiers communicate through two channels:
 
-1. **Snapshots** in object storage — the cluster periodically writes a compact acceleration file (DuckDB or SQLite) to S3, GCS, or ADLS. Read instances bootstrap from the latest snapshot on startup and (optionally) refresh from snapshots on a schedule. No live network dependency on the cluster.
+1. **Snapshots** in object storage — the cluster periodically writes a complete copy of each acceleration file (DuckDB, SQLite, Cayenne, or Turso) to standard S3, GCS, or ADLS. The copy is the whole accelerated dataset. Spice does not publish an incremental delta of what changed. Read instances bootstrap from the latest snapshot on startup and (optionally) refresh from snapshots on a schedule. No live network dependency on the cluster.
 2. **Live query delegation** — when a read instance needs data outside its materialized working set (a historical query, a cross-dataset join, a broad search), it transparently delegates to the cluster over Arrow Flight. See [Cluster-Sidecar Architecture](architectures/cluster-sidecar).
 
 Most production deployments use both: snapshots for the steady-state working set, and live delegation for the long tail.
@@ -138,7 +138,7 @@ datasets:
         duckdb_file: /data/customers.db
 ```
 
-Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), so retention is a normal object-store lifecycle rule. See [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
+Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), and the publishing instance keeps each dataset's snapshots of the last 14 days. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention), and [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
 
 ### The read instances (read tier)
 
@@ -239,15 +239,26 @@ Snapshots are written to Hive-partitioned paths so retention is straightforward:
 
 ```text
 s3://spiceai-snapshots/prod/
-  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z.duckdb
-  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z.duckdb
+  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z_019de368f9537198907799402bf53e23.duckdb
+  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.duckdb
 ```
 
 The extension names the engine that wrote the snapshot (`.duckdb`, `.sqlite`, `.cayenne`, or `.turso`), so the cluster and read tiers must accelerate a dataset with the same engine.
 
-Apply an object-store lifecycle rule (S3 lifecycle, GCS Object Lifecycle Management, ADLS Lifecycle) to expire old partitions. Most deployments keep 24–72 hours of refresh-triggered snapshots and a daily archive beyond that.
+The publishing instance deletes snapshots older than 14 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
 
-The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network.
+The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network. When read instances run in another region, replicate this standard bucket. Keep `snapshots.location` on standard S3, GCS, or ADLS for that replication. Cayenne's S3 Express One Zone settings (`cayenne_file_path`, `cayenne_s3_*`) store the Cayenne data tier in one zone and do not substitute for the snapshot bucket. See [Snapshot location and the Cayenne data tier](../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+
+### Full copies and incremental replication
+
+Each snapshot object is the full acceleration file. Replicating the snapshot bucket between regions copies that entire file on every snapshot. Size the bucket for dataset size times the number of snapshots written in about 15 days: 14 days of retention plus at least 24 hours before a dropped file is deleted. DuckDB `snapshots_compaction` shrinks each copy; the result is still a full file. See [What each snapshot contains](../features/data-acceleration/snapshots#what-each-snapshot-contains).
+
+When changed data should replicate as objects between regions or tiers, use a path that publishes the change:
+
+- The [Cayenne cold object-store tier](../components/data-accelerators/cayenne#cold-object-store-tier) (`cayenne_datalake_location`) writes changed data to standard object storage (a general-purpose S3 or S3-compatible bucket). Unchanged cold files are carried forward.
+- [Iceberg batched writes](../components/data-connectors/iceberg#write-support) append new data files, and [deletes](../components/data-connectors/iceberg#deleting-rows) are merge-on-read equality delete files. A catalog commit publishes those objects.
+
+Use either path when it fits the workload. Neither path bootstraps a file-mode accelerator.
 
 ### Versioning the Spicepod
 

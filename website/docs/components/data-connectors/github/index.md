@@ -151,7 +151,7 @@ The GitHub connector runs its own concurrency limiter, separate from the [shared
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `max_concurrent_requests`   | Maximum number of concurrent GitHub HTTP requests for this authentication context. When unset, the connector falls back to `runtime.source_rate_control.github_concurrent_connections_limit`, then to the deprecated `runtime.params.github_max_concurrent_connections`, and finally to the connector default of `4`. The GitHub connector does **not** read `runtime.params.http_max_concurrent_requests`, and concurrency limiting is never disabled. |
 
-The GitHub connector uses its own rate limiter based on GitHub API `X-RateLimit-*` response headers. Multiple datasets targeting the same GitHub endpoint share this rate limiter.
+The GitHub connector uses its own rate limiter based on GitHub API `X-RateLimit-*` response headers. GitHub meters the quota per token, so every dataset that uses the same token or GitHub App installation shares the same REST and GraphQL rate limiters.
 
 ## Filter Push Down
 
@@ -707,7 +707,7 @@ WHERE r.state = 'APPROVED';
 ```
 
 :::note[Limit pushdown is disabled on this table]
-One pull request fans out into many review rows, so a row limit cannot bound how many pull requests must be fetched. A pull request with more than 100 reviews has reviews the scan cannot reach — a nested GraphQL connection cannot be paginated — and the scan fails naming that pull request rather than returning a partial set.
+One pull request fans out into many review rows, so a row limit cannot bound how many pull requests must be fetched. A pull request with more than 100 reviews is read in full through follow-up pages. When GitHub returns a page the scan cannot continue from, such as an incomplete page or a repeated cursor, the scan fails naming that pull request rather than returning a partial set. See [Pagination](./deployment.md#pagination).
 :::
 
 ### Querying Pull Request Review Threads

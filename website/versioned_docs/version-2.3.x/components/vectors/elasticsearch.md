@@ -194,3 +194,7 @@ When `elasticsearch_user` and `elasticsearch_pass` are provided, the vector engi
 | Ingest data from another source and have Spice manage vectors in ES.    | Elasticsearch Vector Engine (this page).                                  |
 
 Both paths surface `vector_search`, `text_search`, and `rrf`; pick the one that matches which system owns the data.
+
+## Cookbook
+
+- A cookbook recipe to use Elasticsearch for both full-text and vector search. [Elasticsearch Full-Text and Vector Search](https://github.com/spiceai/cookbook/tree/trunk/search/elasticsearch#readme)

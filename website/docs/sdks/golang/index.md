@@ -145,3 +145,7 @@ if err := spice.Init(
     panic(fmt.Errorf("error initializing SpiceClient: %w", err))
 }
 ```
+
+## Cookbook
+
+- A cookbook recipe to query Spice from Go with gospice. [Spice with gospice SDK](https://github.com/spiceai/cookbook/tree/trunk/client-sdk/gospice-sdk-sample#readme)

@@ -69,3 +69,7 @@ var data = await client.Query(
 ```
 
 For more details, see [Parameterized Queries](../features/query-federation/parameterized-queries).
+
+## Cookbook
+
+- A cookbook recipe to query Spice from C# with the .NET SDK. [Spice with Dotnet SDK](https://github.com/spiceai/cookbook/tree/trunk/client-sdk/spice-dotnet-sdk-sample#readme)

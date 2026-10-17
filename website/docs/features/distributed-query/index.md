@@ -126,6 +126,22 @@ spiced --role executor \
 
 Specifying `--scheduler-address` implies `--role executor`.
 
+### Instance Identity
+
+Each scheduler and executor registers under its [instance identity](../../reference/spicepod/runtime.md#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. Nodes on separate hosts or Kubernetes pods already have distinct identities. Processes on one host share its host name, so two schedulers, or two executors, on one host each need their own `SPICE_INSTANCE_ID`. This is in addition to what any two `spiced` processes on one host already need, such as their own instance directory, set with `SPICE_CONFIG_DIR`, because each process holds an exclusive lock on its instance directory.
+
+The identity is stable across restarts, so the scheduler recognizes an executor that restarts under the same identity as the same executor. It logs `Executor '<id>' restarted, so the tasks and shuffle output of its earlier run are rescheduled` and reschedules that work instead of waiting for the earlier run to time out.
+
+In v2.4.0-rc.2 and earlier, a scheduler registered under its `host:port` address and an executor under its advertise address, so two nodes on one host did not need distinct identities.
+
+### Version Compatibility
+
+Run the same Spice version on every scheduler and executor in a cluster, and upgrade all of them together. A scheduler checks the cluster protocol version that each executor reports when it registers and polls for work, and rejects an executor built for a different Spice version. A rejected executor receives no work. The scheduler logs `Rejecting executor <id>: protocol version mismatch`, and the executor logs a warning like the following on each retry:
+
+```text
+WARN ballista_executor::execution_loop: Executor poll work loop failed. If this continues to happen the Scheduler might be marked as dead. Error: code: 'The system is not in a state required for the operation's execution', message: "protocol version mismatch: scheduler=3, executor=0"
+```
+
 ## Query Execution
 
 Queries run against the scheduler endpoint. The `EXPLAIN` output confirms that distributed planning is active—Spice includes a `distributed_plan` section showing how stages are split across executors:
@@ -152,23 +168,23 @@ EXPLAIN SELECT count(id) FROM my_dataset;
 For long-running queries, the async queries API enables submitting queries for background execution, polling for status, and retrieving paginated results when ready.
 
 :::warning
-The async queries API is experimental and requires a scheduler state location: `runtime.scheduler.state_location`, or the shared [`runtime.state.location`](../reference/spicepod/runtime#runtimestate) when `state_location` is omitted.
+The async queries API is experimental and requires a scheduler state location: the shared [`runtime.state.location`](../../reference/spicepod/runtime.md#runtimestate), or the deprecated `runtime.scheduler.state_location`.
 :::
 
 ### Prerequisites
 
 - Spice runtime running in cluster mode with `--role scheduler`
-- `runtime.scheduler.state_location` or `runtime.state.location` configured in the Spicepod (see [High Availability > Configuration](#configuration))
+- `runtime.state.location` configured in the Spicepod (see [High Availability > Configuration](#configuration))
 - At least one executor node connected to the scheduler
 
 ### Enabling Async Queries
 
-Configure `runtime.scheduler.state_location` in your `spicepod.yaml` to enable the async queries API. A [`runtime.state`](../reference/spicepod/runtime#runtimestate) location also works when `state_location` is omitted:
+Configure [`runtime.state.location`](../../reference/spicepod/runtime.md#runtimestate) in your `spicepod.yaml` to enable the async queries API. The scheduler keeps its state in the location's `cluster/` folder:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-state
+  state:
+    location: s3://my-bucket/spice-state
     params:
       s3_region: us-east-1
 ```
@@ -179,9 +195,11 @@ For local development:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: "file://.data/scheduler-state"
+  state:
+    location: file:///tmp/spice-state/
 ```
+
+`runtime.scheduler.state_location` and `runtime.scheduler.params` are deprecated. A scheduler that sets them logs a startup warning that shows how to move to `runtime.state`. See [`runtime.scheduler`](../../reference/spicepod/runtime.md#runtimescheduler).
 
 ### Query Ownership
 
@@ -622,7 +640,7 @@ When a query fails, the `error` object contains an `error_code` field:
 | Error Code                 | Description                                             |
 | -------------------------- | ------------------------------------------------------- |
 | `SCHEDULER_UNAVAILABLE`    | The Ballista scheduler is not reachable, or the scheduler running the query stopped and the query cannot be resumed (see [Scheduler Failover](#scheduler-failover)) |
-| `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler |
+| `SUBMISSION_FAILED`        | Failed to submit the query to the distributed scheduler, or the scheduler running the query stopped before saving it (see [Scheduler Failover](#scheduler-failover)) |
 | `EXECUTION_FAILED`         | The query failed during execution                       |
 | `FETCHING_RESULTS_FAILED`  | Failed to retrieve results from executor nodes          |
 | `CANCELLED`                | The query was explicitly cancelled                      |
@@ -633,7 +651,7 @@ When a query fails, the `error` object contains an `error_code` field:
 
 ### Storage Layout
 
-Job state and result chunks are stored in the shared object store configured via `runtime.scheduler.state_location`, or `runtime.state.location` when that is omitted:
+Job state and result chunks are stored in the shared object store configured via `runtime.state.location`, or the deprecated `runtime.scheduler.state_location`. `{base_prefix}` is the `cluster/` folder below the path of `runtime.state.location`, or the root of `state_location` (see [Runtime state layout](../../reference/spicepod/runtime.md#runtime-state-layout)):
 
 ```
 {base_prefix}/
@@ -645,7 +663,7 @@ Job state and result chunks are stored in the shared object store configured via
 │       └── ...
 ```
 
-Each scheduler deletes expired jobs, with their result chunks, every 10 minutes. Only jobs whose results have already expired are deleted. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that.
+Each scheduler deletes, with their result chunks, the jobs whose results have expired and the jobs that failed or were cancelled at least 12 hours ago. It runs this cleanup about once an hour, at a random time between 30 and 90 minutes after the previous run. An expired job answers its owner with `410 Gone` until the next cleanup deletes it, and with `404 Not Found` after that. A cleanup that deletes jobs logs how many it deleted.
 
 ### Defaults and Limitations
 
@@ -656,7 +674,7 @@ Each scheduler deletes expired jobs, with their result chunks, every 10 minutes.
 | List limit | 100 queries |
 
 - Only available in cluster mode with `--role scheduler`
-- Requires `runtime.scheduler.state_location` or `runtime.state.location` to be configured
+- Requires `runtime.state.location`, or the deprecated `runtime.scheduler.state_location`, to be configured
 - The `format` query parameter on the results endpoint is declared but not yet implemented (results are always JSON over HTTP, Arrow IPC over Flight)
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)
@@ -694,12 +712,12 @@ In an HA cluster:
 
 ### Configuration
 
-Enable HA by configuring `runtime.scheduler.state_location` (or the shared [`runtime.state.location`](../reference/spicepod/runtime#runtimestate)) in the Spicepod to point to an S3-compatible object store:
+Enable HA by configuring the shared [`runtime.state.location`](../../reference/spicepod/runtime.md#runtimestate) in the Spicepod to point to an S3-compatible object store. The schedulers keep their shared state in its `cluster/` folder:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
+  state:
+    location: s3://my-bucket/spice
     params:
       s3_region: us-east-1
 ```
@@ -712,19 +730,21 @@ When a scheduler state location is configured, each async query's execution grap
 
 A job submitted by an authenticated principal is not resumed. The job records only an opaque owner ID, not an identity that table access and masking can be applied to, so resuming it would run the query without the submitter's permissions. Instead, the scheduler that detects the orphaned job marks it `FAILED` with the error code `SCHEDULER_UNAVAILABLE` and a message to resubmit the query. Jobs submitted without a principal are resumed.
 
+A job submitted without a principal can also be `RUNNING` before its scheduler has saved the execution graph. If that scheduler stops at this point, there is nothing to resume, so the scheduler that detects the orphaned job marks it `FAILED` with the error code `SUBMISSION_FAILED` and a message to resubmit the query.
+
 This failover applies to async queries, which require a scheduler state location. Synchronous queries in flight on a scheduler that becomes unavailable are not resumed automatically; the client should retry them against another scheduler. Without a scheduler state location, job state is held in memory and a single-scheduler cluster behaves as before (no failover).
 
 ### S3 Configuration
 
-The `runtime.scheduler.params` section supports the following S3 parameters:
+`runtime.state.params` supports the following S3 parameters for the scheduler's state:
 
 | Parameter          | Description                                           | Default    |
 |--------------------| ----------------------------------------------------- | ---------- |
 | `s3_region`        | AWS region for the S3 bucket                          | -          |
 | `s3_endpoint`      | Custom S3-compatible endpoint URL                     | -          |
 | `s3_auth`          | Authentication method: `iam_role` or `key`            | `iam_role` |
-| `s3_key`           | AWS access key ID (when `s3_auth: key`)               | -          |
-| `s3_secret`        | AWS secret access key (when `s3_auth: key`)           | -          |
+| `s3_key`           | AWS access key ID (required when `s3_auth: key`)      | -          |
+| `s3_secret`        | AWS secret access key (required when `s3_auth: key`)  | -          |
 | `s3_session_token` | AWS session token for temporary credentials           | -          |
 | `client_timeout`   | S3 client timeout                                     | -          |
 | `allow_http`       | Allow HTTP (non-TLS) connections to S3 endpoint       | `false`    |
@@ -733,8 +753,8 @@ Example with explicit credentials:
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster
+  state:
+    location: s3://my-bucket/spice
     params:
       s3_region: us-east-1
       s3_auth: key
@@ -742,14 +762,18 @@ runtime:
       s3_secret: ${secrets:aws_secret_key}
 ```
 
+With `s3_auth: key` and either key missing, the scheduler state store fails to initialize with an error instead of using credentials from the environment. To use environment credentials, set `s3_auth: iam_role` or omit `s3_auth`.
+
+A `gs://` state location takes the [GCS data connector](../../components/data-connectors/gcs.md#authentication-parameters) parameters (`gcs_service_account_path`, `gcs_service_account_key`, `gcs_application_default_credentials`, or `gcs_skip_signature`) instead. See [State location parameters](../../reference/spicepod/runtime.md#state-location-parameters).
+
 ### Starting an HA Cluster
 
 1. **Configure shared state** in `spicepod.yaml`:
 
    ```yaml
    runtime:
-     scheduler:
-       state_location: s3://my-bucket/spice-cluster
+     state:
+       location: s3://my-bucket/spice
        params:
          s3_region: us-east-1
    ```
@@ -791,3 +815,8 @@ runtime:
 :::info Object Store Requirements
 The object store must support conditional writes (S3 ETags). Most S3-compatible stores support this, including AWS S3, MinIO, and Google Cloud Storage (with S3 compatibility mode).
 :::
+
+## Cookbook
+
+- A cookbook recipe to run a Spice scheduler and executors and query data across them. [Distributed Query](https://github.com/spiceai/cookbook/tree/trunk/distributed#readme)
+- A cookbook recipe to submit long-running queries and retrieve results with the [Async Queries API](#async-queries-api). [Async Queries](https://github.com/spiceai/cookbook/tree/trunk/async-queries#readme)

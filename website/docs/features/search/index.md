@@ -45,10 +45,10 @@ Vector search uses embeddings—numerical representations of data—to identify 
 **Example SQL Vector Search:**
 
 ```sql
-SELECT id, extra_column, score
+SELECT id, extra_column, _score
 FROM vector_search(my_table, 'search query')
 WHERE date_published > '2021-01-01'
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -69,9 +69,9 @@ Multi-vector search operates on columns that store many vectors per row, such as
 **Example SQL Multi-Vector Search:**
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, ['hiking', 'waterproof'], tags)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -90,10 +90,10 @@ Full-text search efficiently retrieves records matching specific keywords.
 **Example SQL Full-Text Search:**
 
 ```sql
-SELECT id, extra_column, score
+SELECT id, extra_column, _score
 FROM text_search(my_table, 'search terms')
 WHERE date_published > '2021-01-01'
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -130,11 +130,11 @@ For complete RRF syntax and parameters, see [Search SQL Reference](../reference/
 
 ### Reranking
 
-Reranking reorders search results using a dedicated reranker model (Cohere, Voyage, Jina, or a custom HTTP endpoint) or any registered chat model as an LLM-as-reranker. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
+Reranking reorders search results using a dedicated reranker model (Cohere, Voyage, Jina, or a custom HTTP endpoint), any registered chat model as an LLM-as-reranker, or a [decision model](../large-language-models/decisions.md) such as TypeSafe Jev. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
 
 **Requirements:**
 
-- A registered reranker (in the `rerankers:` spicepod section) or a registered chat model
+- A registered reranker (in the `rerankers:` spicepod section), chat model, or decision model
 
 **Getting Started:**
 
@@ -175,3 +175,9 @@ When a search request does not name any datasets and instead sweeps every search
 Datasets configured `ready_state: on_registration` or `ready_state: on_schema_resolved` are unaffected: they remain searchable while the accelerator loads, served from the federated source. Datasets accelerated with `refresh_mode: caching` are also exempt, as they serve queries without an initial load.
 
 <DocCardList />
+
+## Cookbook
+
+- A cookbook recipe to combine full-text and vector search with Reciprocal Rank Fusion (RRF). [Hybrid Search & Real Time Indexing](https://github.com/spiceai/cookbook/tree/trunk/search#readme)
+- A cookbook recipe to create embeddings for GitHub files and search them with vector search. [Searching GitHub Files](https://github.com/spiceai/cookbook/tree/trunk/search_github_files#readme)
+- A cookbook recipe to store embeddings in Amazon S3 Vectors and run similarity search. [Amazon S3 Vectors Engine with Spice.ai](https://github.com/spiceai/cookbook/tree/trunk/vectors/s3#readme)

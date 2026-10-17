@@ -36,11 +36,15 @@ Vector search retrieves records by semantic similarity using embeddings. It is i
 ### Usage
 
 ```sql
-SELECT id, score
+SELECT id, _score
 FROM vector_search(table, 'search query')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
+
+:::note
+The relevance column returned by `vector_search` and `text_search` is named `_score`. Earlier versions of these docs incorrectly referred to it as `score`; queries selecting `score` fail with `No field named score`.
+:::
 
 - `table`: Dataset name (required)
 - `query`: Search text, or an array of strings for [multi-query](#multi-query-late-interaction-form) search (required)
@@ -54,25 +58,25 @@ LIMIT 5;
 
 `WHERE` predicates on base table columns (e.g., `created_at`, `product_category`) are pushed down as **pre-filters** — they are applied before the similarity ranking, so only matching rows are scored and returned. This means results reflect the top-K _within the filtered set_, not the top-K of the entire table filtered afterward.
 
-Predicates on computed columns like `score` are applied as post-filters after ranking.
+Predicates on computed columns like `_score` are applied as post-filters after ranking.
 
 #### Example
 
 ```sql
 -- Filters on created_at are pushed down before ranking
-SELECT review_id, rating, customer_id, body, score
+SELECT review_id, rating, customer_id, body, _score
 FROM vector_search(reviews, 'issues with same day shipping', 1500)
 WHERE created_at >= to_unixtime(now() - INTERVAL '7 days')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 2;
 ```
 
 To override the similarity metric, pass `distance_metric` as a named argument:
 
 ```sql
-SELECT id, body, score
+SELECT id, body, _score
 FROM vector_search(reviews, 'issues with shipping', distance_metric => 'l2')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -83,9 +87,9 @@ See [Vector-Based Search](../../features/search/vector-search) for configuration
 When the target column is a [multi-vector column](../../features/search/multi-vector), `vector_search` also accepts an array of query strings. Each query is embedded independently and the per-row score is `Σ_q max_e cos(q, e)` — ColBERT-style late interaction. Passing an array to a scalar or chunked column returns an error. At most 32 query strings are accepted per call.
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, ['hiking', 'waterproof', 'lightweight'], tags)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -98,9 +102,9 @@ Full-text search uses BM25 scoring to retrieve records matching keywords in inde
 ### Usage
 
 ```sql
-SELECT id, score
+SELECT id, _score
 FROM text_search(table, 'search terms', col)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -119,7 +123,7 @@ With the built-in Tantivy engine, `WHERE` predicates on columns carried in the f
 
 ```sql
 -- state and additions are applied inside the index, before the limit of 5
-SELECT id, title, score
+SELECT id, title, _score
 FROM text_search(doc.pulls, 'search keywords', body, 5)
 WHERE state = 'open' AND additions > 100;
 ```
@@ -133,9 +137,9 @@ The Tantivy warm tier used with [`engine: elasticsearch`](../../features/search/
 #### Example
 
 ```sql
-SELECT id, title, score
+SELECT id, title, _score
 FROM text_search(doc.pulls, 'search keywords', body)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 5;
 ```
 
@@ -286,7 +290,7 @@ ORDER BY fused_score DESC;
 
 ## Reranking (`rerank`)
 
-Reranking reorders candidate results using a dedicated reranker model or an LLM-as-reranker for improved relevance. The input can be any search UDTF (`vector_search`, `text_search`, `rrf`) or a plain table.
+Reranking reorders candidate results using a dedicated reranker model, a chat model (LLM-as-reranker), or a decision model for improved relevance. The input can be any search UDTF (`vector_search`, `text_search`, `rrf`) or a plain table.
 
 ### Usage
 
@@ -305,11 +309,11 @@ FROM rerank(
 | Parameter         | Type              | Required | Description |
 | ----------------- | ----------------- | -------- | ----------- |
 | `input`           | Table or UDTF     | Yes      | Input rows to rerank. Can be a search UDTF call (`vector_search`, `text_search`, `rrf`) or a table name. |
-| `model`           | String            | No       | Name of a registered reranker or chat model. Omit it only when exactly one reranker or chat model is registered, in which case that one is used. With more than one registered, the query fails and `model` chooses between them. With none registered, the query fails whether or not `model` is given — no name can resolve until a reranker or chat model is added to the Spicepod. |
+| `model`           | String            | No       | Name of a registered reranker, chat model, or decision model, looked up in that order. Omit it only when exactly one such model is registered, in which case that one is used. With more than one registered, the query fails and `model` chooses between them. With none registered, the query fails whether or not `model` is given — no name can resolve until a reranker, chat model, or decision model is added to the Spicepod. |
 | `document`        | String            | Yes      | Column containing the text to send to the reranker for scoring. |
 | `query`           | String            | No       | Query string for relevance scoring. Auto-extracted from nested search UDTFs when omitted; required for bare-table inputs. |
 | `limit`           | Integer           | No       | Maximum number of rows returned. It caps the **output** only and never shrinks the candidate pool, so every candidate is still scored by the reranker — narrow the inner search's own `limit` to reduce reranker calls. |
-| `strategy`        | String            | No       | LLM reranking strategy: `'listwise'` (default) or `'pointwise'`. Only applies when the model resolves to a chat model. |
+| `strategy`        | String            | No       | Reranking strategy: `'listwise'` or `'pointwise'`. The default is `'listwise'` for a chat model and `'pointwise'` for a decision model. Ignored by dedicated rerankers. |
 | `prompt_template` | String            | No       | Custom prompt template for LLM-as-reranker. Use `{query}` and `{document}` placeholders. Only applies when the model resolves to a chat model. |
 
 #### Candidate Pool

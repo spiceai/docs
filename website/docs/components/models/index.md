@@ -37,7 +37,7 @@ Spice supports various model providers for large language models (LLMs).
 [typesafe]: ./typesafe.md
 [perplexity]: ./perplexity.md
 
-Spice also serves [TypeSafe][typesafe] evaluation models, which answer typed questions through `POST /v1/evaluate` rather than chat completions. Chat models answer `POST /v1/evaluate` as well. See [Evaluate API](../../features/large-language-models/evaluate.md).
+Spice also serves decision models, which answer typed questions through the SQL decision functions and `POST /v1/decisions`. [TypeSafe][typesafe] Jev answers decisions only, rather than chat completions. OpenAI `gpt-6-luna` answers decisions through OpenAI's Decisions API and also serves chat completions like any other OpenAI model. Chat models answer decisions as well. See [Decisions](../../features/large-language-models/decisions.md).
 
 Spice also tests and evaluates common models and grades their ability to integrate with Spice. See the [Models Grade Report](../reference/models).
 

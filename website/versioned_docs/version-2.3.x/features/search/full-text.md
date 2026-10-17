@@ -292,3 +292,8 @@ RETURNS TABLE                -- Original table columns plus an optional FLOAT co
 By default, `text_search` retrieves up to 1000 results. To adjust this, specify the `limit` parameter in the function call.
 
 Use this function to integrate full-text search directly into your data workflows.
+
+## Cookbook
+
+- A cookbook recipe to configure and query full-text search indexes on markdown files. [Full-Text Search with Spice](https://github.com/spiceai/cookbook/tree/trunk/full-text-search#readme)
+- A cookbook recipe to use Elasticsearch for both full-text and vector search. [Elasticsearch Full-Text and Vector Search](https://github.com/spiceai/cookbook/tree/trunk/search/elasticsearch#readme)

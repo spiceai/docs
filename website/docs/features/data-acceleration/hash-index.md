@@ -57,13 +57,13 @@ datasets:
 
 Index types:
 
-- **`unique`** — Enforces uniqueness and enables O(1) indexed lookups.
-- **`enabled`** — Permits duplicates. The index is built and maintained but does not currently accelerate queries (queries fall back to a full scan).
+- **`enabled`** — O(1) indexed lookups while the column's values are distinct. The index holds one row per key, so a refresh that brings in a repeated value disables it until a later refresh removes the repeat; lookups on that column read the whole table in the meantime, and the runtime logs a warning naming the table and column.
+- **`unique`** — The same index, with the same behavior. Arrow does not enforce uniqueness on write: duplicate rows are not rejected, and the runtime logs a warning when the dataset is registered. To deduplicate on a column set, use `primary_key` with `on_conflict`.
 
 Compound secondary indexes can be defined with a multicolumn key in parentheses, e.g. `'(col1, col2)': unique`, but are not yet used for query optimization.
 
 :::note
-Only single-column `unique` secondary indexes currently accelerate queries. Non-unique and compound secondary indexes are maintained for future use.
+Only single-column secondary indexes currently accelerate queries. Compound secondary indexes are maintained for future use.
 :::
 
 ### Configuration Options

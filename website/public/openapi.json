@@ -594,7 +594,7 @@
         }
       }
     },
-    "/v1/iceberg/config": {
+    "/v1/config": {
       "get": {
         "tags": [
           "Iceberg"
@@ -612,11 +612,12 @@
                   "overrides": {},
                   "defaults": {},
                   "endpoints": [
-                    "GET /v1/iceberg/namespaces",
-                    "HEAD /v1/iceberg/namespaces/{namespace}",
-                    "GET /v1/iceberg/namespaces/{namespace}/tables",
-                    "HEAD /v1/iceberg/namespaces/{namespace}/tables/{table}",
-                    "GET /v1/iceberg/namespaces/{namespace}/tables/{table}"
+                    "GET /v1/{prefix}/namespaces",
+                    "GET /v1/{prefix}/namespaces/{namespace}",
+                    "HEAD /v1/{prefix}/namespaces/{namespace}",
+                    "GET /v1/{prefix}/namespaces/{namespace}/tables",
+                    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+                    "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}"
                   ]
                 }
               }
@@ -625,7 +626,7 @@
         }
       }
     },
-    "/v1/iceberg/namespaces": {
+    "/v1/namespaces": {
       "get": {
         "tags": [
           "Iceberg"
@@ -724,7 +725,7 @@
         }
       }
     },
-    "/v1/iceberg/namespaces/{namespace}": {
+    "/v1/namespaces/{namespace}": {
       "get": {
         "tags": [
           "Iceberg"
@@ -764,7 +765,7 @@
         }
       }
     },
-    "/v1/iceberg/namespaces/{namespace}/tables": {
+    "/v1/namespaces/{namespace}/tables": {
       "get": {
         "tags": [
           "Iceberg"
@@ -811,7 +812,7 @@
         }
       }
     },
-    "/v1/iceberg/namespaces/{namespace}/tables/{table}": {
+    "/v1/namespaces/{namespace}/tables/{table}": {
       "get": {
         "tags": [
           "Iceberg"

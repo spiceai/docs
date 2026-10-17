@@ -158,8 +158,8 @@ Create custom Model2Vec embeddings by distilling existing sentence transformer m
    2025-08-25T15:59:39.969381Z  INFO runtime::init::embedding: Embedding Model all_minilm_l6_v2 ready
    2025-08-25T15:59:39.969713Z  INFO runtime::init::dataset: Dataset wiki_a_full initializing...
    2025-08-25T15:59:39.969713Z  INFO runtime::init::dataset: Dataset wiki_a_distilled initializing...
-   2025-08-25T15:59:39.973287Z  INFO runtime::init::dataset: Dataset wiki_a_full registered (file://wiki_a2.parquet), acceleration (arrow), results cache enabled.
-   2025-08-25T15:59:39.973344Z  INFO runtime::init::dataset: Dataset wiki_a_distilled registered (file://wiki_a2.parquet), acceleration (arrow), results cache enabled.
+   2025-08-25T15:59:39.973287Z  INFO runtime::init::dataset: Dataset wiki_a_full registered (file://wiki_a2.parquet), acceleration (cayenne), results cache enabled.
+   2025-08-25T15:59:39.973344Z  INFO runtime::init::dataset: Dataset wiki_a_distilled registered (file://wiki_a2.parquet), acceleration (cayenne), results cache enabled.
    2025-08-25T15:59:39.973637Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset wiki_a_distilled
    2025-08-25T15:59:39.973714Z  INFO runtime::accelerated_table::refresh_task: Loading data for dataset wiki_a_full
    2025-08-25T15:59:50.982854Z  INFO runtime::accelerated_table::refresh_task: Dataset wiki_a_distilled received 40,960 records

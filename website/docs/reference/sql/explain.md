@@ -38,6 +38,7 @@ EXPLAIN SELECT SUM(x) FROM table GROUP BY b;
 
 Shows the execution plan of a statement.
 Use `EXPLAIN ANALYZE VERBOSE` if more detailed output is needed.
+`EXPLAIN ANALYZE FORMAT pgjson` returns the plan with its metrics in the PostgreSQL JSON plan format.
 
 ```sql
 EXPLAIN ANALYZE SELECT SUM(x) FROM table GROUP BY b;
@@ -53,4 +54,37 @@ EXPLAIN ANALYZE SELECT SUM(x) FROM table GROUP BY b;
 |                   |             RepartitionExec: partitioning=RoundRobinBatch(16), metrics=[fetchTime=5660489, repartitionTime=0, sendTime=8012]                              |
 |                   |               DataSourceExec: file_groups={1 group: [[/tmp/table.csv]]}, has_header=false, metrics=[]                                                        |
 +-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+```
+
+## EXPLAIN Options
+
+`EXPLAIN` also accepts a PostgreSQL-style list of options in parentheses:
+
+```sql
+EXPLAIN ( option [, ...] ) statement
+```
+
+The list form also exposes the `METRICS`, `LEVEL`, and `COSTS` settings, which have no keyword form.
+
+| Option    | Argument             | Effect                                                                                                                               |
+| --------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `ANALYZE` | Boolean, optional    | Run the statement and collect metrics. The same as the `ANALYZE` keyword.                                                           |
+| `VERBOSE` | Boolean, optional    | Show more detail. The same as the `VERBOSE` keyword.                                                                                 |
+| `FORMAT`  | Format name          | `indent`, `tree`, `pgjson`, or `graphviz`. The same as the `FORMAT` clause.                                                          |
+| `METRICS` | String               | Requires `ANALYZE`. The metric categories to show: `'all'`, `'none'`, or a comma-separated list of `rows`, `bytes`, `timing`, and `uncategorized`. |
+| `LEVEL`   | `summary` or `dev`   | Requires `ANALYZE`. `summary` shows the common metrics, and `dev` shows every operator metric.                                       |
+| `TIMING`  | Boolean              | Requires `ANALYZE`. Include or exclude the `timing` metric category.                                                                 |
+| `SUMMARY` | Boolean              | Requires `ANALYZE`. `TRUE` is the same as `LEVEL summary`, and `FALSE` is the same as `LEVEL dev`.                                   |
+| `COSTS`   | Boolean              | Add the operator statistics, such as row counts and column minimums and maximums, to the physical plan. Cannot be combined with `ANALYZE`. |
+
+A boolean argument can be omitted, which means `TRUE`, or written as `TRUE`, `FALSE`, `ON`, `OFF`, `1`, or `0`. For example, `EXPLAIN (ANALYZE OFF) SELECT 1` shows the plan without running the statement.
+
+PostgreSQL options that Spice does not model, such as `BUFFERS`, `WAL`, `SETTINGS`, `GENERIC_PLAN`, and `MEMORY`, return an error instead of being ignored:
+
+```sql
+EXPLAIN (BUFFERS) SELECT 1;
+```
+
+```text
+This feature is not implemented: EXPLAIN option BUFFERS is not supported by DataFusion; see METRICS for category filtering
 ```

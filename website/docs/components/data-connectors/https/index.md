@@ -43,6 +43,8 @@ Authorization: Basic <base64(username:password)>
 
 For example, `static_username` with password `s3cret` produces `Authorization: Basic c3RhdGljX3VzZXJuYW1lOnMzY3JldA==`. Only one of `http_password` or user info in the URL can provide the password — setting both is not supported.
 
+Prefer `http_password` with a [secret store](../secret-stores/) over a password in the URL. For a dynamic JSON API endpoint, query errors and endpoint-validation warnings name only the origin of the request URL (scheme, host, and port), for example `HTTP request to http://127.0.0.1:8080 failed: error sending request`, so its user info, path, and query string stay out of them. The dataset registration log line, and errors from a structured HTTP file dataset, can print the configured `from` URL with its user info.
+
 ### Using Custom Headers
 
 Custom HTTP headers can be specified for authentication, API keys, or other requirements. Headers are treated as sensitive data and will not be logged.
@@ -148,7 +150,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `http_username`            | Optional. Username for HTTP basic authentication. Default: None.                                                                                                                                                                                                                                                                                                                                                                          |
 | `http_password`            | Optional. Password for HTTP basic authentication. Default: None. Use the [secret replacement syntax](../secret-stores/) to load the password from a secret store, e.g. `${secrets:my_http_pass}`.                                                                                                                                                                                                                                         |
 | `http_headers`             | Optional. Custom HTTP headers as a comma-separated list of `key:value` pairs. Example: `Content-Type:application/json,Accept:application/json`. Applies to dynamic JSON API endpoints only; structured HTTP file datasets ignore these headers. Default: None.                                                                                                                                                                                                                                                                            |
-| `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Paths must start with `/` and cannot contain `..` segments.                                                                                                                                                                                                                                                       |
+| `allowed_request_paths`    | **Required** for using `request_path` filters. Comma-separated list of allowed paths. Example: `/api/users,/api/posts`. Entries must start with `/`. Each `request_path` value is also checked before matching; see [Request Path Validation](#request-path-validation).                                                                                                                                                                         |
 | `request_query_filters`    | Optional. Set to `enabled` to enable `request_query` filters. Default: `disabled`. When disabled, query parameter filters will be rejected.                                                                                                                                                                                                                                                                                               |
 | `request_body_filters`     | Optional. Set to `enabled` to enable `request_body` filters for POST requests. Default: `disabled`. When disabled, request body filters will be rejected.                                                                                                                                                                                                                                                                                 |
 | `client_timeout`           | Optional. Maximum time to wait for a response from the HTTP server (in seconds). Default: `30`. Applied to the entire request-response cycle.                                                                                                                                                                                                                                                                                             |
@@ -159,6 +161,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `retry_backoff_method`     | Optional. Retry backoff strategy: `fibonacci` (default), `linear`, or `exponential`.                                                                                                                                                                                                                                                                                                                                                      |
 | `retry_max_duration`       | Optional. Maximum total duration for all retries (e.g., `30s`, `5m`). If not set, retries continue up to `max_retries`.                                                                                                                                                                                                                                                                                                                   |
 | `retry_jitter`             | Optional. Randomization factor for retry delays (0.0 to 1.0). Default: `0.3` (30% randomization). Set to `0` for no jitter.                                                                                                                                                                                                                                                                                                               |
+| `on_error_response`        | Optional. What a response outside `2xx` becomes: `error` fails the request, `warn` records a client error's response as a row and logs a warning, and `store` records a client error's response as a row without a warning. `warn` and `store` apply only to a `4xx` other than `429`. Default: `error`. See [Error Responses](#error-responses). |
 | `max_request_query_length` | Optional. Maximum length in characters for `request_query` filter values. Default: `1024`. Maximum: `4096`.                                                                                                                                                                                                                                                                                                                               |
 | `max_request_body_bytes`   | Optional. Maximum size in bytes for `request_body` filter values. Default: `16384` (16 KiB). Maximum: `65536` (64 KiB).
 | `request_header_filters`   | Optional. Set to `enabled` to allow `request_headers` filters to push down dynamic HTTP request headers. Default: `disabled`. Requires `request_header_allowlist`.
@@ -199,13 +202,11 @@ HTTP-based connectors share a rate control system that limits concurrency and re
 | `requests_per_minute_limit` | Maximum number of HTTP requests per minute to the same upstream origin. Overrides `runtime.params.http_requests_per_minute_limit`. If both are unset, no per-minute rate limit is applied.    |
 | `rate_control_jitter_min`   | Minimum random delay added before HTTP requests when rate control is active. Accepts durations such as `5ms` or `0ms`. Defaults to `5ms` when a request-rate limit is configured.            |
 | `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
-| `rate_control_failure_threshold` | The upstream error rate above which adaptive rate control starts to throttle the origin, as a percentage (`25%`) or a fraction (`0.25`) greater than 0 and less than 1. Overrides `runtime.params.http_rate_control_failure_threshold`. Default: `10%`. |
-| `rate_control_window`       | The half-life over which request outcomes decay for adaptive rate control, as a duration such as `10s`. Overrides `runtime.params.http_rate_control_window`. Default: `10s`, or `runtime.source_rate_control.refresh_interval` with cluster rate control. |
-| `rate_control_acquire_timeout` | Maximum time a request waits for a rate-control permit before it fails, as a duration such as `30s`. `0` waits indefinitely. Overrides `runtime.params.http_rate_control_acquire_timeout`. Default: the dataset's `client_timeout`. |
+| `rate_control_acquire_timeout` | Maximum time a request waits for rate-control capacity before it fails, as a duration such as `30s`. Overrides `runtime.params.http_rate_control_acquire_timeout`. Defaults to `client_timeout`. `0` waits without a bound. |
+| `rate_control_failure_threshold` | Upstream error rate above which [adaptive rate control](../../reference/spicepod/runtime#adaptive-rate-control) admits fewer requests than the configured limits, as a percentage (`25%`) or a fraction (`0.25`). Overrides `runtime.params.http_rate_control_failure_threshold`. Default: `10%`. |
+| `rate_control_window`       | Reaction and recovery window of adaptive rate control, as a duration. A shorter window reacts and recovers faster. Overrides `runtime.params.http_rate_control_window`. Default: `10s`. |
 
-Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin. Datasets that share an origin must use the same rate-control values.
-
-Rate control is adaptive: on a healthy origin the configured limits apply unchanged, and while the origin fails or times out, Spice sends it fewer requests. See [Rate Control](./deployment.md#rate-control) in the deployment guide for how adaptive rate control works, the bounded permit wait, cluster rate control, and the related metrics.
+Multiple datasets targeting the same origin share the same rate controller, ensuring the limits apply across all datasets for that origin. Every dataset that shares an origin must resolve to the same values for these parameters; a dataset whose values differ fails to load. See [HTTP Rate Control](../../reference/spicepod/runtime#http-rate-control) for adaptive throttling, bounded waits, and limits across instances.
 
 ```yaml
 runtime:
@@ -251,6 +252,8 @@ When using [`refresh_mode: caching`](../../features/data-acceleration/refresh-mo
 :::warning[`caching_ttl` defaults to 30 seconds]
 If you set `refresh_check_interval: 15m` but leave `caching_ttl` at its default, cached entries are considered stale after only **30 seconds** — not 15 minutes. Always set `caching_ttl` explicitly to match your intended freshness window.
 :::
+
+To prefer the origin and fall back to the accelerator only when the origin fails, set `caching_ttl: 0s`, `caching_stale_while_revalidate_ttl: 0s`, and `caching_stale_if_error` to `enabled` or a finite duration. While the origin is healthy, Spice does not serve the accelerator. A successful response is still stored and is consulted only after a later origin failure. A zero TTL does not mean every read is served from the accelerator. Pair unbounded `enabled` with `caching_max_size`, `caching_max_items`, or retention. See [Prefer the origin, fall back on failure](../../features/data-acceleration/refresh-modes/caching#prefer-the-origin-fall-back-on-failure).
 
 :::warning[A TTL does not bound the cache]
 A workload that keeps fetching new request paths grows the acceleration indefinitely, and with `caching_stale_if_error: enabled` expired entries are kept as fallback material and never expire away. A duration instead of `enabled` keeps that fallback bounded. Set `caching_max_size` or `caching_max_items` — see [Cache Size and Item Limits](../../features/data-acceleration/refresh-modes/caching#cache-size-and-item-limits).
@@ -464,7 +467,7 @@ In addition to request metadata, the HTTP connector includes response metadata f
 | Field Name         | Type                   | Description                                                                                                                                                                                 |
 | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `content`          | String                 | The response body content.                                                                                                                                                                  |
-| `response_status`  | UInt16                 | The HTTP status code of the response (e.g., `200`, `404`, `500`).                                                                                                                           |
+| `response_status`  | UInt16                 | The HTTP status code of the response (e.g., `200`). A row carries a client error status such as `404` only when [`on_error_response`](#error-responses) is `warn` or `store`.                |
 | `response_headers` | Map(String, String)    | The HTTP response headers as key-value pairs. Each header name maps to its value. Available for inspection in queries, e.g., to check `content-type` or custom headers returned by the API. |
 | `_fetched_at`      | Timestamp (Nanosecond) | The timestamp when the data was fetched. Uses the HTTP `Date` response header when available, falling back to the current system time. Always present in the dataset schema, even when not declared explicitly — this is required for caching TTL eviction and for append-mode datasets that set `time_column: _fetched_at`. |
 
@@ -482,7 +485,7 @@ WHERE request_path = '/api/data';
 ```
 
 :::note
-When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), transient HTTP error responses (5xx server errors and 429 Too Many Requests) are automatically excluded from the cache. These responses are still returned to the querying client but are not persisted, preventing temporary failures from polluting cached data.
+A `5xx` or `429` response that is still failing after the connector's retries fails the request; it never becomes a row. When using [caching refresh mode](../../features/data-acceleration/refresh-modes/caching), the query receives that error, or the cached entry when [`caching_stale_if_error`](../../features/data-acceleration/refresh-modes/caching#stale-if-error-behavior) applies, and nothing is written to the cache. See [Error Responses](#error-responses).
 :::
 
 ### Metadata Columns with JSON Schema Decomposition
@@ -520,6 +523,43 @@ Metadata columns retain their native types (`UInt16` for `response_status`, `Tim
 - A JSON body key that collides with a reserved metadata name is dropped — it does not shadow the real HTTP value and does not leak into the catch-all column.
 - Declaring the catch-all column itself (`json_object: "*"`) with a reserved metadata name is rejected at registration time.
 - Datasets that don't use JSON schema decomposition are unaffected.
+
+### Error Responses
+
+The `on_error_response` parameter decides what happens when the origin answers a request with a status outside `2xx`. It defaults to `error`, so a refresh that receives an error response fails and the accelerated table keeps its previous contents. Without this, a `full` refresh would replace the table's rows with the error body.
+
+| Value             | Client error (`4xx` other than `429`)                                                     | Server error (`5xx`) or `429`, after retries | Any other status outside `2xx` (for example `304`) |
+| ----------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------------------- |
+| `error` (default) | The request fails.                                                                        | The request fails.                           | The request fails.                                 |
+| `warn`            | The response is recorded as a row, and a warning names the endpoint and the status.      | The request fails.                           | The request fails.                                 |
+| `store`           | The response is recorded as a row without a warning.                                      | The request fails.                           | The request fails.                                 |
+
+A `5xx` or `429` is retried up to `max_retries` times. If the last attempt still returns one of these statuses, the request fails under every `on_error_response` value, because the status describes the origin's health rather than the requested resource. A client error other than `429` is not retried. A connection failure or timeout is unaffected by this parameter.
+
+Use `warn` or `store` when a client error is a meaningful answer for the dataset, for example an API that returns `404` for a record that does not exist. The status is available in the [`response_status`](#response-metadata-fields) column:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: records
+    params:
+      allowed_request_paths: /records/1,/records/2
+      on_error_response: warn
+```
+
+```sql
+SELECT request_path, response_status, content
+FROM records
+WHERE request_path = '/records/2';
+```
+
+On a `full` refresh, a recorded client error replaces the dataset's previous contents, which is why `warn` logs it. Prefer `warn` over `store`.
+
+`on_error_response` applies to dynamic JSON API endpoints. A structured HTTP file dataset (`csv`, `parquet`, and other file formats) always fails a request the origin did not answer successfully: it accepts `on_error_response: error`, and rejects `warn` and `store` at registration. An unrecognized value is rejected at registration on every dataset, with an error that lists the accepted values.
+
+:::warning[Behavior change]
+Before this parameter existed, the connector recorded every response as a row, including `4xx` responses and a `5xx` or `429` that was still failing after retries. A dataset that depends on recording a client error as a row now needs `on_error_response: warn` or `store`.
+:::
 
 ### Endpoint Validation
 
@@ -819,6 +859,40 @@ SELECT * FROM specific_versions WHERE request_path = '/api/v1/users';
 
 -- Does NOT match because v10 has two digits
 SELECT * FROM specific_versions WHERE request_path = '/api/v10/users';
+```
+
+#### Request Path Validation
+
+Spice checks each `request_path` value when it plans the query, before matching the value against `allowed_request_paths`. A rejected value fails the query with an error, and no request is sent to the origin. A `request_path` value is rejected when it:
+
+- is empty, is longer than 1,024 characters, or does not start with `/`
+- contains `..`
+- contains a `.` or `..` segment after percent-decoding, such as `/shows/%2e%2e/people/1`, `/shows/.%2e/people/1`, or `/shows/%2e%2e%2fadmin`
+- would be changed by URL parsing before the request is sent, for example because it contains a tab, a newline, or `\`, which URL parsing removes or turns into `/`
+
+These checks keep the path the origin receives the same as the path matched against `allowed_request_paths`. A value that matches a pattern in `allowed_request_paths` cannot reach a path outside that pattern, or a path outside the one in the `from` URL. An encoded slash inside a segment, such as `/repos/group%2Fproject`, is treated as data and is accepted.
+
+For example, with the following dataset:
+
+```yaml
+datasets:
+  - from: https://api.tvmaze.com
+    name: tv_catalog
+    params:
+      file_format: json
+      allowed_request_paths: '/shows/**'
+```
+
+This query fails even though the value matches `/shows/**` as written, because URL parsing would resolve `%2e%2e` and send the request to `/people/1`:
+
+```sql
+SELECT * FROM tv_catalog WHERE request_path = '/shows/%2e%2e/people/1';
+```
+
+The error names the reason without repeating the path:
+
+```text
+The 'request_path' value contains a '.' or '..' segment, including a percent-encoded one such as '%2e%2e', which is not allowed for security reasons. Remove the segment from the path.
 ```
 
 ### Dynamic Filters with Metadata Fields

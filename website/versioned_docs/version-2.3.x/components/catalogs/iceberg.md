@@ -295,3 +295,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 ## Cookbook
 
 - A cookbook recipe to configure Iceberg as a catalog connector in Spice. [Iceberg Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg#readme)
+- A cookbook recipe to connect to an Iceberg Hadoop catalog, locally or on S3-compatible object storage. [Iceberg Hadoop Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/iceberg-hadoop#readme)

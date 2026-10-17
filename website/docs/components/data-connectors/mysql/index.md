@@ -107,7 +107,7 @@ The MySQL data connector can be configured by providing the following `params`. 
 
 #### Replication parameters
 
-The following parameters configure MySQL [binlog replication](../../features/cdc/mysql-replication) (native CDC) when using `refresh_mode: changes`. `primary_key` + `on_conflict: upsert` are required on the accelerator (except on the append-only `arrow` engine). See [MySQL Binlog Replication](../../features/cdc/mysql-replication) for source prerequisites, semantics, and metrics.
+The following parameters configure MySQL [binlog replication](../../features/cdc/mysql-replication) (native CDC) when using `refresh_mode: changes`. `primary_key` is required on the accelerator (except on the append-only `arrow` engine), and on engines other than `cayenne` so is `on_conflict: upsert` on that key. See [MySQL Binlog Replication](../../features/cdc/mysql-replication) for source prerequisites, semantics, and metrics.
 
 | Parameter Name                                | Description                                                                                                                                                                                              |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -203,6 +203,12 @@ The table below shows the MySQL data types supported, along with the type mappin
 
 :::
 
+## Casts Evaluated in Spice
+
+MySQL rounds a floating-point or decimal value to the nearest integer when it casts the value to an integer type, so `CAST(1.5 AS SIGNED)` returns `2`. Spice truncates toward zero and returns `1`. A `CAST` or `TRY_CAST` from a floating-point or decimal value into an integer type is therefore not sent to MySQL: Spice reads the referenced columns and evaluates the cast itself. This applies to filters too, so `WHERE CAST(price AS INT) = 1` selects the rows whose `price` truncates to `1`. The other conditions in the same `WHERE` clause are still sent to MySQL.
+
+DataFusion's cast and type functions, such as [`arrow_cast`](../../../reference/sql/scalar_functions.md#arrow_cast), `cast_to_type`, and [`arrow_typeof`](../../../reference/sql/scalar_functions.md#arrow_typeof), are also evaluated in Spice. Run [`EXPLAIN`](../../../reference/sql/explain.md) to see which parts of a query are sent to MySQL.
+
 ## Limitations
 
 - MySQL has no native nested or array column types (see the [MySQL data types reference](https://dev.mysql.com/doc/refman/8.4/en/data-types.html)), so columns containing Arrow `Struct`, `List`, or `LargeList` values are not supported by this connector.
@@ -289,3 +295,5 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 - A cookbook recipe to configure MySQL as a data connector in Spice. [MySQL Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mysql/connector#readme)
 - A cookbook recipe to configure AWS RDS Aurora (MySQL Compatible) as a data connector in Spice. [AWS RDS Aurora (MySQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora#readme)
 - A cookbook recipe to configure Planetscale as a data connector in Spice. [Planetscale (MySQL Data Connector)](https://github.com/spiceai/cookbook/tree/trunk/mysql/planetscale#readme)
+- A cookbook recipe to stream changes from MySQL into Spice over the binary log. [MySQL CDC (Binlog Replication)](https://github.com/spiceai/cookbook/tree/trunk/mysql/cdc#readme)
+- A cookbook recipe to stream changes from an AWS-hosted Aurora MySQL cluster into Spice over the binary log. [Aurora MySQL CDC (Binlog Replication, AWS Hosted)](https://github.com/spiceai/cookbook/tree/trunk/mysql/rds-aurora-cdc#readme)

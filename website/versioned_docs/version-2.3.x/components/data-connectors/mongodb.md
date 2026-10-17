@@ -380,3 +380,4 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 ## Cookbook
 
 - A cookbook recipe to configure MongoDB as a data connector in Spice. [MongoDB Data Connector](https://github.com/spiceai/cookbook/tree/trunk/mongodb/connector#readme)
+- A cookbook recipe to stream changes from a MongoDB collection into Spice with Change Streams. [MongoDB Change Streams](https://github.com/spiceai/cookbook/tree/trunk/mongodb/change-streams#readme)

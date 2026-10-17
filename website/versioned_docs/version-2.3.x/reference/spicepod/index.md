@@ -137,6 +137,8 @@ Enable or disable snapshot management globally. Defaults to `true`.
 
 The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`), Azure ADLS Gen2 URIs (`abfss://container@account.dfs.core.windows.net/path/`), Google Cloud Storage URIs (`gs://bucket/prefix/`), and local filesystem URIs (`file:///path/to/folder/`). The value must be a URI with a scheme: a bare filesystem path such as `/var/spice/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. The location must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
 
+Keep a cloud `location` on standard S3, GCS, or ADLS so bucket or object replication and readers in another region can use the prefix. Each snapshot written there is a complete copy of the acceleration file. This location is separate from Cayenne's S3 Express One Zone data tier (`cayenne_file_path`, `cayenne_s3_*`), which does not substitute for the snapshot bucket. See [Snapshots](../features/data-acceleration/snapshots).
+
 ### `snapshots.bootstrap_on_failure_behavior`
 
 Controls what happens when Spice cannot load the most recent snapshot on startup. Valid values:

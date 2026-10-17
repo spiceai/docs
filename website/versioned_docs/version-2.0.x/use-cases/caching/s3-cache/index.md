@@ -105,4 +105,4 @@ The `Results-Cache-Status` response header indicates cache state: `HIT`, `MISS`,
 - **S3 Data Connector**: [Documentation](../../components/data-connectors/s3) for authentication, configuration, and supported formats.
 - **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Data Refresh](../../features/data-acceleration/data-refresh).
 - **Caching**: [Documentation](../../features/caching) for SQL results cache configuration, Cache-Control directives, and response headers.
-- **DuckDB Data Accelerator**: [Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README) for file-backed acceleration.
+- **DuckDB Data Accelerator**: [Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) for file-backed acceleration.

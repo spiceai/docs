@@ -154,7 +154,7 @@ Two of DataFusion's regular-expression built-ins are never sent to DuckDB, becau
 
 ### `regexp_count` pushes down one call shape at a time
 
-`regexp_count` is sent to DuckDB, rendered as `coalesce(len(regexp_extract_all(x, p)), 0)` — the `coalesce` is what makes a `NULL` input count `0`, as DataFusion's kernel does, rather than `NULL`.
+`regexp_count` is sent to DuckDB, rendered as `len(regexp_extract_all(x, p))`. Both engines return `NULL` for a `NULL` input, so an accelerated query and an unaccelerated one agree on `NULL` rows.
 
 Because DuckDB's regex engine (RE2) and DataFusion's read some patterns differently, and a disagreement changes *which rows match* rather than raising an error, the dialect renders only a call it has been measured to count identically. Every other shape is evaluated in Spice instead — that refusal is not an error, and the query still answers. A call is sent only when all of the following hold:
 
@@ -201,6 +201,38 @@ A `CAST` or `TRY_CAST` into a string type (`Utf8`, `LargeUtf8`, or `Utf8View`) i
 As with `concat`, the check covers the operand's whole expression, and an operand whose type Spice cannot determine is treated as binary. A text cast over a string or numeric column, such as `CAST(id AS VARCHAR)`, is sent to DuckDB. Casts from a binary value into a number, date, boolean, or decimal are sent to DuckDB unchanged.
 
 The same rule applies wherever the DuckDB dialect is used, as described in [Regular Expression Functions and Federation](#regular-expression-functions-and-federation).
+
+## Casts and Type Functions Evaluated in Spice
+
+Spice evaluates the following expressions itself, above the federated scan, because DuckDB answers them differently or does not define them. The rest of the query, including other filters, is still sent to DuckDB.
+
+- **A `CAST` or `TRY_CAST` from a floating-point or decimal value into an integer type.** Spice truncates toward zero, so `CAST(1.7 AS INT)` returns `1`. DuckDB rounds to the nearest integer and returns `2`. A filter such as `WHERE CAST(fare_amount AS INT) = 7` therefore selects the same rows as it does on an unaccelerated dataset. A cast from an integer, boolean, or string value, and a cast into a floating-point or decimal type, are sent to DuckDB.
+- **A `CAST` or `TRY_CAST` into a binary type**, such as `CAST(name AS BYTEA)`, whatever the type of its operand.
+- **DataFusion's cast and type functions**: [`arrow_cast`](../../../reference/sql/scalar_functions.md#arrow_cast), [`arrow_try_cast`](../../../reference/sql/scalar_functions.md#arrow_try_cast), `cast_to_type`, `try_cast_to_type`, [`arrow_typeof`](../../../reference/sql/scalar_functions.md#arrow_typeof), `arrow_field`, [`arrow_metadata`](../../../reference/sql/scalar_functions.md#arrow_metadata), and `with_metadata`. DuckDB has no functions with most of these names, and its own `cast_to_type` casts by DuckDB's rules.
+
+Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast appears in a `ProjectionExec` or `FilterExec` above the `VirtualExecutionPlan`, and the `base_sql` sent to DuckDB selects only the referenced columns. These rules apply wherever the DuckDB dialect is used, including the [DuckDB accelerator](../../data-accelerators/duckdb/index.md).
+
+## Decimal Averages
+
+`AVG` over a decimal column is never sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, which rounds and carries about 16 significant digits, while Spice divides the exact decimal sum in decimal arithmetic and truncates the result to the scale of the result type. The two can differ in the last digit, and for a large `DECIMAL(38, 2)` value in the integer digits. A decimal `AVG`, called as an aggregate or as a window function, is therefore evaluated in Spice above the federated scan, and the query still answers. An `AVG` whose argument type Spice cannot determine is also evaluated in Spice.
+
+DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
+## Ordered Aggregates and `IGNORE NULLS`
+
+An aggregate can take an `ORDER BY` inside the call, as in `string_agg(name, ',' ORDER BY name)`. Spice sends that ordering to DuckDB for four aggregates: `string_agg`, `array_agg`, `first_value`, and `last_value`. DuckDB has `first_value` and `last_value` only as window functions, so these two are sent as DuckDB's `first` and `last` aggregates, which return the first and last value in the given order, including a `NULL`, as Spice does by default.
+
+Any other aggregate whose result depends on an `ORDER BY` inside the call, such as `nth_value`, is evaluated in Spice above the federated scan, so the result keeps the requested order. This rule does not apply to an aggregate that takes its ordering as `WITHIN GROUP (ORDER BY ...)`, because the SQL sent to DuckDB keeps that clause. An `ORDER BY` inside an aggregate whose result does not depend on the order, such as `count`, `sum`, `min`, `max`, or `avg`, does not change where the aggregate runs; a decimal `AVG` is still evaluated in Spice, as described in [Decimal Averages](#decimal-averages). An aggregate or window function with `IGNORE NULLS`, such as `lag(v) IGNORE NULLS OVER (ORDER BY id)`, is always evaluated in Spice, because the SQL sent to DuckDB cannot carry that clause.
+
+The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
+## `approx_distinct` and `encode`
+
+`approx_distinct` is evaluated in Spice, as an aggregate and as a window function, because DuckDB has no function of that name. DuckDB's `approx_count_distinct` uses a different estimator and can return a different number.
+
+`encode(x, 'hex')` is sent to DuckDB as `lower(hex(x))`, which returns the same lowercase hexadecimal text as Spice. `encode` with any other encoding, such as `'base64'`, is evaluated in Spice.
+
+The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## Cookbook
 

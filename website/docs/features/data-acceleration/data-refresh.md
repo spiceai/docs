@@ -146,12 +146,6 @@ See [Caching Mode](./refresh-modes/caching) for detailed documentation and examp
 The `snapshot` refresh mode creates a read-only acceleration that reloads exclusively from the [snapshot store](./snapshots). The federated data source is never queried for refreshes — instead, the runtime polls the snapshot store on a configurable interval and atomically swaps in newer snapshots when available.
 
 ```yaml
-snapshots:
-  enabled: true
-  location: s3://my-bucket/snapshots/
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: postgres:public.my_table
     name: my_table
@@ -162,6 +156,7 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 30s  # Poll interval; defaults to 1m
       snapshots: enabled
+      snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
         duckdb_file: /nvme/my_table.db
 ```
@@ -173,8 +168,8 @@ datasets:
 
 **Behavior:**
 
-- On startup, the runtime bootstraps from the most recent snapshot (same as other snapshot-enabled modes)
-- After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots
+- On startup, the runtime bootstraps from the most recent snapshot (same as other snapshot-enabled modes). When no snapshot has been published yet, the dataset waits for the first one and restores it once a writer publishes it
+- After bootstrap, the runtime polls the snapshot store at `refresh_check_interval` (default: 60 seconds) for newer snapshots. On S3, an SQS queue of the location's event notifications reloads datasets as soon as a snapshot is published; see [Reload on S3 event notifications](./refresh-modes/snapshot#reload-on-s3-event-notifications)
 - Each poll reads the snapshot store's metadata conditionally, sending the `ETag` recorded by the previous poll in `If-None-Match`. When the store reports that the metadata is unchanged, the poll ends without downloading it
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll
@@ -200,8 +195,8 @@ By default, Spice will return an error for queries against an accelerated datase
 The ready state for an accelerated dataset can be configured using the [`ready_state`](../../reference/spicepod/datasets#ready_state) parameter in the dataset configuration.
 
 - `ready_state: on_load`: Default. The dataset is considered ready after the initial load of the accelerated data. For file-based accelerated datasets that have existing data, this will be ready immediately. Queries against this dataset before the data is loaded will return an error.
-- `ready_state: on_registration`: The dataset is considered ready when the dataset is registered in Spice, even before the initial data is loaded. Queries against this dataset before the data is loaded will automatically fallback to the federated source. Once the data is loaded, queries will be served from the acceleration.
-- `ready_state: on_schema_resolved`: The dataset is considered ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Queries fall back to the federated source until the initial load completes; subsequent refresh failures are still reported via dataset status and metrics.
+- `ready_state: on_registration`: The dataset is considered ready when the dataset is registered in Spice, even before the initial data is loaded. Until the data is loaded, queries are served from an existing acceleration if there is one, and otherwise fall back to the federated source. Once the data is loaded, queries will be served from the acceleration.
+- `ready_state: on_schema_resolved`: The dataset is considered ready once the federated source's schema has been resolved (which also verifies access to the source), without waiting for the initial data refresh. Until the initial load completes, queries are served from an existing acceleration if there is one, and otherwise fall back to the federated source. An existing acceleration does not make the dataset ready: readiness still waits for the source to be reached. Subsequent refresh failures are still reported via dataset status and metrics.
 
 Example:
 
@@ -221,6 +216,110 @@ When queries must be served from a loaded acceleration, keep the defaults: datas
 `ready_state: on_registration` (and `on_schema_resolved`) reports ready before that load and sends queries to the federated source in the meantime. Combined with a fleet starting together, that is a startup stampede against the origin. [`on_zero_results: use_source`](#behavior-on-zero-results) has the same shape on the query path: an empty accelerated result is followed by a second query to the source. Leave both off when the deployment is meant to serve only warm data.
 
 :::
+
+### Serving an Existing Acceleration While the Source Is Unavailable
+
+When an accelerated dataset already has data on disk from a previous run and meets the conditions below, Spice registers the dataset from that acceleration at startup and connects to the source in the background. Queries return the persisted data while the source is unavailable or slow to respond, and refreshes resume once the source is reached. This includes connectors that connect to their source when the dataset is created, such as [PostgreSQL](../../components/data-connectors/postgres), [MySQL](../../components/data-connectors/mysql), and [DynamoDB](../../components/data-connectors/dynamodb). In Spice v2.3 and earlier, these datasets were not registered until the source answered: queries failed with `table ... not found`, and [`/v1/ready`](../../api/HTTP/ready) returned `503`.
+
+```yaml
+datasets:
+  - from: postgres:public.orders
+    name: orders
+    params:
+      pg_host: db.example.com
+      pg_db: shop
+      pg_user: spice_reader
+      pg_pass: ${secrets:PG_PASSWORD}
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_check_interval: 10m
+```
+
+A dataset is served from its existing acceleration this way when its configuration meets every one of these conditions ([`waits_for_source_reason`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/init/dataset.rs#L1184-L1224)):
+
+- The acceleration persists across restarts: the `postgres` engine, or another engine with `mode: file` or `mode: file_update`. With engines other than `postgres`, `mode: memory` keeps no data across restarts.
+- For every engine, including `postgres`, `mode` is not `file_create`, and `mode: file_update` is used only with `refresh_mode: disabled`.
+- The acceleration checkpoint records the acceleration's primary key. Checkpoints written by Spice v2.3 and earlier do not; see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions).
+- The dataset is read-only: `access` is not `read_write`.
+- `refresh_mode` is not `changes` or `caching`, and `append` is used only with a `time_column`. An unset `refresh_mode` resolves to `changes` for the `debezium` and `cdc` connectors.
+- The dataset has no embedding columns or full-text search columns, and Drasi forwarding is not enabled.
+- The source is not the [`file`](../../components/data-connectors/file) connector.
+- [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change) is `block`, the default.
+
+A snapshot reader whose first [acceleration snapshot](./snapshots) download is still pending at startup is also not served this way.
+
+Connectors that reach their source only when the dataset is first read, such as [HTTP(S)](../../components/data-connectors/https) and [S3](../../components/data-connectors/s3), already fell back to the existing acceleration when that first read failed, and they keep doing so, except while the checkpoint was written by an earlier version (see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions)).
+
+A dataset with no existing acceleration to serve, such as one starting for the first time, is registered once its source is reached. Until then, its status is `Error`, queries fail with `table ... not found`, and `/v1/ready` returns `503`. Spice retries the source with a backoff that starts at about one second and grows to at most five minutes between attempts, with no limit on attempts, and loads the dataset when the source answers. Rejected credentials and TLS failures are configuration errors: Spice logs them as an error and does not retry.
+
+#### Readiness and Dataset Status While the Source Is Unavailable
+
+Query availability and source health are reported separately: a dataset can serve its acceleration while its status is `Error`. With the default runtime [`ready_state: on_load`](../../reference/spicepod/runtime#runtimeready_state), the dataset `ready_state` determines when `/v1/ready` returns `200`:
+
+| Dataset `ready_state` | Queries while the source is unavailable | `/v1/ready`                       | Dataset status                                                                                  |
+| --------------------- | --------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `on_load`             | Served from the existing acceleration   | `200` once registered             | `Ready` at registration, `Error` after a failed connection attempt, `Ready` once reconnected    |
+| `on_registration`     | Served from the existing acceleration   | `200` once registered             | `Ready` at registration, `Error` after a failed connection attempt, `Ready` once reconnected    |
+| `on_schema_resolved`  | Served from the existing acceleration   | `503` until the source is reached | `Initializing` at registration, `Error` after a failed connection attempt, `Ready` once reached |
+
+`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. Two kinds of dataset do not follow this table, because the existing acceleration is not treated as loaded until a refresh completes in this process: a dataset with `refresh_mode: append`, a `time_column`, and snapshot bootstrapping enabled, and a dataset that reads acceleration snapshots (`file_format: snapshot`) before it restores one. Until that refresh completes, `on_load` is not ready and queries return an error. `on_registration` is ready at registration and `on_schema_resolved` is ready once the source is reached, but in both cases queries go to the federated source rather than the persisted data, so they fail while the source is unavailable.
+
+[`refresh_on_startup`](#refresh-on-startup) keeps its meaning for `refresh_mode: full`. With `auto`, the persisted data is served and the next refresh follows the refresh schedule. With `always`, the persisted data is served until the source is reached and the startup refresh replaces it. The other eligible refresh modes ignore `refresh_on_startup`: `append` refreshes at startup once the source is reached, adding new data to the persisted data instead of replacing it, `snapshot` checks for a newer snapshot at startup, and `disabled` does not refresh.
+
+#### Logs and Error Messages
+
+While the source cannot be reached, the dataset status is `Error` with the cause in `error_message` from [`GET /v1/datasets?status=true`](../../api/HTTP/get-datasets). Spice logs a warning on the first failure and then at most every five minutes while the connection is retried:
+
+```text
+WARN Failed to connect to the source for dataset orders. Serving data from the existing acceleration for orders while retrying the connection. <cause>
+```
+
+In these messages, `orders` is the dataset name and `<cause>` is the connector's error. A configuration failure that no retry resolves, such as rejected credentials or a TLS error, is logged as an error instead. It is logged at once, even when a transient failure was reported less than five minutes earlier:
+
+```text
+ERROR Dataset 'orders' cannot connect to its source because of its configuration, so it is served from its existing acceleration and will not refresh until the configuration is fixed. <cause>
+```
+
+When a dataset with data on disk waits for its source because of its configuration (the `access`, `refresh_mode`, search column, Drasi, `file` connector, `mode`, or `on_schema_change` conditions above), Spice logs the configuration that requires it when the first load attempt fails, and the dataset's `error_message` starts with `Not served`. The log message is not emitted for a snapshot reader whose first snapshot download is pending:
+
+```text
+INFO Dataset 'orders' waits for its source before serving because it uses `refresh_mode: changes`. See: https://spiceai.org/docs/features/data-acceleration/data-refresh
+```
+
+```text
+Not served: waits for its source because it uses `refresh_mode: changes`. Cause: <cause>
+```
+
+A dataset that waits only because its checkpoint was written by an earlier version produces neither message. Its `error_message` is the connector's error, and the checkpoint is reported only in a `DEBUG` log: `The acceleration checkpoint for dataset orders does not record its primary key (written by an earlier version), so it waits for its source before serving.`
+
+#### Monitoring Freshness
+
+`GET /v1/datasets?status=true` includes two RFC 3339 timestamps for accelerated datasets ([`DatasetInfo`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-api-types/src/v1/datasets.rs#L59-L74)):
+
+- `last_refresh`: when the last successful refresh completed, matching the `dataset_acceleration_last_refresh_unix_time_ms` metric. It is restored from the acceleration checkpoint at startup, so it is available while the source is unavailable. Datasets that create acceleration snapshots or were restored from one report it once a refresh completes.
+- `next_refresh`: when the next scheduled refresh is due. It is present only when a refresh is scheduled by `refresh_check_interval` or `refresh_cron`. An interval schedule includes [refresh jitter](#refresh-jitter). A cron schedule reports the next cron time, then the jittered start time once the refresh is triggered. A pending or unsuccessful refresh keeps its due time, even after that time has passed, until a refresh succeeds. A synchronized `localpod:` dataset reports the schedule of the parent that refreshes it.
+
+For example, with other fields omitted:
+
+```json
+[
+  {
+    "name": "orders",
+    "acceleration_enabled": true,
+    "status": "Ready",
+    "last_refresh": "2026-10-07T21:36:44.512189Z",
+    "next_refresh": "2026-10-07T21:46:51.204Z"
+  }
+]
+```
+
+#### Upgrading from Earlier Versions
+
+Acceleration checkpoints written by Spice v2.3 and earlier do not record the acceleration's primary key. A dataset with such a checkpoint waits for its source at startup, including a dataset whose connector previously fell back to its acceleration when the first read failed. This continues on every restart until the checkpoint is rewritten with the primary key. A completed refresh rewrites it, and so does a snapshot created by the [`snapshots_trigger: time_interval`](./snapshots#snapshot-triggers) trigger, which checkpoints on its own schedule. Reconnecting to the source does not rewrite it. A `refresh_mode: full` dataset with `refresh_on_startup: auto`, no `refresh_check_interval` or `refresh_cron`, unchanged `refresh_sql`, and no time-interval snapshot creation does not rewrite its checkpoint after startup, so the checkpoint stays in the old format. To migrate such a dataset, run a refresh while the source is available, for example with [Refresh On-Demand](#refresh-on-demand), or start it once with `refresh_on_startup: always`. After a refresh completes, later restarts serve the existing acceleration without waiting.
+
+`ready_state: on_schema_resolved` now keeps `/v1/ready` at `503` until the source is reached, including for connectors that reach their source on first read. In Spice v2.3 and earlier, a dataset whose connector reaches its source on first read, such as HTTP, reported `Ready` and `/v1/ready` returned `200` once it fell back to its acceleration, even though the source was unavailable. A deployment that uses `/v1/ready` to admit traffic keeps that instance out of rotation until the source is reached. Use `ready_state: on_load` or `on_registration` when readiness should depend on the existing acceleration rather than the source.
 
 ## Fast Cold Starts with Snapshots
 
@@ -369,6 +468,8 @@ By default, accelerated datasets only return locally materialized data. If this 
 
 To address this, `on_zero_results: use_source` can be configured in the acceleration configuration. Queries returning zero results will fall back to the federated source, returning results from querying the underlying data.
 
+Rows removed by a retention policy are the exception, in every refresh mode that honors `on_zero_results`. The fallback query excludes them, so a row that `retention_sql` or `retention_period` evicted is not read back from the source. See [Fallback with a Retention Policy](#fallback-with-a-retention-policy).
+
 `on_zero_results`:
 
 - `return_empty` (Default) - Return an empty result set when no data is found in the accelerated dataset.
@@ -395,6 +496,37 @@ In this example a query against `accelerated_dataset` within Spice like `SELECT 
 - **`use_source` doubles the cost of an empty accelerated result** and sends that second query to the origin. For a deployment that should serve only warm acceleration, keep the default `return_empty` and gate traffic with [readiness](#ready-state).
 
 :::
+
+### Fallback with a Retention Policy
+
+When a dataset configures [`retention_sql`](#custom-sql-based-retention) or [`retention_period`](#time-based-retention), Spice adds the inverse of the retention policy to the fallback query, so the source returns only rows that retention would keep in the acceleration. Without this filter, a lookup for a soft-deleted or expired key would find nothing in the acceleration, fall back, and return the row that still exists in the source. Keys that the acceleration never loaded and that retention would keep still fall back as before.
+
+The inverse follows SQL three-valued logic. For `retention_sql: DELETE FROM t WHERE <predicate>`, the fallback keeps a source row when `<predicate>` is not true (`NOT (<predicate>) OR <predicate> IS NULL`), which is what the `DELETE` leaves behind. For `retention_period`, the fallback keeps rows whose `time_column` is at or after `now() - retention_period`, and rows whose `time_column` is `NULL`. When the dataset also sets [`time_partition_column`](#time_partition_column) and the scheduled retention check runs on an engine other than Cayenne, the retention check deletes a row only when both columns are older than the cutoff, so the fallback also keeps a row whose `time_column` is expired but whose `time_partition_column` is recent or `NULL`. Cayenne, and any dataset without a scheduled retention check, use `time_column` alone. When both settings are configured, a source row must pass both. The filter applies whenever these settings are configured, including when `retention_check_enabled` is `false`.
+
+For example, with the following configuration, `SELECT * FROM user_events WHERE user_id = 42` returns no rows after the retention check evicts an archived row for user 42, even though the row is still in MySQL:
+
+```yaml
+datasets:
+  - from: mysql:user_events
+    name: user_events
+    acceleration:
+      enabled: true
+      engine: cayenne
+      on_zero_results: use_source
+      retention_check_enabled: true
+      retention_check_interval: 5m
+      retention_sql: DELETE FROM user_events WHERE status = 'archived'
+```
+
+The inverse must be a filter that Spice can plan against the source columns. When it is not, for example when `time_column` has a type that cannot be used as a source filter or the `retention_sql` predicate does not type-check against the source schema, the dataset fails to load rather than return evicted rows. The error begins:
+
+```text
+Failed to register dataset 'user_events' (mysql): `on_zero_results: use_source` cannot be combined with this retention configuration, so the dataset was not loaded.
+```
+
+To resolve it, remove `on_zero_results: use_source`, or use a `retention_sql` or `retention_period` policy that can be evaluated as a filter on the source columns.
+
+Spice v2.4.0-rc.1 and earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
 
 ## Refresh on Startup
 
@@ -620,17 +752,19 @@ Example - Soft delete retention:
 datasets:
   - from: mysql:user_events
     name: user_events
-    time_column: created_at
+    time_column: updated_at
     acceleration:
       enabled: true
+      engine: cayenne
       refresh_mode: append
+      refresh_append_overlap: 10m
       primary_key: user_id
-      on_conflict:
-        user_id: upsert
       retention_check_enabled: true
       retention_check_interval: 5m
       retention_sql: DELETE FROM user_events WHERE status = 'archived'
 ```
+
+The `time_column` must change when a row is updated, as `updated_at` does here. An append refresh reads only rows whose `time_column` is newer than the latest stored value, less `refresh_append_overlap` (from the start of that day, for a [day-granular column](./refresh-modes/append.md#day-granular-time-columns)). With a column that does not change, such as `created_at`, a row archived after it falls outside that window is not re-read, so `retention_sql` never sees its new `status`.
 
 :::note
 
@@ -645,7 +779,7 @@ The following example combines the pieces above into a single configuration for 
 - `refresh_mode: append` with a `time_column` for incremental queries
 - `refresh_check_interval` to poll for new/changed rows
 - `refresh_append_overlap` to tolerate clock skew and late-arriving rows without missing data
-- `primary_key` + `on_conflict: upsert` so rows updated in the source overwrite the accelerated copy instead of duplicating
+- `primary_key` so a row updated in the source replaces the accelerated copy instead of duplicating it. [Spice Cayenne](../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write) keeps the newest version of each key by `time_column`, because `updated_at` is not part of the `primary_key`
 - `retention_period` to bound the working set by time
 - `retention_sql` to evict soft-deleted rows (`deleted_at IS NOT NULL`)
 
@@ -656,20 +790,19 @@ datasets:
     time_column: updated_at
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
+      mode: file
       refresh_mode: append
       refresh_check_interval: 1m
       refresh_append_overlap: 5m
       primary_key: id
-      on_conflict:
-        id: upsert
       retention_check_enabled: true
       retention_check_interval: 10m
       retention_period: 90d
       retention_sql: DELETE FROM orders WHERE deleted_at IS NOT NULL
 ```
 
-With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m`, upserting on `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
+With this configuration Spice bootstraps from the source, then every minute fetches rows where `updated_at > max(updated_at) - 5m` and keeps the newest version of each `id`. Rows older than 90 days — or rows the source has soft-deleted — are evicted on the retention check.
 
 For an Iceberg append/soft-delete log, this same shape — accelerate the log once, optionally accelerate a view that filters tombstones, bound disk with retention on the log, and prefer [cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../caching/index.md) rather than re-accelerating the log on every node — is documented under [Current state from an append-only log](../../components/data-connectors/iceberg#current-state-from-an-append-only-log). An accelerated view does not compact the log by itself.
 
@@ -774,7 +907,7 @@ This acceleration configuration applies a number of different behaviors:
 2. Because a `refresh_sql` is specified, every refresh (including initial load) will have the filter applied to the refresh query.
 3. 10 minutes after loading, as specified by the `refresh_check_interval`, the first refresh will occur - retrieving new rows where `asset = 'asset_id'`.
 4. Running a query to retrieve logs with an `asset` that is _not_ `asset_id` will fall back to the source, because of the `on_zero_results: use_source` parameter.
-5. Running a query to retrieve a log longer than 1 day ago will fall back to the source, because of the `on_zero_results: use_source` parameter.
+5. Running a query to retrieve a log from more than 1 day ago that is not in the acceleration will fall back to the source, because of the `on_zero_results: use_source` parameter. A log loaded while it was within the last day stays in the acceleration until the retention check removes it. The fallback applies the 7-day `retention_period`, so a log older than 7 days is not returned. See [Fallback with a Retention Policy](#fallback-with-a-retention-policy).
 6. Running a query to retrieve logs within a range of now to longer than 1 day ago will only return logs from the last day. This is due to the `refresh_data_window` only accelerating the last day's worth of logs, which will return some results. Because results are returned, Spice will not fall back to the source even though `on_zero_results: use_source` is specified.
 7. Spice will retain newly appended log rows for 7 days before discarding them, as specified by the `retention_*` parameters.
 
@@ -783,3 +916,4 @@ This acceleration configuration applies a number of different behaviors:
 - Configure accelerated dataset retention policy. [Accelerated Dataset Retention Policy](https://github.com/spiceai/cookbook/tree/trunk/retention#readme)
 - Dynamically refresh specific data at runtime by programmatically updating refresh_sql and triggering data refreshes. [Advanced Data Refresh](https://github.com/spiceai/cookbook/tree/trunk/acceleration/data-refresh#readme)
 - Configure `refresh_data_window` to filter refreshed data to recent data [Refresh Data Window](https://github.com/spiceai/cookbook/tree/trunk/refresh-data-window#readme)
+- Refresh accelerated datasets on cron schedules. [Cron-based Dataset Refresh](https://github.com/spiceai/cookbook/tree/trunk/acceleration/cron#readme)
