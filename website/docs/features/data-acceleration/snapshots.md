@@ -546,7 +546,7 @@ datasets:
         cayenne_metadata_dir: /data/metadata/
 ```
 
-Snapshot datasets follow the same [metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location) rule as other Cayenne datasets: datasets that set different `cayenne_file_path` values must all set the same `cayenne_metadata_dir`, or the Spicepod is rejected at startup.
+Snapshot datasets follow the same [metastore location](../../components/data-accelerators/cayenne/index.md#metastore-location) rule as other Cayenne datasets: every Cayenne dataset, including a snapshot dataset that sets `cayenne_file_path` or `cayenne_metadata_dir`, must resolve to the same metastore directory, or the Spicepod is rejected at startup. Set the same `cayenne_metadata_dir` on every Cayenne dataset.
 
 ### Disk use of a Cayenne copy
 
