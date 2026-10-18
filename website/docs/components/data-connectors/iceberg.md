@@ -383,7 +383,7 @@ Federated Iceberg scans apply Iceberg v2 **position and equality delete files** 
 
 The same apply-on-scan path is how [`refresh_mode: full`](../../features/data-acceleration/refresh-modes/full) stays consistent with the table: each refresh re-reads the current snapshot, so delete files that appeared since the last refresh retract those rows from the acceleration.
 
-[`refresh_mode: append`](../../features/data-acceleration/refresh-modes/append) does **not** retract rows when delete files appear. It only pulls rows newer than the accelerated [`time_column`](../../reference/spicepod/datasets#time_column) high-water mark, so a delete of an already-accelerated row is never seen.
+[`refresh_mode: append`](../../features/data-acceleration/refresh-modes/append) does **not** retract rows when delete files appear. It reads the data files that new snapshots added and skips snapshots that only delete rows, so a delete of an already-accelerated row is never seen.
 
 [`refresh_mode: changes`](../../features/data-acceleration/refresh-modes/changes) is for database CDC feeds — PostgreSQL WAL, MySQL binlog, Debezium, and the other [CDC connectors](../../features/cdc) — not for applying Iceberg delete files. Iceberg snapshot-diff into `changes` acceleration is not available yet.
 
@@ -391,7 +391,9 @@ Until that path exists, a workaround is **soft deletes** in the Iceberg table (a
 
 ## Append refresh and table layout
 
-An accelerated Iceberg dataset with [`refresh_mode: append`](../../features/data-acceleration/refresh-modes/append.md) and a [`time_column`](../../reference/spicepod/datasets.md#time_column) polls with a filter on that column. [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) widens the window. The scan skips data files whose partition values or column metrics cannot match the filter, and by default it skips Parquet row groups whose statistics cannot match. Page-level statistics inside a row group are not consulted.
+An accelerated Iceberg dataset with [`refresh_mode: append`](../../features/data-acceleration/refresh-modes/append.md) and a [`time_column`](../../reference/spicepod/datasets.md#time_column) follows the table's snapshots: each refresh reads the data files that the snapshots committed since the last refresh added, whatever their `time_column` values, so rows committed out of time order are loaded. See [Iceberg sources follow table snapshots](../../features/data-acceleration/refresh-modes/append.md#iceberg-sources-follow-table-snapshots) for how each snapshot operation is handled and when a refresh reads by time instead.
+
+The first refresh, and a refresh that cannot follow the table's snapshots, polls with a filter on the `time_column`. [`refresh_append_overlap`](../../reference/spicepod/datasets.md#accelerationrefresh_append_overlap) widens the window. The scan skips data files whose partition values or column metrics cannot match the filter, and by default it skips Parquet row groups whose statistics cannot match. Page-level statistics inside a row group are not consulted.
 
 How much of each poll is skipped depends on how the table is laid out:
 

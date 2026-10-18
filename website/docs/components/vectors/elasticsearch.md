@@ -146,9 +146,9 @@ Vector, full-text, and hybrid search use the standard Spice UDTFs. When the data
 ### Vector Search
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, 'wireless noise cancelling headphones')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -159,9 +159,9 @@ The query text is embedded with the configured embedding model and sent to Elast
 Any `Utf8`/`LargeUtf8` column on the dataset is available as a full-text search target:
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM text_search(products, 'bluetooth waterproof', description)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 

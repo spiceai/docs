@@ -519,7 +519,7 @@ For the per-engine adjustments each profile applies, and for guidance on choosin
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -587,6 +587,18 @@ Supported values:
 
 - `disabled` (default) – Snapshot expiry is not reset on load; the original expiry time is preserved.
 - `enabled` – Reset the snapshot expiry when it is loaded during bootstrap.
+
+## `acceleration.snapshots_location`
+
+Optional. The object store location of this dataset's snapshots, for example `s3://my-bucket/spice/snapshots/`. Defaults to the `snapshots/` folder of [`runtime.state.location`](./runtime.md#runtimestate). The deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), when set, applies to datasets that do not set this field. See [Override the snapshot location per dataset](../../features/data-acceleration/snapshots#override-the-snapshot-location-per-dataset).
+
+## `acceleration.snapshots_params`
+
+Optional. Object store params for this dataset's snapshots, such as `s3_region` or `s3_queue_url`. When set, they are the only params the dataset's snapshots use. When not set, a dataset with `snapshots_location` uses no params, and a dataset whose snapshots are stored under `runtime.state` uses `runtime.state.params`. The deprecated top-level [`snapshots.params`](./index.md#snapshotsparams), when set, apply to `snapshots.location` and replace `runtime.state.params` for snapshots stored under `runtime.state`. The accepted keys are listed in [Configure snapshot storage](../../features/data-acceleration/snapshots#configure-snapshot-storage).
+
+## `acceleration.snapshots_bootstrap_on_failure_behavior`
+
+Optional. What Spice does when it cannot load this dataset's most recent snapshot: `warn` (default), `retry`, or `fallback`. The deprecated top-level [`snapshots.bootstrap_on_failure_behavior`](./index.md#snapshotsbootstrap_on_failure_behavior), when set, applies to datasets that do not set this field. See [Failure behavior](../../features/data-acceleration/snapshots#failure-behavior).
 
 ## `acceleration.refresh_mode`
 
@@ -831,6 +843,8 @@ See [Duration](../duration)
 Optional. A duration to specify how far back to include records based on the most recent timestamp found in the accelerated data. Requires `time_column` to also be configured. Only supported for `append` refresh mode datasets.
 
 This setting can help mitigate missing data issues caused by late arriving data.
+
+An [Iceberg](../../components/data-connectors/iceberg.md) source applies the overlap only to the refreshes that read by time: the first refresh, a refresh that cannot follow the table's snapshots, every refresh of a dataset that computes columns over the table (such as embedding columns), and a one-off refresh with its own `refresh_sql`. Other refreshes read the data files new snapshots added, whatever their time values. See [Iceberg sources follow table snapshots](../../features/data-acceleration/refresh-modes/append.md#iceberg-sources-follow-table-snapshots).
 
 Example: If the latest timestamp in the accelerated data table is `2020-01-01T02:00:00Z`, setting `refresh_append_overlap: 1h` will include records starting from `2020-01-01T01:00:00Z`.
 

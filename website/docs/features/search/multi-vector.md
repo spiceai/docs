@@ -66,9 +66,9 @@ Multi-vector columns default to embedding the first 32 elements per row. Raise t
 A multi-vector column is queried with the standard `vector_search` UDTF. The configured `aggregation` is applied automatically.
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(products, 'travel accessories', tags)
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 
@@ -81,13 +81,13 @@ score(d) = Σ_{q ∈ Q} max_{e ∈ d} cos(q, e)
 ```
 
 ```sql
-SELECT product_id, name, score
+SELECT product_id, name, _score
 FROM vector_search(
   products,
   ['hiking', 'waterproof', 'lightweight'],
   tags
 )
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 10;
 ```
 

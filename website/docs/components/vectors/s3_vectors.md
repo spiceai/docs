@@ -111,10 +111,10 @@ curl -X POST http://localhost:8090/v1/search \
 SQL example:
 
 ```sql
-SELECT review_id, rating, customer_id, body, score
+SELECT review_id, rating, customer_id, body, _score
 FROM vector_search(reviews, 'issues with same day shipping')
 WHERE created_at >= to_unixtime(now() - INTERVAL '7 days')
-ORDER BY score DESC
+ORDER BY _score DESC
 LIMIT 2;
 ```
 
@@ -182,11 +182,11 @@ Hybrid RRF example:
 ```sql
 WITH
 vector_results AS (
- SELECT review_id, RANK() OVER (ORDER BY score DESC) AS vector_rank
+ SELECT review_id, RANK() OVER (ORDER BY _score DESC) AS vector_rank
  FROM vector_search(reviews, 'issues with same day shipping')
 ),
 text_results AS (
- SELECT review_id, RANK() OVER (ORDER BY score DESC) AS text_rank
+ SELECT review_id, RANK() OVER (ORDER BY _score DESC) AS text_rank
  FROM text_search(reviews, 'issues with same day shipping')
 )
 SELECT
@@ -204,11 +204,11 @@ Multi-column example (weighting title higher):
 ```sql
 WITH
 body_results AS (
- SELECT review_id, score AS body_score
+ SELECT review_id, _score AS body_score
  FROM vector_search(reviews, 'issues with same day shipping', col => 'body')
 ),
 title_results AS (
- SELECT review_id, score AS title_score
+ SELECT review_id, _score AS title_score
  FROM vector_search(reviews, 'issues with same day shipping', col => 'title')
 )
 SELECT

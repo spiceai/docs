@@ -195,6 +195,37 @@ datasets:
         cayenne_target_file_size_mb: 256
 ```
 
+### Changing settings on an existing acceleration
+
+A `mode: file` table records the settings it was built with in the metastore. When a dataset's settings change between restarts, Cayenne compares them with the recorded ones on the next start. A setting that only changes how new rows are written is applied to the existing table. A setting that changes what the stored rows mean is applied by rebuilding the acceleration from the source, but only when a reload brings back every row the acceleration holds: `refresh_mode: full` with `write_mode: write_through` (the default), from a source other than `sink`.
+
+| Setting changed between restarts | `refresh_mode: full`, `write_mode: write_through` | Any other refresh mode or write mode |
+| --- | --- | --- |
+| `cayenne_sort_columns`, `cayenne_cluster_by`, `cayenne_compression_strategy`, `cayenne_delta_encoding`, `cayenne_shard_key_columns`, or `cayenne_pk_conflict_detection` from `auto` to `none` | Applied in place | Applied in place |
+| `primary_key`, or the data location (`cayenne_file_path`) | Rebuilt from the source | Kept with the recorded settings, with a warning |
+| `partition_by`, or `cayenne_pk_conflict_detection` from `none` to `auto` on a table with a `primary_key` | Rebuilt from the source | Fails to load (see [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh) and [Turning off conflict detection](#turning-off-conflict-detection)) |
+| Source schema | Governed by [`on_schema_change`](../../../reference/spicepod/datasets.md#on_schema_change) | Governed by `on_schema_change` |
+
+A setting applied in place is recorded in the metastore, and the table keeps serving its existing files. Rows already stored keep their current layout until a refresh or compaction rewrites them. The runtime logs the change:
+
+```text
+INFO Applied the changed acceleration settings of dataset 'trips' to its existing acceleration in place (`cayenne_sort_columns`: none -> ['pickup_time']). Rows already stored keep their current layout until a refresh or compaction rewrites them.
+```
+
+A rebuild drops the table and loads it from the source as on a first start, and the runtime logs which setting caused it:
+
+```text
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`primary_key`: none -> ['id']), so it is dropped and reloaded from the source with the new settings.
+```
+
+A rebuild happens only after the source answers a read on the schema the dataset registered with. While the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset keeps serving its existing acceleration with the recorded settings and logs a warning. Restart once the source can be read to rebuild. A changed `partition_by`, or `cayenne_pk_conflict_detection` changed from `none` to `auto`, cannot be served from the stored rows, so in that case the dataset fails to load with an error that names both fixes: revert the setting, or restart once the source can be read.
+
+When the data location changes, the rebuild deletes the local directory the old table was written to and never the newly configured one. Files stored in S3 Express One Zone are not deleted, and a warning lists the prefixes they remain under. A data location change is detected only when the metastore stays in the same directory, such as with an explicit [`cayenne_metadata_dir`](#metastore-location). Without it, moving a local `cayenne_file_path` also moves the metastore, so the dataset starts a new acceleration.
+
+In any other refresh mode or write mode, the acceleration can hold rows a reload does not bring back, such as an append window, a change stream that resumes from a recorded position, or writes that exist only in the acceleration. A layout-only change is still applied in place and needs no rebuild. When a change to `primary_key` or the data location is among the changed settings, Cayenne keeps every recorded setting, including layout settings changed in the same restart, and logs a warning that names the changed settings. To apply those settings, restart once with `mode: file_create`, and with `write_mode: write_through` if the dataset uses `write_mode: write_back`, then set both back. Rows that exist only in the acceleration are lost.
+
+In earlier releases, including v2.4.0-rc.1, a changed `primary_key` or `cayenne_sort_columns` on a `mode: file` Cayenne table was not applied: the table kept its recorded settings and logged a warning that the existing acceleration was not recreated. Now a changed sort order is applied in place, and a `refresh_mode: full` dataset whose `primary_key` changes is rebuilt from the source on the next start.
+
 ## Performance Tuning
 
 Spice Cayenne is self-tuning by default and rarely needs manual tuning. For the full tuning reference — [self-tuning and goal-driven SLOs](./performance.md#self-tuning), [cache sizing](./performance.md#cache-tuning), [compression strategy](./performance.md#compression-strategy), and [file-size tuning](./performance.md#file-size-tuning) — see the dedicated **[Performance Tuning](./performance.md)** page.
@@ -662,13 +693,15 @@ The unprefixed `pk_conflict_detection` parameter is checked too; when both are s
 Failed to register dataset events (postgres): 'cayenne_pk_conflict_detection: none' turns off the primary-key check Cayenne uses to replace a stored row, but this dataset applies its source's changes ('refresh_mode: changes'), so a change to an existing key would add a second row for that key instead of replacing it. Set 'cayenne_pk_conflict_detection' to 'auto', its default. See: https://spiceai.org/docs/components/data-accelerators/cayenne
 ```
 
-The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. When the table has a primary key, reopening it with `auto` fails. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
+The setting is stored with a `mode: file` table, and a table created with `none` can hold more than one row per key. Changing it from `auto` to `none` is applied to the existing table in place. When a keyed table created with `none` is reopened with `auto`, a `refresh_mode: full` dataset with `write_mode: write_through` is rebuilt from the source on that start (see [Changing settings on an existing acceleration](#changing-settings-on-an-existing-acceleration)). Any other keyed table fails to load. A table without a primary key has no key to repeat, so it reopens with `auto`. The failure for a keyed table:
 
 ```text
 Failed to load table 'events': it was created with 'cayenne_pk_conflict_detection: none', so it can hold more than one row per primary key, and the setting is now 'auto'. An existing table keeps the setting it was created with. To rebuild it from the source with one row per primary key, restart once with 'acceleration.mode: file_create', and with 'write_mode: write_through' if the dataset uses 'write_mode: write_back', then set both back. Rows that exist only in the acceleration are not kept.
 ```
 
-To rebuild the table, restart once with `acceleration.mode: file_create`, then set `mode: file` again. A write-back dataset also restarts with `write_mode: write_through` for that run, because write-back refuses `file_create`. Deleting the table's data directory is not enough, because the table's entry stays in the shared metastore. Rows that exist only in the acceleration are lost.
+When a `refresh_mode: full` dataset's source cannot be read at that start, the dataset fails with a different error that says to set the parameter back to `none` or to restart once the source can be read.
+
+To rebuild any other table, restart once with `acceleration.mode: file_create`, then set `mode: file` again. A write-back dataset also restarts with `write_mode: write_through` for that run, because write-back refuses `file_create`. Deleting the table's data directory is not enough, because the table's entry stays in the shared metastore. Rows that exist only in the acceleration are lost.
 
 #### `on_conflict` is deprecated
 
@@ -1065,7 +1098,7 @@ Before a source deletion, writes must stop and pending keys must reach zero **wh
 Consider the following limitations when using Spice Cayenne acceleration:
 
 - **Memory Mode Constraints**: `mode: memory` (fully in-RAM, ephemeral) is supported alongside `mode: file`, but it does not persist any data (the dataset reloads from its source on restart), does not support partitioned tables (`partition_by`), and enforces a hard per-table RAM bound instead of spilling to disk — a breach returns an error rather than growing without limit. Use `mode: file` when persistence across restarts is required. DML and [`retention_sql`](../../reference/spicepod/datasets#accelerationretention_sql) are not among the constraints — see [Writes in memory mode](#writes-in-memory-mode).
-- **No Re-partitioning**: Cayenne does not re-partition stored data. A `mode: file` dataset whose stored data was written with different partition columns fails to load. Changing `partition_by` requires rebuilding the acceleration, which can lose rows that exist only in Cayenne. See [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh).
+- **No Re-partitioning**: Cayenne does not re-partition stored data. A changed `partition_by` rebuilds a `refresh_mode: full`, `write_mode: write_through` dataset from its source on the next start. Any other `mode: file` dataset whose stored data was written with different partition columns fails to load, and changing its `partition_by` requires rebuilding the acceleration by hand, which can lose rows that exist only in Cayenne. See [Changing `partition_by` after refresh](../../../features/data-acceleration/partitioning.md#changing-partition_by-after-refresh).
 - **S3 Express Only**: Standard S3 buckets are not supported for remote storage. Only S3 Express One Zone directory buckets are supported.
 - **Unsupported Data Types**: `Interval`, `Duration`, `FixedSizeBinary`, `Union`, and `RunEndEncoded` types require `unsupported_type_action` configuration.
 - **Indexes**: `indexes` builds a read-path [secondary index](#secondary-indexes), not a database index — a `unique` entry does not constrain writes, and registration logs a warning saying so. Deduplication requires only `primary_key`, with `cayenne_pk_conflict_detection` at its default `auto`. See [Duplicate primary keys in one write](#duplicate-primary-keys-in-one-write).
