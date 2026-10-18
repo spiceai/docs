@@ -202,6 +202,16 @@ Rate control adapts to the health of each origin. While an origin's error rate s
 
 A `2xx` response counts as a success. A `408`, `429`, or `5xx` response, a connection failure, and a timeout count as failures. Other responses, such as `401` or `404`, are not counted, because sending fewer requests does not fix them. Each outcome loses half its weight every `rate_control_window`, so a shorter window reacts to failures and recovers from them faster, and a longer window changes admission more smoothly.
 
+The share Spice admits is an admission coefficient between 0 and 1, computed from the decayed counts of requests and accepted (successful) requests:
+
+```text
+coefficient = min( (K × accepts + 1) / (requests + 1), 1 )
+
+K = 1 / (1 − rate_control_failure_threshold)
+```
+
+On a single instance, the coefficient scales every configured limit on the origin: per-second, per-minute, and concurrency. With [limits across instances](#limits-across-instances), it scales the shared per-second and per-minute budgets, and `max_concurrent_requests` stays unscaled.
+
 Spice logs a warning when an origin starts to be throttled, and an informational line when it recovers:
 
 ```text
@@ -230,6 +240,12 @@ Multiple HTTP-based components target http://api.example.com:80 with different r
 #### Limits across instances
 
 In open-source builds, each Spice instance keeps its rate-control state in memory and enforces the configured limits on its own. In Spice.ai Enterprise, instances that share a [`runtime.state`](#runtimestate) location coordinate `requests_per_second_limit` and `requests_per_minute_limit` through that location, so `requests_per_second_limit: 20` means about 20 requests per second across all instances. Adaptive rate control then derives the same admission on every instance from the shared outcomes, and `rate_control_window` defaults to [`runtime.source_rate_control.refresh_interval`](#runtimesource_rate_control). `max_concurrent_requests` stays local to each instance.
+
+An instance that cannot reach the shared `runtime.state` location keeps admitting requests against the lease it already holds. Once that lease expires, or if the instance has not obtained a lease yet, it fails closed while the location stays unreachable: a request that needs rate-control capacity fails instead of waiting, and `rate_control_fail_closed_total` counts it. The query error includes:
+
+```text
+Cluster rate-control budget exhausted for origin https://api.example.com:443; persisted store is unavailable and the lease has expired
+```
 
 ### Spatial SQL Functions (opt-in)
 
@@ -358,6 +374,30 @@ dataset param > runtime.params.http_* default > unset
 ```
 
 When instances coordinate limits, the configured per-second and per-minute quota is converted into a token budget per `refresh_interval` window and distributed across instances using a demand-weighted leased token-bucket model.
+
+The shared state records request outcomes one `refresh_interval` window at a time, so a `rate_control_window` shorter than `refresh_interval` is raised to it, and Spice logs an informational line saying so.
+
+:::warning[Breaking change]
+
+`runtime.source_rate_control` no longer accepts `state_location` or `params`, and a Spicepod that still sets either fails to load. Move them to [`runtime.state`](#runtimestate):
+
+```yaml
+# Before
+runtime:
+  source_rate_control:
+    state_location: s3://my-bucket/spice/
+    params:
+      s3_region: us-east-1
+
+# After
+runtime:
+  state:
+    location: s3://my-bucket/spice/
+    params:
+      s3_region: us-east-1
+```
+
+:::
 
 ## `runtime.functions`
 

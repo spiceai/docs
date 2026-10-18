@@ -158,6 +158,10 @@ Per-origin rate-control metrics, exposed for dynamic JSON API datasets. The limi
 | `rate_limit_retry_after_remaining_ms`       | Gauge   | Current remaining `Retry-After` / `RateLimit` cooldown (ms) for this upstream origin.                    |
 | `rate_control_adaptive_admission_ratio`     | Gauge   | Share of the configured limits that adaptive rate control currently admits for this upstream origin; `1` admits the full limits. Absent when the origin has no limit configured. |
 | `rate_control_adaptive_throttled_total`     | Counter | Total requests that adaptive rate control throttled because the origin was failing. Absent when the origin has no limit configured. |
+| `rate_control_lease_granted`                | Gauge   | [Cluster rate control](../../../reference/spicepod/runtime#limits-across-instances) only. Tokens this instance holds in the current window, per `limiter`. |
+| `rate_control_cluster_budget_remaining`     | Gauge   | [Cluster rate control](../../../reference/spicepod/runtime#limits-across-instances) only. Tokens of the current window that no instance has leased, per `limiter`. |
+| `rate_control_lease_refresh_errors_total`   | Counter | [Cluster rate control](../../../reference/spicepod/runtime#limits-across-instances) only. Total failures to read or write the shared rate-control state, per `limiter`. |
+| `rate_control_fail_closed_total`            | Counter | [Cluster rate control](../../../reference/spicepod/runtime#limits-across-instances) only. Total requests refused because the shared state was unreachable and this instance's lease had expired, per `limiter`. |
 
 These metrics are auto-registered — no configuration is required to export them. To turn one off for a dataset, set `enabled: false` in the dataset's `metrics` section:
 
