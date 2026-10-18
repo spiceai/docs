@@ -138,7 +138,7 @@ datasets:
         duckdb_file: /data/customers.db
 ```
 
-Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), and the publishing instance keeps each dataset's snapshots of the last 14 days. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention), and [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
+Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), and the publishing instance keeps each dataset's snapshots of the last 28 days. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention), and [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
 
 ### The read instances (read tier)
 
@@ -245,13 +245,13 @@ s3://spiceai-snapshots/prod/
 
 The extension names the engine that wrote the snapshot (`.duckdb`, `.sqlite`, `.cayenne`, or `.turso`), so the cluster and read tiers must accelerate a dataset with the same engine.
 
-The publishing instance deletes snapshots older than 14 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
+The publishing instance deletes snapshots older than 28 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
 
 The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network. When read instances run in another region, replicate this standard bucket. Keep `snapshots.location` on standard S3, GCS, or ADLS for that replication. Cayenne's S3 Express One Zone settings (`cayenne_file_path`, `cayenne_s3_*`) store the Cayenne data tier in one zone and do not substitute for the snapshot bucket. See [Snapshot location and the Cayenne data tier](../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
 
 ### Full copies and incremental replication
 
-Each snapshot object is the full acceleration file. Replicating the snapshot bucket between regions copies that entire file on every snapshot. Size the bucket for dataset size times the number of snapshots written in about 15 days: 14 days of retention plus at least 24 hours before a dropped file is deleted. DuckDB `snapshots_compaction` shrinks each copy; the result is still a full file. See [What each snapshot contains](../features/data-acceleration/snapshots#what-each-snapshot-contains).
+Each snapshot object is the full acceleration file. Replicating the snapshot bucket between regions copies that entire file on every snapshot. Size the bucket for dataset size times the number of snapshots written in about 29 days: 28 days of retention plus at least 24 hours before a dropped file is deleted. DuckDB `snapshots_compaction` shrinks each copy; the result is still a full file. See [What each snapshot contains](../features/data-acceleration/snapshots#what-each-snapshot-contains).
 
 When changed data should replicate as objects between regions or tiers, use a path that publishes the change:
 
