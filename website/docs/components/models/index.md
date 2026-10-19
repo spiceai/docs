@@ -67,7 +67,7 @@ A load that fails with a recognized configuration error is not retried, because 
 
 After correcting the Spicepod, a runtime that watches it for changes loads the model again. `spice run` enables the watcher, while `spiced` enables it only with [`--pods-watcher-enabled`](../../cli/reference/spiced); without the watcher, restart the runtime to load the corrected model.
 
-In v2.4.0-rc.2 and earlier, a model that fails to load is not retried, so the runtime stays not ready until it restarts.
+In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the background. It loads again only when the runtime restarts, or when a change to the model's Spicepod definition reaches a runtime that watches the Spicepod; until then, the runtime stays not ready.
 
 ## Model Provider Prefix
 
