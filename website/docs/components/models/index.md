@@ -57,6 +57,16 @@ Spice supports a variety of features for large language models (LLMs):
 
 For more details, refer to the [Large Language Models documentation](../features/large-language-models).
 
+## Model Loading and Readiness
+
+Spice loads each model at startup. A model that has not loaded keeps the runtime not ready, so [`/v1/ready`](../../api/HTTP/ready) returns `503`. When the provider refuses a model at load time, for example because the API key is wrong, the account lacks permission or has run out of credits, or the request is rate limited, the load error names the provider's refusal.
+
+A model whose first load fails is retried in the background with Fibonacci backoff: 1 second at first, growing to at most 5 minutes between attempts, with no limit on the number of attempts. Each attempt logs its result. When the provider accepts the model, the model registers and `/v1/ready` returns `200` without a restart. Retries stop at shutdown, or when a Spicepod change updates or removes the model.
+
+A load that fails because of the model's Spicepod configuration is not retried, because only a Spicepod change can clear it. These failures include an unknown model source, a missing or invalid parameter, a task the model does not support, unsafe model weights, and missing local model files. Change the Spicepod to load the model again.
+
+In v2.4.0-rc.2 and earlier, a model that fails to load is not retried, so the runtime stays not ready until it restarts.
+
 ## Model Provider Prefix
 
 The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition, and is used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.
