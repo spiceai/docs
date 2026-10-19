@@ -203,7 +203,15 @@ Dataset 'orders' is not creating snapshots while instance 'spice-1' holds its sn
 
 A lease lasts twice the dataset's snapshot interval, kept between 30 seconds and 24 hours. The interval is `snapshots_trigger_threshold` with `snapshots_trigger: time_interval` and `refresh_check_interval` with `refresh_complete`, and otherwise 10 minutes. Another instance takes over a lease that has gone unrenewed that long, as measured on its own clock, so clock skew between instances does not expire a live lease. A holder whose snapshot fails releases the lease at once. A holder that loses the lease during an upload does not publish that snapshot over a newer one from the instance that took over.
 
-Each instance is identified by its [instance identity](../../reference/spicepod/runtime#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. The identity is stable across restarts, so a restarted instance resumes the lease it held. Give each replica a distinct identity: two processes with the same identity both upload, and a process that finds its lease renewed by the other logs an error naming the identity and the snapshot location:
+A holder that shuts down gracefully releases its leases when shutdown starts, so a replacement instance takes over each dataset's snapshots at its next snapshot instead of waiting for the lease to lapse. This keeps readers current during a rolling update that replaces instances with new identities. The release is bounded by [`runtime.shutdown_timeout`](../../reference/spicepod/runtime.md#runtimeshutdown_timeout), and a snapshot already in flight does not take a released lease back. The holder logs:
+
+```text
+Released the snapshot writer lease of dataset 'orders', so another instance can take over its snapshots
+```
+
+A lease that cannot be released before the timeout lapses on its own. In v2.4.0-rc.2 and earlier, a holder keeps its leases on shutdown, and another instance takes over only after they lapse.
+
+Each instance is identified by its [instance identity](../../reference/spicepod/runtime#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. The identity is stable across restarts, so an instance restarted after a crash resumes the lease it held. Give each replica a distinct identity: two processes with the same identity both upload, and a process that finds its lease renewed by the other logs an error naming the identity and the snapshot location:
 
 ```text
 Another running instance uses SPICE_INSTANCE_ID 'spice-1' at state location 's3://my-bucket/snapshots/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
