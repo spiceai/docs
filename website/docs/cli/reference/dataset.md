@@ -60,7 +60,7 @@ When running `spice dataset configure` with no name and no body flags, Spice wil
 
 1.  The name of the dataset, labelled by `(1)` below.
 2.  The description of the dataset, labelled by `(2)` below.
-3.  The source of the dataset, labelled by `(3)` below. Consult [Spice's supported data connectors](../../components/data-connectors) to see possible values for this field. Note: Spice may prompt for a file format if necessary, as shown in the example below.
+3.  The source of the dataset, labelled by `(3)` below. Consult [Spice's supported data connectors](../../components/data-connectors) to see possible values for this field. Note: Spice may prompt for a file format if necessary, as shown in the example below. When the source reads from a Spice Cloud app, such as `spice.ai/<org>/<app>/datasets/<dataset>`, Spice prompts for `spiceai_region` (default `us-east-1`) and writes it to the dataset's `params`. A region that is not lowercase letters, digits, and hyphens fails the command with `Invalid Spice Cloud region`. A `spiceai:` source that points at a self-hosted runtime, such as `spiceai:http://localhost:50051`, is not prompted for a region. In v2.4.0-rc.2 and earlier, the CLI does not prompt for the region, so add `spiceai_region` to the dataset's `params` before running it.
 4.  Whether or not to enable acceleration for this dataset, labelled by `(4)`. The default value for this input is `y`, enabling acceleration for this dataset. Learn more about acceleration in the [dataset acceleration reference](../../components/data-accelerators).
 
 ```shell
