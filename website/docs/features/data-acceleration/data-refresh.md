@@ -462,7 +462,7 @@ With [`refresh_mode: append`](./refresh-modes/append), the **first** load is alr
 | Default Value               | `return_empty`   |
 
 :::warning
-`on_zero_results` is ignored when `refresh_mode: caching` is set. Caching mode always queries the source on a cache miss, regardless of this setting. Remove `on_zero_results` from caching-mode dataset configurations to silence the runtime warning.
+`on_zero_results` is ignored when `refresh_mode: caching` is set. Caching mode always queries the source on a cache miss, regardless of this setting. The runtime logs a warning at startup when a caching-mode dataset sets `on_zero_results: use_source`; remove the setting to silence it. An omitted setting or `return_empty` does not warn. In v2.4.0-rc.2 and earlier, every caching-mode dataset logs the warning, including one that does not set `on_zero_results`.
 :::
 
 By default, accelerated datasets only return locally materialized data. If this local data is a subset of the full dataset in the federated source—due to settings like `refresh_sql`, `refresh_data_window`, or retention policies—queries against the accelerated dataset may return zero results, even when the federated table would return results.
