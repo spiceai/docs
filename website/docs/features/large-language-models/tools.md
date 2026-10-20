@@ -94,6 +94,18 @@ models:
 
 On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run.
 
+### Text Written Beside a Tool Call
+
+A model can write text and call a Spice tool in the same step, for example "Let me check." followed by a `sql` call. On [`/v1/chat/completions`](../../api/HTTP/post-chat-completions), Spice sends that text back to the model with the tool call and its results, and the response message carries the text, a blank line, and then the answer, whether or not the response is streamed:
+
+```text
+Let me check.
+
+There are 3 rows.
+```
+
+There is no blank line when the text already ends with whitespace or the answer already starts with it. When the request sets `logprobs`, there is no blank line either, so `content` is exactly the text its log probabilities cover. A response that is not streamed and uses a `json_object` or `json_schema` `response_format` carries only the answer, so it parses as JSON.
+
 ### Tool Calls in Responses API Output
 
 On the [`/v1/responses`](../../api/HTTP/post-responses) endpoint, each Spice tool call the model made appears in the response `output` as an `mcp_call` item, at the position where the model made the call. Spice has already run the call, so clients that follow the OpenAI convention for server-run tool calls, including the OpenAI Agents SDKs, do not try to run it themselves.
