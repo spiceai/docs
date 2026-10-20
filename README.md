@@ -78,7 +78,7 @@ The [`build_and_publish`](.github/workflows/build_and_publish.yml) workflow buil
 
 The repository is also connected to the Cloudflare Pages project, but Cloudflare's [automatic Git deployments](https://developers.cloudflare.com/pages/configuration/branch-build-controls/) are turned off (the project's `deployments_enabled` setting is `false`), so GitHub Actions is the only deploy path. If automatic deployments are turned back on, every Cloudflare build fails with `ENOENT: no such file or directory, open '/opt/buildhome/repo/package.json'`, because the project's [root directory](https://developers.cloudflare.com/pages/configuration/build-configuration/) is empty and the Docusaurus project is in `website/`.
 
-To build in Cloudflare instead, set the project's root directory to `website` and its [`NODE_VERSION`](https://developers.cloudflare.com/pages/configuration/build-image/) environment variable to `24`, then change the workflow:
+To build in Cloudflare instead, set the project's root directory to `website` and its [`NODE_VERSION`](https://developers.cloudflare.com/pages/configuration/build-image/) environment variable to `24`, and turn automatic Git deployments back on. Then change the workflow:
 
 - Remove the deploy step, so each push deploys once.
 - Remove the pull request comment step, which posts the deploy step's URL.
