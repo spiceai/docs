@@ -109,7 +109,7 @@ Configure replication behavior with the following `params` on the MySQL dataset:
 | `mysql_replication_checkpoint_interval`      | `10s`     | How often the committed position persists to the sidecar. Bounds crash-replay volume.                                                                                                                                              |
 | `mysql_replication_bootstrap_batch_size`     | `8192`    | Rows per emitted snapshot batch. Maximum: `1048576`.                                                                                                                                                                              |
 | `mysql_replication_invalid_checkpoint_behavior` | `error`   | What to do when the persisted position cannot be resumed losslessly — it was purged from the source, the source's GTID history diverged from the checkpoint, or the source table's column layout drifted incompatibly with the recorded position: `error`, or `restart` (drop the position and re-snapshot). |
-| `mysql_replication_ready_lag`                | `2s`      | For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's binlog-header timestamp) falls below this. The dataset stays not-ready while snapshotting or draining a backlog on resume, so it never serves stale data. |
+| `mysql_replication_ready_lag`                | `2s`      | For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's [source commit time](#source-commit-time)) falls below this. The dataset stays not-ready while snapshotting or draining a backlog on resume, so it never serves stale data. |
 
 The runtime-level CDC apply tunables (`cdc_prefetch_buffer`, `cdc_max_coalesced_envelopes`, `cdc_max_coalesced_bytes`, `cdc_max_coalesce_age_ms`, `cdc_commit_timeout_ms`) apply to this connector the same way they do to the PostgreSQL one — see [Tuning ingestion](./index.md#tuning-ingestion).
 
@@ -207,6 +207,12 @@ If the stream stopped across a DDL boundary with an un-checkpointed tail, the re
 
 Issuing a second `ALTER TABLE` before replication has caught up on the first can also detach the dataset — see [Layout adopted under lag](#layout-adopted-under-lag).
 
+## Source commit time
+
+Replication lag, readiness against `mysql_replication_ready_lag`, and the `replication_lag_ms` metric are all measured from each change's source commit time. MySQL 8.0.1 and later write every transaction's commit time, in microseconds, into its GTID event (`immediate_commit_timestamp`), whether or not `gtid_mode` is `ON`. Spice reads the commit time from there, to the millisecond.
+
+A server that writes no commit time, such as MariaDB, falls back to the binlog event header's timestamp, which has whole seconds only. On those servers a change reads up to one second older than it is, so reported lag can be up to one second high. Runtimes up to and including v2.4.0-rc.2 used the event header's timestamp on every server.
+
 ## Metrics
 
 Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics](../observability/component_metrics):
@@ -214,7 +220,7 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 | Metric                                                                                                   | Meaning                                                                                                                        |
 | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `replication_gtid_enabled`                                                                                | `1` while the stream positions by GTID auto-positioning, `0` for binlog file + offset — see [Resume identity](#resume-identity-gtid-or-file--offset). |
-| `replication_lag_ms`                                                                                      | Now minus the newest applied source commit timestamp (1s granularity).                                                       |
+| `replication_lag_ms`                                                                                      | Now minus the newest applied [source commit time](#source-commit-time): millisecond precision on MySQL 8.0.1 and later, whole seconds on MariaDB. |
 | `replication_lag_bytes`                                                                                   | Binlog bytes between the source head and the resume position. Reported only while both are in the same binlog file; absent otherwise. |
 | `replication_source_head_file` / `replication_source_head_pos`                                            | The source server's binlog head, polled every checkpoint interval.                                                            |
 | `replication_committed_binlog_file` / `replication_committed_binlog_pos`                                  | The checkpointed resume position.                                                                                             |
