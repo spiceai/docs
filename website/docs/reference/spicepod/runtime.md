@@ -1318,7 +1318,7 @@ Give each instance that shares state its own identity. On Kubernetes, `HOSTNAME`
 Another running instance uses SPICE_INSTANCE_ID 'spice-0' at state location 's3://my-bucket/spice-state/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
 ```
 
-A scheduler logs this error, and its registration is refused, when the scheduler already registered under its identity keeps sending heartbeats. A scheduler restarted after a crash is not reported as a duplicate, because the heartbeat its predecessor left stops advancing. A scheduler also logs the error when a second executor process connects under an ID that a running executor already uses, and a snapshot writer logs it when another process renews its lease. HTTP rate control does not detect a shared identity.
+A scheduler logs this error, and its registration is refused, when the scheduler already registered under its identity keeps sending heartbeats. A scheduler restarted after a crash is not reported as a duplicate, because the heartbeat its predecessor left stops advancing. It waits until it has seen that heartbeat unchanged for 30 seconds, then registers in its predecessor's place. In v2.4.0-rc.2 and earlier, a scheduler restarted within 30 seconds of its predecessor's last heartbeat failed to register and exited. A scheduler also logs the error when a second executor process connects under an ID that a running executor already uses, and a snapshot writer logs it when another process renews its lease. HTTP rate control does not detect a shared identity.
 
 ### State location parameters
 
