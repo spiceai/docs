@@ -30,12 +30,12 @@ The scheduler holds the cluster-wide configuration for a Spicepod, while executo
 
 Spice separates public and internal cluster traffic across different ports:
 
-| Port  | Service         | Description                                                           |
-| ----- | --------------- | --------------------------------------------------------------------- |
-| 50051 | Flight SQL      | Public query endpoint                                                 |
-| 8090  | HTTP API        | Public REST API                                                       |
-| 9090  | Prometheus      | Metrics endpoint                                                      |
-| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS required)             |
+| Port  | Service         | Description                                               |
+| ----- | --------------- | --------------------------------------------------------- |
+| 50051 | Flight SQL      | Public query endpoint                                     |
+| 8090  | HTTP API        | Public REST API                                           |
+| 9090  | Prometheus      | Metrics endpoint                                          |
+| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS required) |
 
 Internal cluster services are isolated on port 50052, which refuses every request unless the node runs cluster mTLS.
 
