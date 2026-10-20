@@ -346,6 +346,8 @@ Parameterized queries can improve performance in several ways:
 2. **Reduced Parsing**: Parameter binding avoids repeated SQL parsing
 3. **Batch Operations**: Multiple executions with different parameters use the same prepared statement
 
+A query with a parameter in a table function argument, such as `text_search(docs, $1)`, is planned again on each execution. See [Parameterized Search](#parameterized-search).
+
 ## SDK Support
 
 | SDK                                                              | Version | Method                                      | Status     |
@@ -396,6 +398,20 @@ for _, id := range customerIDs {
     processOrders(reader)
     reader.Release()
 }
+```
+
+### Parameterized Search
+
+Parameters can be passed as arguments of search table functions such as [`text_search`, `vector_search`, and `rrf`](../../reference/sql/search#parameterized-search-queries):
+
+```python
+# Python with ADBC
+cur.execute("""
+    SELECT id, title, _score
+    FROM text_search(doc.pulls, $1, body)
+    ORDER BY _score DESC
+    LIMIT 5
+""", parameters=("search keywords",))
 ```
 
 ### Using with Aggregations
