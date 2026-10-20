@@ -76,7 +76,7 @@ CLI-generated certificates are not intended for production use. Production deplo
 
 ### Deprecated `--allow-insecure-connections` flag
 
-The `--allow-insecure-connections` flag is deprecated and will be removed in a future release. It no longer disables mTLS. A node started with it still starts and logs a deprecation warning, but its internal cluster port refuses every request, so executors cannot join and schedulers cannot exchange task history or metrics with each other. Use the `--node-mtls-*` flags with certificates from `spice cluster tls` instead, even for local development.
+The `--allow-insecure-connections` flag is deprecated and will be removed in a future release. It no longer disables mTLS. A node started with it still starts and logs a deprecation warning. Without cluster mTLS configured, that node's internal cluster port refuses every request, so executors cannot join and schedulers cannot exchange task history or metrics with each other. With the `--node-mtls-*` flags set, the flag has no effect and cluster requests are accepted as usual. Use the `--node-mtls-*` flags with certificates from `spice cluster tls` instead, even for local development.
 
 ## Getting Started
 
