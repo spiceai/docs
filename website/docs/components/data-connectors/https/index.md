@@ -43,7 +43,7 @@ Authorization: Basic <base64(username:password)>
 
 For example, `static_username` with password `s3cret` produces `Authorization: Basic c3RhdGljX3VzZXJuYW1lOnMzY3JldA==`. Only one of `http_password` or user info in the URL can provide the password — setting both is not supported.
 
-Prefer `http_password` with a [secret store](../secret-stores/) over a password in the URL. For a dynamic JSON API endpoint, query errors and endpoint-validation warnings name only the origin of the request URL (scheme, host, and port), for example `HTTP request to http://127.0.0.1:8080 failed: error sending request`, so its user info, path, and query string stay out of them. The dataset registration log line, and errors from a structured HTTP file dataset, can print the configured `from` URL with its user info.
+Prefer `http_password` with a [secret store](../secret-stores/) over a password in the URL. For a structured HTTP file dataset, the connector removes the user info from the URL it reads and sends the `Authorization` header only to the origin (scheme, host, and port) of the `from` URL, so errors from file reads include neither the user name nor the password. For a dynamic JSON API endpoint, query errors and endpoint-validation warnings name only the origin of the request URL, for example `HTTP request to http://127.0.0.1:8080 failed: error sending request`, so its user info, path, and query string stay out of them. The dataset registration log line can print the configured `from` URL with its user info.
 
 ### Using Custom Headers
 
