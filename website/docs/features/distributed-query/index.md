@@ -30,14 +30,14 @@ The scheduler holds the cluster-wide configuration for a Spicepod, while executo
 
 Spice separates public and internal cluster traffic across different ports:
 
-| Port  | Service         | Description                                                           |
-| ----- | --------------- | --------------------------------------------------------------------- |
-| 50051 | Flight SQL      | Public query endpoint                                                 |
-| 8090  | HTTP API        | Public REST API                                                       |
-| 9090  | Prometheus      | Metrics endpoint                                                      |
-| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS enforced, by default) |
+| Port  | Service         | Description                                               |
+| ----- | --------------- | --------------------------------------------------------- |
+| 50051 | Flight SQL      | Public query endpoint                                     |
+| 8090  | HTTP API        | Public REST API                                           |
+| 9090  | Prometheus      | Metrics endpoint                                          |
+| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS required) |
 
-Internal cluster services are isolated on port 50052 with mTLS enforced by default.
+Internal cluster services are isolated on port 50052, which refuses every request unless the node runs cluster mTLS.
 
 ## Secure Cluster Communication (mTLS)
 
@@ -74,17 +74,9 @@ Certificates are stored in `~/.spice/pki/` by default.
 CLI-generated certificates are not intended for production use. Production deployments should use certificates issued by the organization's PKI or a trusted certificate authority.
 :::
 
-### Insecure Mode
+### Deprecated `--allow-insecure-connections` flag
 
-For local development and testing, mTLS can be disabled using the `--allow-insecure-connections` flag:
-
-```bash
-spiced --role scheduler --allow-insecure-connections
-```
-
-:::warning
-Do not use `--allow-insecure-connections` in production environments. This flag disables authentication and encryption for internal cluster communication.
-:::
+The `--allow-insecure-connections` flag is deprecated and will be removed in a future release. It no longer disables mTLS. A node started with it still starts and logs a deprecation warning. Without cluster mTLS configured, that node's internal cluster port refuses every request, so executors cannot join and schedulers cannot exchange task history or metrics with each other. With the `--node-mtls-*` flags set, the flag has no effect and cluster requests are accepted as usual. Use the `--node-mtls-*` flags with certificates from `spice cluster tls` instead, even for local development.
 
 ## Getting Started
 
@@ -114,7 +106,7 @@ spiced --role scheduler \
 
 ### Start Executors
 
-Executors connect to the scheduler's internal cluster port (50052) to register and pull work. Executors do not require a `spicepod.yaml`; they fetch the configuration from the scheduler. Each executor automatically selects a free port if the default is unavailable:
+Executors connect to the scheduler's internal cluster port (50052) to register and pull work. Executors do not require a `spicepod.yaml`; they fetch the configuration from the scheduler. That configuration leaves out [`runtime.auth`](../../reference/spicepod/runtime.md#runtimeauth) and [`runtime.tls`](../../reference/spicepod/runtime.md#runtimetls), so the scheduler's API keys and the private key of its public endpoints are not sent to executors. Each executor automatically selects a free port if the default is unavailable:
 
 ```bash
 spiced --role executor \
@@ -131,6 +123,8 @@ Specifying `--scheduler-address` implies `--role executor`.
 Each scheduler and executor registers under its [instance identity](../../reference/spicepod/runtime.md#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. Nodes on separate hosts or Kubernetes pods already have distinct identities. Processes on one host share its host name, so two schedulers, or two executors, on one host each need their own `SPICE_INSTANCE_ID`. This is in addition to what any two `spiced` processes on one host already need, such as their own instance directory, set with `SPICE_CONFIG_DIR`, because each process holds an exclusive lock on its instance directory.
 
 The identity is stable across restarts, so the scheduler recognizes an executor that restarts under the same identity as the same executor. It logs `Executor '<id>' restarted, so the tasks and shuffle output of its earlier run are rescheduled` and reschedules that work instead of waiting for the earlier run to time out.
+
+A scheduler restarted after a crash under the same identity waits until its predecessor's heartbeat has stayed unchanged for 30 seconds, then registers. A scheduler whose identity is held by a running scheduler logs an error and is refused. See [Instance identity](../../reference/spicepod/runtime.md#instance-identity).
 
 In v2.4.0-rc.2 and earlier, a scheduler registered under its `host:port` address and an executor under its advertise address, so two nodes on one host did not need distinct identities.
 
