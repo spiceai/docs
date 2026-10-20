@@ -52,7 +52,7 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--node-mtls-ca-certificate-file <PATH>` — CA certificate used to validate peer node identities.
 - `--node-mtls-certificate-file <PATH>` — Certificate file used for both server TLS and client mTLS on the node port.
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.
-- `--allow-insecure-connections` — Allow cluster communication without mTLS. Use only in development or testing environments.
+- `--allow-insecure-connections` — Deprecated and will be removed. No longer allows cluster communication without mTLS: without the `--node-mtls-*` flags, the node's internal cluster port refuses every request. Create certificates with [`spice cluster tls`](../../features/distributed-query/index.md#development-certificates).
 
 ### Spice Cloud Connect flags
 
