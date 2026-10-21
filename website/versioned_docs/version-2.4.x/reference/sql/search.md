@@ -21,7 +21,6 @@ This section documents search capabilities in Spice SQL, including vector search
   - [Usage](#usage-2)
     - [Examples](#examples)
 - [Reranking (`rerank`)](#reranking-rerank)
-- [Parameterized Search Queries](#parameterized-search-queries)
 - [Lexical Search: LIKE, =, and Regex](#lexical-search-like--and-regex)
   - [LIKE (Pattern Matching)](#like-pattern-matching)
   - [= (Keyword/Exact Match)](#-keywordexact-match)
@@ -372,25 +371,6 @@ SELECT * FROM rerank(
 ```
 
 See [Reranking](../../features/search/rerank) for configuration, provider setup, and additional examples.
-
----
-
-## Parameterized Search Queries
-
-Arguments of `vector_search`, `text_search`, `rrf`, `rerank`, and other table functions accept query parameters such as `$1` and `$2`. A search string from user input can then be passed as a parameter value instead of being written into the SQL text. Pass the values in the `parameters` field of the HTTP [`/v1/sql`](../../api/HTTP/post-sql) endpoint, or with [Flight SQL parameter binding](./prepared_statements#flight-sql-parameter-binding):
-
-```bash
-curl -X POST http://localhost:8090/v1/sql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "sql": "SELECT id, title, fused_score FROM rrf(vector_search(doc.pulls, $1), text_search(doc.pulls, $1, body)) LIMIT 10",
-    "parameters": ["search keywords"]
-  }'
-```
-
-Spice substitutes the parameter values into the table function arguments before it plans the query. Because the resulting plan holds those values, it is not stored in the [logical plan cache](../../features/caching#logical-plan-cache), and each execution plans the query again.
-
-Parameters in table function arguments are not supported with SQL `PREPARE` and `EXECUTE`. In v2.4.0-rc.2 and earlier, a parameter in a table function argument fails at planning with an error such as `Second argument must be a query string`.
 
 ---
 
