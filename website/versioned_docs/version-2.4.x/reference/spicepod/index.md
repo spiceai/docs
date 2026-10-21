@@ -118,10 +118,6 @@ datasets:
 
 ## `snapshots` {#snapshots}
 
-:::warning[Deprecated]
-The top-level `snapshots` section is deprecated and will be removed in a future release. Snapshots are stored in the `snapshots/` folder of [`runtime.state.location`](./runtime.md#runtimestate). A dataset overrides the location, params, and failure behavior with [`acceleration.snapshots_location`](./datasets.md#accelerationsnapshots_location), [`acceleration.snapshots_params`](./datasets.md#accelerationsnapshots_params), and [`acceleration.snapshots_bootstrap_on_failure_behavior`](./datasets.md#accelerationsnapshots_bootstrap_on_failure_behavior). A Spicepod that sets the section logs a startup warning that shows the replacement configuration. See [Migrate from the top-level `snapshots` section](../../features/data-acceleration/snapshots.md#migrate-from-the-top-level-snapshots-section).
-:::
-
 Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. DuckDB, SQLite, Cayenne, and Turso accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
 
 ```yaml
@@ -141,7 +137,7 @@ Enable or disable snapshot management globally. Defaults to `true`.
 
 The folder where snapshots are stored. Supports S3 bucket URIs (`s3://bucket/prefix/`), Azure ADLS Gen2 URIs (`abfss://container@account.dfs.core.windows.net/path/`), Google Cloud Storage URIs (`gs://bucket/prefix/`), and local filesystem URIs (`file:///path/to/folder/`). The value must be a URI with a scheme: a bare filesystem path such as `/var/spice/snapshots` is not a valid URI, so it fails to parse and snapshots are disabled with an error logged. The location must resolve to a single folder; Spice creates per-dataset folders underneath using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`).
 
-When `location` is not set and the Spicepod sets [`runtime.state`](spicepod/runtime#runtimestate), snapshots go to `<runtime.state.location>/snapshots/`. A `location` that is set takes precedence over `runtime.state`, and a dataset's `acceleration.snapshots_location` takes precedence over `location`. See [Store snapshots under `runtime.state`](../features/data-acceleration/snapshots#store-snapshots-under-runtimestate).
+When `location` is not set and the Spicepod sets [`runtime.state`](spicepod/runtime#runtimestate), snapshots go to `<runtime.state.location>/snapshots/`. A `location` that is set takes precedence over `runtime.state`. See [Store snapshots under `runtime.state`](../features/data-acceleration/snapshots#store-snapshots-under-runtimestate).
 
 The location's store must enforce conditional writes (create only if absent, update only at the version read), because every publisher updates the location's shared `metadata.json` with them. Amazon S3, Azure ADLS Gen2, Google Cloud Storage, and local `file://` directories do. Each Spice instance probes the store before it creates a dataset's first snapshot, and refuses a store that does not enforce them. The probe creates, updates, and then deletes a `.spice-conditional-write-probe-<id>` object under the location. The credentials of every instance that publishes snapshots need permission to create and update that object. Permission to delete it is needed only for cleanup: a failed delete does not change the probe result and leaves the probe object behind. See [Conditional writes on the snapshot location](../features/data-acceleration/snapshots#conditional-writes-on-the-snapshot-location).
 
@@ -149,7 +145,7 @@ Keep a cloud `location` on standard S3, GCS, or ADLS so bucket or object replica
 
 ### `snapshots.bootstrap_on_failure_behavior`
 
-Controls what happens when Spice cannot load the most recent snapshot on startup, for datasets that do not set `acceleration.snapshots_bootstrap_on_failure_behavior`. Valid values:
+Controls what happens when Spice cannot load the most recent snapshot on startup. Valid values:
 
 - `warn` (default) – Log a warning and continue with an empty acceleration.
 - `retry` – Retry the newest snapshot until it loads successfully.
@@ -159,7 +155,7 @@ Controls what happens when Spice cannot load the most recent snapshot on startup
 
 Optional key-value map passed to the snapshot storage layer. When `location` points to S3, `params` accepts these [S3 parameters](../components/data-connectors/s3): `s3_region`, `s3_endpoint`, `s3_auth` (`iam_role` or `key`; default `iam_role`), `s3_key`, `s3_secret`, `s3_session_token`, `s3_queue_url`, `client_timeout`, and `allow_http`. Spice ignores other keys and logs a warning for each. Snapshots default to `s3_auth: iam_role`, which differs from the S3 dataset default of `public`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set, or the snapshot location is not used and Spice logs an error. Azure ADLS locations also accept the Azure connector parameters, and GCS locations the GCS connector parameter names (such as `gcs_service_account_key`), for explicit credential overrides; when no overrides are supplied, Spice reads standard environment variables for each cloud provider. Values can reference secrets with `${secrets:<name>}` for all three. An invalid S3 parameter value, such as `s3_auth: public`, disables snapshots for the dataset with an error; Spice does not fall back to default parameters. When `s3_queue_url` is set, the dataset fails to register with the parameter error instead.
 
-For snapshots stored under `runtime.state`, `params` replaces `runtime.state.params` as a whole. When `params` is not set, those snapshots use `runtime.state.params`. A dataset that sets `acceleration.snapshots_params` uses those instead, and a dataset that sets `acceleration.snapshots_location` without `snapshots_params` uses no params.
+For snapshots stored under `runtime.state`, `params` replaces `runtime.state.params` as a whole. When `params` is not set, those snapshots use `runtime.state.params`.
 
 ## `models`
 
