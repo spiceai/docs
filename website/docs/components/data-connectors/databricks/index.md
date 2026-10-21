@@ -348,7 +348,7 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
 - When using `mode: spark_connect`, correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
 
-- In `mode: spark_connect` and `mode: sql_warehouse`, Spice-specific functions, such as the [JSON functions](../../../reference/sql/json) and user-defined functions, are evaluated in Spice, not sent to Databricks, for both datasets and `catalogs:` entries. Databricks still reads the table, and Spice applies the function. See [Federation and Pushdown](../../../reference/sql/json#federation-and-pushdown).
+- In `mode: spark_connect` and `mode: sql_warehouse`, Spice-specific functions, such as the [JSON functions](../../../reference/sql/json.md) and user-defined functions, are evaluated in Spice, not sent to Databricks, for both datasets and `catalogs:` entries. Databricks still reads the table, and Spice applies the function. See [Federation and Pushdown](../../../reference/sql/json.md#federation-and-pushdown).
 
 :::warning[Memory Considerations]
 
