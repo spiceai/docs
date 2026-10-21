@@ -98,7 +98,7 @@ When a model in the Spicepod fails to load, `/v1/chat/completions`, `/v1/nsql` (
 Model 'deepseek' failed to load, so it cannot serve requests. Cause: Failed to load LLM: deepseek. Failed to initialize LLM model: Failed to check the status of the model. An error occurred: unknown_error: Insufficient Balance (code: invalid_request_error) Verify the model configuration.
 ```
 
-`POST /v1/decisions` returns the same message with status `404` and `code` `model_not_found`, the status and code it returns for a model name that is not in the Spicepod. `GET /v1/models?status=true` reports the same cause in the model's `error_message`.
+`GET /v1/models?status=true` reports the same cause in the model's `error_message`. `POST /v1/decisions` reports a model that failed to load as not found, so check `/v1/models?status=true` when a decision request names a configured model.
 
 ### Container OOM-killed despite a configured memory limit
 
