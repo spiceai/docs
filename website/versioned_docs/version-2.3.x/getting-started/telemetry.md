@@ -26,7 +26,7 @@ Data collected is sent to `https://telemetry.spiceai.org` once every hour.
 :::warning[Open Source builds]
 In Spice.ai Open Source builds that include the `anonymous_telemetry` feature (the default), setting `runtime.telemetry.enabled: false` in a Spicepod or passing `--telemetry-enabled=false` **does not** disable anonymous usage telemetry. The runtime will log a warning when these settings are detected but are not applied.
 
-To fully remove anonymous telemetry from an Open Source build, compile from source without the `anonymous_telemetry` feature (option 3 below), or use Spice.ai Enterprise.
+To fully remove anonymous telemetry from an Open Source build, compile from source without the `anonymous_telemetry` feature (option 2 below), or use Spice.ai Enterprise.
 :::
 
 Telemetry can be disabled in the following ways:
