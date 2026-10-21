@@ -187,7 +187,7 @@ Spice does not fall back to an unconditional overwrite of `metadata.json`. If th
 
 When other writers keep changing `metadata.json`, Spice makes up to 10 attempts to update it, waiting a randomized interval before each retry. The first wait is 12 to 25 ms, and the upper bound doubles with each retry up to 2 seconds. If every attempt loses to another writer, the snapshot file stays uploaded but is not recorded, and the error names the dataset; the dataset's next snapshot tries again. An update that reached the store but whose response was lost is recognized on the next read and recorded once.
 
-Requests that [pin and unpin](#pin-and-unpin-a-snapshot) a dataset (`PUT` and `DELETE` on `/v1/datasets/{name}/acceleration/snapshots/pin`, and `POST` on `/v1/datasets/{name}/acceleration/snapshots/current`) probe the store on every request before they change `metadata.json`. When the store fails the probe, or the probe cannot reach a result, the request returns `500 Internal Server Error` with the reason and `metadata.json` is not changed. Pinning the snapshot the dataset is already pinned to, or unpinning a dataset that is not pinned and whose newest snapshot is current, leaves `metadata.json` unwritten. The probe still runs first, so the request still creates, updates, and tries to delete a probe object.
+`POST /v1/datasets/{name}/acceleration/snapshots/current` probes the store on every request before it changes the current snapshot. When the store fails the probe, or the probe cannot reach a result, the request returns `500 Internal Server Error` with the reason and `metadata.json` is not changed. Selecting the snapshot that is already current leaves `metadata.json` unwritten. The probe still runs first, so the request still creates, updates, and tries to delete a probe object.
 
 Restoring a snapshot at startup, and reloading one with [`refresh_mode: snapshot`](./refresh-modes/snapshot) or [`file_format: snapshot`](#serve-a-dataset-from-published-snapshots), only reads `metadata.json` and does not probe the store.
 
@@ -430,84 +430,6 @@ datasets:
 Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
 :::
 
-## Pin and unpin a snapshot
-
-When a dataset's newest snapshot holds bad data, pin the dataset to an earlier snapshot. Every Spice instance that uses the dataset then serves the pinned snapshot:
-
-- The instance that publishes the dataset's snapshots, which refreshes the dataset from its source, serves the pinned snapshot from a second local copy, also to queries that other instances delegate to it. It keeps refreshing its live copy and keeps publishing snapshots, so newer snapshots pick up the fix when the source recovers. A new snapshot does not become current while the dataset is pinned.
-- A [`refresh_mode: snapshot`](./refresh-modes/snapshot) reader loads the pinned snapshot at its next check, also when it is older than the data it serves.
-- An instance that starts loads the pinned snapshot, because the pinned snapshot is current.
-
-When the source has recovered, unpin the dataset, and every instance serves the newest data again.
-
-For example, a bad load goes into snapshot 42. Pin snapshot 41, and every instance serves 41. The writer publishes 43 and 44, which are not served. After you check 44, unpin the dataset.
-
-List the dataset's snapshots, then pin one with the CLI or the HTTP API:
-
-```bash
-spice acceleration snapshots taxi_trips
-spice acceleration pin taxi_trips 41
-```
-
-```bash
-curl -X PUT http://localhost:8090/v1/datasets/taxi_trips/acceleration/snapshots/pin \
-  -H 'Content-Type: application/json' \
-  -d '{"snapshot_id": 41}'
-```
-
-```json
-{
-  "message": "Dataset taxi_trips is pinned to snapshot 41. Every instance serves it once loaded; readers load it at their next check. Newer snapshots are published but not served until you unpin with DELETE /v1/datasets/taxi_trips/acceleration/snapshots/pin."
-}
-```
-
-While the dataset is pinned, `GET /v1/datasets/{name}/acceleration/snapshots` returns the pinned snapshot in `pinned_snapshot_id`, and `spice acceleration snapshots` prints it:
-
-```console
-$ spice acceleration snapshots taxi_trips
-Current Snapshot ID: 41
-Pinned Snapshot ID: 41 (unpin with `spice acceleration unpin`)
-```
-
-Each publish while pinned logs `Snapshot created; not made current, as the dataset is pinned to snapshot 41`. Pinning another snapshot replaces the pin. `POST /v1/datasets/{name}/acceleration/snapshots/current` and `spice acceleration set-snapshot` pin the dataset too.
-
-To serve the newest data again, unpin the dataset. Unpinning deletes no snapshot. The newest snapshot becomes current, and the reply names it, with its publish time and its row count when the snapshot records one:
-
-```console
-$ spice acceleration unpin taxi_trips
-Dataset taxi_trips is no longer pinned. Serving snapshot 44 (published 2026-10-16 10:42 UTC, 1,204,331 rows).
-```
-
-```bash
-curl -X DELETE http://localhost:8090/v1/datasets/taxi_trips/acceleration/snapshots/pin
-```
-
-Unpinning a dataset that is not pinned changes nothing.
-
-The pin is stored in the dataset's entry in `metadata.json`, as the `pinned-snapshot-id` property, so it applies to every instance that reads the location. Pinning and unpinning change `metadata.json` with the same [conditional writes](#conditional-writes-on-the-snapshot-location) as publishing, so a publish never loses a pin, and any instance that has the dataset's snapshots configured can pin or unpin it. Both requests need the same write access as other runtime changes. They return:
-
-- `404 Not Found` for an unknown dataset or snapshot.
-- `409 Conflict` when the snapshot's file is gone from the snapshot location.
-- `400 Bad Request` for a dataset that [reads published snapshots](#serve-a-dataset-from-published-snapshots).
-
-### Disk and memory while pinned
-
-Only `mode: file` accelerations publish snapshots, so only they can be pinned. The instance that publishes the snapshots checks for a pin after each refresh, and at least once a minute when the dataset has no `refresh_check_interval` or refreshes from a stream (`refresh_mode: changes`, or `refresh_mode: append` without a `time_column`). While the dataset is pinned, it holds two copies of the dataset: the live one and the pinned one, in the `pinned` directory under the Spice data directory (`.spice/data/pinned/<dataset>/<snapshot id>`). Allow disk for one more copy of the dataset, and memory for that copy's cache. After the dataset is unpinned, the instance serves its live copy again and deletes the pinned copy.
-
-When the instance cannot load the pinned copy, for example because the disk is full or the snapshot's file is gone, it serves its live data and logs an error after each refresh until it can load the copy.
-
-A dataset with `refresh_mode: caching` serves its live data while pinned.
-
-### Retention and missing files while pinned
-
-A pinned snapshot is kept at any age. When its file is deleted while the dataset is pinned, for example by a bucket lifecycle rule, the dataset stays pinned. The instance that creates the snapshots logs a warning at each hourly cleanup that names the snapshot and asks for another snapshot to be pinned or for the dataset to be unpinned. Instances that already hold the pinned data keep serving it, and an instance that starts with `bootstrap_on_failure_behavior: fallback` tries only snapshots older than the pinned one.
-
-When the pinned snapshot is no longer in the dataset's snapshot list, the next publish removes the pin and logs a warning.
-
-### Upgrade every instance before pinning
-
-Spice versions without pinning, including v2.3.2 and earlier, keep the pin and load the pinned snapshot when they start. An older `refresh_mode: snapshot` reader moves to the pinned snapshot only when it restarts, and an older writer keeps serving its live data. An older writer that publishes while the dataset is pinned makes its snapshot current until an instance that supports pinning publishes and makes the pinned snapshot current again. Upgrade every Spice instance that uses a dataset before you pin it.
-
 ## Serve a dataset from published snapshots
 
 A Spice instance can serve the snapshots another instance publishes without any connection to the original source. Set `from` to the S3 prefix that holds the snapshots' `metadata.json` and set `file_format: snapshot`:
@@ -567,7 +489,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 
 ### HTTP API behavior
 
-`GET /v1/datasets/{name}/acceleration/snapshots` lists the snapshots at the dataset's own location. Requests that pin or unpin the dataset return `400 Bad Request`, because a reader never changes the metadata it reads; [pin and unpin](#pin-and-unpin-a-snapshot) the dataset on the instance that publishes the snapshots. `POST /v1/datasets/{name}/acceleration/refresh` checks for a newer snapshot.
+`GET /v1/datasets/{name}/acceleration/snapshots` lists the snapshots at the dataset's own location. `POST /v1/datasets/{name}/acceleration/snapshots/current` returns `400 Bad Request`, because a reader never changes the metadata it reads; set the current snapshot on the instance that publishes the snapshots. `POST /v1/datasets/{name}/acceleration/refresh` checks for a newer snapshot.
 
 ## Best practices
 
