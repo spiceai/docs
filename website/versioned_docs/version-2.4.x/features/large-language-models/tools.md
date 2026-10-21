@@ -120,14 +120,6 @@ When streaming, a Spice tool call produces the same events OpenAI streams for a 
 
 A client that keeps its own conversation history can send the `output` items back as the next request's `input` unchanged. Before calling the model provider, Spice converts each of its `mcp_call` items back into the `function_call` and `function_call_output` pair the model originally saw, so the model knows which tools it called and what they returned. If an item comes back without its `output`, as the OpenAI Agents SDK for JavaScript sends it, the model receives a note that the result was not sent back, and still sees the call and its arguments. Spice does not run a replayed call again. Hosted MCP calls from other servers pass through unchanged, and requests that continue a conversation with `previous_response_id` are unaffected.
 
-### Tool Calls in Earlier Chat Completions Turns
-
-On the [`/v1/chat/completions`](../../api/HTTP/post-chat-completions) endpoint, the response carries only the model's answer, not the Spice tool calls and tool results that produced it, so a client cannot send them back on its next turn. Spice keeps them instead. When a request continues a conversation that ended in an answer from Spice, Spice puts the tool calls and results of the earlier turns back in their places before calling the model, so the model knows which tools it ran and what they returned. The client sends its conversation history as usual, and no extra parameter or header is needed.
-
-Spice matches a request to its conversation by the caller's identity and the messages up to and including the last assistant message, which must be the answer Spice returned. Steps stored for one authenticated caller are never restored for another. Requests without an authenticated identity, such as requests to a runtime without [API key authentication](../../api/auth/index.md), share one anonymous scope, so two such clients that send identical conversation histories can restore the same steps. Only the latest point of each conversation is kept: after a turn succeeds, its stored steps move to the new point, so a request that sends an earlier turn again, for example to regenerate an answer, gets no steps restored. A turn that fails, or a stream that the client disconnects from before it ends, leaves the stored steps unchanged.
-
-The steps are held in memory, up to about 128 MiB of message data for each model that uses tools, so a Spicepod with several such models can hold more in total. When that bound is reached, the least recently used conversation is evicted first. Stored steps do not expire otherwise. A restart of the runtime clears them.
-
 ## Cookbook
 
 - A cookbook recipe to query data with natural language using the built-in text-to-SQL tools. [Text-to-SQL (NSQL)](https://github.com/spiceai/cookbook/tree/trunk/text-to-sql#readme)
