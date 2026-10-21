@@ -71,8 +71,6 @@ Auto-detection applies to listing data connectors (S3, ABFS, GCS, HTTP/HTTPS, FT
 
 Spice reads any Parquet file regardless of the compression codec or data encoding.
 
-To bound memory use, Spice rejects a data page whose header declares an uncompressed size larger than 64 MiB or 1,000 times the page's compressed size, whichever is larger. A query that reads such a page fails with an error that contains `exceeds the maximum allowed`. Pages of 64 MiB or less are not affected.
-
 Supported compression codecs:
 
 - [`UNCOMPRESSED`](https://parquet.apache.org/docs/file-format/data-pages/compression/#uncompressed)
