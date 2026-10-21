@@ -107,25 +107,29 @@ spice sql
 The SQL REPL interface will be shown:
 
 ```
-Welcome to the Spice.ai SQL REPL! Type 'help' for help.
+Welcome to the Spice.ai SQL REPL! Type `help` or `?` for commands.
 
-show tables; -- list available tables
+Examples:
+  show tables;              -- list available tables
+  describe <table_name>;    -- show column types
+  nql <question>            -- natural language to SQL (requires a model)
+
 sql>
 ```
 
 Enter `show tables;` to display the available tables for query:
 
 ```
-sql> show tables
-+---------------+--------------+---------------+------------+
-| table_catalog | table_schema | table_name    | table_type |
-+---------------+--------------+---------------+------------+
-| spice         | public       | taxi_trips    | BASE TABLE |
-| spice         | runtime      | task_history  | BASE TABLE |
-| spice         | runtime      | metrics       | BASE TABLE |
-+---------------+--------------+---------------+------------+
+sql> show tables;
++---------------+--------------+--------------+------------+
+| table_catalog | table_schema |  table_name  | table_type |
+|    varchar    |    varchar   |    varchar   |   varchar  |
++---------------+--------------+--------------+------------+
+| spice         | runtime      | task_history | BASE TABLE |
+| spice         | public       | taxi_trips   | BASE TABLE |
++---------------+--------------+--------------+------------+
 
-Time: 0.022671708 seconds. 3 rows.
+Time: 0.001012917 seconds. 2 rows.
 ```
 
 Enter a query to display the longest taxi trips:
@@ -139,6 +143,7 @@ Output:
 ```
 +---------------+--------------+
 | trip_distance | total_amount |
+|    float64    |    float64   |
 +---------------+--------------+
 | 312722.3      | 22.15        |
 | 97793.92      | 36.31        |
@@ -152,7 +157,7 @@ Output:
 | 44018.64      | 52.43        |
 +---------------+--------------+
 
-Time: 0.045150667 seconds. 10 rows.
+Time: 0.001865625 seconds. 10 rows.
 ```
 
 Spice is now running and the `taxi_trips` dataset can be queried with SQL. Continue to [Next Steps](#next-steps), or add an AI model to ask questions about the data.
@@ -277,7 +282,7 @@ import DocCardList from '@theme/DocCardList'
       type: 'link',
       label: 'Cookbook',
       href: 'https://github.com/spiceai/cookbook',
-      description: 'Over 65 recipes demonstrating federated queries, RAG, text-to-SQL, and more.'
+      description: 'Over 100 recipes demonstrating federated queries, RAG, text-to-SQL, and more.'
     }
   ]}
 />
