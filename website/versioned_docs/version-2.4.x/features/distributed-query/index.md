@@ -30,14 +30,14 @@ The scheduler holds the cluster-wide configuration for a Spicepod, while executo
 
 Spice separates public and internal cluster traffic across different ports:
 
-| Port  | Service         | Description                                               |
-| ----- | --------------- | --------------------------------------------------------- |
-| 50051 | Flight SQL      | Public query endpoint                                     |
-| 8090  | HTTP API        | Public REST API                                           |
-| 9090  | Prometheus      | Metrics endpoint                                          |
-| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS required) |
+| Port  | Service         | Description                                                           |
+| ----- | --------------- | --------------------------------------------------------------------- |
+| 50051 | Flight SQL      | Public query endpoint                                                 |
+| 8090  | HTTP API        | Public REST API                                                       |
+| 9090  | Prometheus      | Metrics endpoint                                                      |
+| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS enforced, by default) |
 
-Internal cluster services are isolated on port 50052, which refuses every request unless the node runs cluster mTLS.
+Internal cluster services are isolated on port 50052 with mTLS enforced by default.
 
 ## Secure Cluster Communication (mTLS)
 
@@ -74,9 +74,17 @@ Certificates are stored in `~/.spice/pki/` by default.
 CLI-generated certificates are not intended for production use. Production deployments should use certificates issued by the organization's PKI or a trusted certificate authority.
 :::
 
-### Deprecated `--allow-insecure-connections` flag
+### Insecure Mode
 
-The `--allow-insecure-connections` flag is deprecated and will be removed in a future release. It no longer disables mTLS. A node started with it still starts and logs a deprecation warning. Without cluster mTLS configured, that node's internal cluster port refuses every request, so executors cannot join and schedulers cannot exchange task history or metrics with each other. With the `--node-mtls-*` flags set, the flag has no effect and cluster requests are accepted as usual. Use the `--node-mtls-*` flags with certificates from `spice cluster tls` instead, even for local development.
+For local development and testing, mTLS can be disabled using the `--allow-insecure-connections` flag:
+
+```bash
+spiced --role scheduler --allow-insecure-connections
+```
+
+:::warning
+Do not use `--allow-insecure-connections` in production environments. This flag disables authentication and encryption for internal cluster communication.
+:::
 
 ## Getting Started
 
@@ -106,7 +114,7 @@ spiced --role scheduler \
 
 ### Start Executors
 
-Executors connect to the scheduler's internal cluster port (50052) to register and pull work. Executors do not require a `spicepod.yaml`; they fetch the configuration from the scheduler. That configuration leaves out [`runtime.auth`](../../reference/spicepod/runtime.md#runtimeauth) and [`runtime.tls`](../../reference/spicepod/runtime.md#runtimetls), so the scheduler's API keys and the private key of its public endpoints are not sent to executors. Each executor automatically selects a free port if the default is unavailable:
+Executors connect to the scheduler's internal cluster port (50052) to register and pull work. Executors do not require a `spicepod.yaml`; they fetch the configuration from the scheduler. Each executor automatically selects a free port if the default is unavailable:
 
 ```bash
 spiced --role executor \
