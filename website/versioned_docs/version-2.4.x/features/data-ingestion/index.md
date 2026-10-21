@@ -1,0 +1,447 @@
+---
+title: 'Data Ingestion'
+sidebar_label: 'Data Ingestion'
+description: 'Learn how to ingest data in Spice.'
+sidebar_position: 6
+pagination_prev: null
+pagination_next: null
+tags:
+  - features
+  - write
+---
+
+Data can be ingested into the Spice runtime using the following methods:
+
+1. **Acceleration Refresh Modes** – Pull data from a source connector into a local accelerator using one of the standard [refresh modes](../data-acceleration/refresh-modes/index.md) (`full`, `append`, `changes`, `snapshot`, `caching`). This is the most common ingestion path for keeping a local accelerator in sync with an upstream system.
+2. **SQL Statements** – Write data directly to [write-capable connectors](../tags/write) using standard SQL `INSERT` (and, where supported, `UPDATE`/`DELETE`) syntax, or to an acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) when the source accepts only reads.
+3. **OpenTelemetry (OTEL) Ingestion** – Stream OTEL metrics for real-time processing and acceleration.
+
+Data ingestion is useful for scenarios such as keeping a local accelerator continuously in sync with an upstream database, collecting metrics from edge devices, writing application events for later analysis, or populating datasets from external sources.
+
+## Ingestion via Acceleration Refresh Modes
+
+When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Arrow, DuckDB, SQLite, PostgreSQL, or Cayenne). The `refresh_mode` controls how that ingestion happens.
+
+| Refresh Mode                                                            | What it ingests                                                                                                                                                                              | Typical source                                                                                |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`full`](../data-acceleration/refresh-modes/full.md)                    | Replaces the accelerator's contents with a fresh read of the source on every refresh.                                                                                                        | Slowly-changing reference tables; small lookup datasets.                                      |
+| [`append`](../data-acceleration/refresh-modes/append.md)                | Inserts only rows newer than the highest seen `time_column` value on each refresh.                                                                                                           | Time-series, event/log data, append-only tables.                                              |
+| [`changes`](../data-acceleration/refresh-modes/changes.md)              | Streams row-level inserts, updates, and deletes from a source [CDC feed](../cdc/index.md) (PostgreSQL logical replication, DynamoDB Streams, MongoDB Change Streams, Debezium, Kafka, etc.). | Operational databases where you need near real-time mirror of the source.                     |
+| [`snapshot`](../data-acceleration/refresh-modes/snapshot.md)            | Loads exclusively from an external snapshot store; no source reads.                                                                                                                          | Read-only replicas bootstrapped from a centralized snapshot, e.g. for fan-out reader fleets.  |
+| [`caching`](../data-acceleration/refresh-modes/caching.md)              | Read-through caches per-request HTTP/HTTPS responses with a TTL.                                                                                                                             | API search results or other request-keyed content fetched lazily.                             |
+
+For cross-cutting refresh behavior — refresh intervals, on-demand refresh, retries, retention, and zero-results handling — see [Data Refresh](../data-acceleration/data-refresh.md).
+
+### Example: continuous CDC ingestion into an accelerator
+
+```yaml
+datasets:
+  - from: postgres:public.users
+    name: users
+    params:
+      pg_host: pg.internal
+      pg_port: '5432'
+      pg_user: spice
+      pg_pass: ${secrets:pg_pass}
+      pg_db: myapp
+    acceleration:
+      enabled: true
+      engine: duckdb
+      mode: file        # Persistence so resume across restarts is cheap
+      refresh_mode: changes
+```
+
+This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to ingest every `INSERT`, `UPDATE`, and `DELETE` from `public.users` into a local DuckDB accelerator with low latency.
+
+## SQL Statements
+
+Spice supports writing data to **compatible data connectors** using standard SQL `INSERT INTO` syntax. An accelerated dataset over a source that accepts only reads can keep its writes in the acceleration instead; see [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode).
+
+### Write-Capable Connectors
+
+Data connectors that support write operations are tagged as [write](../tags/write):
+
+- **[Apache Iceberg](../components/data-connectors/iceberg)** - Write to Iceberg tables via data connector or [catalog connector](../components/catalogs/iceberg)
+- **[AWS Glue](../components/data-connectors/glue)** - Write to Glue Data Catalog tables via data connector or [catalog connector](../components/catalogs/glue)
+
+### Configuration for Write Operations
+
+To enable write operations, configure your dataset or catalog with [read_write access](../reference/spicepod/datasets#access):
+
+```yaml
+datasets:
+  - from: glue:my_catalog.my_schema.my_table
+    name: my_table
+    access: read_write
+    params:
+      # ... connector-specific parameters
+```
+
+### Example SQL
+
+```sql
+INSERT INTO my_table (column1, column2)
+VALUES ('value1', 'value2');
+
+
+INSERT INTO my_table (column1, column2)
+SELECT source_column1, source_column2
+FROM source_table
+WHERE condition = 'filter';
+```
+
+For more details on the `INSERT` statement syntax, see the [SQL INSERT documentation](../reference/sql/dml#insert).
+
+## OpenTelemetry Data Ingestion
+
+By default, the runtime exposes an [OpenTelemetry](https://opentelemetry.io) (OTEL) endpoint at grpc://127.0.0.1:50051 for the OTEL data ingestion.
+
+Spice stores received metrics in two kinds of dataset. A [metrics store](#metrics-store) dataset holds every metric in one table with a fixed schema. A [per-metric dataset](#per-metric-datasets) holds one metric, takes its name from the metric (metric name = dataset name), has a column per attribute, and is optionally replicated to the dataset source. Both can be configured at once, and each receives the data it matches.
+
+### Sending metrics
+
+Spice receives metrics over both OTLP transports:
+
+- **OTLP/gRPC**: `opentelemetry.proto.collector.metrics.v1.MetricsService/Export` on the Flight port (default `127.0.0.1:50051`).
+- **OTLP/HTTP**: `POST /v1/metrics` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`. The decompressed body is limited to 128 MiB. When [API key authentication](../../api/auth/index.md) is enabled, the request needs a key with write access, and a read-only key gets `403`. A request with a supported `Content-Type` gets its errors as a `google.rpc.Status` in the request's encoding.
+
+For example, an OpenTelemetry Collector that sends metrics over HTTP:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+exporters:
+  otlphttp/spice:
+    endpoint: http://spice:8090
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [otlphttp/spice]
+```
+
+The `otlphttp` exporter appends `/v1/metrics` to the endpoint.
+
+### Metrics store
+
+A metrics store dataset receives every data point of every export, whatever the metric name. It stores all five OTLP metric types (gauges, sums, histograms, exponential histograms, and summaries) and keeps each metric's type, temporality, monotonicity, and unit. Attributes are stored as JSON, so a new metric or attribute key never changes the table's schema.
+
+Add a `sink:` dataset with the `otlp_metrics: all` param:
+
+```yaml
+datasets:
+  - from: sink:otel_metrics
+    name: otel_metrics
+    access: read_write
+    params:
+      otlp_metrics: all
+    time_column: time_unix_nano
+    time_format: unix_nanos
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      refresh_mode: append
+      primary_key: (time_unix_nano, series_hash)
+```
+
+The metrics store does not default any other setting. The `sink` connector discards what is written to it, so the acceleration holds the stored metrics, and `mode: file` keeps them across restarts. Set `access: read_write`: a store dataset that is not writable is skipped, and the runtime logs a warning once that names the dataset.
+
+`(time_unix_nano, series_hash)` identifies a data point, so the primary key stores a retried export only once. On Cayenne, a table keeps [one row per primary key](../data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne).
+
+#### Metrics store export outcomes
+
+Every data point of an export is written to the metrics store before per-metric datasets are considered, so a metric without its own dataset is not rejected. When a per-metric dataset also exists for a metric, it receives that metric too.
+
+When the write to the metrics store fails, the export falls back to per-metric datasets for that request and then fails with gRPC `UNAVAILABLE` (HTTP `503`) and the message `Failed to write to the OpenTelemetry metrics store; retry the export`. Exporters retry on that status, and the primary key keeps a retried batch from being stored twice.
+
+#### Metrics store schema
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| `metric_name` | `Utf8` | The metric name, for example `http.server.request.duration`. |
+| `metric_type` | `Utf8` | `gauge`, `sum`, `histogram`, `exponential_histogram`, or `summary`. |
+| `description`, `unit` | `Utf8` | The metric's description and unit. |
+| `temporality` | `Utf8` | `delta` or `cumulative` for sums and histograms. `NULL` for gauges and summaries. |
+| `is_monotonic` | `Boolean` | Whether a sum only increases. `NULL` for other types. |
+| `time_unix_nano` | `UInt64` | Data point timestamp, in nanoseconds since the Unix epoch. |
+| `start_time_unix_nano` | `UInt64` | Start of the aggregation interval, in nanoseconds since the Unix epoch. `NULL` when unset. |
+| `series_hash` | `UInt64` | A stable hash of the series identity: metric name, resource attributes, scope name, version, and attributes, and data point attributes. Attribute order does not change it. |
+| `attributes`, `resource_attributes`, `scope_attributes` | `Utf8` | JSON objects with sorted keys. Values keep their OTLP type. |
+| `scope_name`, `scope_version` | `Utf8` | The instrumentation scope. |
+| `flags` | `UInt32` | Data point flags. |
+| `value_double`, `value_int` | `Float64`, `Int64` | The value of a gauge or sum data point. One of the two is set, depending on whether the exporter sent a double or an integer. |
+| `count`, `sum`, `min`, `max` | `UInt64`, `Float64` | Histogram, exponential histogram, and summary aggregates. `sum`, `min`, and `max` are `NULL` when the exporter does not record them. |
+| `explicit_bounds`, `bucket_counts` | `List<Float64>`, `List<UInt64>` | Histogram bucket boundaries and per-bucket counts. |
+| `scale`, `zero_count`, `zero_threshold` | `Int32`, `UInt64`, `Float64` | Exponential histogram parameters. |
+| `positive_offset`, `positive_bucket_counts`, `negative_offset`, `negative_bucket_counts` | `Int32`, `List<UInt64>` | Exponential histogram buckets. |
+| `quantiles`, `quantile_values` | `List<Float64>` | Summary quantiles and their values, as two lists of equal length. |
+
+#### Querying the metrics store
+
+Spice includes three aggregate functions for metrics:
+
+- `histogram_quantile(q, explicit_bounds, bucket_counts)` adds the bucket counts of every row in a group, element by element, and estimates quantile `q` (between 0 and 1) by linear interpolation within the target bucket, as Prometheus does. Every row in a group must have the same `explicit_bounds`; mixed bucket layouts return an error.
+- `increase(value, time)` returns how much a cumulative counter grew across the samples in a group. A decrease is treated as a counter reset to zero. An integer counter keeps its integer type.
+- `rate(value, time)` returns `increase` divided by the seconds between the first and last sample, as `Float64`.
+
+`time` is a timestamp or an integer number of nanoseconds since the Unix epoch, such as `time_unix_nano`. Unlike PromQL, `increase` and `rate` do not extrapolate to the edges of a time window; they use only the samples in the group, so group by `series_hash` to compute them per series.
+
+```sql
+-- p99 request duration per minute, from a delta histogram
+SELECT date_bin(INTERVAL '1 minute', to_timestamp_nanos(time_unix_nano)) AS t,
+       histogram_quantile(0.99, explicit_bounds, bucket_counts) AS p99
+FROM otel_metrics
+WHERE metric_name = 'http.server.request.duration' AND temporality = 'delta'
+GROUP BY 1
+ORDER BY 1;
+
+-- Per-second request rate of each series of a cumulative counter
+SELECT series_hash, json_get_str(attributes, 'http.route') AS route,
+       rate(value_int, time_unix_nano) AS requests_per_second
+FROM otel_metrics
+WHERE metric_name = 'http.server.requests' AND temporality = 'cumulative'
+GROUP BY series_hash, route;
+```
+
+Use [JSON functions](../../reference/sql/json.md) such as `json_get_str` to filter and group by attributes.
+
+### Per-metric datasets
+
+A writable dataset whose name matches a metric's name receives that metric, with a column per attribute.
+
+#### Supported metric types
+
+| OTLP metric type        | Supported | Notes                                                                                            |
+| ----------------------- | --------- | ------------------------------------------------------------------------------------------------ |
+| `Gauge`                 | Yes       | Ingested as number data points.                                                                  |
+| `Sum`                   | Yes       | Ingested as number data points.                                                                  |
+| `Histogram`             | Yes       | Ingested with explicit bucket bounds and counts.                                                 |
+| `ExponentialHistogram`  | No        | Not written. Its data points are counted as rejected, and an unsupported metric data type error is logged. |
+| `Summary`               | No        | Not written. Its data points are counted as rejected, and an unsupported metric data type error is logged. |
+
+#### Export outcomes
+
+Data points that cannot be written — a metric with no matching writable dataset, an unsupported metric type, or a batch that fails to build — are counted and reported back to the exporter:
+
+| Export | Response |
+| ------ | -------- |
+| No data points rejected | Success. |
+| Some data points rejected | Success with `ExportMetricsPartialSuccess`, carrying `rejected_data_points` and the message `Some data points were rejected`. |
+| Every data point rejected | Fails with `INVALID_ARGUMENT` and the message `All data points were rejected`. |
+| No data points at all (e.g. only metrics carrying no data) | Success — nothing was rejected. |
+
+A metric whose existing table has more than one column of the same name (Arrow permits duplicate field names, so an attribute sharing a name with one of the metric's value columns can produce one) can never be matched by a new batch. Rather than warning on every export, the ingest fails the export with an error naming the metric, the duplicated column, and the remedy: drop and recreate that metric's dataset.
+
+#### Ingested schema
+
+`Gauge` and `Sum` metrics produce the following columns:
+
+| Column                 | Type                | Description                                                                                              |
+| ---------------------- | ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `value`                | `Int64` or `Float64` | The data point value. The type is fixed by the first data point (or the existing table's `value` column). |
+| `time_unix_nano`       | `UInt64`            | Data point timestamp, in nanoseconds since the Unix epoch.                                               |
+| `start_time_unix_nano` | `UInt64`            | Start of the data point's aggregation interval, in nanoseconds since the Unix epoch.                      |
+
+`Histogram` metrics have a fixed set of value columns instead of `value`:
+
+| Column            | Type            | Description                                                                          |
+| ----------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `count`           | `UInt64`        | Number of values in the population.                                                  |
+| `sum`             | `Float64`       | Sum of the values. `NULL` when the exporter does not record it.                       |
+| `min` / `max`     | `Float64`       | Extrema over the interval. `NULL` when the exporter does not record them.             |
+| `bucket_counts`   | `List<UInt64>`  | Per-bucket counts.                                                                   |
+| `explicit_bounds` | `List<Float64>` | The explicit bucket boundaries — one fewer element than `bucket_counts`.              |
+
+Histograms carry the same `time_unix_nano` and `start_time_unix_nano` columns as number data points.
+
+Data point and resource attributes, such as `service.name` and `service.instance.id`, become columns
+named after the attribute key. Values determine the type: `Utf8`, `Boolean`, `Int64`, `Float64`, or
+`Binary`. Data point values take precedence when keys overlap. New attributes trigger in-place
+schema evolution before writing, subject to the dataset's
+[`on_schema_change`](../../reference/spicepod/datasets.md#on_schema_change) policy.
+
+Because OTLP timestamps are nanoseconds, set [`time_format: unix_nanos`](../../reference/spicepod/datasets.md#time_format) when using `time_unix_nano` as a dataset's `time_column`:
+
+```yaml
+datasets:
+  - from: spice.ai/coolorg/metrics/datasets/http_server_duration
+    name: http_server_duration # must match the OTEL metric name
+    access: read_write
+    time_column: time_unix_nano
+    time_format: unix_nanos
+    acceleration:
+      enabled: true
+```
+
+### Logs
+
+Spice stores OpenTelemetry logs in one table. Add a dataset with the `otlp_logs: all` param:
+
+```yaml
+datasets:
+  - from: sink:otel_logs
+    name: otel_logs
+    params:
+      otlp_logs: all
+```
+
+Every log record received over OTLP is stored in that dataset, whatever service sent it. Nothing is declared per service or per attribute, and a new attribute never changes the table's schema.
+
+`otlp_logs: all` defaults the dataset's other settings:
+
+| Setting | Default |
+| ------- | ------- |
+| `access` | `read_write` |
+| `time_column`, `time_format` | `timestamp`, `timestamptz` |
+| `acceleration` (no block) | Cayenne, `mode: file`, `refresh_mode: append`, so stored logs survive a restart |
+| `acceleration.engine`, `acceleration.refresh_mode` (a block without them) | `cayenne`, `append` |
+
+Set `acceleration.mode` to choose durability, and `acceleration.retention_period` with `retention_check_enabled: true` to delete logs older than the period on the `retention_check_interval` schedule:
+
+```yaml
+    acceleration:
+      mode: file
+      retention_period: 7d
+      retention_check_enabled: true
+      retention_check_interval: 1h
+```
+
+The logs dataset requires Cayenne. A dataset with `otlp_logs: all` and another engine, or with acceleration disabled, fails to load with a configuration error naming the fix.
+
+#### Sending logs
+
+- **OTLP/gRPC**: `opentelemetry.proto.collector.logs.v1.LogsService/Export` on the Flight port (default `127.0.0.1:50051`), the same port as OTLP metrics. gzip is accepted, and messages up to 128 MiB.
+- **OTLP/HTTP**: `POST /v1/logs` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`, up to 128 MiB.
+
+Both require write access when [API key authentication](../../api/auth/index.md) is enabled. For example, an OpenTelemetry Collector:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+exporters:
+  otlp/spice:
+    endpoint: spice:50051
+    tls:
+      insecure: true
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      exporters: [otlp/spice]
+```
+
+| Export | gRPC | HTTP |
+| ------ | ---- | ---- |
+| Every record stored | `OK` | 200 |
+| No dataset has `otlp_logs: all` | `UNIMPLEMENTED` | 501 |
+| The logs dataset is still loading (for example during startup), or a write failed | `UNAVAILABLE` | 503 — exporters retry |
+| Malformed body, or every record rejected (below) | `INVALID_ARGUMENT` | 400 |
+| API key without write access | `PERMISSION_DENIED` | 403 |
+
+An export is acknowledged only after its records are written. Delivery is at least once, as the OTLP specification describes: when an exporter retries an export whose acknowledgement was lost, its records are stored again.
+
+#### Logs schema
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| `timestamp` | `Timestamp(ns, UTC)` | When the event occurred. A record without a time takes its observed time, and one with neither takes the time Spice received it. |
+| `observed_timestamp` | `Timestamp(ns, UTC)` | When the event was observed. `NULL` when unset. |
+| `severity_number` | `Int32` | `1`–`24` (`TRACE` 1–4 … `FATAL` 21–24). `NULL` when unspecified. |
+| `severity_text` | `Utf8` | For example `ERROR`. `NULL` when empty. |
+| `body` | `Utf8` | A string body as sent. Any other body (a map, an array, a number) as JSON. |
+| `attributes` | `Utf8` | Record attributes, as a JSON object with sorted keys. |
+| `trace_id`, `span_id` | `Utf8` | Lowercase hex. `NULL` when absent or all zero. |
+| `flags` | `UInt32` | W3C trace flags in the low 8 bits. |
+| `event_name` | `Utf8` | `NULL` when empty. |
+| `service_name` | `Utf8` | The `service.name` resource attribute. |
+| `resource_attributes`, `scope_attributes` | `Utf8` | JSON objects. |
+| `resource_schema_url`, `scope_schema_url` | `Utf8` | `NULL` when empty. |
+| `scope_name`, `scope_version` | `Utf8` | The instrumentation scope. `NULL` when empty. |
+
+A record whose time or observed time is after 2262-04-11, which no nanosecond timestamp can hold, is rejected. When an export has other records, they are stored and the rejected ones are counted in the export's partial-success response. When every record in an export is rejected, including a single record sent alone, the export fails with `INVALID_ARGUMENT` (HTTP 400) and nothing is stored.
+
+#### Querying logs
+
+```sql
+-- Recent errors for one service
+SELECT timestamp, severity_text, body
+FROM otel_logs
+WHERE service_name = 'checkout' AND severity_number >= 17
+  AND timestamp > now() - INTERVAL '1 hour'
+ORDER BY timestamp DESC
+LIMIT 100;
+
+-- Search log text
+SELECT timestamp, body FROM otel_logs WHERE regexp_like(body, 'timeout after \d+ms');
+
+-- Every log of one trace
+SELECT * FROM otel_logs WHERE trace_id = '5b8efff798038103d269b633813fc60c';
+
+-- Attributes
+SELECT json_get_str(attributes, 'http.route') AS route, count(*) AS errors
+FROM otel_logs
+WHERE severity_number >= 17
+GROUP BY 1
+ORDER BY errors DESC;
+```
+
+## Benefits
+
+Spice.ai OSS includes built-in data ingestion support for collecting the latest data from edge nodes for use in subsequent queries. This feature eliminates the need for additional ETL pipelines and improves the speed of the feedback loop.
+
+For example, consider CPU usage anomaly detection. When CPU metrics are sent to the Spice OpenTelemetry endpoint, they are immediately queryable alongside accelerated data, so an application can compare the most recent observations against historical baselines and act on the edge node. This process occurs quickly on the edge itself, within milliseconds, and without generating network traffic.
+
+Additionally, Spice will periodically replicate the data to the data connector for further use.
+
+## Considerations
+
+Data Quality: Use Spice SQL capabilities to transform and cleanse ingested edge data, ensuring high-quality inputs.
+
+Data Security: Evaluate data sensitivity and secure network connections between the edge and data connector when replicating data for further use. Implement encryption, access controls, and secure protocols.
+
+## Example
+
+### [Disk SMART](https://en.wikipedia.org/wiki/Self-Monitoring,_Analysis_and_Reporting_Technology)
+
+Start Spice with the following dataset:
+
+```yaml
+datasets:
+  - from: spice.ai/coolorg/smart/datasets/drive_stats
+    name: smart_attribute_raw_value
+    access: read_write
+    replication:
+      enabled: true
+    acceleration:
+      enabled: true
+```
+
+Start telegraf with the following config:
+
+```toml
+[[inputs.smart]]
+  attributes = true
+[[outputs.opentelemetry]]
+  service_address = "localhost:50051"
+[agent]
+  interval = "1s"
+  flush_interval = "1s"
+```
+
+SMART data will be available in the `smart_attribute_raw_value` dataset in Spice.ai OSS and replicated to the `coolorg.smart.drive_stats` dataset in Spice.ai Cloud.
+
+## Limitations
+
+:::warning[Current Limitations]
+
+- Write Support: Only selected [write-capable connectors and catalogs](../tags/write) accept writes at the source. An accelerated dataset over a source that accepts only reads can keep its writes in the acceleration with [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode).
+- Only Spice.ai replication is supported for OpenTelemetry ingestion
+
+:::

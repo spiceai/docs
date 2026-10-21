@@ -1,0 +1,70 @@
+---
+id: head-table
+title: "Check if a table exists."
+description: "This endpoint returns a 200 OK response if the table exists, otherwise it returns a 404 Not Found response."
+sidebar_label: "Check if a table exists."
+hide_title: true
+hide_table_of_contents: true
+api: eJy9U01v2zAM/SsCTxug2G6Qw+Zb0W1YsWEDhu5UBK1iM5FQW1JFOm1h+L8PtJM0zdAdduhJHyQfycfHHthsCMpruKxwhWkDSw01UpVcZBc8lHBlHSn0dQzOs0rIXfKkjJoXhfr5TSWkGDyhcmvFFhWbVYMKHx0xaRXYYnpwYj6OXRQL9SOw+hI6Xx8gMtAQIiYjmS9rKMGiqW9GRNAQTTItMiaptwdvWoRyPCiaSjyc1BsNW9CQ8L5zCWsoOXWogSqLrYGyB36KEkicnN/AMOgD1j7T/+EsxXnqhMQ+Lwo5Ttg8ogcGDYti8ZpTHZCUDzx5S6HQItuwJ2akhC2UkG/P8gMPlPeH+5CPLVHej+cAGgjTdk9hlxrBYo5lnjehMo0NxOWH4mMBpzL4LmZV4xabEFv0rCakTF0Ev3abLqF6cGzV7WwmiLcZCCOEVZccP435THQ3dyj3pdicX4eRSMeNMJk6z67Fv1JfWVQUXYW1enZpXIWeUOJ30zuPprI4m2dSvKvRs1s7TC8tgwZpfwKeZ0VWzDpP0+AHDTEQt8YfoV5YrO5E3OaFtLPTKnuogmf0/OYrs9Mh4yPnsTHOSyPjaPudQK5hewb6eVUINJTHizOpRH4nJpYaRAkS2fcrQ/g7NcMg3/cdpnGAGrYmudFbRls7knsN5do0hP8g592v3Ua9V68Vv/s0/gkkTdPJCzSM2jnaeFndN0y8U8nyeBG/fj7/BMPwB8agyds=
+sidebar_class_name: "head api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check if a table exists."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"head"}
+  path={"/v1/namespaces/{namespace}/tables/{table}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+This endpoint returns a 200 OK response if the table exists, otherwise it returns a 404 Not Found response.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./head-table.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./head-table.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./head-table.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

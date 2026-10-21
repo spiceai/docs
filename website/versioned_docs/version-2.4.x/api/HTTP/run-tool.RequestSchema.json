@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"Tool specific input parameters. See /v1/tools for parameter schema.","content":{"application/json":{"schema":{},"example":{"query":"SELECT avg(total_amount), avg(tip_amount), count(1), passenger_count FROM my_table GROUP BY passenger_count ORDER BY passenger_count ASC LIMIT 3"}}},"required":true}}

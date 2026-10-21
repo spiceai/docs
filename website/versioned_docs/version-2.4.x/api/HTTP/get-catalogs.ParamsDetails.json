@@ -1,0 +1,1 @@
+{"parameters":[{"name":"from","in":"query","description":"Filters catalogs by source (e.g., 'spiceai').","required":false,"schema":{"type":["string","null"]}}]}
