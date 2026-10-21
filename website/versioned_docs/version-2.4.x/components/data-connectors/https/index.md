@@ -616,14 +616,6 @@ The `health_probe` parameter has the following requirements:
 - Cannot exceed 2048 characters in length
 - The target endpoint must return a 2xx HTTP status code for validation to succeed
 
-### Trace Context Propagation
-
-When a query arrives with a W3C [`traceparent`](https://www.w3.org/TR/trace-context/#traceparent-header) header, the connector sends that `traceparent` to the origin of a dynamic JSON API endpoint, so a distributed trace links the query to the origin's requests. The header goes on every request the query makes: each partition, each retry, and each page of a paginated fetch. The forwarded value carries the caller's trace ID, parent ID, and trace flags, with version `00`.
-
-A `traceparent` set in `http_headers`, or by a `request_headers` filter (with `traceparent` in `request_header_allowlist`), takes precedence. The connector sends that value as written and does not add a second `traceparent`. The forwarded header is not part of the [response cache](#response-cache) key, so queries from different traces share cached responses.
-
-A query without a valid `traceparent` header forwards none, and structured HTTP file datasets, which are read through the object store, do not send it. See [`spice-trace-id` and `traceparent`](../../../reference/task_history.md#spice-trace-id-and-traceparent) for how Spice records the incoming header.
-
 ### OAuth2 Authentication
 
 The HTTP connector supports two OAuth2 grants for JSON APIs — the **refresh-token grant** (RFC 6749 §6, the default) and the **client-credentials grant** (RFC 6749 §4.4). Both acquire short-lived access tokens from a token endpoint and keep them fresh in the background. For the (default) refresh-token grant, given a long-lived refresh token and a token endpoint, Spice will:
