@@ -53,6 +53,8 @@ Views derive their schema from the SQL query that defines them. When a view is a
 
 If the underlying dataset schemas change while the runtime is running, the accelerated view will fail to refresh because the materialized schema no longer matches the source data. Restart the runtime to re-derive the view schema from the updated datasets.
 
+For views over Parquet or ORC file datasets, a column renamed or dropped in the source files is detected when the view reads them: an accelerated view fails to refresh with an error naming the missing column and keeps serving its last refreshed data, and a federated view returns `NULL` for the column and logs a `WARN`. See [File datasets: missing columns](../../components/data-connectors/index.md#file-missing-columns).
+
 For more detail on schema inference and runtime schema changes, see the [Data Connectors schema inference](../../components/data-connectors/index.md#schema-inference) documentation.
 
 ## Cookbook
