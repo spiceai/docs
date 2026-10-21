@@ -76,12 +76,6 @@ Enter the location of the dataset:
 from: spice.ai/spiceai/quickstart/datasets/taxi_trips
 ```
 
-Press Enter to accept the default region of the Spice Cloud app, or enter the app's region:
-
-```bash
-spiceai_region: (us-east-1)
-```
-
 Select `y` when prompted whether to accelerate the data:
 
 ```bash
