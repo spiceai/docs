@@ -164,9 +164,9 @@ In the Spicepod, configure the accelerator to write under the mount path, for ex
 
 ## Temporary files
 
-The published images are built `FROM scratch` and contain only the files the runtime needs, plus a world-writable `/tmp` (mode `1777`). `TMPDIR` is not set, so anything resolving the OS temporary directory writes to `/tmp`. Images up to and including v2.4.0-rc.2 have no `/tmp` and set `TMPDIR=/app/tmp` instead. Acceleration snapshots stage their tar archive there before uploading, and it is also the default target for query spill when [`runtime.query.temp_directory`](../reference/spicepod/runtime#runtimequerytemp_directory) is unset.
+The published images are built `FROM scratch` and contain only the files the runtime needs, plus a world-writable `/tmp` (mode `1777`). `TMPDIR` is not set, so anything resolving the OS temporary directory writes to `/tmp`. Images v2.3.1 through v2.4.0-rc.2 have no `/tmp` and set `TMPDIR=/app/tmp` instead. Acceleration snapshots stage their tar archive there before uploading, and it is also the default target for query spill when [`runtime.query.temp_directory`](../reference/spicepod/runtime#runtimequerytemp_directory) is unset.
 
-`/tmp` lives on the container's writable layer unless a volume is mounted there, and the writable layer is usually small and is discarded when the container is removed. For workloads that snapshot large accelerations or spill large sorts and joins, mount a volume at `/tmp`. An image that sets `TMPDIR=/app/tmp` (v2.4.0-rc.2 and earlier) ignores a volume at `/tmp`; on those images, mount the volume at `/app/tmp` instead (`-v spice-tmp:/app/tmp`).
+`/tmp` lives on the container's writable layer unless a volume is mounted there, and the writable layer is usually small and is discarded when the container is removed. For workloads that snapshot large accelerations or spill large sorts and joins, mount a volume at `/tmp`. An image that sets `TMPDIR=/app/tmp` (v2.3.1 through v2.4.0-rc.2) writes temporary files there, not to `/tmp`; on those images, mount the volume at `/app/tmp` instead (`-v spice-tmp:/app/tmp`).
 
 ```bash
 docker run --rm -p 8090:8090 \
