@@ -116,7 +116,7 @@ The following parameters configure MySQL [binlog replication](../../features/cdc
 | `mysql_replication_checkpoint_interval`       | Optional. How often the committed binlog position persists to the accelerator sidecar (e.g. `10s`). Default: `10s`.                                                                                      |
 | `mysql_replication_bootstrap_batch_size`      | Optional. Number of rows per emitted batch during the initial snapshot. Default: `8192`. Maximum: `1048576`.                                                                                            |
 | `mysql_replication_invalid_checkpoint_behavior` | Optional. What to do when the persisted position cannot be resumed losslessly — either it was purged from the source, or the source table's column layout drifted incompatibly with the recorded position: `error` (default) or `restart` (drop the position and re-snapshot). Default: `error`. |
-| `mysql_replication_ready_lag`                 | Optional. For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's [source commit time](../../../features/cdc/mysql-replication.md#source-commit-time)) falls below this. Default: `2s`.             |
+| `mysql_replication_ready_lag`                 | Optional. For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's binlog-header timestamp) falls below this. Default: `2s`.             |
 
 ### `metrics`
 
