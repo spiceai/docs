@@ -672,6 +672,7 @@ Each scheduler deletes, with their result chunks, the jobs whose results have ex
 - The `format` query parameter on the results endpoint is declared but not yet implemented (results are always JSON over HTTP, Arrow IPC over Flight)
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)
+- Async queries reject locally accelerated datasets, Cayenne catalog tables, and `runtime.task_history` (including `runtime.local_task_history`), because task history is read only on the scheduler. Run these queries through `/v1/sql` or Flight SQL. A rejected query fails with the error code `EXECUTION_FAILED`.
 
 ## High Availability
 
