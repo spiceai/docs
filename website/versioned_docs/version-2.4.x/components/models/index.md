@@ -57,18 +57,6 @@ Spice supports a variety of features for large language models (LLMs):
 
 For more details, refer to the [Large Language Models documentation](../features/large-language-models).
 
-## Model Loading and Readiness
-
-Spice loads each model at startup. A model that has not loaded keeps the runtime not ready, so [`/v1/ready`](../../api/HTTP/ready) returns `503`. When the provider refuses a model at load time, for example because the API key is wrong, the account lacks permission or has run out of credits, or the request is rate limited, the load error names the provider's refusal.
-
-A model whose first load fails is retried in the background with Fibonacci backoff, with no limit on the number of attempts. The base delay starts at 1 second and grows to 5 minutes, and each wait varies by up to 30% either way, so waits at the cap last between about 3.5 and 6.5 minutes. Each attempt logs its result. When the provider accepts the model, the model registers and `/v1/ready` returns `200` without a restart. Retries stop at shutdown, or when a Spicepod change updates or removes the model.
-
-A load that fails with a recognized configuration error is not retried, because only a Spicepod change can clear it. These errors include an unknown model source, a missing or invalid parameter, a task the model does not support, unsafe model weights, and missing local model files. Other loader errors are retried like a provider refusal, even when they come from the configuration; for example, an Azure model without an `endpoint` parameter fails and is retried at each backoff interval until the Spicepod is fixed.
-
-After correcting the Spicepod, a runtime that watches it for changes loads the model again. `spice run` enables the watcher, while `spiced` enables it only with [`--pods-watcher-enabled`](../../cli/reference/spiced); without the watcher, restart the runtime to load the corrected model.
-
-In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the background. It loads again only when the runtime restarts, or when a change to the model's Spicepod definition reaches a runtime that watches the Spicepod; until then, the runtime stays not ready.
-
 ## Model Provider Prefix
 
 The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition, and is used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.
