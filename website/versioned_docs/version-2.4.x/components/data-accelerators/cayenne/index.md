@@ -1010,27 +1010,19 @@ A local `cayenne_file_path` therefore does not use the `{spice_data_path}/metada
 
 File-mode Cayenne keeps **one** shared catalog in the process. Whichever Cayenne dataset initializes that catalog first supplies the directory, and every later Cayenne dataset uses that same catalog even when its own resolution names a different directory. A restart that opens the other directory finds an empty catalog: the Vortex files are still on disk, and the acceleration looks empty. Set the same explicit `cayenne_metadata_dir` on every Cayenne dataset so the directory does not depend on which dataset initializes first.
 
+Datasets that set different `cayenne_file_path` values are refused at load unless every one of them sets that same `cayenne_metadata_dir`. Each local data root would otherwise resolve its own `{cayenne_file_path}/metadata`, and only the catalog opened first would be used.
+
 Pointing `cayenne_metadata_dir` at an existing metadata location **adopts** that catalog in place. Pointing it elsewhere opens a new empty catalog without erroring — prior Vortex files remain on disk but no table resolves them, so the acceleration appears empty or from scratch. Stop Spice with a graceful shutdown (`SIGTERM`) before moving the catalog. Shutdown checkpoints the SQLite WAL ([Metastore durability](./deployment.md#metastore-durability)), and copying or moving `cayenne.db` or its `-wal`/`-shm` sidecars while Cayenne is still writing can leave those files inconsistent. After shutdown, move `cayenne.db` together with the sidecars. Changing only the parameter leaves the files behind.
 
 Paths are compared after `.`/`..` are collapsed and symlinks are resolved, so neither hides an overlap, and a sibling that merely shares a name prefix (`…/meta` next to `…/metadata`) is not affected. Datasets whose data lives on object storage (for example an S3 Express `cayenne_file_path`) are exempt — the metastore is always local, so it cannot sit inside an object-store data path.
 
-Every file-mode Cayenne dataset in a Spicepod must resolve to the **same** metastore directory. Without that, which metastore a restart opens depends on which dataset initializes the catalog first, and Cayenne can come up with an empty catalog while the data files are still on disk — the acceleration looks lost. At startup, Spice resolves each dataset's metastore directory with the rule above, including the `{spice_data_path}/metadata` default, and rejects the Spicepod when the directories differ. Three shapes are rejected:
-
-- Datasets that set different local `cayenne_file_path` values without a shared `cayenne_metadata_dir`.
-- A dataset that sets `cayenne_file_path` or `cayenne_metadata_dir` to another directory beside a dataset that sets neither and uses the default data root.
-- Datasets that set only `cayenne_metadata_dir`, to different directories.
-
-The error names every Cayenne dataset with the metastore directory it resolves to:
+Several file-mode Cayenne datasets that set **different** `cayenne_file_path` values must also set the **same** `cayenne_metadata_dir` on every one of them. Without it, which metastore a restart opens depends on which data root is resolved first, and Cayenne can come up with an empty catalog while the data files are still on disk — the acceleration looks lost. The spicepod is rejected at startup, naming every dataset and the path it configured:
 
 ```text
-Invalid Cayenne configuration: datasets resolve to different Cayenne metastore directories, but one `spiced` process keeps a single Cayenne catalog: 'orders' ('/mnt/a/cayenne/metadata'), 'customers' ('/mnt/b/cayenne/metadata'). Set the same `cayenne_metadata_dir` on every Cayenne dataset. See: https://spiceai.org/docs/components/data-accelerators/cayenne#metastore-location
+Invalid Cayenne configuration: datasets use different `cayenne_file_path` values without a shared `cayenne_metadata_dir`: `orders` (`/mnt/a/cayenne`), `customers` (`/mnt/b/cayenne`). Set the same `cayenne_metadata_dir` on every Cayenne dataset. See: https://spiceai.org/docs/components/data-accelerators/cayenne#metastore-location
 ```
 
-Resolve it by setting the same `cayenne_metadata_dir` on every Cayenne dataset. The check compares directories as written, without reading the filesystem: a `file:` scheme is stripped, a relative path is placed against the working directory, `.` components and a trailing `/` are ignored, so `./.spice/data/metadata` and the absolute default compare equal. A `..` component is kept, so `/data/meta/../meta` and `/data/meta` count as different directories, and so do two spellings that meet only through a symlink. Spell the shared directory the same way on every dataset. Datasets that leave both parameters unset, or that set only an object-store `cayenne_file_path`, all resolve to `{spice_data_path}/metadata` and are unaffected.
-
-:::warning[Upgrading]
-A Spicepod that mixes a dataset on the default data root with one that sets `cayenne_file_path` or `cayenne_metadata_dir` to another directory, or that sets different `cayenne_metadata_dir` values, loaded in earlier releases. The process opened one catalog, from whichever Cayenne dataset initialized first, so the other directory's catalog went unused. It is now rejected at startup. To keep the existing accelerations, set the shared `cayenne_metadata_dir` to the directory that held the active catalog. Pointing it at any other directory opens an empty catalog, as described above.
-:::
+Datasets that all share one `cayenne_file_path`, or that leave it unset, are unaffected; a trailing `/` does not make two paths differ.
 
 Before recreating or deleting a data directory, Spice checks for `cayenne.db` and its SQLite sidecars, including those belonging to other datasets. Deletion is refused if the directory contains a metastore, links directly to one, or has unreadable entries. Metastore files must reside outside data directories.
 
