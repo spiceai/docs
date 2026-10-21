@@ -98,7 +98,7 @@ The Spice dashboard identifies each running instance by a `service_instance_id` 
 Datadog does not error on a missing tag. Without `service_instance_id`, each panel renders a single `N/A` series summing every instance — a 12-replica deployment reports 12 times its real dataset count rather than showing nothing.
 :::
 
-Panels from the Kubernetes integration (CPU, memory, and PVC utilization, and pod OOM kills, `CrashLoopBackOff` states, and restarts from `kubernetes_state`) group by `pod_name` instead, as those metrics never carry `service_instance_id`.
+Panels from the Kubernetes integration (CPU, memory, and PVC utilization) group by `pod_name` instead, as those metrics never carry `service_instance_id`.
 
 ## Import the Spice Datadog Dashboard
 
