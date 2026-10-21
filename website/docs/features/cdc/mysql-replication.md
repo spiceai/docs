@@ -163,6 +163,8 @@ SET SESSION net_write_timeout = GREATEST(@@SESSION.net_write_timeout, 180)
 
 It is a **floor**, not an assignment — raising `net_write_timeout` on the source is the manual workaround for this symptom, and a value already higher than 180 seconds is left alone. If the source rejects the statement (for example the replication user may not set session variables), Spice logs a warning and continues on the server's value; grant that permission or raise `net_write_timeout` on the source itself. Time the pump spends blocked on a member accrues per dataset in `replication_member_send_stalled_seconds_total`.
 
+The shared connection reads the binlog on a dedicated thread, `mysql-binlog-pump`, separate from the CDC apply runtime. If that thread cannot start, Spice reads the binlog on the CDC apply runtime and logs a warning that begins `Failed to start a dedicated thread to read the MySQL binlog for connection`; replication can then fall behind under a heavy write load.
+
 :::warning[A stalled member can force the group to re-bootstrap]
 
 Unlike a PostgreSQL replication slot, a held binlog position pins nothing server-side. If a member detaches — a schema change classified as DDL is member-fatal, detaching that one dataset while the group keeps running — its held floor holds back only the shared resume position. Should the source then purge binlogs past that point (`binlog_expire_logs_seconds`), the whole group must re-bootstrap.
