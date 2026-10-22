@@ -83,11 +83,13 @@ The SDK requires an API key. Without [`runtime.auth`](../../api/auth/index.md), 
 
 ### Using Claude Code
 
-Set `ANTHROPIC_BASE_URL` to the Spice HTTP endpoint and select a Spicepod model by its name:
+Set `ANTHROPIC_BASE_URL` to the Spice HTTP endpoint, set `ANTHROPIC_AUTH_TOKEN` to the gateway credential, and select a Spicepod model by its name:
 
 ```bash
-ANTHROPIC_BASE_URL=http://localhost:8090 claude --model claude
+ANTHROPIC_BASE_URL=http://localhost:8090 ANTHROPIC_AUTH_TOKEN=unused claude --model claude
 ```
+
+Claude Code sends `ANTHROPIC_AUTH_TOKEN` as `Authorization: Bearer`. Without a gateway credential, a client with no saved login opens to the login screen, and a saved Anthropic login is not a Spice API key. Without [`runtime.auth`](../../api/auth/index.md), Spice does not check the token, so any value works. With `runtime.auth` configured, set it to a Spice API key. See [Connect Claude Code to an LLM gateway](https://code.claude.com/docs/en/llm-gateway-connect) for the other ways Claude Code can receive a gateway credential.
 
 Claude Code names a model in every request, and Spice answers only names defined in the Spicepod. Claude Code can also send some requests to a second, smaller model; set it to a Spicepod model name as well, using the environment variables described in [Claude Code model configuration](https://docs.claude.com/en/docs/claude-code/model-config). A request for a name that is not in the Spicepod returns `404` with a `not_found_error`.
 
