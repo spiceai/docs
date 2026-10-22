@@ -27,6 +27,22 @@ Failed to run model 'claude-sonnet-4-6' (anthropic): the `top_logprobs` paramete
 
 Either field can arrive from the request or from the model's [parameter overrides](../../features/large-language-models/parameter_overrides), so remove it from both. `logprobs: false` asks for nothing and is accepted.
 
+## Parallel Tool Calls
+
+`parallel_tool_calls` defaults to `true`, as it does for OpenAI models, so an Anthropic model can call more than one tool in a single response. Set `parallel_tool_calls: false` in the request, or as the `anthropic_parallel_tool_calls` [parameter override](../../features/large-language-models/parameter_overrides), to ask for at most one tool call per response. Spice sends it to Anthropic as `disable_parallel_tool_use: true` on the request's `tool_choice`. `parallel_tool_calls` has no effect on a request that offers no tools or sets `tool_choice` to `none`, because Spice sends no `tool_choice` for it.
+
+:::note
+
+Through `v2.4.0-rc.3`, a request that set `tool_choice` without `parallel_tool_calls` was sent with `disable_parallel_tool_use: true`, and a request that set `parallel_tool_calls: false` without `tool_choice` was sent with parallel tool use enabled. Set `parallel_tool_calls: false` explicitly to keep at most one tool call per response.
+
+:::
+
+## Serving the Anthropic Messages API
+
+A `from: anthropic` model also serves [`POST /v1/messages`](../../features/large-language-models/messages.md) natively: Spice forwards the client's Messages API request to Anthropic as sent, with the model's credentials, `system_prompt`, parameter overrides, and Spice tools applied. `POST /v1/messages/count_tokens` counts tokens only for `from: anthropic` models.
+
+## Parameters
+
 The following parameters are specific to Anthropic models:
 
 | Parameter                | Description                                                                                                                      | Default                        |
@@ -47,7 +63,7 @@ models:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
 ```
 
-An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic runs a request from a multi-workspace key in the workspace named by its `anthropic-workspace-id` header (see [API keys and resource scoping](https://platform.claude.com/docs/en/manage-claude/workspaces#api-keys-and-resource-scoping)). When the parameter is set, Spice sends the header on chat requests and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
+An API key that is not scoped to a single workspace needs `anthropic_workspace_id`, because Anthropic runs a request from a multi-workspace key in the workspace named by its `anthropic-workspace-id` header (see [API keys and resource scoping](https://platform.claude.com/docs/en/manage-claude/workspaces#api-keys-and-resource-scoping)). When the parameter is set, Spice sends the header on chat requests, on [Messages API](../../features/large-language-models/messages.md) requests, and on the request that lists available models. A value that is not a valid HTTP header value fails the model load with an error that begins `` Invalid `anthropic_workspace_id` ``.
 
 ```yaml
 models:

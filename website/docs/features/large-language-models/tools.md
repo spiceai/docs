@@ -92,7 +92,7 @@ models:
       tool_recursion_limit: 3
 ```
 
-On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run.
+On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run. On [`/v1/messages`](messages.md#spice-tools), Spice runs the last permitted round's calls and the response ends with `stop_reason: pause_turn`, for the client to continue.
 
 ### Text Written Beside a Tool Call
 
