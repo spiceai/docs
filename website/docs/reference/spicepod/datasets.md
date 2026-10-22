@@ -634,6 +634,14 @@ Dataset 'orders' sets `acceleration.write_mode: acceleration` and refreshes by `
 
 Both are configuration errors: the dataset fails to load once and is not retried. See [`select_accelerated_write_mode`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/datafusion/mod.rs) for how the write destination is chosen.
 
+In a [distributed query cluster](../../features/distributed-query/index.md), a scheduler refuses writes to a `read_write` dataset whose writes go only to the acceleration: one that sets `write_mode: acceleration`, or one whose source is `sink`. A scheduler does not read its own acceleration, so no query would return those rows. `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements fail with a planning error, and an Arrow Flight `DoPut` fails with the `FAILED_PRECONDITION` status:
+
+```text
+INSERT on orders is not supported on a cluster scheduler: its writes go only to the acceleration, which the executors hold
+```
+
+Executors, runtimes outside a cluster, and datasets that use `write_through` or `write_back` are not affected. See [`scheduler_write_refusal`](https://github.com/spiceai/spiceai/blob/70b0a0ca69af5a8c364444873332ea0b5f280de9/crates/runtime-table/src/accelerated/mod.rs#L1851).
+
 :::warning Append refreshes and acceleration-only writes
 An `append` refresh reads only the source rows newer than the latest `time_column` value stored in the acceleration, less `refresh_append_overlap`. For a [day-granular `time_column`](../../features/data-acceleration/refresh-modes/append.md#day-granular-time-columns) (`Date32` or `Date64`), the overlap is subtracted first and the result is rounded down to the start of its day, and the refresh reads from that day, inclusive. A positive overlap can therefore start the read on an earlier day. That latest value includes rows written only to the acceleration ([`max_timestamp_df`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime-table/src/accelerated/refresh_task.rs#L2994) reads the acceleration table). A write whose `time_column` is later than that latest value moves the refresh's starting point forward. Source rows that the acceleration has not loaded yet, and whose times are at or before the new starting point, are then not loaded by any later `append` refresh. On a day-granular column, the starting day itself is still read, so only rows on earlier days are skipped. This can happen even when the write's time is earlier than the source's newest row.
 
