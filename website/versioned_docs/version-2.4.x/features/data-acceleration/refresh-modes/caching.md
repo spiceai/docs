@@ -477,6 +477,12 @@ This behavior differs from other modes:
 - **`changes` mode**: Applies CDC events
 - **`caching` mode**: Replaces rows matching the specific cache key
 
+#### Empty Responses
+
+An origin that answers a cached request with no rows, such as `[]`, has retracted the rows it returned before. On the `cayenne` engine, that empty response replaces the entry: the stored rows for that request are deleted, so a later [`caching_stale_if_error`](#stale-if-error-behavior) fallback or [stale-while-revalidate](#stale-while-revalidate-pattern) read does not serve the retracted rows. The replacement is scoped to the one request the lookup names. A request part the lookup does not name is matched as empty, the value the HTTP connector stores for a part it does not send, so an empty answer to a GET leaves a POST response or a response to another `request_query` under the same path in place. When the lookup's filters do not name a single request, the empty response is not written and the earlier entry is kept.
+
+On `duckdb`, `sqlite`, and `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
+
 ### Concurrent Cache Misses
 
 Concurrent cache misses for the same cache key share one origin fetch. The first request fetches from the origin and writes the result; requests that miss on the same key while that fetch is in flight wait for it and return its rows, without a second origin request and without writing a second copy. An empty result is shared the same way.
