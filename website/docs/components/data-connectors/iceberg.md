@@ -282,7 +282,7 @@ The table's schema, snapshots, and data files are read from its Iceberg metadata
 
 ### Find the current metadata file
 
-Spice finds the current metadata file on every query and every acceleration refresh, so new commits are read without a restart. A query answered from the [SQL results cache](../../features/caching) can return a result from before the latest commit until the cache entry expires (`item_ttl`, 1 second by default).
+Spice finds the current metadata file on every query and every acceleration refresh, so new commits are read without a restart. The dataset's columns are the exception: they are fixed when the dataset registers, so a column added, renamed, or dropped while Spice is running is not reflected until the runtime restarts (see [Limitations](#limitations)). A query answered from the [SQL results cache](../../features/caching) can return a result from before the latest commit until the cache entry expires (`item_ttl`, 1 second by default).
 
 The current metadata file is found as follows:
 
@@ -578,6 +578,10 @@ When querying Iceberg tables, performance depends on the size of the table, the 
 The connector needs to access both the Iceberg catalog metadata and the underlying data files (typically stored in S3 or a compatible object store). Ensure proper network connectivity and authentication for both systems.
 
 :::
+
+**Schema changes while running.** An Iceberg dataset, read through a catalog or without one, keeps the columns of the table's current schema at the time it registers. A column added while Spice is running stays hidden until the runtime restarts, and a column renamed or dropped while running leaves the dataset's columns out of step with the table ([spiceai/spiceai#15333](https://github.com/spiceai/spiceai/issues/15333)).
+
+A table whose last commit changed only its schema, such as `ADD COLUMN` or `RENAME COLUMN` with no write since, is read with its current schema. In v2.4.0-rc.2 and earlier, every query on such a table failed with `Column <column> not found in table`.
 
 Tables read without a catalog have these additional limitations:
 
