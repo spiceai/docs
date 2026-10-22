@@ -23,7 +23,8 @@ The following parameters are specific to Model2Vec models:
 
 | Parameter                 | Description                                                                     | Default                 |
 | ------------------------- | ------------------------------------------------------------------------------- | ----------------------- |
-| `hf_token`                | The Hugging Face access token for accessing private models.                     | -                       |
+| `hf_token`                | The Hugging Face access token for accessing private models. See [access tokens](../models/huggingface#access-tokens). | -                       |
+| `hf_endpoint`             | The Hugging Face Hub endpoint to download the model from, to read through a mirror or proxy of the Hub. | `HF_ENDPOINT`, then `https://huggingface.co` |
 | `normalize`               | Whether to normalize embeddings (defaults to the model's configuration).        | Model's default setting |
 | `subfolder`               | Optional subfolder path for models that reside in a subfolder of the repo/path. | -                       |
 | `parallelism`             | Number of parallel threads to use for embedding computation.                    | System CPU count        |
@@ -63,7 +64,7 @@ Load the repository's default revision instead, or pre-download the revision you
 
 ## Private Models
 
-Model2Vec supports private Hugging Face models with authentication:
+Model2Vec models are downloaded into the standard Hugging Face cache, with the same [token, endpoint, cache and offline settings](../models/huggingface#hugging-face-hub) as other Hugging Face models. Model2Vec supports private Hugging Face models with authentication:
 
 ```yaml
 embeddings:
