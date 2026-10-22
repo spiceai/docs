@@ -59,7 +59,7 @@ Supported Data Connectors include:
 | `mongodb`                          | MongoDB (with native Change Streams CDC) | Stable         |                              |
 | `graphql`                          | GraphQL                               | Release Candidate | JSON                         |
 | `cosmosdb`                         | Azure Cosmos DB (NoSQL)               | Release Candidate |                              |
-| `git`                              | Git repositories                      | Release Candidate |                              |
+| `git`                              | [Git repositories][gitrepo]           | Release Candidate |                              |
 | `snowflake`                        | Snowflake                             | Release Candidate | Arrow                        |
 | `oracle`                           | Oracle                                | Release Candidate | [Oracle ODPI-C][ODPIC]       |
 | `ducklake`                         | [DuckLake][ducklake]                  | Beta              | Parquet                      |
@@ -70,7 +70,8 @@ Supported Data Connectors include:
 | `kafka`                            | Kafka                                 | Beta              | Kafka + JSON                 |
 | `abfs`                             | Azure BlobFS                          | Alpha             | Parquet, CSV, ORC            |
 | `clickhouse`                       | ClickHouse                            | Alpha             |                              |
-| `debezium`                         | Debezium CDC                          | Alpha             | Kafka + JSON                 |
+| `debezium`                         | [Debezium CDC][debezium] (Kafka consumer) | Alpha         | Kafka + JSON                 |
+| `cdc`                              | [Debezium push ingest][cdc] (no Kafka) | Alpha            | JSON + Avro HTTP             |
 | `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF) (Spice.ai Enterprise) | Alpha   |                              |
 | `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON, ORC      |
 | `hf`                               | [Hugging Face][huggingface] datasets  | Alpha             | Parquet, CSV, TSV, JSON, ORC |
@@ -93,6 +94,9 @@ Supported Data Connectors include:
 [elasticsearch]: ./elasticsearch/index.md
 [cosmosdb]: ./cosmosdb/index.md
 [huggingface]: ./huggingface.md
+[gitrepo]: ./git.md
+[debezium]: ./debezium.md
+[cdc]: ../../features/cdc/debezium-ingest.md
 
 ## File Formats
 
