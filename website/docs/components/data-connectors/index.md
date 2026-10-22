@@ -377,6 +377,24 @@ Document formats (Markdown, Text, PDF, Word, Excel, PowerPoint) are handled diff
 Document formats in Alpha (DOCX, XLSX, PPTX) may not parse all structure or text from the underlying documents correctly.
 :::
 
+#### Document Size Limits
+
+PDF and Office files are compressed, so a small file can expand to many gigabytes when it is read. To bound memory use, Spice measures the decompressed size of each PDF, DOCX, XLSX, and PPTX file before the parser reads it, and rejects a file that exceeds a limit. The limits are fixed and cannot be configured.
+
+| Format             | Limit                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| DOCX, XLSX, PPTX   | 64 MiB per decompressed archive entry, and 256 MiB for all entries of one file      |
+| DOCX, XLSX, PPTX   | 64 MiB of extracted text per file                                                   |
+| PDF                | 256 MiB for all compressed streams of one file, after decompression                 |
+
+A PDF image stream that ends in an image codec (`DCTDecode`, `JPXDecode`, `CCITTFaxDecode`, or `JBIG2Decode`) is not counted toward the PDF limit, because its size is bounded by the image's dimensions. A PDF whose stream filter cannot be measured is rejected even when it is small: this includes `LZWDecode`, encrypted streams, an unrecognized filter, and a `/Filter` given as an indirect reference. Password-protected Office files and the legacy binary formats (`.doc`, `.xls`) are not supported. An XLSX worksheet that lists its cells out of row and column order fails with an error that contains, for example, `worksheet 'Sheet1' lists cell (row 2, column 1) out of order`.
+
+Reading a rejected file fails with an error that names the format and the limit it exceeded. For example, a DOCX file whose `word/document.xml` entry decompresses to 1 GiB fails with:
+
+```text
+Failed to parse DOCX document: archive entry 'word/document.xml' decompresses to more than 64 MiB, the per-entry limit. Documents this large are not supported, and the file may be maliciously crafted (for example, a decompression bomb). See: https://spiceai.org/docs/features/document-processing
+```
+
 #### Document Table Schema
 
 | Column     | Type   | Description                       |
