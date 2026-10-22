@@ -78,6 +78,12 @@ curl -X POST http://localhost:8090/v1/search \
 
 For detailed API documentation, see [Search API Reference](../../api/HTTP/post-search).
 
+The optional `keywords` field narrows the candidates to rows whose searched column contains every keyword, matched case-insensitively with `ILIKE '%keyword%'`. A request accepts at most 512 keywords, a fixed limit that cannot be configured. A longer list is rejected with HTTP `400` before any search runs. For a list of 513 keywords, the message reads:
+
+```text
+Search request rejected: 513 keywords were provided, and at most 512 are accepted. Shorten the `keywords` list.
+```
+
 ## Retrieving Full Documents
 
 If the dataset uses chunking, Spice returns relevant chunks. To retrieve entire documents, include the embedding column in `additional_columns`:

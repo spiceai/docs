@@ -73,6 +73,8 @@ Spice reads any Parquet file regardless of the compression codec or data encodin
 
 To bound memory use, Spice rejects a data page whose header declares an uncompressed size larger than 64 MiB or 1,000 times the page's compressed size, whichever is larger. A query that reads such a page fails with an error that contains `exceeds the maximum allowed`. Pages of 64 MiB or less are not affected.
 
+Spice also checks the list lengths a file's footer metadata declares, such as its number of schema elements or row groups, against the bytes left in the footer. Each list entry takes at least one byte, so a declared length larger than the remaining bytes marks the footer as malformed, and the read fails before memory is reserved for the list. Reading such a file, including inferring its schema when the dataset loads, fails with an error such as `Parquet error: Thrift list declares 2147483647 elements, which is more than the 1 bytes of input remaining`, where the two numbers come from the file.
+
 Supported compression codecs:
 
 - [`UNCOMPRESSED`](https://parquet.apache.org/docs/file-format/data-pages/compression/#uncompressed)

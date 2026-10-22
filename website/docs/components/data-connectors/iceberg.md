@@ -243,6 +243,29 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
 | `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
 
+## Storage endpoints supplied by a REST catalog
+
+An Iceberg REST catalog can return storage settings with a table, such as `s3.endpoint` or `client.region`. Spice does not send storage requests, or the credentials that go with them, to a private, loopback, or link-local address only because the catalog named it. Before reading a table, Spice checks each storage endpoint the catalog returns (`s3.endpoint`, `gcs.service.host`, `adls.authority-host`, `oss.endpoint`, and `hf.endpoint`) and the S3 region, using the host the S3 client actually connects to after the bucket and region are applied. A host name is resolved first, with a 5-second limit. A table whose endpoint resolves to an internal address, or whose host cannot be resolved, is refused before any storage request is sent. A `file://` table location outside the `file://` `iceberg_warehouse` is also refused. When storage redirects a request from a catalog-supplied endpoint, Spice refuses a redirect to an internal address, and drops the `Authorization`, `Cookie`, and `Proxy-Authorization` headers when the redirect changes origin.
+
+An endpoint or region is checked only when its value differs from the one set in the Spicepod. A private S3-compatible store, such as MinIO served alongside a local REST catalog, keeps working when the Spicepod sets its endpoint and region:
+
+```yaml
+datasets:
+  - from: iceberg:http://localhost:8181/v1/namespaces/my_namespace/tables/my_table
+    name: my_table
+    params:
+      iceberg_s3_endpoint: http://localhost:9000
+      iceberg_s3_region: us-east-1
+```
+
+The same applies when a catalog returns only a region and S3 resolves to private addresses, for example through a VPC interface endpoint with private DNS: set `iceberg_s3_endpoint` to the regional S3 endpoint. A refused table fails with an error that names the setting and its value. For a catalog that returns `s3.endpoint` as `http://localhost:9000` to a dataset that does not set `iceberg_s3_endpoint`, the error reads:
+
+```text
+The Iceberg catalog for dataset 'my_table' set `s3.endpoint` to "http://localhost:9000", a private, loopback, or link-local address, so no storage request is sent to it and the table cannot be read. If this endpoint is trusted, set the `s3_endpoint` parameter to it, or set `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS=true`. See: https://spiceai.org/docs/components/data-connectors/iceberg
+```
+
+In the Spicepod, the `s3_endpoint` and `s3_region` parameters the message names are written `iceberg_s3_endpoint` and `iceberg_s3_region`. Setting the `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` environment variable to `1`, `true`, `yes`, or `on` turns these checks off for every Iceberg dataset and catalog in the runtime, as it does for [URL tables](../../features/query-federation/url-tables.md).
+
 ## Read a table without a catalog
 
 An Iceberg table on object storage or the local filesystem can be read without a catalog. Set `from` to the table root, the directory that contains `metadata/`:
