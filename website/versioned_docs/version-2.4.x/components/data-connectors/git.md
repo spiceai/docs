@@ -12,13 +12,14 @@ The Git Data Connector enables federated SQL queries on the files in a Git repos
 
 ```yaml
 datasets:
-  - from: git:https://github.com/spiceai/cookbook.git@trunk
+  - from: git:https://github.com/spiceai/cookbook.git@refs/remotes/origin/trunk
     name: cookbook_docs
     params:
       include: '**/*.md'
       fetch_content: true
     acceleration:
       enabled: true
+      refresh_check_interval: 1h
 ```
 
 ```sql
@@ -45,7 +46,11 @@ The `from` field takes the form `git:<repository_url>[@<reference>]`.
 
 Any other URL scheme is rejected with an error. A `file://` URL must contain an absolute path, and its host, if present, must be `localhost`.
 
-`<reference>` is optional and selects the commit to read. It can be a branch name, a tag name, a full commit SHA, or a full reference name such as `refs/heads/main`. When it is omitted, the connector reads the repository's `HEAD`. The connector treats the last `@` after the host as the reference separator, so a user name in the URL (such as the `git@` in the SSH shorthand) is not mistaken for a reference.
+`<reference>` is optional and selects the commit to read. It can be a branch name, a tag name, a full commit SHA, or a full reference name such as `refs/heads/main`. When it is omitted, the connector reads the repository's `HEAD`.
+
+The cached clone keeps the local branch it checked out, so `HEAD` and the remote's default branch name (for example `@trunk` or `@main`) stay at the commit the repository was first cloned at. Later fetches update the remote-tracking references `refs/remotes/origin/<branch>`, so set the reference to `refs/remotes/origin/<branch>` to read new commits on the default branch. A branch other than the default has no local branch in the clone, so its short name resolves to the remote-tracking reference and follows new commits.
+
+The connector treats the last `@` after the host as the reference separator, so a user name in the URL (such as the `git@` in the SSH shorthand) is not mistaken for a reference.
 
 ### `name`
 
@@ -129,7 +134,7 @@ The connector exposes the following [component metric](../../features/observabil
 
 ## Performance
 
-Every scan opens the cached repository, fetches the latest branches and tags from the remote, and walks the commit's tree. Without [acceleration](../../features/data-acceleration/), each query repeats that network fetch. Enable acceleration so queries read the accelerated copy and the repository is fetched only on refresh.
+Every scan opens the cached repository, fetches the latest branches and tags from the remote, and walks the commit's tree. New commits are read only through a reference that the fetch updates; see [`from`](#from). Without [acceleration](../../features/data-acceleration/), each query repeats that network fetch. Enable acceleration so queries read the accelerated copy and the repository is fetched only on refresh.
 
 Computing `created_at` and `updated_at` walks the reference's commit history once for each returned file, so scans of repositories with long histories or many files take longer. Narrow the results with `include` and `max_files` to reduce scan time.
 
