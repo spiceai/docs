@@ -82,7 +82,7 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 - **Single-process loading**: A model is loaded into the Spice process — it cannot be shared across process instances without a dedicated inference server.
 - **No hot reload**: Switching model revisions requires a spicepod reload.
 - **Limited Responses API support**: Responses API routing is currently tied to specific providers (OpenAI, xAI); a local HF-loaded model does not serve the Responses API.
-- **Quantized formats**: Support depends on the local loader (mistral / candle). Verify the format is supported before production deployment.
+- **Quantized formats**: A GGUF model on a single node is served by llama.cpp; verify that its architecture is listed in [GGUF architectures](../index.md#gguf-architectures) before production deployment. Other formats are served by mistral.rs.
 - **Disk-space requirements**: First-run downloads can be multi-GB; ensure the Hub cache directory (`HF_HUB_CACHE`, `$HF_HOME/hub`, or `~/.cache/huggingface/hub`) has adequate space.
 
 ## Troubleshooting

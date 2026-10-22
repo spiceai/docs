@@ -69,6 +69,82 @@ After correcting the Spicepod, a runtime that watches it for changes loads the m
 
 In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the background. It loads again only when the runtime restarts, or when a change to the model's Spicepod definition reaches a runtime that watches the Spicepod; until then, the runtime stays not ready.
 
+## Local GGUF Models
+
+Spice serves a GGUF model on a single node, from the [`file`][file] or [`huggingface`][hf] provider, with [llama.cpp](https://github.com/ggml-org/llama.cpp). The model's file format selects the engine, so no Spicepod change is needed.
+
+| Model                                                   | Served by             |
+| ------------------------------------------------------- | --------------------- |
+| GGUF on one node, `from: file:` or `from: huggingface:` | llama.cpp             |
+| GGUF with `distributed_backend: ring` (Enterprise)      | mistral.rs, unchanged |
+| Safetensors                                             | mistral.rs, unchanged |
+
+The OpenAI-compatible API works the same way on both engines: streaming, `usage`, `finish_reason`, `reasoning_effort` and `reasoning_content` are unchanged, and so are the GGUF's own chat template and the `chat_template` and `context_length` parameters. Prompts are rendered and tool calls are parsed with the same code as on mistral.rs, so a GLM-5.3 tool call, which that parser does not read, stays unparsed on both engines. Each streamed tool call carries its own `index`.
+
+The `paged_attention` parameter has no effect on a GGUF model, because llama.cpp manages its own KV cache. A model that sets `paged_attention: disabled` logs this once at load, at info level:
+
+```text
+Model '<name>' sets `paged_attention: disabled`, which has no effect: GGUF models are served by llama.cpp, which manages its own KV cache. Remove the parameter to silence this message.
+```
+
+### Multi-Token Prediction Draft Heads
+
+A multi-token prediction (MTP) draft head proposes the next tokens, and one forward pass of the model verifies them, so the model decodes more tokens per pass. Spice finds the draft head without configuration:
+
+- A GGUF listed in `files` whose name starts with `mtp-` is a draft head for the model. Every other GGUF listed is a shard of the model.
+- With no `mtp-` file listed, a GGUF that carries its own NextN layer drafts for itself. GLM-5.3-Flash is an example.
+
+This Qwen3.8-Flash-Next model drafts with its separate head:
+
+```yaml
+models:
+  - name: qwen3.8-flash-next
+    from: huggingface:huggingface.co/mradermacher/Qwen3.8-Flash-Next-GGUF
+    files:
+      - path: Qwen3.8-Flash-Next.Q2_K.gguf
+      - path: mtp-Qwen3.8-Flash-Next-Q8_0.gguf # optional: an MTP draft head
+```
+
+At temperature 0, a model that drafts returns the same text on every run. That text can differ from the text without a draft head where two tokens are nearly tied, because verification computes in batches.
+
+A file whose name starts with `mtp-` but that carries no MTP layer fails the model's load:
+
+```text
+'<file>' is named as an MTP draft head (it starts with `mtp-`), but it carries no MTP layer. Remove it from `files`, or rename it if it is a shard of the model.
+```
+
+When a model cannot load with its own NextN layer, for example because it fits in memory only without that layer, the model loads without it and decodes without drafting. Spice logs this at info level:
+
+```text
+Model '<name>' loaded without its MTP layer, so it decodes without drafting: the model did not load with it. Cause: <reason>
+```
+
+### Structured Output and Tool Choice
+
+A `response_format` of type `json_schema` or `json_object` is enforced with a grammar, so the reply is JSON that matches the schema, or a JSON object for `json_object`. For a reasoning model, the grammar applies after the reasoning block.
+
+For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and Hermes templates do, a request that sets both `response_format` and `tools` is answered with either a tool call or the schema's JSON. For other tool-call formats, the request is refused with HTTP 400:
+
+```text
+Model '<name>' can't combine a `json_schema` or `json_object` `response_format` with `tools`: its chat template's tool-call format can't be enforced alongside a schema. Send one or the other.
+```
+
+`tool_choice: required`, or a named function, forces one tool call through a grammar where the chat template uses `<tool_call>`. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
+
+### GGUF architectures
+
+A GGUF model loads when llama.cpp supports its architecture, the `general.architecture` value in the file. For Spice releases that pin llama.cpp b11803, these are the supported architectures:
+
+`afmoe`, `apertus`, `arcee`, `arctic`, `arwkv7`, `baichuan`, `bailingmoe`, `bailingmoe2`, `bailingmoe3`, `beam`, `bitnet`, `bloom`, `chameleon`, `chatglm`, `codeshell`, `cogvlm`, `cohere2`, `cohere2moe`, `command-r`, `dbrx`, `deci`, `deepseek`, `deepseek2`, `deepseek2-ocr`, `deepseek32`, `deepseek4`, `dots1`, `dots3note`, `dream`, `ernie4_5`, `ernie4_5-moe`, `exaone`, `exaone-moe`, `exaone4`, `falcon`, `falcon-h1`, `flint`, `gemma`, `gemma2`, `gemma3`, `gemma3n`, `gemma4`, `glm-dsa`, `glm4`, `glm4moe`, `glm5-next`, `gpt-oss`, `gpt2`, `gptj`, `gptneox`, `granite`, `granite_swa`, `granitehybrid`, `granitemoe`, `graniteswitch`, `grok`, `grovemoe`, `hrm_text`, `hunyuan-dense`, `hunyuan-moe`, `hunyuan_vl`, `hy_v3`, `hy_v4`, `internlm2`, `jais`, `jais2`, `jamba`, `k2-horizon`, `kimi-k3`, `kimi-linear`, `kolibri1`, `laguna`, `lfm2`, `lfm2moe`, `llada`, `llada-moe`, `llama`, `llama4`, `maincoder`, `maion-coder`, `mamba`, `mamba2`, `maple`, `mellum`, `mimo2`, `minicpm`, `minicpm3`, `minimax-01`, `minimax-m2`, `minimax-m3`, `mistral3`, `mistral4`, `mpt`, `muse-glimmer`, `muse-spark`, `nanbeige`, `nemotron`, `nemotron_h`, `nemotron_h_moe`, `olmo`, `olmo2`, `olmoe`, `openelm`, `orion`, `paddleocr`, `pangu-embedded`, `phi2`, `phi3`, `phimoe`, `plamo`, `plamo2`, `plamo3`, `plm`, `qwen`, `qwen2`, `qwen2moe`, `qwen2vl`, `qwen3`, `qwen35`, `qwen35moe`, `qwen3moe`, `qwen3next`, `qwen3vl`, `qwen3vlmoe`, `qwen4exp`, `refact`, `rnd1`, `rwkv6`, `rwkv6qwen2`, `rwkv7`, `seed_oss`, `sensenova_u1`, `smallthinker`, `smollm3`, `spark2_5`, `stablelm`, `starcoder`, `starcoder2`, `step35`, `t5`, `talkie`, `xverse`.
+
+The list omits the architectures llama.cpp provides for embedding, audio, scoring and speculative-draft models, which are not chat models. A GGUF whose architecture llama.cpp does not know fails to load with:
+
+```text
+Architecture '<architecture>' in <file> is not supported by this Spice release. Upgrade Spice, or use a GGUF of a supported architecture: https://spiceai.org/docs/components/models#gguf-architectures
+```
+
+Any other load failure carries llama.cpp's own reason, such as `invalid magic`.
+
 ## Model Provider Prefix
 
 The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition, and is used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.

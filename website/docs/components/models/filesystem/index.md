@@ -13,7 +13,7 @@ models:
     name: llama3
 ```
 
-Supported formats include GGUF, GGML, and SafeTensor for large language models (LLMs).
+Supported formats include GGUF, GGML, and SafeTensor for large language models (LLMs). A GGUF model is served by llama.cpp; see [Local GGUF Models](../index.md#local-gguf-models).
 
 ## Configuration
 
@@ -44,6 +44,8 @@ See [Large Language Models](../../features/large-language-models) for additional
 ### `files` (optional)
 
 The `files` field specifies additional files required by the model, such as tokenizer, configuration, and other files.
+
+For a GGUF model, `files` can also list the other shards of a split model, and a multi-token prediction draft head whose name starts with `mtp-`. See [Multi-Token Prediction Draft Heads](../index.md#multi-token-prediction-draft-heads).
 
 ```yaml
 - name: local-model
@@ -97,6 +99,22 @@ models:
   - from: file://absolute/path/to/my/model.gguf
     name: local_gguf_model
 ```
+
+GGUF models are served by llama.cpp, which reads the architecture from the file. See [GGUF architectures](../index.md#gguf-architectures) for the architectures it loads.
+
+### Loading a GGUF Model with an MTP Draft Head
+
+List the draft head in `files`. Its name must start with `mtp-`:
+
+```yaml
+models:
+  - from: file://absolute/path/to/Qwen3.8-Flash-Next.Q2_K.gguf
+    name: qwen3.8-flash-next
+    files:
+      - path: /absolute/path/to/mtp-Qwen3.8-Flash-Next-Q8_0.gguf
+```
+
+A GGUF that carries its own NextN layer, such as GLM-5.3-Flash, drafts for itself with no extra file.
 
 ### Overriding the Chat Template
 
