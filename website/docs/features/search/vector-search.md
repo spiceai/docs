@@ -136,7 +136,7 @@ The embedding index can also be used to perform search in SQL, via a user-define
 
 ```sql
 SELECT id, title, _score
-FROM vector_search('sales', 'cutting edge AI')
+FROM vector_search(sales, 'cutting edge AI')
 ORDER BY _score DESC
 LIMIT 5;
 ```
@@ -145,7 +145,7 @@ LIMIT 5;
 
 ```sql
 vector_search(
-  table STRING,          -- Dataset name (required)
+  table IDENTIFIER,      -- Dataset name, unquoted (required)
   query STRING,          -- Search text (required)
   col STRING,            -- Column name (optional if single embedding column)
   limit INTEGER,         -- Results limit (default: 1000)
@@ -159,7 +159,7 @@ By default, `vector_search` retrieves up to 1000 results. To adjust this limit, 
 
 ```sql
 SELECT id, title, _score
-FROM vector_search('sales', 'cutting edge AI', 1500)
+FROM vector_search(sales, 'cutting edge AI', 1500)
 ORDER BY _score DESC;
 ```
 
