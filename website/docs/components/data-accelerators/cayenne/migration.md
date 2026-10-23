@@ -131,4 +131,6 @@ datasets:
 
 Cayenne's vector index is exact: it scores every candidate row, using cosine distance by default, instead of searching an approximate HNSW graph. It returns the true nearest rows, and its query time grows with the number of rows searched. For approximate search over very large datasets, use the [S3 Vectors engine](../../vectors/s3_vectors) instead.
 
+The two engines rank results the same way but report `_score` on different scales. The DuckDB vector engine reports cosine similarity, from -1 to 1; Cayenne reports `(1 + cosine similarity) / 2`, from 0 to 1, so a DuckDB score of `0.76` is `0.88` on Cayenne. Queries or alerts that compare `_score` with a fixed threshold, such as `WHERE _score > 0.7`, need the threshold converted: a DuckDB threshold `t` becomes `(1 + t) / 2`.
+
 The DuckDB vector engine stores its embeddings in the DuckDB acceleration file, so deleting that file in [step 3](#step-3-delete-the-old-acceleration-data) removes them too. Cayenne computes the embeddings again as it loads the dataset from the source.
