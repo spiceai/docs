@@ -89,3 +89,46 @@ A dataset with [snapshots](../../../features/data-acceleration/snapshots) enable
 ```
 
 Delete the files ending in `.duckdb`, `.sqlite`, or `.turso` under each migrated dataset's `dataset=<name>/` folders. Do not delete the folders themselves, because Cayenne writes its own `.cayenne` snapshots into the same place.
+
+## Migrating the DuckDB vector engine
+
+The [DuckDB vector engine](../../vectors/duckdb) (`vectors.engine: duckdb`) is deprecated in v2.4 and will be removed in v2.5 along with the DuckDB accelerator it depends on. A Cayenne acceleration does not need a vector engine: Cayenne indexes every embedding column itself, so `vector_search` and `/v1/search` work on a Cayenne dataset or view as soon as its embeddings are configured.
+
+To migrate, set `acceleration.engine: cayenne` and remove the `vectors` block entirely. Removing only `engine` is not enough, because an enabled `vectors` block with no `engine` is an error. The `duckdb_*` parameters under `vectors.params` (`duckdb_distance_metric` and the HNSW settings) have no Cayenne equivalent and go with the block. For example:
+
+```yaml
+datasets:
+  - from: file:products.parquet
+    name: products
+    acceleration:
+      enabled: true
+      engine: duckdb
+    vectors:
+      enabled: true
+      engine: duckdb
+      params:
+        duckdb_distance_metric: cosine
+    columns:
+      - name: description
+        embeddings:
+          - from: local_embedding_model
+```
+
+becomes:
+
+```yaml
+datasets:
+  - from: file:products.parquet
+    name: products
+    acceleration:
+      enabled: true
+      engine: cayenne
+    columns:
+      - name: description
+        embeddings:
+          - from: local_embedding_model
+```
+
+Cayenne's vector index is exact: it scores every candidate row, using cosine distance by default, instead of searching an approximate HNSW graph. It returns the true nearest rows, and its query time grows with the number of rows searched. For approximate search over very large datasets, use the [S3 Vectors engine](../../vectors/s3_vectors) instead.
+
+The DuckDB vector engine stores its embeddings in the DuckDB acceleration file, so deleting that file in [step 3](#step-3-delete-the-old-acceleration-data) removes them too. Cayenne computes the embeddings again as it loads the dataset from the source.
