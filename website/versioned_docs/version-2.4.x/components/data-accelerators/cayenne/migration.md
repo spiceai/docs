@@ -28,7 +28,13 @@ Cayenne does not read another engine's files. A migrated acceleration starts emp
 
 That is not the case for three kinds of acceleration. A dataset with `write_mode: acceleration` keeps its writes only in the acceleration; they never reach the source. A dataset with `write_mode: write_back` may hold writes that have not yet been delivered, which the `dataset_acceleration_write_back_pending_keys` metric reports while it is above zero. A dataset with `refresh_mode: append` or `refresh_mode: changes` may hold history the source no longer keeps.
 
-To judge how much history an append or change-fed acceleration holds, compare its retention settings with the source's own retention, such as a Kafka topic's retention, a table TTL, or a purged change log. With `retention_check_enabled: true`, the acceleration evicts rows past `retention_period` or matching `retention_sql`, so it holds at most that much history; with retention off, it holds everything appended since it was created. `refresh_data_window` bounds what a rebuild reads from the source, so a window shorter than the history the acceleration holds also rebuilds with less. If the acceleration holds more history than the source still keeps, a rebuild loses the difference.
+For an append or change-fed acceleration, check the data itself rather than its configuration. Compare what the acceleration holds with what the source still has, for example the row count and the oldest value of the dataset's `time_column`, queried through Spice for the acceleration and directly against the source:
+
+```sql
+SELECT count(*), min(created_at) FROM orders;
+```
+
+[Retention settings](../../../features/data-acceleration/data-refresh#retention-policy) explain the difference but do not bound it. Retention runs only with `retention_check_enabled: true`, and only every `retention_check_interval`, so the acceleration can hold rows older than `retention_period` between checks; `retention_sql` deletes whatever rows its condition matches, which need not be an age limit; and with retention off, the acceleration keeps everything appended since it was created. On the source side, a Kafka topic's retention, a table TTL, or a purged change log limits what a rebuild can read, and so does the dataset's own `refresh_data_window`. If the acceleration holds rows the source no longer has, a rebuild loses them.
 
 Keep an acceleration that holds data its source does not on Spice v2.4, the long-term support release, until that data has been moved, and keep its files until the move is verified.
 
@@ -60,7 +66,12 @@ datasets:
       mode: file
 ```
 
-An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so setting `engine: cayenne` is the whole change. Restart Spice and wait for the dataset to report ready before deleting anything. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
+An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so setting `engine: cayenne` is usually the whole change. Two configurations need one more change before the dataset loads on Cayenne:
+
+- **`partition_by` with `mode: memory`.** Cayenne partitions only in file mode, and rejects `partition_by` on an in-memory acceleration. On a single Spice instance, remove `partition_by`. In a cluster, where `partition_by` is what spreads a dataset across executors, set `mode: file` instead.
+- **A Debezium topic without message keys.** Cayenne applies Debezium updates and deletes by key, and rejects a topic whose messages carry no Kafka key; only `arrow` accepted keyless messages. Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property) so each message carries one. Declaring `primary_key` in the Spicepod does not help, because the key must be in the messages.
+
+Restart Spice and wait for the dataset to report ready before deleting anything. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
 
 Cayenne is not available on native Windows, where `arrow` is the default engine. On Windows, run Spice in Docker or WSL to use Cayenne.
 
@@ -131,6 +142,8 @@ datasets:
 
 Cayenne's vector index is exact: it scores every candidate row, using cosine distance by default, instead of searching an approximate HNSW graph. It returns the true nearest rows, and its query time grows with the number of rows searched. For approximate search over very large datasets, use the [S3 Vectors engine](../../vectors/s3_vectors) instead.
 
-The two engines rank results the same way but report `_score` on different scales. The DuckDB vector engine reports cosine similarity, from -1 to 1; Cayenne reports `(1 + cosine similarity) / 2`, from 0 to 1, so a DuckDB score of `0.76` is `0.88` on Cayenne. Queries or alerts that compare `_score` with a fixed threshold, such as `WHERE _score > 0.7`, need the threshold converted: a DuckDB threshold `t` becomes `(1 + t) / 2`.
+The DuckDB vector engine sets its distance metric in configuration (`duckdb_distance_metric`); Cayenne takes it per query, as the `distance_metric` argument of [`vector_search`](../../../reference/sql/search#vector-search-vector_search), and defaults to cosine. If a dataset used `duckdb_distance_metric: l2` or `inner_product`, pass the matching metric in each query, `'l2'` or `'dot'`, for example `vector_search(products, 'query', distance_metric => 'l2')`; otherwise results can rank differently.
+
+With the default cosine metric, the two engines rank results the same way but report `_score` on different scales. The DuckDB vector engine reports cosine similarity, from -1 to 1; Cayenne reports `(1 + cosine similarity) / 2`, from 0 to 1, so a DuckDB score of `0.76` is `0.88` on Cayenne. Queries or alerts that compare `_score` with a fixed threshold, such as `WHERE _score > 0.7`, need the threshold converted: a DuckDB threshold `t` becomes `(1 + t) / 2`. That conversion holds only for cosine; for `l2` or `inner_product`, check any `_score` threshold against Cayenne's results before relying on it.
 
 The DuckDB vector engine stores its embeddings in the DuckDB acceleration file, so deleting that file in [step 3](#step-3-delete-the-old-acceleration-data) removes them too. Cayenne computes the embeddings again as it loads the dataset from the source.
