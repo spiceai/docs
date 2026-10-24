@@ -71,7 +71,9 @@ An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so sett
 - **`partition_by` with `mode: memory`.** Cayenne partitions only in file mode, and rejects `partition_by` on an in-memory acceleration. On a single Spice instance, remove `partition_by`. In a cluster, where `partition_by` is what spreads a dataset across executors, set `mode: file` instead.
 - **A Debezium topic without message keys.** Cayenne applies Debezium updates and deletes by key, and rejects a topic whose messages carry no Kafka key; only `arrow` accepted keyless messages. Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property) so each message carries one. Declaring `primary_key` in the Spicepod does not help, because the key must be in the messages.
 
-Restart Spice and wait for the dataset to report ready before deleting anything. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
+Datasets that load from [snapshots](../../../features/data-acceleration/snapshots) need an order. A dataset with [`refresh_mode: snapshot`](../../../features/data-acceleration/refresh-modes/snapshot), or one that reads another instance's snapshots, never loads from the source, and Cayenne skips snapshots written by another engine. A reader switched to Cayenne therefore has nothing to load until a Cayenne snapshot exists. Migrate the instance that writes the snapshots first, wait until it has published a `.cayenne` snapshot, and then migrate its readers.
+
+Restart Spice, then confirm the data loaded before deleting anything. Reporting ready is not enough: with [`ready_state`](../../../reference/spicepod/datasets#ready_state) set to `on_registration` or `on_schema_resolved`, a dataset reports ready before its first load finishes. Run the query from step 1 against the migrated dataset and check that the row count and oldest value match what the old acceleration held. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
 
 Cayenne is not available on native Windows, where `arrow` is the default engine. On Windows, run Spice in Docker or WSL to use Cayenne.
 
@@ -99,7 +101,7 @@ A dataset with [snapshots](../../../features/data-acceleration/snapshots) enable
 <location>/month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/<name>_<timestamp>_<id>.<ext>
 ```
 
-Delete the files ending in `.duckdb`, `.sqlite`, or `.turso` under each migrated dataset's `dataset=<name>/` folders. Do not delete the folders themselves, because Cayenne writes its own `.cayenne` snapshots into the same place.
+Delete the files ending in `.duckdb`, `.sqlite`, or `.turso` under each migrated dataset's `dataset=<name>/` folders, but only once every instance that reads those snapshots has moved to Cayenne: a reader still on the old engine needs them to load. Do not delete the folders themselves, because Cayenne writes its own `.cayenne` snapshots into the same place.
 
 ## Migrating the DuckDB vector engine
 
