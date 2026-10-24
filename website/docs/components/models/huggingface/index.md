@@ -39,13 +39,15 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | Param           | Description                                                                                                                                                                               | Default |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `hf_token`      | The Huggingface access token. `huggingface_token` is accepted as an alias.                                                                                                                 | -       |
-| `model_type`    | The architecture to load the model as. Supported text architectures: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3`, `qwen3`, `glm4`, `glm4moelite`, `glm4moe`, `qwen3moe`, `smollm3`, `granitemoehybrid`, `gpt_oss`, `qwen3next`. Supported multimodal architectures: `phi3v`, `idefics2`, `llava_next`, `llava`, `vllama`, `qwen2vl`, `idefics3`, `minicpmo`, `phi4mm`, `qwen2_5vl`, `gemma3`, `mistral3`, `llama4`, `gemma3n`, `gemma4`, `qwen3vl`, `qwen3vlmoe`, `qwen3_5`, `qwen3_5moe`, `voxtral`. | -       |
+| `model_type`    | The architecture to load the model as. Not used for a GGUF model, whose architecture is read from the file (see [GGUF architectures](../index.md#gguf-architectures)). Supported text architectures: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3`, `qwen3`, `glm4`, `glm4moelite`, `glm4moe`, `qwen3moe`, `smollm3`, `granitemoehybrid`, `gpt_oss`, `qwen3next`. Supported multimodal architectures: `phi3v`, `idefics2`, `llava_next`, `llava`, `vllama`, `qwen2vl`, `idefics3`, `minicpmo`, `phi4mm`, `qwen2_5vl`, `gemma3`, `mistral3`, `llama4`, `gemma3n`, `gemma4`, `qwen3vl`, `qwen3vlmoe`, `qwen3_5`, `qwen3_5moe`, `voxtral`. | -       |
 | `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                            | -       |
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                  | -       |
 
 ### `files`
 
 The specific file path for Huggingface model. For example, GGUF model formats require a specific file path, other varieties (e.g. `.safetensors`) are inferred.
+
+A GGUF model is served by llama.cpp; see [Local GGUF Models](../index.md#local-gguf-models). Every `.gguf` file listed in `files` is downloaded: the shards of a split model, and an optional multi-token prediction draft head, whose name starts with `mtp-`. The files go into the same Hugging Face cache, with the same revision (`repo:revision`), `hf_token` and offline behavior as the rest of the model.
 
 #### Example
 
@@ -56,6 +58,21 @@ models:
     files:
       - path: Qwen2.5-Coder-3B-Instruct-Q3_K_L.gguf
 ```
+
+#### Example: GGUF with an MTP Draft Head
+
+The `mtp-` file is a draft head that proposes tokens for the model to verify. See [Multi-Token Prediction Draft Heads](../index.md#multi-token-prediction-draft-heads).
+
+```yaml
+models:
+  - name: qwen3.8-flash-next
+    from: huggingface:huggingface.co/mradermacher/Qwen3.8-Flash-Next-GGUF
+    files:
+      - path: Qwen3.8-Flash-Next.Q2_K.gguf
+      - path: mtp-Qwen3.8-Flash-Next-Q8_0.gguf # optional: an MTP draft head
+```
+
+A GGUF that carries its own NextN layer, such as GLM-5.3-Flash, drafts for itself; list only the model's files.
 
 ## Access Tokens
 
