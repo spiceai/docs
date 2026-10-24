@@ -73,7 +73,13 @@ An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so sett
 
 Datasets that load from [snapshots](../../../features/data-acceleration/snapshots) need an order. A dataset with [`refresh_mode: snapshot`](../../../features/data-acceleration/refresh-modes/snapshot), or one that reads another instance's snapshots, never loads from the source, and Cayenne skips snapshots written by another engine. A reader switched to Cayenne therefore has nothing to load until a Cayenne snapshot exists. Migrate the instance that writes the snapshots first, wait until it has published a `.cayenne` snapshot, and then migrate its readers.
 
-Restart Spice, then confirm the data loaded before deleting anything. Reporting ready is not enough: with [`ready_state`](../../../reference/spicepod/datasets#ready_state) set to `on_registration` or `on_schema_resolved`, a dataset reports ready before its first load finishes. Run the query from step 1 against the migrated dataset and check that the row count and oldest value match what the old acceleration held. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
+Restart Spice, then confirm that Cayenne finished its first load before comparing or deleting anything. With the default [`ready_state: on_load`](../../../reference/spicepod/datasets#ready_state), a migrated dataset reports ready only after that load. With `on_registration` or `on_schema_resolved`, it reports ready earlier and answers queries from the source until the load finishes, so a query run then checks the source, not Cayenne. Use `on_load` for the migration, or wait for the dataset's load line in the log:
+
+```text
+INFO runtime_table::accelerated::refresh_task: Loaded 4 rows (92.00 B) for dataset orders in 16ms
+```
+
+Then run the query from step 1 against the migrated dataset and check that the row count and oldest value match what the old acceleration held. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
 
 Cayenne is not available on native Windows, where `arrow` is the default engine. On Windows, run Spice in Docker or WSL to use Cayenne.
 
