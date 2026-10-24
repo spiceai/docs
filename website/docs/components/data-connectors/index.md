@@ -350,7 +350,16 @@ That failure is intentional. Incompatible source changes stay blocked until an e
 | `sync_all_columns`   | Lossless widening changes: new nullable columns, widened types, relaxed nullability. Removals and narrowing stay blocked. |
 | `drop_and_recreate`  | Widening changes in place, and a destructive rebuild for incompatible changes. The rebuild runs only with `refresh_mode: full`. |
 
-Restarting the runtime re-infers the schema from the source. [`acceleration.mode: file_update`](../reference/spicepod/datasets#accelerationmode) drops and recreates the accelerated table when an incompatible change is found, leaving the acceleration file in place. Federated queries against a dataset that is not accelerated always see the live source schema; `on_schema_change` does not apply to them.
+Restarting the runtime re-infers the schema from the source. [`acceleration.mode: file_update`](../reference/spicepod/datasets#accelerationmode) drops and recreates the accelerated table when an incompatible change is found, leaving the acceleration file in place. Federated queries against a dataset that is not accelerated always see the live source schema; `on_schema_change` does not apply to them. Parquet and ORC file datasets also report a registered column that disappears from the source files: they keep the schema registered at startup, as described in [File datasets: missing columns](#file-missing-columns).
+
+#### File datasets: missing columns {#file-missing-columns}
+
+Parquet and ORC file datasets (on `file:`, `s3:`, `abfs:`, `gs:`, and the other object-store connectors) fill a registered column with `NULL` when a file does not carry it. That is what lets older files coexist with newer files that add a column. When a registered column is missing from **every** file a scan reads, the source schema has changed, for example the column was renamed or dropped upstream, and Spice reports it instead of silently returning `NULL`:
+
+- **Acceleration refresh:** the refresh fails with an error naming the dataset and the missing columns, and the accelerated table keeps serving the last loaded data. The error appears in the runtime log and in `runtime.task_history`. Restore the column in the source files, or restart the runtime so the dataset registers the new schema. A refresh that reads only some files, for example a `refresh_sql` that filters on a partition column, logs a `WARN` instead of failing, because the files it selects may predate the column.
+- **Federated queries** (non-accelerated datasets and federated views): the query still returns `NULL` for the missing columns, and the runtime logs a `WARN` naming the dataset and columns once per change.
+
+A column some scanned file still carries is not reported, and new columns in the source files are ignored until the runtime restarts. Datasets that set `schema_source_path` are not checked, because their schema can name columns the data files do not carry yet. CSV and JSON datasets are not checked, because their schema is inferred from a sample of records and cannot prove a column is absent.
 
 :::tip[Recommendation]
 Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
