@@ -39,7 +39,7 @@ datasets:
       connection_string: mysql://${env:MY_USER}:${env:MY_PASSWORD}@localhost:3306/my_db
 ```
 
-Keys are matched case-sensitively, and the store also tries the UPPERCASED key to follow the convention of environment variables, so `${secrets:my_pg_user}` finds `MY_PG_USER` when no variable named `my_pg_user` or `SPICE_my_pg_user` is set. See [Precedence](#precedence) for the full lookup order.
+Keys are matched case-sensitively, and the store also tries the UPPERCASED key to follow the convention of environment variables, so `${secrets:my_pg_user}` finds `MY_PG_USER` when none of `SPICE_my_pg_user`, `my_pg_user`, or `SPICE_MY_PG_USER` is set. See [Precedence](#precedence) for the full lookup order.
 
 Example:
   
@@ -50,8 +50,8 @@ datasets:
     params:
       pg_host: localhost
       pg_port: 5432
-      pg_user: ${secrets:my_pg_user} # resolves MY_PG_USER
-      pg_pass: ${secrets:my_pg_password} # resolves MY_PG_PASSWORD
+      pg_user: ${secrets:my_pg_user} # MY_PG_USER, unless a higher-priority spelling is set
+      pg_pass: ${secrets:my_pg_password} # MY_PG_PASSWORD, unless a higher-priority spelling is set
 ```
 
 ## .env Files
