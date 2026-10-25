@@ -95,13 +95,14 @@ secrets:
 
 ## Precedence
 
-For a key such as `my_key`, the `env` store looks up `SPICE_my_key`, `my_key`, `SPICE_MY_KEY`, then `MY_KEY`, and returns the first one defined. Where it looks depends on whether the store sets `file_path`:
+For a key such as `my_key`, the `env` store tries four spellings in order: `SPICE_my_key`, `my_key`, `SPICE_MY_KEY`, then `MY_KEY`. Where it looks depends on whether the store sets `file_path`:
 
-| Store                 | Order of lookup                                                    |
-| --------------------- | ------------------------------------------------------------------ |
-| Default (no `file_path`) | The process environment, then `.env.local`, then `.env`.       |
-| With `file_path`      | The file named by `file_path`, then the process environment.      |
+| Store                    | Lookup                                                                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Default (no `file_path`) | Each spelling in turn in the process environment, which includes the exported `.env.local` and `.env` values (see below). The first spelling found wins. |
+| With `file_path`         | Every spelling in the file named by `file_path` first, then every spelling in the process environment.                                   |
 
+For the same variable name, a value set in the process environment wins over `.env.local`, and `.env.local` wins over `.env`, because exporting a file never overwrites a variable that is already set. Spelling order applies across sources: if the process environment sets `MY_KEY=prod` and `.env.local` sets `SPICE_MY_KEY=staging`, then `${secrets:my_key}` resolves to `staging`, because `SPICE_MY_KEY` is tried before `MY_KEY`. To make a process environment value win, set it under the same spelling the file uses.
 
 ### Values Exported to the Process Environment
 
