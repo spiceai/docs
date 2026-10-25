@@ -88,7 +88,7 @@ Spice downloads from `hf_endpoint` when a component sets it, else from `HF_ENDPO
 
 ### Cache
 
-Downloads go to the standard Hugging Face cache: `HF_HUB_CACHE`, else `HUGGINGFACE_HUB_CACHE`, else `$HF_HOME/hub` (by default `~/.cache/huggingface/hub`). A model downloaded with `hf download` is not downloaded again, and the `hf` CLI reads what Spice downloads.
+Downloads go to the standard Hugging Face cache: `HF_HUB_CACHE`, else `HUGGINGFACE_HUB_CACHE`, else `$HF_HOME/hub`. `HF_HOME` defaults to `$XDG_CACHE_HOME/huggingface` when `XDG_CACHE_HOME` is set, else to `~/.cache/huggingface`. A model downloaded with `hf download` is not downloaded again, and the `hf` CLI reads what Spice downloads.
 
 Each load resolves the revision (`main` by default) to a commit, and downloads only the files of that commit the cache lacks. A commit hash as the revision pins the files.
 
