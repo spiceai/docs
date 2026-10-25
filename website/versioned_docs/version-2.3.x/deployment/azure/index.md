@@ -215,7 +215,7 @@ az containerapp create \
   --secret-volume-mount /mnt/secrets
 ```
 
-The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker#build-a-custom-image) does.
+The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker/index.md#build-a-custom-image) does.
 
 To run multiple replicas with shared file-based acceleration, define an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) and reference it from the app's revision template, then point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`).
 
@@ -262,7 +262,7 @@ az container create \
   --azure-file-volume-mount-path /data
 ```
 
-The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker#build-a-custom-image) does.
+The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker/index.md#build-a-custom-image) does.
 
 Refer to the [Azure Container Instances documentation](https://learn.microsoft.com/azure/container-instances/) for advanced networking, [virtual network integration](https://learn.microsoft.com/azure/container-instances/container-instances-virtual-network-concepts), and [managed identity](https://learn.microsoft.com/azure/container-instances/container-instances-managed-identity) configuration.
 
