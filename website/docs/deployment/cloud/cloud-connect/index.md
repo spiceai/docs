@@ -80,7 +80,7 @@ An enrolled instance serves **one** Spicepod, and after its first deployment tha
 
 The consequence to plan for: anything that exists **only** in the local file stops being served the moment the first deployment lands. A view added to the project's Spicepod in Spice Cloud that reads a dataset defined only locally therefore never resolves — the runtime warns that the view's dependent table does not exist, because the deployed manifest has no such dataset. Copy the local datasets into the project's Spicepod before deploying, and from then on edit the project's Spicepod in Spice Cloud rather than the local file.
 
-For the same reason `--pods-watcher-enabled` is ignored on an instance serving a deployed Spicepod, and the runtime says so: watching the local `spicepod.yaml` would replace the deployed configuration while the instance kept reporting the deployment as applied.
+For the same reason `--pods-watcher-enabled` is ignored on every enrolled instance, including one still serving its local `spicepod.yaml` before its first deployment, so editing the local file does not reload the runtime: watching it would replace the deployed configuration while the instance kept reporting the deployment as applied. Because `spice run` passes this flag on every launch, the runtime records that it ignored the flag only at `debug` log level.
 
 ## Removing an instance
 

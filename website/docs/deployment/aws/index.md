@@ -167,6 +167,7 @@ Create a task definition for the [`spiceai/spiceai` image](https://hub.docker.co
       "name": "spiceai",
       "image": "spiceai/spiceai:1.11.5",
       "essential": true,
+      "command": ["--http", "0.0.0.0:8090", "--flight", "0.0.0.0:50051"],
       "portMappings": [
         { "containerPort": 8090, "protocol": "tcp" },
         { "containerPort": 50051, "protocol": "tcp" }
@@ -180,13 +181,6 @@ Create a task definition for the [`spiceai/spiceai` image](https://hub.docker.co
           "valueFrom": "arn:aws:secretsmanager:us-east-1:123456789012:secret:spiceai/api-key"
         }
       ],
-      "healthCheck": {
-        "command": ["CMD-SHELL", "wget -q --spider http://localhost:8090/health || exit 1"],
-        "interval": 10,
-        "timeout": 3,
-        "retries": 5,
-        "startPeriod": 30
-      },
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
@@ -199,6 +193,8 @@ Create a task definition for the [`spiceai/spiceai` image](https://hub.docker.co
   ]
 }
 ```
+
+Without the `command` arguments, `spiced` listens only on `127.0.0.1` inside the container, so the load balancer cannot reach it. The image contains only `spiced` and its libraries, with no shell or `wget`, so a container `healthCheck` command cannot run; use the load balancer target group's health check on `/health` instead.
 
 Register the task:
 
@@ -258,7 +254,7 @@ In the Spicepod, point file accelerators at `/data`, for example `duckdb_file: /
 
 #### 4. Auto-scaling
 
-Configure [service auto-scaling](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html) on average CPU or on custom CloudWatch metrics derived from the Spice `/v1/metrics` endpoint:
+Configure [service auto-scaling](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html) on average CPU or on custom CloudWatch metrics derived from the Prometheus metrics Spice serves at `/metrics` when started with `--metrics <BIND_ADDRESS>`:
 
 ```bash
 aws application-autoscaling register-scalable-target \

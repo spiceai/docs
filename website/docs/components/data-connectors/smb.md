@@ -34,9 +34,10 @@ SELECT * FROM sales LIMIT 10;
 
 Specifies the SMB server, share, and path to connect to.
 
-**Format:** `smb://<host>/<share>/<path>`
+**Format:** `smb://<host>[:<port>]/<share>/<path>`
 
 - `<host>`: The server hostname or IP address
+- `<port>`: The server port (optional). Defaults to `445`. The port can also be set with the `smb_port` parameter.
 - `<share>`: The share name on the server
 - `<path>`: Path to a file or directory within the share (optional)
 
@@ -56,6 +57,9 @@ from: smb://fileserver/data/
 
 # Using IP address
 from: smb://192.168.1.100/share/data.parquet
+
+# Using a non-standard port
+from: smb://fileserver:4450/data/sales/
 ```
 
 ### `name`
@@ -69,7 +73,7 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                   |
 | `smb_user`                  | Username for SMB authentication. Use [secrets](../secret-stores) syntax: `${secrets:smb_user}`. |
 | `smb_pass`                  | Password for SMB authentication. Use [secrets](../secret-stores) syntax: `${secrets:smb_pass}`. |
-| `smb_port`                  | SMB server port. Default: `445`.                                                                |
+| `smb_port`                  | SMB server port. Default: the port in `from`, or `445`. A value that conflicts with the port in `from` is rejected. |
 | `client_timeout`            | Maximum time to wait for each response from the SMB server, including the responses during connection setup and login. E.g. `30s`, `1m`. Default: `30s`. The initial TCP connect is not bounded by this value. |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.   |
 
@@ -136,7 +140,7 @@ datasets:
 
 ### Custom Port Configuration
 
-Connect to SMB servers running on non-standard ports:
+Connect to SMB servers running on non-standard ports by setting the port in `from` or with `smb_port`:
 
 ```yaml
 datasets:
@@ -147,6 +151,12 @@ datasets:
       smb_port: 4450
       smb_user: ${secrets:smb_user}
       smb_pass: ${secrets:smb_pass}
+```
+
+The port can be set in one place or both. When both are set, they must match; otherwise the dataset fails to load with an error such as:
+
+```text
+The port in the URL (4450) conflicts with smb_port (445). Set the port in one place.
 ```
 
 ### Hive Partitioning

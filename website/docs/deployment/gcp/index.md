@@ -176,8 +176,11 @@ gcloud run deploy spiceai \
   --min-instances 1 --max-instances 5 \
   --cpu 1 --memory 2Gi \
   --set-env-vars SPICED_LOG=INFO \
-  --set-secrets SPICEAI_API_KEY=spiceai-api-key:latest
+  --set-secrets SPICEAI_API_KEY=spiceai-api-key:latest \
+  --args=--http,0.0.0.0:8090
 ```
+
+The comma-separated `--args` values are passed to `spiced`. The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` on port `8090`, which Cloud Run ingress cannot reach.
 
 To run multiple replicas with shared file-based acceleration, mount [Cloud Storage with FUSE](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts) and point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`). Cloud Storage volume latency is significantly higher than local SSD, so prefer GKE for latency-sensitive accelerated workloads.
 

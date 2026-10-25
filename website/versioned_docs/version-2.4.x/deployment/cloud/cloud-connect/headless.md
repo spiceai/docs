@@ -115,7 +115,7 @@ The [Helm deployment guide](../../kubernetes/helm/index.md) documents the rest o
 spiced --token "$SPICE_ENROLL_KEY" --region on-prem-syd
 ```
 
-The label is 2–64 lowercase letters, digits, or hyphens, and is a declared value rather than a probed one.
+The label is 2–64 lowercase letters, digits, or hyphens, starts and ends with a letter or digit, and is a declared value rather than a probed one.
 
 ## Checking the connection
 

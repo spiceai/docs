@@ -67,7 +67,7 @@ datasets:
 ```
 
 :::info Readiness with snapshots
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
+An append-mode acceleration that defines a `time_column` and meets the conditions in [Serving an Existing Acceleration While the Source Is Unavailable](#serving-an-existing-acceleration-while-the-source-is-unavailable) is served as soon as its existing acceleration is available, whether it was reopened from disk or restored by [snapshot bootstrap](./snapshots), including while the source is unavailable. The first append refresh then catches up from the newest `time_column` value in the acceleration. [`last_refresh`](#monitoring-freshness) does not show how current the data is until a refresh completes: a dataset that creates acceleration snapshots or was restored from one does not restore `last_refresh` from its checkpoint at startup, so while the source is unavailable it serves the persisted data without reporting it. In v2.4.0-rc.3 and earlier, such a dataset with snapshots enabled waited to report ready until its first append refresh completed.
 :::
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap).
@@ -251,6 +251,8 @@ A dataset is served from its existing acceleration this way when its configurati
 
 A snapshot reader whose first [acceleration snapshot](./snapshots) download is still pending at startup is also not served this way.
 
+An [accelerated view](../views) is served from its existing acceleration in the same way when the view's acceleration uses `mode: file`, its checkpoint records the acceleration's primary key, and the view has no embedding or full-text search columns. Spice registers the view from its acceleration at startup, so queries return the persisted data while the datasets or views it reads cannot load, and the view's refreshes resume once every table it reads is ready. In v2.4.0-rc.3 and earlier, such a view failed with `table ... not found` until the tables it reads had loaded.
+
 Connectors that reach their source only when the dataset is first read, such as [HTTP(S)](../../components/data-connectors/https) and [S3](../../components/data-connectors/s3), already fell back to the existing acceleration when that first read failed, and they keep doing so, except while the checkpoint was written by an earlier version (see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions)).
 
 A dataset with no existing acceleration to serve, such as one starting for the first time, is registered once its source is reached. Until then, its status is `Error`, queries fail with `table ... not found`, and `/v1/ready` returns `503`. Spice retries the source with a backoff that starts at about one second and grows to at most five minutes between attempts, with no limit on attempts, and loads the dataset when the source answers. Rejected credentials and TLS failures are configuration errors: Spice logs them as an error and does not retry.
@@ -265,7 +267,7 @@ Query availability and source health are reported separately: a dataset can serv
 | `on_registration`     | Served from the existing acceleration   | `200` once registered             | `Ready` at registration, `Error` after a failed connection attempt, `Ready` once reconnected    |
 | `on_schema_resolved`  | Served from the existing acceleration   | `503` until the source is reached | `Initializing` at registration, `Error` after a failed connection attempt, `Ready` once reached |
 
-`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. Two kinds of dataset do not follow this table, because the existing acceleration is not treated as loaded until a refresh completes in this process: a dataset with `refresh_mode: append`, a `time_column`, and snapshot bootstrapping enabled, and a dataset that reads acceleration snapshots (`file_format: snapshot`) before it restores one. Until that refresh completes, `on_load` is not ready and queries return an error. `on_registration` is ready at registration and `on_schema_resolved` is ready once the source is reached, but in both cases queries go to the federated source rather than the persisted data, so they fail while the source is unavailable.
+`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. A dataset that reads acceleration snapshots (`file_format: snapshot`) does not follow this table before it restores a snapshot in this process, because its existing acceleration is not treated as loaded until then. Until it restores one, `on_load` is not ready and queries return an error. `on_registration` is ready at registration and `on_schema_resolved` is ready once the source is reached, but in both cases queries go to the federated source rather than the persisted data, so they fail while the source is unavailable.
 
 [`refresh_on_startup`](#refresh-on-startup) keeps its meaning for `refresh_mode: full`. With `auto`, the persisted data is served and the next refresh follows the refresh schedule. With `always`, the persisted data is served until the source is reached and the startup refresh replaces it. The other eligible refresh modes ignore `refresh_on_startup`: `append` refreshes at startup once the source is reached, adding new data to the persisted data instead of replacing it, `snapshot` checks for a newer snapshot at startup, and `disabled` does not refresh.
 
@@ -694,6 +696,16 @@ datasets:
       refresh_retry_max_attempts: 10
       refresh_check_interval: 30s
 ```
+
+### Source That Stops Sending Mid-Refresh
+
+Once the source has sent the first batch of a `full` or `append` refresh, Spice waits at most 10 minutes for each later batch. A connection that the network stops carrying can otherwise leave a refresh waiting indefinitely, with the dataset serving stale data and other refreshes queued behind it. A refresh that waits longer fails with a transient error, is counted in [`dataset_acceleration_refresh_errors`](../observability#available-metrics), and, unless `refresh_retry_enabled` is `false`, is retried on a new connection with the backoff described above:
+
+```text
+The source of dataset 'orders' stopped sending data mid-refresh: no data for 600s after it started sending, so the connection is treated as lost and the refresh is retried
+```
+
+The wait for the first batch is not limited, so a source that takes a long time to plan and start a query is unaffected. A refresh that never receives its first batch, such as one that draws a pooled connection that died while idle, is not covered by this limit. The 10-minute limit cannot be configured.
 
 ## Retention Policy
 
