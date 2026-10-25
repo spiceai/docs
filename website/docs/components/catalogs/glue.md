@@ -221,6 +221,7 @@ Write operations require `s3:PutObject` permission on the target S3 bucket and `
 :::warning
 
 - This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported.
+- The location of a Parquet, ORC, or CSV table must be an `s3://` URL. A table whose location uses another scheme, including `s3a://`, `http://`, `https://`, or `file://`, is refused before any request is sent, with an error that names the table and its location. See [AWS Glue Data Connector limitations](../data-connectors/glue#limitations).
 - This catalog connector is limited to Iceberg tables and tables whose data format is Parquet, ORC, or CSV. A Hive ACID/transactional ORC table (the Glue table property `transactional` set to `true`, `yes`, or `1`) is refused at registration — Spice does not implement Hive ACID snapshot semantics (`base_*`, `delta_*`, `delete_delta_*`). Export or materialize the current snapshot to a non-transactional ORC location and register that instead.
 
 :::

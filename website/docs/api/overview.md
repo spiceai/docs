@@ -18,6 +18,10 @@ Spice provides high-performance, industry-standard APIs:
 
 - **HTTP APIs**: Compatible with the OpenAI SDK and AI SDK. Supports local model serving (CUDA/Metal accelerated) and gateway to hosted models.
 
+### Anthropic Messages API
+
+- **HTTP APIs**: `POST /v1/messages` is compatible with Anthropic SDKs and tools such as Claude Code, and is served by any chat model in the Spicepod. For details, see the [Messages API documentation](../features/large-language-models/messages.md).
+
 ### Iceberg Catalog REST APIs
 
 - **HTTP APIs**: Unified API for consuming Apache Iceberg catalogs in data lake architectures.

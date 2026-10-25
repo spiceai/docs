@@ -174,9 +174,8 @@ datasets:
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll
 - With [`bootstrap_on_failure_behavior: retry`](./snapshots#failure-behavior), a failed download retries the whole poll. Each attempt reads the metadata again and validates the snapshot before downloading it, so a snapshot published to replace a broken one is picked up
-- A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one and the dataset is not pinned to it
+- A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one
 - When a poll finds no published snapshot, or finds one older than the loaded snapshot, the dataset stays `Ready` and keeps serving the loaded snapshot. The poll increments `dataset_acceleration_refresh_errors` with `reason="snapshot_not_found"` or `reason="snapshot_older_than_loaded"` and logs a warning that begins `Dataset '<name>' cannot refresh from its snapshot location, so it keeps serving snapshot <id>`
-- When the dataset is [pinned](./snapshots#pin-and-unpin-a-snapshot) to a snapshot older than the loaded one, the reader loads the pinned snapshot
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
 - `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots
 

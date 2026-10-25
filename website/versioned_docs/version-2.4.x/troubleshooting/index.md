@@ -123,6 +123,20 @@ A sort, aggregation, or sort-merge join that exceeds the query memory pool spill
 
 See [Spill-to-Disk and the Temporary Directory](reference/performance-tuning#spill-to-disk-and-the-temporary-directory).
 
+### Queries or refreshes fail with `Too many open files`
+
+Client connections, acceleration files, and every other file the runtime opens count against one per-process open file limit. On Linux and macOS, `spiced` raises its soft open file limit to the hard limit at startup, so the limit in force is usually the hard limit that the shell, service manager, or container runtime sets. On macOS, the raised limit is capped at the `kern.maxfilesperproc` system setting. On Windows, the runtime does not change any limit.
+
+Run `spiced` with [`--verbose`](#verbose-logging) to see the outcome in a startup debug log line, such as `Raised the open file limit from 1024 to 524288`. `Open file limit is 256` means the soft limit was already at the most the process can set, and a line that starts with `Failed to raise the open file limit` names the limit in force and the cause.
+
+When a Cayenne scan reaches the limit, the query fails with an error that names the limit:
+
+```text
+Failed to open Cayenne acceleration file '/data/t/a.vortex' because the process reached its open file limit of 1024, which client connections and all other open files also count against. Raise the limit where spiced is started (`ulimit -n`, or the container's `nofile` limit), or write fewer, larger acceleration files with `cayenne_target_file_size_mb`. See: https://spiceai.org/docs/components/data-accelerators/cayenne#params. Cause: External error: Unable to open file /data/t/a.vortex: Too many open files (os error 24)
+```
+
+To resolve it, raise the hard limit where `spiced` starts, for example with `docker run --ulimit nofile=65536:65536`, or write fewer, larger Cayenne files with a higher [`cayenne_target_file_size_mb`](../components/data-accelerators/cayenne/index.md#parameters).
+
 ### Port conflicts on startup
 
 If Spice fails to bind to its default ports (`8090` for HTTP, `50051` for Flight, `9090` for metrics), another process is already using that port. Override the ports:

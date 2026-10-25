@@ -17,7 +17,7 @@ spice [command] [--help]
 
 | Command                            | Description                                                            |
 | ---------------------------------- | ---------------------------------------------------------------------- |
-| [acceleration](reference/acceleration) | Manage dataset acceleration snapshots: list, pin and unpin           |
+| acceleration                       | Manage dataset acceleration features                                   |
 | [add](reference/add)               | Add Spicepod - adds a Spicepod to the project                          |
 | catalog                            | Add or configure catalog entries in `spicepod.yaml`                    |
 | [catalogs](reference/catalogs)     | List [catalogs](../components/catalogs) loaded by the Spice runtime |

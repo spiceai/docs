@@ -4044,6 +4044,8 @@ arrow_cast(expression, arrow_type)
 
 See [Data Types Reference](../../reference/datatypes) for supported Arrow types.
 
+An `arrow_type` string nested more than 64 parentheses deep, such as a `List(...)` type wrapped in more than 64 levels of `List`, is rejected before the query is planned. The error contains `Query rejected: an 'arrow_cast' type string is nested more than 64 levels deep. Simplify the target type.` The same limit applies to `arrow_try_cast`.
+
 ### `arrow_try_cast`
 
 Like [`arrow_cast`](#arrow_cast) but returns `NULL` instead of erroring when the cast fails.

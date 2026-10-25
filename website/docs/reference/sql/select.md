@@ -72,7 +72,7 @@ SELECT a, b FROM x;
 
 ### SELECT clause
 
-The `SELECT` clause is used to select data from a database by defining the colummns it returns. Each `select_expr` in the
+The `SELECT` clause is used to select data from a database by defining the columns it returns. Each `select_expr` in the
 SELECT list can be an expression or wildcards.
 
 Example:
@@ -100,7 +100,7 @@ SELECT t.a FROM table AS t;
 
 ### WHERE clause
 
-The `WHERE` clause is used define the conditions to filter the query results.
+The `WHERE` clause is used to define the conditions to filter the query results.
 
 Example:
 
@@ -212,7 +212,7 @@ select * from x cross join x y;
 
 The `GROUP BY` clause groups together input rows that have the same value into summary rows.
 
-`GROUP BY` is typically used with aggregrate functions (`COUNT()`, `MAX()`, `SUM()`), but if no aggregate functions are
+`GROUP BY` is typically used with aggregate functions (`COUNT()`, `MAX()`, `SUM()`), but if no aggregate functions are
 included, the query with a `GROUP BY` clause is the same as `SELECT DISTINCT`.
 
 Example:

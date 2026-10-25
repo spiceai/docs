@@ -62,13 +62,13 @@ For local development and testing, the Spice CLI provides commands to generate s
 spice cluster tls init
 
 # Generate certificate for the scheduler node
-spice cluster tls add scheduler1
+spice cluster tls add scheduler1 --host scheduler1
 
 # Generate certificate for an executor node
-spice cluster tls add executor1
+spice cluster tls add executor1 --host executor1
 ```
 
-Certificates are stored in `~/.spice/pki/` by default.
+Certificates are stored in `~/.spice/pki/` by default. Each certificate lists `localhost` and `127.0.0.1` as Subject Alternative Names. When a node advertises any other hostname or IP address with `--node-advertise-address`, add that address with `--host`.
 
 :::warning
 CLI-generated certificates are not intended for production use. Production deployments should use certificates issued by the organization's PKI or a trusted certificate authority.
@@ -79,7 +79,7 @@ CLI-generated certificates are not intended for production use. Production deplo
 For local development and testing, mTLS can be disabled using the `--allow-insecure-connections` flag:
 
 ```bash
-spiced --role scheduler --allow-insecure-connections
+spiced --role scheduler --node-advertise-address localhost --allow-insecure-connections
 ```
 
 :::warning
@@ -96,17 +96,18 @@ The following examples use CLI-generated development certificates. For productio
 
 ```bash
 spice cluster tls init
-spice cluster tls add scheduler1
-spice cluster tls add executor1
+spice cluster tls add scheduler1 --host scheduler1
+spice cluster tls add executor1 --host executor1
 ```
 
 ### Start the Scheduler
 
-The scheduler is the only `spiced` process that needs to be configured (i.e. have a `spicepod.yaml` in the current dir). Override the Flight bind address when it must be reachable outside of `localhost`:
+The scheduler is the only `spiced` process that needs to be configured (i.e. have a `spicepod.yaml` in the current dir). Override the Flight bind address when it must be reachable outside of `localhost`. Every scheduler and executor must set `--node-advertise-address`, the hostname or IP address other nodes use to reach it; a node in cluster mode without it fails to start:
 
 ```bash
 spiced --role scheduler \
   --flight 0.0.0.0:50051 \
+  --node-advertise-address scheduler1 \
   --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
   --node-mtls-certificate-file ~/.spice/pki/scheduler1.crt \
   --node-mtls-key-file ~/.spice/pki/scheduler1.key
@@ -119,6 +120,7 @@ Executors connect to the scheduler's internal cluster port (50052) to register a
 ```bash
 spiced --role executor \
   --scheduler-address https://scheduler1:50052 \
+  --node-advertise-address executor1 \
   --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
   --node-mtls-certificate-file ~/.spice/pki/executor1.crt \
   --node-mtls-key-file ~/.spice/pki/executor1.key
@@ -774,6 +776,7 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
    # Scheduler 1
    spiced --role scheduler \
      --flight 0.0.0.0:50051 \
+     --node-advertise-address scheduler1 \
      --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
      --node-mtls-certificate-file ~/.spice/pki/scheduler1.crt \
      --node-mtls-key-file ~/.spice/pki/scheduler1.key
@@ -781,6 +784,7 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
    # Scheduler 2 (on a different node)
    spiced --role scheduler \
      --flight 0.0.0.0:50051 \
+     --node-advertise-address scheduler2 \
      --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
      --node-mtls-certificate-file ~/.spice/pki/scheduler2.crt \
      --node-mtls-key-file ~/.spice/pki/scheduler2.key
@@ -791,6 +795,7 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
    ```bash
    spiced --role executor \
      --scheduler-address https://scheduler1:50052 \
+     --node-advertise-address executor1 \
      --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
      --node-mtls-certificate-file ~/.spice/pki/executor1.crt \
      --node-mtls-key-file ~/.spice/pki/executor1.key
