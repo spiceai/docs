@@ -212,11 +212,32 @@ az containerapp create \
       SPICED_LOG=INFO \
       AZURE_CLIENT_ID=$(az identity show -g $RG -n spiceai-identity --query clientId -o tsv) \
   --secrets spiceai-key=keyvaultref:https://my-vault.vault.azure.net/secrets/spiceai-key,identityref:$IDENTITY_ID \
-  --secret-volume-mount /mnt/secrets \
-  --args "--http" "0.0.0.0:8090" "--flight" "0.0.0.0:50051"
+  --secret-volume-mount /mnt/secrets
 ```
 
-The `--args` values are passed to `spiced`. The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress cannot reach. Add `--metrics 0.0.0.0:9090` to serve Prometheus metrics.
+The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress cannot reach. The Azure CLI parses values that begin with `--` as its own options, so set the container's arguments in the app's YAML instead of with `--args`. Export the app:
+
+```bash
+az containerapp show --name spiceai --resource-group $RG --output yaml > spiceai.yaml
+```
+
+In `spiceai.yaml`, add an `args` list to the container under `properties.template.containers`:
+
+```yaml
+args:
+  - --http
+  - 0.0.0.0:8090
+  - --flight
+  - 0.0.0.0:50051
+```
+
+Then apply it, which creates a new revision:
+
+```bash
+az containerapp update --name spiceai --resource-group $RG --yaml spiceai.yaml
+```
+
+Add `--metrics` and `0.0.0.0:9090` to the list to serve Prometheus metrics.
 
 With `--ingress external`, the app is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
 
