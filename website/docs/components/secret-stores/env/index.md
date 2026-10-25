@@ -69,9 +69,9 @@ MY_PG_PASSWORD=postgres
 
 | Parameter Name | Description                                                                                                      |
 | -------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `file_path`    | Optional. Path to a specific `.env` file to load. When set, `.env` and `.env.local` in the project directory are not loaded. |
+| `file_path`    | Optional. Path to a specific `.env` file to load. When set, the store reads this file instead of `.env` and `.env.local` in the project directory. |
 
-To load environment variables from a specific `.env` file, use the `file_path` parameter. When a `file_path` parameter is specified, environment variables from `.env` or `.env.local` will not be loaded.
+To load environment variables from a specific `.env` file, use the `file_path` parameter. A store with `file_path` reads only that file, and looks up a key in the process environment when the file does not define it.
 
 ```yaml
 secrets:
@@ -92,3 +92,20 @@ secrets:
     params:
       file_path: ./custom/path/to/.env
 ```
+
+## Precedence
+
+For a key such as `my_key`, the `env` store looks up `SPICE_my_key`, `my_key`, `SPICE_MY_KEY`, then `MY_KEY`, and returns the first one defined. Where it looks depends on whether the store sets `file_path`:
+
+| Store                 | Order of lookup                                                    |
+| --------------------- | ------------------------------------------------------------------ |
+| Default (no `file_path`) | The process environment, then `.env.local`, then `.env`.       |
+| With `file_path`      | The file named by `file_path`, then the process environment.      |
+
+
+### Values Exported to the Process Environment
+
+Before any secret store loads, Spice exports the variables in the project's `.env.local` and `.env` files to the process environment, without overwriting variables already set. Libraries that read the process environment directly, such as the AWS SDK default credential chain, `AWS_REGION`, and `GOOGLE_APPLICATION_CREDENTIALS`, therefore see these values even when no `env` store is configured or the `env` store is not defined first. Because a `file_path` store falls back to the process environment, a key it does not find in its own file can resolve to a value from the project's `.env.local` or `.env` file.
+
+The file named by `file_path` is not exported. Its values are available only through `${env:...}` or `${secrets:...}` references, so a library that reads the process environment does not see them.
+
