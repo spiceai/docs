@@ -102,7 +102,7 @@ For a key such as `my_key`, the `env` store tries four spellings in order: `SPIC
 | Default (no `file_path`) | Each spelling in turn in the process environment, which includes the exported `.env.local` and `.env` values (see below). The first spelling found wins. |
 | With `file_path`         | Every spelling in the file named by `file_path` first, then every spelling in the process environment.                                   |
 
-For the same variable name, a value set in the process environment wins over `.env.local`, and `.env.local` wins over `.env`, because exporting a file never overwrites a variable that is already set. Spelling order applies across sources: if the process environment sets `MY_KEY=prod` and `.env.local` sets `SPICE_MY_KEY=staging`, then `${secrets:my_key}` resolves to `staging`, because `SPICE_MY_KEY` is tried before `MY_KEY`. To make a process environment value win, set it under the same spelling the file uses.
+For the same variable name, a value set in the process environment wins over `.env.local`, and `.env.local` wins over `.env`, because exporting a file never overwrites a variable that is already set. Spelling order applies across sources: if the process environment sets `MY_KEY=prod` and `.env.local` sets `SPICE_MY_KEY=staging`, then `${secrets:my_key}` resolves to `staging`, because `SPICE_MY_KEY` is tried before `MY_KEY`. For the default store, set a process environment value under the same spelling `.env.local` or `.env` uses to make it win. A store with `file_path` always prefers its own file: to supply a key from the process environment instead, change or remove it in that file.
 
 ### Values Exported to the Process Environment
 
