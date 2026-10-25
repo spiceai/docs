@@ -48,7 +48,7 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--role <scheduler|executor>` — Explicit cluster role. If omitted but `--scheduler-address` is set, the role defaults to `executor`.
 - `--scheduler-address <URL>` — URL of the scheduler service. Required on executors.
 - `--node-bind-address <BIND_ADDRESS>` — Bind address for the internal cluster gRPC service. Default: `0.0.0.0:50052`.
-- `--node-advertise-address <HOST_OR_IP>` — Hostname or IP this node advertises to the rest of the cluster.
+- `--node-advertise-address <HOST_OR_IP>` — Hostname or IP this node advertises to the rest of the cluster. Required on every scheduler and executor. With cluster mTLS, it must be a Subject Alternative Name in the node certificate.
 - `--node-mtls-ca-certificate-file <PATH>` — CA certificate used to validate peer node identities.
 - `--node-mtls-certificate-file <PATH>` — Certificate file used for both server TLS and client mTLS on the node port.
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.

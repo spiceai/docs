@@ -30,14 +30,14 @@ The scheduler holds the cluster-wide configuration for a Spicepod, while executo
 
 Spice separates public and internal cluster traffic across different ports:
 
-| Port  | Service         | Description                                               |
-| ----- | --------------- | --------------------------------------------------------- |
-| 50051 | Flight SQL      | Public query endpoint                                     |
-| 8090  | HTTP API        | Public REST API                                           |
-| 9090  | Prometheus      | Metrics endpoint                                          |
-| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS required) |
+| Port  | Service         | Description                                                                                            |
+| ----- | --------------- | ------------------------------------------------------------------------------------------------------ |
+| 50051 | Flight SQL      | Public query endpoint                                                                                  |
+| 8090  | HTTP API        | Public REST API                                                                                        |
+| 9090  | Prometheus      | Metrics endpoint                                                                                       |
+| 50052 | Cluster Service | Internal scheduler/executor communication (mTLS required unless `--allow-insecure-connections` is set) |
 
-Internal cluster services are isolated on port 50052, which refuses every request unless the node runs cluster mTLS.
+Internal cluster services are isolated on port 50052. A node in cluster mode requires cluster mTLS unless it is started with [`--allow-insecure-connections`](#local-development-without-mtls) for local development.
 
 ## Secure Cluster Communication (mTLS)
 
@@ -62,21 +62,46 @@ For local development and testing, the Spice CLI provides commands to generate s
 spice cluster tls init
 
 # Generate certificate for the scheduler node
-spice cluster tls add scheduler1
+spice cluster tls add scheduler1 --host scheduler1
 
 # Generate certificate for an executor node
-spice cluster tls add executor1
+spice cluster tls add executor1 --host executor1
 ```
 
-Certificates are stored in `~/.spice/pki/` by default.
+Certificates are stored in `~/.spice/pki/` by default. Each certificate lists `localhost` and `127.0.0.1` as Subject Alternative Names. When a node advertises any other hostname or IP address with `--node-advertise-address`, add that address with `--host`.
 
 :::warning
 CLI-generated certificates are not intended for production use. Production deployments should use certificates issued by the organization's PKI or a trusted certificate authority.
 :::
 
-### Deprecated `--allow-insecure-connections` flag
+### Local development without mTLS
 
-The `--allow-insecure-connections` flag is deprecated and will be removed in a future release. It no longer disables mTLS. A node started with it still starts and logs a deprecation warning. Without cluster mTLS configured, that node's internal cluster port refuses every request, so executors cannot join and schedulers cannot exchange task history or metrics with each other. With the `--node-mtls-*` flags set, the flag has no effect and cluster requests are accepted as usual. Use the `--node-mtls-*` flags with certificates from `spice cluster tls` instead, even for local development.
+For local development and testing on a trusted network, start each node with `--allow-insecure-connections` in place of the three `--node-mtls-*` flags. The cluster then runs without certificates or executor API keys, including distributed queries that exchange shuffle data between executors:
+
+```bash
+spiced --role scheduler \
+  --node-advertise-address scheduler1 \
+  --allow-insecure-connections
+```
+
+```bash
+spiced --role executor \
+  --scheduler-address http://scheduler1:50052 \
+  --node-advertise-address executor1 \
+  --allow-insecure-connections
+```
+
+Without cluster mTLS, the scheduler address uses `http://`. When `--scheduler-address` has no scheme, the executor uses `http` without cluster mTLS and `https` with it. A node started with the flag and without the `--node-mtls-*` flags logs this warning at startup:
+
+```text
+Cluster connections are not authenticated or encrypted because `--allow-insecure-connections` is set. Use only on a trusted network for local development and testing. For secure clusters, create certificates with `spice cluster tls init` and `spice cluster tls add <node-name>` and set the `--node-mtls-*` flags.
+```
+
+When the `--node-mtls-*` flags are also set, the node uses cluster mTLS and the flag has no effect. A node in cluster mode with neither the flag nor the `--node-mtls-*` flags fails to start with an error that names the missing flags.
+
+:::warning
+Do not use `--allow-insecure-connections` in production. Without cluster mTLS, internal cluster traffic, which includes the Spicepod configuration, expanded secrets, and shuffle data, is neither authenticated nor encrypted.
+:::
 
 ## Getting Started
 
@@ -88,17 +113,18 @@ The following examples use CLI-generated development certificates. For productio
 
 ```bash
 spice cluster tls init
-spice cluster tls add scheduler1
-spice cluster tls add executor1
+spice cluster tls add scheduler1 --host scheduler1
+spice cluster tls add executor1 --host executor1
 ```
 
 ### Start the Scheduler
 
-The scheduler is the only `spiced` process that needs to be configured (i.e. have a `spicepod.yaml` in the current dir). Override the Flight bind address when it must be reachable outside of `localhost`:
+The scheduler is the only `spiced` process that needs to be configured (i.e. have a `spicepod.yaml` in the current dir). Override the Flight bind address when it must be reachable outside of `localhost`. Every scheduler and executor must set `--node-advertise-address`, the hostname or IP address other nodes use to reach it; a node in cluster mode without it fails to start:
 
 ```bash
 spiced --role scheduler \
   --flight 0.0.0.0:50051 \
+  --node-advertise-address scheduler1 \
   --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
   --node-mtls-certificate-file ~/.spice/pki/scheduler1.crt \
   --node-mtls-key-file ~/.spice/pki/scheduler1.key
@@ -111,6 +137,7 @@ Executors connect to the scheduler's internal cluster port (50052) to register a
 ```bash
 spiced --role executor \
   --scheduler-address https://scheduler1:50052 \
+  --node-advertise-address executor1 \
   --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
   --node-mtls-certificate-file ~/.spice/pki/executor1.crt \
   --node-mtls-key-file ~/.spice/pki/executor1.key
@@ -672,6 +699,7 @@ Each scheduler deletes, with their result chunks, the jobs whose results have ex
 - The `format` query parameter on the results endpoint is declared but not yet implemented (results are always JSON over HTTP, Arrow IPC over Flight)
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)
+- Async queries reject locally accelerated datasets, Cayenne catalog tables, and `runtime.task_history` (including `runtime.local_task_history`), because task history is read only on the scheduler. Run these queries through `/v1/sql` or Flight SQL. A rejected query fails with the error code `EXECUTION_FAILED`.
 
 ## High Availability
 
@@ -778,6 +806,7 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
    # Scheduler 1
    spiced --role scheduler \
      --flight 0.0.0.0:50051 \
+     --node-advertise-address scheduler1 \
      --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
      --node-mtls-certificate-file ~/.spice/pki/scheduler1.crt \
      --node-mtls-key-file ~/.spice/pki/scheduler1.key
@@ -785,6 +814,7 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
    # Scheduler 2 (on a different node)
    spiced --role scheduler \
      --flight 0.0.0.0:50051 \
+     --node-advertise-address scheduler2 \
      --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
      --node-mtls-certificate-file ~/.spice/pki/scheduler2.crt \
      --node-mtls-key-file ~/.spice/pki/scheduler2.key
@@ -795,6 +825,7 @@ A `gs://` state location takes the [GCS data connector](../../components/data-co
    ```bash
    spiced --role executor \
      --scheduler-address https://scheduler1:50052 \
+     --node-advertise-address executor1 \
      --node-mtls-ca-certificate-file ~/.spice/pki/ca.crt \
      --node-mtls-certificate-file ~/.spice/pki/executor1.crt \
      --node-mtls-key-file ~/.spice/pki/executor1.key

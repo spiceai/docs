@@ -147,7 +147,7 @@ Common runtime variables:
 | --------------------- | --------------------------------------------------------------------- |
 | `SPICED_LOG`          | Log level: `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`. Default `INFO`. |
 | `SPICE_SECRET_<NAME>` | Inject a named secret referenced from a Spicepod.                     |
-| `TMPDIR`              | Temporary directory. The image sets it to `/app/tmp`; see [Temporary files](#temporary-files). |
+| `TMPDIR`              | Temporary directory. Unset in the image, so the runtime uses `/tmp`; see [Temporary files](#temporary-files). |
 
 ## Persistence
 
@@ -164,14 +164,13 @@ In the Spicepod, configure the accelerator to write under the mount path, for ex
 
 ## Temporary files
 
-The published images are built `FROM scratch` and contain only the files the runtime needs — there is no `/tmp`. The image therefore ships `TMPDIR=/app/tmp` and creates that directory owned by the `nobody` (`65534`) user it runs as, so anything resolving the OS temporary directory has somewhere to write. Acceleration snapshots stage their tar archive there before uploading, and it is also the default target for query spill when [`runtime.query.temp_directory`](../reference/spicepod/runtime#runtimequerytemp_directory) is unset.
+The published images are built `FROM scratch` and contain only the files the runtime needs, plus a world-writable `/tmp` (mode `1777`). `TMPDIR` is not set, so anything resolving the OS temporary directory writes to `/tmp`. Images v2.3.1 through v2.4.0-rc.2 have no `/tmp` and set `TMPDIR=/app/tmp` instead. Acceleration snapshots stage their tar archive there before uploading, and it is also the default target for query spill when [`runtime.query.temp_directory`](../reference/spicepod/runtime#runtimequerytemp_directory) is unset.
 
-`/app/tmp` lives on the container's writable layer, which is usually small and is discarded when the container is removed. For workloads that snapshot large accelerations or spill large sorts and joins, give the temporary directory a volume of its own:
+`/tmp` lives on the container's writable layer unless a volume is mounted there, and the writable layer is usually small and is discarded when the container is removed. For workloads that snapshot large accelerations or spill large sorts and joins, mount a volume at `/tmp`. An image that sets `TMPDIR=/app/tmp` (v2.3.1 through v2.4.0-rc.2) writes temporary files there, not to `/tmp`; on those images, mount the volume at `/app/tmp` instead (`-v spice-tmp:/app/tmp`).
 
 ```bash
 docker run --rm -p 8090:8090 \
-  -v spice-tmp:/tmp-volume \
-  -e TMPDIR=/tmp-volume \
+  -v spice-tmp:/tmp \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
   spiceai/spiceai:latest
 ```

@@ -1,0 +1,1 @@
+{"parameters":[{"name":"Accept","in":"header","description":"The format of the response, one of 'application/json' (default), 'application/vnd.spiceai.sql.v1+json', 'text/csv' or 'text/plain'.","required":true,"schema":{"type":"string"}}]}

@@ -48,7 +48,30 @@ runtime:
         - ${ secrets:writer_key }:rw # read-write; clients send the value of writer_key
 ```
 
-The built-in [`sql` tool](../../components/tools/index.md) writes data only for a request authenticated with a read-write key, or with a verified client certificate when client certificates identify callers, and only to a dataset or catalog configured with write access, such as `access: read_write`. Every other request, including a request to a runtime without `runtime.auth`, runs the tool read-only. This applies to tool calls a model makes from `/v1/chat/completions`, `/v1/responses`, and the `ai()` SQL function, to `/v1/tools`, and to [MCP](../../features/large-language-models/mcp.md). Scheduled [worker](../../reference/spicepod/workers.md) prompts run without an API key, so their `sql` tool calls are read-only.
+The built-in [`sql` tool](../../components/tools/index.md) writes data only for a request authenticated with a read-write key, or with a verified client certificate when client certificates identify callers, and only to a dataset or catalog configured with write access, such as `access: read_write`. Every other request, including a request to a runtime without `runtime.auth`, runs the tool read-only. This applies to tool calls a model makes from `/v1/chat/completions`, `/v1/responses`, [`/v1/messages`](../../features/large-language-models/messages.md), and the `ai()` SQL function, to `/v1/tools`, and to [MCP](../../features/large-language-models/mcp.md). Scheduled [worker](../../reference/spicepod/workers.md) prompts run without an API key, so their `sql` tool calls are read-only.
+
+### Routes that need a read-write key
+
+These HTTP routes change runtime state or act on other callers' queries, so they need a read-write key, or a verified client certificate when client certificates identify callers:
+
+| Method  | Route                                                 |
+| ------- | ----------------------------------------------------- |
+| `POST`  | `/v1/datasets/{name}/acceleration/refresh`            |
+| `PATCH` | `/v1/datasets/{name}/acceleration`                    |
+| `POST`  | `/v1/datasets/{name}/acceleration/snapshots/current`  |
+| `POST`  | `/v1/datasets/{name}/cdc`                             |
+| `POST`  | `/v1/metrics`                                         |
+| `POST`  | `/v1/logs`                                            |
+| `POST`  | `/v1/packages/generate`                               |
+| `GET`   | `/v1/sql/active`                                      |
+| `POST`  | `/v1/sql/{query_id}/cancel`                           |
+| `POST`  | `/v1/queries/{query_id}/cancel`                       |
+
+A request to one of these routes with a read-only key gets `403 Forbidden` with the body `{"message":"API key does not allow write access"}`. The key is checked before the request body is read, so a read-only key gets `403` even when the body is malformed or has the wrong `Content-Type`, not the route's `400`, `415`, or `422` parsing error. `/v1/metrics` and `/v1/logs` return the same message as a `google.rpc.Status`, as described in [OpenTelemetry Data Ingestion](../../features/data-ingestion/index.md#opentelemetry-data-ingestion). A request without an API key gets `401 Unauthorized`.
+
+The OpenTelemetry gRPC export services on the Flight port, `MetricsService/Export` and `LogsService/Export`, also need a read-write key. They refuse a read-only key with the gRPC status `PERMISSION_DENIED` and the message `API key does not allow write access`, and store nothing from that export.
+
+When `runtime.auth` is not configured, a request carries no API key, and none of these routes refuses it for lack of write access.
 
 ## HTTP
 

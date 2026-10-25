@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Table exists"},"404":{"description":"Table does not exist"}}}
