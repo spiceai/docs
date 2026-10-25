@@ -17,12 +17,17 @@ Run the latest Spice.ai image with a local Spicepod mounted into the container:
 
 ```bash
 docker run --rm -it \
-  -p 8090:8090 \
-  -p 9090:9090 \
-  -p 50051:50051 \
+  -p 127.0.0.1:8090:8090 \
+  -p 127.0.0.1:9090:9090 \
+  -p 127.0.0.1:50051:50051 \
   -v "$(pwd)":/app \
-  spiceai/spiceai:latest
+  spiceai/spiceai:latest \
+  --http 0.0.0.0:8090 --metrics 0.0.0.0:9090 --flight 0.0.0.0:50051
 ```
+
+The arguments after the image name are passed to `spiced`. Without them, `spiced` listens only on `127.0.0.1` inside the container, and the published ports cannot reach it.
+
+The examples on this page publish the ports on the host's `127.0.0.1` only. On Docker Engine versions before 28.0.0, [hosts on the same local network can still reach ports published on `127.0.0.1`](https://docs.docker.com/engine/network/port-publishing/), so on those versions also configure API key authentication or a host firewall. To accept connections from other machines, publish them on all interfaces (for example, `-p 8090:8090`) and require [API key authentication](../../api/auth/index.md), because a runtime without it serves every client that can reach the port.
 
 Spice listens on three ports:
 
@@ -54,7 +59,7 @@ The `-models` image tags were removed in Spice v2.0 — AI/ML support is now par
 Pin to a specific version in production to avoid unexpected upgrades:
 
 ```bash
-docker run -p 8090:8090 spiceai/spiceai:2.0.0
+docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.0.0 --http 0.0.0.0:8090
 ```
 
 ## Run with Docker Compose
@@ -67,19 +72,15 @@ services:
     image: spiceai/spiceai:latest
     container_name: spiced
     ports:
-      - '8090:8090'
-      - '9090:9090'
-      - '50051:50051'
+      - '127.0.0.1:8090:8090'
+      - '127.0.0.1:9090:9090'
+      - '127.0.0.1:50051:50051'
     volumes:
       - ./spicepod.yaml:/app/spicepod.yaml:ro
       - ./data:/app/data
     env_file:
       - .env
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:8090/health']
-      interval: 10s
-      timeout: 3s
-      retries: 5
+    command: ['--http', '0.0.0.0:8090', '--metrics', '0.0.0.0:9090', '--flight', '0.0.0.0:50051']
     restart: unless-stopped
 ```
 
@@ -120,7 +121,7 @@ Build and run:
 
 ```bash
 docker build -t my-spiceai-app .
-docker run --rm -p 8090:8090 -p 50051:50051 my-spiceai-app
+docker run --rm -p 127.0.0.1:8090:8090 -p 127.0.0.1:50051:50051 my-spiceai-app
 ```
 
 :::warning Do not bake secrets into images
@@ -134,11 +135,12 @@ Spice loads secrets from environment variables prefixed with `SPICE_SECRET_`. Se
 Pass secrets at runtime with `--env-file` (preferred) or `-e`:
 
 ```bash
-docker run --rm -p 8090:8090 \
+docker run --rm -p 127.0.0.1:8090:8090 \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
   --env-file .env \
   -e SPICED_LOG=INFO \
-  spiceai/spiceai:latest
+  spiceai/spiceai:latest \
+  --http 0.0.0.0:8090
 ```
 
 Common runtime variables:
@@ -154,10 +156,11 @@ Common runtime variables:
 For workloads that use file-based acceleration (for example, DuckDB or SQLite), mount a host directory or named volume so data survives container restarts:
 
 ```bash
-docker run --rm -p 8090:8090 \
+docker run --rm -p 127.0.0.1:8090:8090 \
   -v spice-data:/data \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
-  spiceai/spiceai:latest
+  spiceai/spiceai:latest \
+  --http 0.0.0.0:8090
 ```
 
 In the Spicepod, configure the accelerator to write under the mount path, for example `duckdb_file: /data/taxi_trips.db`.
@@ -169,10 +172,11 @@ The published images are built `FROM scratch` and contain only the files the run
 `/tmp` lives on the container's writable layer unless a volume is mounted there, and the writable layer is usually small and is discarded when the container is removed. For workloads that snapshot large accelerations or spill large sorts and joins, mount a volume at `/tmp`. An image that sets `TMPDIR=/app/tmp` (v2.3.1 through v2.4.0-rc.2) writes temporary files there, not to `/tmp`; on those images, mount the volume at `/app/tmp` instead (`-v spice-tmp:/app/tmp`).
 
 ```bash
-docker run --rm -p 8090:8090 \
+docker run --rm -p 127.0.0.1:8090:8090 \
   -v spice-tmp:/tmp \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
-  spiceai/spiceai:latest
+  spiceai/spiceai:latest \
+  --http 0.0.0.0:8090
 ```
 
 Setting `runtime.query.temp_directory` in the Spicepod covers query spill specifically; `TMPDIR` covers everything else that asks the operating system for a temporary path.
@@ -186,7 +190,7 @@ curl http://localhost:8090/health
 curl http://localhost:8090/v1/ready
 ```
 
-A Docker Compose healthcheck example is included in the [Run with Docker Compose](#run-with-docker-compose) section above.
+The `spiceai/spiceai` image contains only `spiced` and its libraries, with no shell, `curl`, or `wget`, so a Docker or Docker Compose `healthcheck` that runs a command inside the container cannot work. Probe these endpoints over HTTP from outside the container instead, for example with a Kubernetes `httpGet` probe or a load balancer health check.
 
 ## Cookbook
 

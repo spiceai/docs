@@ -43,9 +43,29 @@ An `http://` or `https://` URL table is rejected during planning when its host i
 URL table "http://localhost:8080/data.csv" targets a private, loopback, or link-local address, which is not allowed for SSRF protection. If this runtime intentionally queries an internal HTTP endpoint, set SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS=true.
 ```
 
-The quoted URL is the one from the query. To query an internal HTTP object store on purpose, set `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` to `1`, `true`, `yes`, or `on` in the runtime's environment; the check is then skipped entirely.
+The quoted URL is the one from the query. The same check applies to every redirect the request follows (up to 10) and to every address the host resolves to when Spice connects, so a public URL cannot redirect or resolve to an internal address. A redirect or connection the check refuses fails the query with an error that begins `Refused to connect to`.
 
-The object-store schemes (`s3://`, `gs://`, `gcs://`, `abfs://`, `abfss://`) are not checked, because each reaches a fixed cloud endpoint rather than an arbitrary host.
+When the runtime uses a proxy from the `HTTP_PROXY`, `HTTPS_PROXY`, or `ALL_PROXY` environment variables, the proxy's own host is checked like any other host, so an HTTP URL table sent through a proxy on a private address is refused. Spice cannot see the address a proxy resolves the destination to, so for requests sent through a proxy only the URL and redirect checks apply; configure the proxy to refuse internal destinations.
+
+`SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` is not a proxy-specific exception. It turns off the internal-host checks for every URL table in the runtime, and the [Iceberg connector](../../components/data-connectors/iceberg.md) also reads it for catalog-supplied storage endpoints. Set it only where network egress controls already keep the runtime from reaching internal hosts.
+
+To query an internal HTTP object store on purpose, set `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` to `1`, `true`, `yes`, or `on` in the runtime's environment; the check is then skipped entirely.
+
+### Object-Store URL Fragments Are Limited
+
+The object-store schemes (`s3://`, `gs://`, `gcs://`, `abfs://`, `abfss://`) are not checked for internal hosts, because each reaches its provider's endpoint rather than an arbitrary host. To keep it that way, an object-store URL table accepts only these keys in its URL fragment: `account`, `auth`, `client_timeout`, `region`, and `url_style`. For example:
+
+```sql
+SELECT * FROM 's3://my-bucket/data/#region=us-east-1&auth=public' LIMIT 10;
+```
+
+A `region` value may contain only letters, digits, and hyphens, and an `account` value only letters and digits. A fragment that sets any other key, such as `endpoint`, `allow_http`, or a credential, fails to plan, whether or not `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` is set. For example, `SELECT * FROM 's3://my-bucket/data/#endpoint=http://10.0.0.5:9000'` fails with:
+
+```console
+URL table "s3://my-bucket/data/" sets `endpoint` in its URL fragment, which a query cannot set because it would choose the object store's endpoint or credentials. A URL table accepts only `account`, `auth`, `client_timeout`, `region`, `url_style`. To read this location, configure a dataset instead. See: https://spiceai.org/docs/components/data-connectors
+```
+
+To read from a custom endpoint, such as a MinIO server, [configure a dataset](../../components/data-connectors/s3/index.md) instead. Datasets configured in a Spicepod are not affected by this limit.
 
 ## Query Patterns
 
