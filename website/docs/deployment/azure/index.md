@@ -218,6 +218,8 @@ az containerapp create \
 
 The `--args` values are passed to `spiced`. The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress cannot reach. Add `--metrics 0.0.0.0:9090` to serve Prometheus metrics.
 
+With `--ingress external`, the app is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
+
 To run multiple replicas with shared file-based acceleration, define an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) and reference it from the app's revision template, then point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`).
 
 #### 4. Scaling rules
@@ -265,6 +267,8 @@ az container create \
 ```
 
 The `--command-line` replaces the image's start command, so it names `/usr/local/bin/spiced` before its arguments. Without `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051`, `spiced` listens only on `127.0.0.1`, which the container's public IP address cannot reach.
+
+With `--ip-address public`, the container is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
 
 Refer to the [Azure Container Instances documentation](https://learn.microsoft.com/azure/container-instances/) for advanced networking, [virtual network integration](https://learn.microsoft.com/azure/container-instances/container-instances-virtual-network-concepts), and [managed identity](https://learn.microsoft.com/azure/container-instances/container-instances-managed-identity) configuration.
 
