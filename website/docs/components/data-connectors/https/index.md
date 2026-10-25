@@ -571,7 +571,7 @@ A refused response fails the request without retries, because the origin returns
 Ask the endpoint for an uncompressed response by adding `Accept-Encoding: identity` to `http_headers`, or request less data per call.
 ```
 
-To read an endpoint whose responses compress that well, request uncompressed responses:
+To read an endpoint whose responses compress that well, request uncompressed responses. An uncompressed response has no size limit and is held in memory while it is read, so use this only with an endpoint you trust, and prefer requesting less data per call where the endpoint supports it:
 
 ```yaml
 datasets:

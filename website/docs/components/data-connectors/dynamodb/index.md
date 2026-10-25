@@ -314,7 +314,7 @@ A value read later that does not fit the inferred type, such as `12.345` in an `
 DynamoDB attribute 'price' has the number 12.345, which does not fit its column type Int64. Increase schema_infer_max_records so schema inference sees this value, or declare the column's type in `columns`
 ```
 
-To avoid the error, increase `schema_infer_max_records` so the sample includes a non-integer value.
+To avoid the error, increase `schema_infer_max_records` so the sample includes a non-integer value. The column then becomes `Float64`, which holds about 15 to 17 significant digits: a value with more digits, such as an integer larger than 2<sup>53</sup> (`9007199254740992`), is rounded to the nearest `Float64` value without an error. The connector does not read numbers as `Decimal`, so it cannot preserve such values exactly.
 
 ## Time format
 
