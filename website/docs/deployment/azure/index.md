@@ -212,10 +212,11 @@ az containerapp create \
       SPICED_LOG=INFO \
       AZURE_CLIENT_ID=$(az identity show -g $RG -n spiceai-identity --query clientId -o tsv) \
   --secrets spiceai-key=keyvaultref:https://my-vault.vault.azure.net/secrets/spiceai-key,identityref:$IDENTITY_ID \
-  --secret-volume-mount /mnt/secrets
+  --secret-volume-mount /mnt/secrets \
+  --args "--http" "0.0.0.0:8090" "--flight" "0.0.0.0:50051"
 ```
 
-The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker/index.md#build-a-custom-image) does.
+The `--args` values are passed to `spiced`. The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress cannot reach. Add `--metrics 0.0.0.0:9090` to serve Prometheus metrics.
 
 To run multiple replicas with shared file-based acceleration, define an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) and reference it from the app's revision template, then point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`).
 
@@ -259,10 +260,11 @@ az container create \
   --azure-file-volume-share-name spice-data \
   --azure-file-volume-account-name mystorageacct \
   --azure-file-volume-account-key "<key>" \
-  --azure-file-volume-mount-path /data
+  --azure-file-volume-mount-path /data \
+  --command-line "/usr/local/bin/spiced --http 0.0.0.0:8090 --flight 0.0.0.0:50051"
 ```
 
-The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker/index.md#build-a-custom-image) does.
+The `--command-line` replaces the image's start command, so it names `/usr/local/bin/spiced` before its arguments. Without `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051`, `spiced` listens only on `127.0.0.1`, which the container's public IP address cannot reach.
 
 Refer to the [Azure Container Instances documentation](https://learn.microsoft.com/azure/container-instances/) for advanced networking, [virtual network integration](https://learn.microsoft.com/azure/container-instances/container-instances-virtual-network-concepts), and [managed identity](https://learn.microsoft.com/azure/container-instances/container-instances-managed-identity) configuration.
 

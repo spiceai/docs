@@ -17,15 +17,17 @@ Run the latest Spice.ai image with a local Spicepod mounted into the container:
 
 ```bash
 docker run --rm -it \
-  -p 8090:8090 \
-  -p 9090:9090 \
-  -p 50051:50051 \
+  -p 127.0.0.1:8090:8090 \
+  -p 127.0.0.1:9090:9090 \
+  -p 127.0.0.1:50051:50051 \
   -v "$(pwd)":/app \
   spiceai/spiceai:latest \
   --http 0.0.0.0:8090 --metrics 0.0.0.0:9090 --flight 0.0.0.0:50051
 ```
 
 The arguments after the image name are passed to `spiced`. Without them, `spiced` listens only on `127.0.0.1` inside the container, and the published ports cannot reach it.
+
+The examples on this page publish the ports on the host's `127.0.0.1` only. To accept connections from other machines, publish them on all interfaces (for example, `-p 8090:8090`) and require [API key authentication](../../api/auth/index.md), because a runtime without it serves every client that can reach the port.
 
 Spice listens on three ports:
 
@@ -57,7 +59,7 @@ The `-models` image tags were removed in Spice v2.0 — AI/ML support is now par
 Pin to a specific version in production to avoid unexpected upgrades:
 
 ```bash
-docker run -p 8090:8090 spiceai/spiceai:2.0.0 --http 0.0.0.0:8090
+docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.0.0 --http 0.0.0.0:8090
 ```
 
 ## Run with Docker Compose
@@ -70,9 +72,9 @@ services:
     image: spiceai/spiceai:latest
     container_name: spiced
     ports:
-      - '8090:8090'
-      - '9090:9090'
-      - '50051:50051'
+      - '127.0.0.1:8090:8090'
+      - '127.0.0.1:9090:9090'
+      - '127.0.0.1:50051:50051'
     volumes:
       - ./spicepod.yaml:/app/spicepod.yaml:ro
       - ./data:/app/data
@@ -119,7 +121,7 @@ Build and run:
 
 ```bash
 docker build -t my-spiceai-app .
-docker run --rm -p 8090:8090 -p 50051:50051 my-spiceai-app
+docker run --rm -p 127.0.0.1:8090:8090 -p 127.0.0.1:50051:50051 my-spiceai-app
 ```
 
 :::warning Do not bake secrets into images
@@ -133,7 +135,7 @@ Spice loads secrets from environment variables prefixed with `SPICE_SECRET_`. Se
 Pass secrets at runtime with `--env-file` (preferred) or `-e`:
 
 ```bash
-docker run --rm -p 8090:8090 \
+docker run --rm -p 127.0.0.1:8090:8090 \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
   --env-file .env \
   -e SPICED_LOG=INFO \
@@ -154,7 +156,7 @@ Common runtime variables:
 For workloads that use file-based acceleration (for example, DuckDB or SQLite), mount a host directory or named volume so data survives container restarts:
 
 ```bash
-docker run --rm -p 8090:8090 \
+docker run --rm -p 127.0.0.1:8090:8090 \
   -v spice-data:/data \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
   spiceai/spiceai:latest \
@@ -170,7 +172,7 @@ The published images are built `FROM scratch` and contain only the files the run
 `/app/tmp` lives on the container's writable layer, which is usually small and is discarded when the container is removed. For workloads that snapshot large accelerations or spill large sorts and joins, give the temporary directory a volume of its own:
 
 ```bash
-docker run --rm -p 8090:8090 \
+docker run --rm -p 127.0.0.1:8090:8090 \
   -v spice-tmp:/tmp-volume \
   -e TMPDIR=/tmp-volume \
   -v "$(pwd)/spicepod.yaml":/app/spicepod.yaml:ro \
