@@ -254,7 +254,7 @@ In the Spicepod, point file accelerators at `/data`, for example `duckdb_file: /
 
 #### 4. Auto-scaling
 
-Configure [service auto-scaling](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html) on average CPU or on custom CloudWatch metrics derived from the Spice `/v1/metrics` endpoint:
+Configure [service auto-scaling](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html) on average CPU or on custom CloudWatch metrics derived from the Prometheus metrics Spice serves at `/metrics` when started with `--metrics <BIND_ADDRESS>`:
 
 ```bash
 aws application-autoscaling register-scalable-target \

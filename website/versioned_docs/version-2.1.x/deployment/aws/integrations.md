@@ -146,7 +146,7 @@ embeddings:
     name: nova_embed
     params:
       dimensions: '1024'
-      truncation_mode: START
+      truncate_mode: START
       embedding_purpose: GENERIC_RETRIEVAL
       aws_region: us-east-1
 ```
