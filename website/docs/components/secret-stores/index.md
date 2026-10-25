@@ -117,7 +117,7 @@ datasets:
       pg_pass: ${secrets:pg_pass}
 ```
 
-In this example, the runtime would look for `pg_user` and `pg_pass` in the `keyring` secret store first and then in the `env` secret store. The `<key_name>` value in `${secrets:<key_name>}` is automatically uppercased for the `env` secret store.
+In this example, the runtime would look for `pg_user` and `pg_pass` in the `keyring` secret store first and then in the `env` secret store. For the `env` secret store, `${secrets:pg_pass}` tries `SPICE_pg_pass`, `pg_pass`, `SPICE_PG_PASS`, then `PG_PASS`, and uses the first one set; see the [env secret store precedence](./env/index.md#precedence).
 
 To override the `keyring` secret store secrets with environment variables, re-order the secret stores in the configuration file:
 
