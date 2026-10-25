@@ -179,6 +179,8 @@ gcloud run deploy spiceai \
   --set-secrets SPICEAI_API_KEY=spiceai-api-key:latest
 ```
 
+The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress and other containers cannot reach. Pass `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051` (and `--metrics 0.0.0.0:9090` to serve Prometheus metrics) as the container's arguments, as the [Docker guide](../docker#build-a-custom-image) does.
+
 To run multiple replicas with shared file-based acceleration, mount [Cloud Storage with FUSE](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts) and point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`). Cloud Storage volume latency is significantly higher than local SSD, so prefer GKE for latency-sensitive accelerated workloads.
 
 #### 3. Scaling rules
