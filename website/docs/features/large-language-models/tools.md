@@ -92,7 +92,19 @@ models:
       tool_recursion_limit: 3
 ```
 
-On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run.
+On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run. On [`/v1/messages`](messages.md#spice-tools), Spice runs the last permitted round's calls and the response ends with `stop_reason: pause_turn`, for the client to continue.
+
+### Text Written Beside a Tool Call
+
+A model can write text and call a Spice tool in the same step, for example "Let me check." followed by a `sql` call. On [`/v1/chat/completions`](../../api/HTTP/post-chat-completions), Spice sends that text back to the model with the tool call and its results, and the response message carries the text, a blank line, and then the answer, whether or not the response is streamed:
+
+```text
+Let me check.
+
+There are 3 rows.
+```
+
+There is no blank line when the text already ends with whitespace or the answer already starts with it. When the request sets `logprobs`, there is no blank line either, so `content` is exactly the text its log probabilities cover. A response that is not streamed and uses a `json_object` or `json_schema` `response_format` carries only the answer, so it parses as JSON.
 
 ### Tool Calls in Responses API Output
 

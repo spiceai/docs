@@ -83,7 +83,7 @@ For a SQL query, over HTTP (`/v1/sql`), Arrow Flight, or Flight SQL:
   DEBUG query{trace_id=4bf92f3577b34da6a3ce929d0e0e4736}: runtime::datafusion::query::tracker: Query failed (InternalError): ...
   ```
 
-`/v1/chat/completions`, `/v1/responses`, `/v1/nsql`, and `/v1/decisions` also record a client-supplied ID in the `trace_id` column of their `task_history` rows.
+`/v1/chat/completions`, `/v1/responses`, `/v1/messages`, `/v1/nsql`, and `/v1/decisions` also record a client-supplied ID in the `trace_id` column of their `task_history` rows.
 
 A value that is not 32 hexadecimal characters, or is all zeros, does not fail the request. The runtime logs a warning and generates an ID instead:
 

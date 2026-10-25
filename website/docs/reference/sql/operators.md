@@ -350,6 +350,12 @@ SELECT 'foobar' !~~* 'F_o%Br';
 - [AND](#and)
 - [OR](#or)
 
+Spice rejects a SQL statement whose expression tree is nested more than 512 levels deep, before it plans the query. A flat chain of `AND` or `OR` terms nests one level per term, so a `WHERE` clause with several hundred `OR` conditions can exceed the limit even though it contains no parentheses. An `IN` list is wide rather than deep and is not limited by this check, so rewrite a long chain of equality tests as `IN (...)`, or join against a table of the values. The limit is fixed and cannot be configured. A rejected query fails with HTTP `400` on `/v1/sql` and the gRPC status `InvalidArgument` over Arrow Flight SQL, and the error contains:
+
+```text
+Query rejected: an expression is nested more than 512 levels deep. Simplify the query (for example, replace a long chain of OR/AND conditions with an IN list or a join).
+```
+
 ### `AND`
 
 Logical And

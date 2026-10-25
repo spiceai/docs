@@ -8,13 +8,13 @@ To contribute to the documentation, follow the instructions below to set up a lo
 
 ## Overview
 
-The Spice docs are built using [Docusaurus](https://docusaurus.io/) hosted on [GitHub Pages](https://pages.github.com/).
+The Spice docs are built with [Docusaurus](https://docusaurus.io/) and hosted on [Cloudflare Pages](https://pages.cloudflare.com/). The [Deployment](#deployment) section describes how changes are published.
 
 The [website](./website) directory contains the Docusaurus project, markdown files, and theme configurations.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/) (v18 or later recommended)
+- [Node.js](https://nodejs.org/en/) 24 or later
 - npm (included with Node.js)
 
 Docusaurus is installed as a project dependency and does not need to be installed globally.
@@ -70,4 +70,16 @@ npm start
    ```
 
 5. Open a pull request from your branch to the `trunk` branch of the upstream repository.
-6. A staging site is automatically generated and linked in the pull request for review.
+6. GitHub Actions builds the pull request. For a pull request from a branch in this repository, it also deploys a preview site and links it in a pull request comment. Pull requests from forks are built but not deployed (see [Deployment](#deployment)).
+
+## Deployment
+
+The [`build_and_publish`](.github/workflows/build_and_publish.yml) workflow builds the site in GitHub Actions and uploads `website/build` to the `spiceai-org-website` Cloudflare Pages project with [`wrangler pages deploy`](https://developers.cloudflare.com/pages/get-started/direct-upload/). A push to `trunk` deploys to production at [spiceai.org](https://spiceai.org) and starts an Algolia search reindex. For a pull request, the workflow deploys a preview and comments its URL on the pull request. Pull requests from forks are built but not deployed, because [GitHub does not pass secrets](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets), such as the Cloudflare API token, to workflows triggered from a fork.
+
+The repository is also connected to the Cloudflare Pages project, but Cloudflare's [automatic Git deployments](https://developers.cloudflare.com/pages/configuration/branch-build-controls/) are turned off (the project's `deployments_enabled` setting is `false`), so GitHub Actions is the only deploy path. If automatic deployments are turned back on, every Cloudflare build fails with `ENOENT: no such file or directory, open '/opt/buildhome/repo/package.json'`, because the project's [root directory](https://developers.cloudflare.com/pages/configuration/build-configuration/) is empty and the Docusaurus project is in `website/`.
+
+To build in Cloudflare instead, set the project's root directory to `website` and its [`NODE_VERSION`](https://developers.cloudflare.com/pages/configuration/build-image/) environment variable to `24`, and turn automatic Git deployments back on. Then change the workflow:
+
+- Remove the deploy step, so each push deploys once.
+- Remove the pull request comment step, which posts the deploy step's URL.
+- Start the Algolia reindex only after Cloudflare finishes a successful production deployment. Without the deploy step, the current reindex step would run right after the workflow's build, before Cloudflare publishes the new site.

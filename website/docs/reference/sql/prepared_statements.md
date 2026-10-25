@@ -56,5 +56,6 @@ To run a parameterized query without managing a session, use [Flight SQL paramet
 :::warning[Limitations]
 
 - Positional arguments are not supported with the `date` keyword to construct a date value, like `date $1`. Specify the date value in the query instead: `l_shipdate > date '1995-01-01'`.
+- With SQL `PREPARE` and `EXECUTE`, positional arguments are not supported as table function arguments, like `text_search(docs, $1)`. Use [Flight SQL parameter binding](#flight-sql-parameter-binding) or the HTTP `/v1/sql` `parameters` field for [parameterized search](./search#parameterized-search-queries).
 
 :::

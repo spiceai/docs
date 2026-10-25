@@ -38,7 +38,7 @@ flowchart LR
     Cluster --> Sources["Data Sources (S3, PostgreSQL, Databricks, ...)"]
 ```
 
-Each sidecar is configured declaratively via a `spicepod.yaml` — the datasets, views, acceleration engines, search indices, and AI models it manages. Sidecars start in seconds, typically run on a few hundred megabytes of memory, and scale horizontally with application pods: scale a deployment from 5 to 50 replicas and 50 sidecars come up automatically, each materializing only the working set its spicepod declares. Sidecars never talk to each other; they only talk to the cluster.
+Each sidecar is configured declaratively via a `spicepod.yaml` — the datasets, views, acceleration engines, search indices, and AI models it manages. Sidecars start in seconds, typically run on a few hundred megabytes of memory, and scale horizontally with application pods: scale a deployment from 5 to 50 replicas and 50 sidecars come up automatically, each materializing only the working set its spicepod declares. Sidecars never talk to each other; they talk only to the cluster and, when they bootstrap from [acceleration snapshots](../../features/data-acceleration/snapshots), to the snapshot object store.
 
 For the engineering walkthrough of this pattern, including a request-path example and FAQ, see [Localhost Latency at Scale: The Spice Cluster-Sidecar Architecture](https://spice.ai/blog/cluster-sidecar-architecture).
 
@@ -50,7 +50,7 @@ The most important property of the sidecar is isolation, not just latency. The s
 
 - **Scoped working set.** A sidecar's `spicepod.yaml` declares exactly which datasets, views, and search indices the application may query. Anything not declared is physically absent from the catalog — not filtered by a policy, not hidden by a row-level rule. Compare this with row-level security, where the underlying data is still present and a single policy misconfiguration can expose it. Even a perfectly crafted prompt injection cannot query a table that is not in the catalog.
 - **No origin credentials in the application.** The application connects to its sidecar with a local token. The sidecar connects to the cluster over Arrow Flight. Only the cluster holds credentials for Postgres, Snowflake, Databricks, S3, Kafka, and the rest. Compromising an application pod cannot leak origin credentials, because the pod never had them.
-- **Narrow network surface.** The application's only outbound data dependency is the loopback interface. Network policy can pin the sidecar's egress to the cluster endpoint only.
+- **Narrow network surface.** The application's only outbound data dependency is the loopback interface. Network policy can pin the sidecar's egress to the cluster endpoint, plus the snapshot bucket when the sidecar bootstraps from snapshots.
 - **Per-application data views.** Sidecars can be specialized per application class or per tenant. A customer-service agent, a fraud-review agent, and an internal dashboard can each run with different spicepods pointing at different slices of the same cluster. This is physical isolation, not policy-based filtering on a shared database. See [Multi-Tenant AI Agents](/docs/use-cases/ai/multi-tenant-agents).
 - **Bounded resource use.** A rogue query plan or runaway loop exhausts the sidecar's local memory and CPU budget, not the cluster's and not the origin database's.
 - **Local inference.** Sidecars can serve [LLM inference and tool calls](../../features/large-language-models) on loopback so sensitive prompts and retrieved context stay in the pod. Heavier models can still be routed to the cluster.
@@ -158,6 +158,7 @@ datasets:
 
   - from: s3://lakehouse/events/
     name: events
+    time_column: event_time
     params:
       file_format: parquet
     acceleration:
@@ -194,6 +195,9 @@ snapshots:
 datasets:
   - from: spice.ai/<your-org>/<your-app>/datasets/orders
     name: orders
+    params:
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY}
+      spiceai_region: us-east-1
     acceleration:
       enabled: true
       engine: duckdb
@@ -204,11 +208,14 @@ datasets:
 
   - from: spice.ai/<your-org>/<your-app>/datasets/events
     name: events
+    params:
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY}
+      spiceai_region: us-east-1
     # No local acceleration — delegate to the cluster on demand.
     # Queries that match recent hot events still hit the results cache.
 ```
 
-For a self-hosted cluster, replace the `from:` URIs with `spice.ai:https://cluster.example:50051` and set `name:` to the upstream table name. See the [Spice.ai Data Connector](../../components/data-connectors/spiceai) for Cloud and self-hosted URI formats.
+Spice Cloud datasets require `spiceai_api_key` and `spiceai_region`. For a self-hosted cluster, replace the `from:` URIs with `spice.ai:https://cluster.example:50051`, set `name:` to the upstream table name, and drop `spiceai_region`, which applies only to Spice Cloud endpoints. Keep `spiceai_api_key` only when the cluster requires API key authentication. See the [Spice.ai Data Connector](../../components/data-connectors/spiceai) for Cloud and self-hosted URI formats.
 
 ## A request path
 
@@ -233,7 +240,7 @@ The application sees one endpoint, one wire format, and one latency distribution
 - Sidecars can run anywhere — in your VPC, on-premises, at the edge, or in any Kubernetes cluster — while connecting securely to the managed cluster.
 - Horizontal scalability — add sidecars without increasing load on data sources.
 - Resilience — sidecars serve cached data even if the cluster is temporarily unavailable.
-- Secure by default — mTLS encryption across all sidecar-to-cluster communication, with data encrypted at rest and in transit.
+- Encrypted transport — the Spice Cloud endpoint built from `spiceai_region` uses TLS (`https://`), and a self-hosted cluster uses TLS when its `from:` endpoint is `https://` or `grpc+tls://`. Mutual TLS is opt-in: the sidecar presents a client certificate only when the [`spiceai_tls_client_*` parameters](../../components/data-connectors/spiceai#mutual-tls-mtls) are set. An `http://` endpoint connects without TLS and suits local development. Data is encrypted at rest.
 
 ## Considerations
 

@@ -88,6 +88,20 @@ tools:
 
 If both `mcp_auth_token` and a custom `Authorization` header in `mcp_headers` are set, `mcp_auth_token` wins and a warning is logged.
 
+## Tool Result Size Limit
+
+A tool call to an MCP server that Spice connects to fails when the server's result is larger than 16 MiB. The limit is fixed and has no setting. Spice copies a tool result several times on its way to the caller, so the limit bounds the memory one call can use.
+
+The limit applies to each call. For every transport, including stdio, Spice checks the result's `content` and `structuredContent` together, measured as serialized JSON. Over Streamable HTTP, Spice also limits the whole response to one request: it refuses a response whose `Content-Length` is over the limit before reading it, and stops reading any other response once it crosses the limit. When that response is an SSE stream, its progress notifications and its result count toward the limit together. The server-to-client `GET` stream is limited to 16 MiB per event.
+
+The call fails with a tool error, and Spice logs a `WARN` line that names the MCP server or tool and does not include the result. Other calls on the same server are not affected. For example, for a tool named `github` over Streamable HTTP:
+
+```text
+MCP server 'github' sent a response larger than the 16 MiB limit, so the request failed and the response was discarded. Make the MCP tool return a smaller result, for example by paginating it. See https://spiceai.org/docs/components/tools/mcp
+```
+
+To stay under the limit, make the tool return a smaller result, for example by paginating it.
+
 ## Using MCP Tools with Models
 
 Once configured, MCP tools can be assigned to models via the `tools` parameter. For example:

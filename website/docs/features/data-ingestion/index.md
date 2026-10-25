@@ -102,7 +102,7 @@ Spice stores received metrics in two kinds of dataset. A [metrics store](#metric
 
 Spice receives metrics over both OTLP transports:
 
-- **OTLP/gRPC**: `opentelemetry.proto.collector.metrics.v1.MetricsService/Export` on the Flight port (default `127.0.0.1:50051`).
+- **OTLP/gRPC**: `opentelemetry.proto.collector.metrics.v1.MetricsService/Export` on the Flight port (default `127.0.0.1:50051`). When [API key authentication](../../api/auth/index.md) is enabled, the export needs a key with write access, and a read-only key gets `PERMISSION_DENIED` with the message `API key does not allow write access`. Nothing from a refused export is stored.
 - **OTLP/HTTP**: `POST /v1/metrics` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`. The decompressed body is limited to 128 MiB. When [API key authentication](../../api/auth/index.md) is enabled, the request needs a key with write access, and a read-only key gets `403`. A request with a supported `Content-Type` gets its errors as a `google.rpc.Status` in the request's encoding.
 
 For example, an OpenTelemetry Collector that sends metrics over HTTP:

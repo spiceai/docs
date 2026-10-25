@@ -56,6 +56,7 @@ Spice supports a variety of LLMs (see [Model Providers](../components/models)).
 
 - **SQL Integration**: Invoke LLMs directly within SQL queries using the `ai()` function for text generation tasks. See [SQL Reference: ai function](../reference/sql/scalar_functions#ai-and-embed).
 - **Decisions**: Ask typed questions about data in SQL with `ai_if`, `ai_probability`, `ai_classify`, `ai_score`, and `ai_decide`, or through the OpenAI-compatible `POST /v1/decisions` API. See [Decisions](large-language-models/decisions).
+- **Anthropic Messages API**: Serve `POST /v1/messages` with any chat model, so Anthropic SDKs and Claude Code work against Spice. See [Messages API](large-language-models/messages).
 - **Custom Tools**: Provide models with tools to interact with the Spice runtime. See [Tools](large-language-models/tools).
 - **System Prompts**: Customize system prompts and override defaults for [`v1/chat/completion`](../api/HTTP/post-chat-completions). See [Parameter Overrides](large-language-models/parameter_overrides).
 - **Memory**: Provide LLMs with memory persistence tools to store and retrieve information across conversations. See [Memory](large-language-models/memory).

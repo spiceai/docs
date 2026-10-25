@@ -43,7 +43,7 @@ Authorization: Basic <base64(username:password)>
 
 For example, `static_username` with password `s3cret` produces `Authorization: Basic c3RhdGljX3VzZXJuYW1lOnMzY3JldA==`. Only one of `http_password` or user info in the URL can provide the password — setting both is not supported.
 
-Prefer `http_password` with a [secret store](../secret-stores/) over a password in the URL. For a dynamic JSON API endpoint, query errors and endpoint-validation warnings name only the origin of the request URL (scheme, host, and port), for example `HTTP request to http://127.0.0.1:8080 failed: error sending request`, so its user info, path, and query string stay out of them. The dataset registration log line, and errors from a structured HTTP file dataset, can print the configured `from` URL with its user info.
+Prefer `http_password` with a [secret store](../secret-stores/) over a password in the URL. For a structured HTTP file dataset, the connector removes the user info from the URL it reads and sends the `Authorization` header only to the origin (scheme, host, and port) of the `from` URL, so errors from file reads include neither the user name nor the password. For a dynamic JSON API endpoint, query errors and endpoint-validation warnings name only the origin of the request URL, for example `HTTP request to http://127.0.0.1:8080 failed: error sending request`, so its user info, path, and query string stay out of them. The dataset registration log line can print the configured `from` URL with its user info.
 
 ### Using Custom Headers
 
@@ -615,6 +615,14 @@ The `health_probe` parameter has the following requirements:
 - Must start with `/`
 - Cannot exceed 2048 characters in length
 - The target endpoint must return a 2xx HTTP status code for validation to succeed
+
+### Trace Context Propagation
+
+When a query arrives with a W3C [`traceparent`](https://www.w3.org/TR/trace-context/#traceparent-header) header, the connector sends that `traceparent` to the origin of a dynamic JSON API endpoint, so a distributed trace links the query to the origin's requests. The header goes on every request the query makes: each partition, each retry, and each page of a paginated fetch. The forwarded value carries the caller's trace ID, parent ID, and trace flags, with version `00`.
+
+A `traceparent` set in `http_headers`, or by a `request_headers` filter (with `traceparent` in `request_header_allowlist`), takes precedence. The connector sends that value as written and does not add a second `traceparent`. The forwarded header is not part of the [response cache](#response-cache) key, so queries from different traces share cached responses.
+
+A query without a valid `traceparent` header forwards none, and structured HTTP file datasets, which are read through the object store, do not send it. See [`spice-trace-id` and `traceparent`](../../../reference/task_history.md#spice-trace-id-and-traceparent) for how Spice records the incoming header.
 
 ### OAuth2 Authentication
 

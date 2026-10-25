@@ -24,7 +24,7 @@ spice init my_app
 This generates a `spicepod.yaml` file in the `my_app` directory with the minimum required fields:
 
 ```yaml
-version: v1
+version: v2
 kind: Spicepod
 name: my_app
 ```
