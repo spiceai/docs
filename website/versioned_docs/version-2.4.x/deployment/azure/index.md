@@ -280,7 +280,7 @@ For detailed guidance, refer to the [Linux on Azure documentation](https://learn
 
 ## Authentication
 
-Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `azure_storage_account_key` on the [ABFS connector](../components/data-connectors/abfs)). When explicit credentials are not provided, Spice follows the standard [Azure Identity DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain, attempting credentials in this order:
+Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `abfs_access_key` on the [ABFS connector](../components/data-connectors/abfs)). When explicit credentials are not provided, Spice follows the standard [Azure Identity DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain, attempting credentials in this order:
 
 1. **Environment variables**:
    - `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET` (service principal with secret)
