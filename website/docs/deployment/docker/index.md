@@ -27,7 +27,7 @@ docker run --rm -it \
 
 The arguments after the image name are passed to `spiced`. Without them, `spiced` listens only on `127.0.0.1` inside the container, and the published ports cannot reach it.
 
-The examples on this page publish the ports on the host's `127.0.0.1` only. To accept connections from other machines, publish them on all interfaces (for example, `-p 8090:8090`) and require [API key authentication](../../api/auth/index.md), because a runtime without it serves every client that can reach the port.
+The examples on this page publish the ports on the host's `127.0.0.1` only. On Docker Engine versions before 28.0.0, [hosts on the same local network can still reach ports published on `127.0.0.1`](https://docs.docker.com/engine/network/port-publishing/), so on those versions also configure API key authentication or a host firewall. To accept connections from other machines, publish them on all interfaces (for example, `-p 8090:8090`) and require [API key authentication](../../api/auth/index.md), because a runtime without it serves every client that can reach the port.
 
 Spice listens on three ports:
 
