@@ -59,7 +59,7 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 Use these flags for unattended enrollment. After enrollment, `spiced` uses the identity in the instance's `.spice` directory.
 
 - `--token <ENROLLMENT_KEY>` — Enroll the instance with a one-time Spice Cloud key. You cannot use this option with `--repl`.
-- `--region <REGION>` — Set a location label during enrollment. Use 2–64 lowercase letters, digits, or hyphens. Use this option with `--token`.
+- `--region <REGION>` — Set a location label during enrollment. Use 2–64 lowercase letters, digits, or hyphens, starting and ending with a letter or digit. Use this option with `--token`.
 
 Each key can enroll one instance. After enrollment, remove the key and `--token` from the command.
 
