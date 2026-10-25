@@ -8,9 +8,10 @@ To use an embedding model from HuggingFace with Spice, specify the `huggingface`
 
 The following parameters are specific to HuggingFace models:
 
-| Parameter  | Description                                                                                                                                                                   | Default |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `hf_token` | The Huggingface access token.                                                                                                                                                 | -       |
+| Parameter     | Description                                                                                                                                                                   | Default |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `hf_token`    | The Huggingface access token. See [access tokens](../models/huggingface#access-tokens).                                                                                   | -       |
+| `hf_endpoint` | The Hugging Face Hub endpoint to download the model from, to read through a mirror or proxy of the Hub. See [endpoint](../models/huggingface#endpoint).                   | `HF_ENDPOINT`, then `https://huggingface.co` |
 | `pooling`  | The [pooling method](https://huggingface.co/docs/text-embeddings-inference/en/cli_arguments) for embedding models. Supported values are `cls`, `mean`, `splade`, `last_token` | -       |
 
 Here is an example configuration in `spicepod.yaml`:
@@ -36,7 +37,7 @@ safetensors weights not found; falling back to `pytorch_model.bin`. Model loadin
 
 A repository that publishes neither format fails to load. Prefer a repository with `safetensors` weights where one is available.
 
-With the same semantics as [language models](../models/huggingface#access-tokens), `spice` can run private HuggingFace embedding models:
+With the same [token, endpoint, cache and offline settings](../models/huggingface#hugging-face-hub) as language models, `spice` can run private HuggingFace embedding models. An `hf_token` the Spicepod does not set is loaded from a secret named `hf_token` in the configured secret stores:
 
 ```yaml
 embeddings:
