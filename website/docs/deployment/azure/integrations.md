@@ -73,6 +73,7 @@ datasets:
     params:
       mode: spark_connect
       databricks_endpoint: my-workspace.azuredatabricks.net
+      databricks_cluster_id: 1234-567890-abcde123
       databricks_token: ${ secrets:DATABRICKS_TOKEN }
 ```
 
@@ -89,10 +90,9 @@ Catalog connectors provide schema discovery and unified access to tables in Azur
 
 ```yaml
 catalogs:
-  - from: unity_catalog
+  - from: unity_catalog:https://my-workspace.azuredatabricks.net/api/2.1/unity-catalog/catalogs/my_catalog
     name: my_catalog
     params:
-      unity_catalog_endpoint: https://my-workspace.azuredatabricks.net
       unity_catalog_token: ${ secrets:DATABRICKS_TOKEN }
       unity_catalog_azure_storage_account_name: mystorageacct
       unity_catalog_azure_storage_client_id: ${ secrets:AZURE_CLIENT_ID }
