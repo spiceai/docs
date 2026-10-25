@@ -94,6 +94,18 @@ models:
 
 On `/v1/responses`, the round after the last permitted tool round is sent to the model without Spice's tools, so the response ends with an answer rather than a tool call that Spice does not run. On [`/v1/messages`](messages.md#spice-tools), Spice runs the last permitted round's calls and the response ends with `stop_reason: pause_turn`, for the client to continue.
 
+### Tool Calls per Response
+
+A model can request several tool calls in one response. Spice runs at most 64 Spice tool calls from one model response, in the order the model made them, on [`/v1/chat/completions`](../../api/HTTP/post-chat-completions), [`/v1/responses`](../../api/HTTP/post-responses), and [`/v1/messages`](messages.md). The limit is fixed and cannot be configured. It applies to each response, while [`tool_recursion_limit`](#tool-recursion-limit) limits how many rounds a request takes.
+
+Every call past the limit still gets a result, because the model's next round needs a result for each call. That result is an error telling the model the call did not run:
+
+```text
+Spice did not run this tool call: the response made 80 tool calls, and Spice runs at most 64 from one response. Make fewer tool calls at once.
+```
+
+Spice also logs one warning per response that names the model and how many calls did not run.
+
 ### Text Written Beside a Tool Call
 
 A model can write text and call a Spice tool in the same step, for example "Let me check." followed by a `sql` call. On [`/v1/chat/completions`](../../api/HTTP/post-chat-completions), Spice sends that text back to the model with the tool call and its results, and the response message carries the text, a blank line, and then the answer, whether or not the response is streamed:

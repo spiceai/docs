@@ -93,7 +93,7 @@ management:
   api_key: ${secrets:SPICEAI_API_KEY}
 ```
 
-With `SPICEAI_API_KEY` set in the environment (or `.env` file picked up by the [env secret store](../components/secret-stores/env)), the runtime connects to the default Spice Cloud region on startup. On success, the runtime logs:
+With `SPICEAI_API_KEY` set in the environment (or `.env` file picked up by the [env secret store](../components/secret-stores/env)), the runtime connects to the default Spice Cloud region, `us-east-1`, on startup. On success, the runtime logs:
 
 ```
 INFO runtime::management: Connected to Spice Cloud for management and monitoring
@@ -101,7 +101,7 @@ INFO runtime::management: Connected to Spice Cloud for management and monitoring
 
 ### Selecting a region
 
-By default, the runtime targets the Spice Cloud default region. To target a specific region, set `region` in `params`:
+When neither `region` nor `data_endpoint` is set, the runtime targets the default Spice Cloud region, `us-east-1`. To target a specific region, set `region` in `params`:
 
 ```yaml
 management:
@@ -143,7 +143,7 @@ The `management:` block lives at the top level of `spicepod.yaml`, alongside `ru
 | ---------------- | ------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------ |
 | `enabled`        | boolean | No       | `true`  | Whether the management export is active. When `false`, the block is parsed but no connection is established. |
 | `api_key`        | string  | Yes      | —       | API key for the target Spice Cloud app. Resolved through any [secret store](../components/secret-stores) via `${secrets:KEY}`. |
-| `params.region`  | string  | No       | —       | Spice Cloud region (e.g. `us-east-1`). Used to build the Flight endpoint when `data_endpoint` is not set.    |
+| `params.region`  | string  | No       | `us-east-1` | Spice Cloud region (e.g. `us-east-1`). Used to build the Flight endpoint when `data_endpoint` is not set.    |
 | `params.data_endpoint` | string  | No | Built from `region` | Flight endpoint URL override. Must be `https://` or `http://`. Takes precedence over `region`.        |
 
 ### Behavior
