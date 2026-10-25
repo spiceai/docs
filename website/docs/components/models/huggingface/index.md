@@ -61,13 +61,14 @@ models:
 
 ## Hugging Face Hub
 
-Spice reads from the Hugging Face Hub the way the `hf` CLI does, so a token, mirror, cache or offline mode set up for the `hf` CLI works for Spice too. These settings apply to every Hugging Face component: models, [embedding models](../embeddings/huggingface), [Model2Vec models](../embeddings/model2vec), rerankers, tokenizer `files:`, and [datasets](../data-connectors/huggingface).
+Spice reads from the Hugging Face Hub the way the `hf` CLI does, so a token, mirror, cache or offline mode set up for the `hf` CLI works for Spice too. The [access token](#access-tokens) and [endpoint](#endpoint) settings apply to every Hugging Face component: models, [embedding models](../embeddings/huggingface), [Model2Vec models](../embeddings/model2vec), rerankers, tokenizer `files:`, and [datasets](../data-connectors/huggingface). The [cache](#cache), [offline](#offline-use-and-outages) and [download](#downloads) settings apply to the components that Spice downloads: models, embedding models, Model2Vec models, rerankers and tokenizer `files:`. A dataset reads its files from the Hub and not from the cache, so `HF_HUB_OFFLINE` and the fallback to the cache during an outage do not apply to it.
 
 ### Access Tokens
 
 A private or gated repository needs a [User Access Token](https://huggingface.co/settings/tokens) of an account that can read it. For a gated repository, first accept its access conditions on the repository's page with that account. Spice uses the first token it finds:
 
 1. `hf_token` in the component's [params](#params).
+1. For an embedding model, a Model2Vec model, a reranker or a dataset that does not set `hf_token`: a secret named `hf_token` in the configured [secret stores](../secret-stores). A model used for chat does not read this secret.
 1. The `HF_TOKEN` environment variable, then `HUGGING_FACE_HUB_TOKEN`.
 1. The token `hf auth login` saves, in the file at `HF_TOKEN_PATH` (by default `$HF_HOME/token`, that is `~/.cache/huggingface/token`).
 
