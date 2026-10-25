@@ -108,5 +108,5 @@ For the same variable name, a value set in the process environment wins over `.e
 
 Before any secret store loads, Spice exports the variables in the project's `.env.local` and `.env` files to the process environment, without overwriting variables already set. Libraries that read the process environment directly, such as the AWS SDK default credential chain, `AWS_REGION`, and `GOOGLE_APPLICATION_CREDENTIALS`, therefore see these values even when no `env` store is configured or the `env` store is not defined first. Because a `file_path` store falls back to the process environment, a key it does not find in its own file can resolve to a value from the project's `.env.local` or `.env` file.
 
-The file named by `file_path` is not exported. Its values are available only through `${env:...}` or `${secrets:...}` references, so a library that reads the process environment does not see them.
+The file named by `file_path` is not exported by its store. Unless it is the project's `.env.local` or `.env` file, which Spice exports regardless of the store configuration, its values are available only through `${env:...}` or `${secrets:...}` references, and a library that reads the process environment does not see them.
 
