@@ -561,6 +561,27 @@ On a `full` refresh, a recorded client error replaces the dataset's previous con
 Before this parameter existed, the connector recorded every response as a row, including `4xx` responses and a `5xx` or `429` that was still failing after retries. A dataset that depends on recording a client error as a row now needs `on_error_response: warn` or `store`.
 :::
 
+### Compressed Responses
+
+For a dynamic JSON API endpoint, Spice requests compressed responses (`Accept-Encoding: zstd,gzip,deflate,br`) and decodes the body itself. Once a decoded body passes 64 MiB, Spice refuses it if it has expanded to more than 100 times the bytes received for it. Dense JSON, such as rows of typical records or search hits, compresses well below that ratio, while a compression bomb exceeds it. Very sparse or highly repetitive JSON can also exceed it: the [source change](https://github.com/spiceai/spiceai/pull/15327) measured such rows at 130:1 to 438:1, so a large response of that data is refused even though it is legitimate. An uncompressed response is not limited, and the limit cannot be configured.
+
+A refused response fails the request without retries, because the origin returns the same body each time. The error names the endpoint and the dataset, and ends with:
+
+```text
+Ask the endpoint for an uncompressed response by adding `Accept-Encoding: identity` to `http_headers`, or request less data per call.
+```
+
+To read an endpoint whose responses compress that well, request uncompressed responses. An uncompressed response has no size limit and is held in memory while it is read, so use this only with an endpoint you trust, and prefer requesting less data per call where the endpoint supports it:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: records
+    params:
+      allowed_request_paths: /records
+      http_headers: 'Accept-Encoding: identity'
+```
+
 ### Endpoint Validation
 
 The HTTP connector validates the configured endpoint during initialization to detect issues such as DNS errors, connection problems, or invalid URLs early in the startup process.
