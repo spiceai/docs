@@ -179,6 +179,46 @@ models:
     name: local-model
 ```
 
+## Reasoning Effort for Local Models
+
+A local model (`file` or `hf`) renders its chat template for every request, and the template decides whether the model reasons before it answers.
+
+When neither the request nor the model's `params` sets `reasoning_effort`, the chat template applies its own default, as Hugging Face transformers does. Qwen3-family templates reason by default, DeepSeek-V4.1 answers directly unless asked to reason, and GLM-5.3 always reasons.
+
+`reasoning_effort` in a [chat completion request](../api/HTTP/post-chat-completions) overrides that default:
+
+| `reasoning_effort`               | What the chat template renders |
+| -------------------------------- | ------------------------------ |
+| `none`                           | Reasoning off                  |
+| `minimal`                        | `low`                          |
+| `low`, `medium`, `high`, `xhigh` | That level                     |
+
+Not every template can honor every value. When a model loads, Spice renders its chat template with reasoning off, with nothing set, and at each level. A request for a value the template would not honor returns HTTP `400` instead of a reply the model would not have been asked for:
+
+- `none`, for a template that always reasons:
+
+  ```text
+  invalid args: Model 'glm-5.3-flash' always reasons, so `reasoning_effort: none` can't turn reasoning off. Omit `reasoning_effort`, or set 'low' for the least reasoning. See: https://spiceai.org/docs/components/models
+  ```
+
+- a level the template ignores or rejects, for a template that takes only some levels:
+
+  ```text
+  invalid args: Model 'glm-5.3-flash' takes `reasoning_effort` 'low' or 'high', and ignores 'medium'. Set 'low' or 'high', or omit `reasoning_effort` for the model's default. See: https://spiceai.org/docs/components/models
+  ```
+
+A template with no reasoning control, such as Llama 3's, takes any value.
+
+To set a default for every request, use the [model provider prefix](#model-provider-prefix): `file_reasoning_effort` or `hf_reasoning_effort`. A request's own `reasoning_effort` still takes precedence. A default the chat template cannot honor fails the model's load with the same message.
+
+```yaml
+models:
+  - from: file://absolute/path/to/qwen3.gguf
+    name: qwen3
+    params:
+      file_reasoning_effort: none
+```
+
 ## Model Examples
 
 The following examples demonstrate how to configure and use various models or model features with Spice. Each example provides a specific use case to help understand the configuration options available.
