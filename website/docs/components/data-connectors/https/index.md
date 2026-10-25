@@ -561,6 +561,27 @@ On a `full` refresh, a recorded client error replaces the dataset's previous con
 Before this parameter existed, the connector recorded every response as a row, including `4xx` responses and a `5xx` or `429` that was still failing after retries. A dataset that depends on recording a client error as a row now needs `on_error_response: warn` or `store`.
 :::
 
+### Compressed Responses
+
+For a dynamic JSON API endpoint, Spice requests compressed responses (`Accept-Encoding: zstd,gzip,deflate,br`) and decodes the body itself. Once a decoded body passes 64 MiB, Spice refuses it if it has expanded to more than 100 times the bytes received for it. Real JSON responses compress far less than that, while a compression bomb exceeds it. An uncompressed response is not limited, and the limit cannot be configured.
+
+A refused response fails the request without retries, because the origin returns the same body each time. The error names the endpoint and the dataset, and ends with:
+
+```text
+Ask the endpoint for an uncompressed response by adding `Accept-Encoding: identity` to `http_headers`, or request less data per call.
+```
+
+To read an endpoint whose responses compress that well, request uncompressed responses:
+
+```yaml
+datasets:
+  - from: https://api.example.com
+    name: records
+    params:
+      allowed_request_paths: /records
+      http_headers: 'Accept-Encoding: identity'
+```
+
 ### Endpoint Validation
 
 The HTTP connector validates the configured endpoint during initialization to detect issues such as DNS errors, connection problems, or invalid URLs early in the startup process.

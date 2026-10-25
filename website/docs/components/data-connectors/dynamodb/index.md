@@ -297,12 +297,24 @@ The table below shows the DynamoDB data types supported, along with the type map
 | `S`           | String      | `Timestamp(Millisecond, <timezone>)` | Timezone-aware timestamp if it matches `time_format` with timezone                                                                |
 | `S`           | String      | `Date32`                             | Date-only string in `YYYY-MM-DD` format (when it does not match `time_format`)                                                    |
 | `Ss`          | String Set  | `List<Utf8>`                         |                                                                                                                                   |
-| `N`           | Number      | `Int64` \| `Float64`                 |                                                                                                                                   |
-| `Ns`          | Number Set  | `List<Int64\|Float64>`               |                                                                                                                                   |
+| `N`           | Number      | `Int64` \| `Float64`                 | `Int64` when every sampled value is an integer that fits `Int64`, otherwise `Float64`. See [Number columns](#number-columns)      |
+| `Ns`          | Number Set  | `List<Int64\|Float64>`               | `List<Int64>` when every member of every sampled set fits `Int64`, otherwise `List<Float64>`                                      |
 | `B`           | Binary      | `Binary`                             |                                                                                                                                   |
 | `Bs`          | Binary Set  | `List<Binary>`                       |                                                                                                                                   |
 | `L`           | List        | `List<Utf8>`                         | DynamoDB arrays can be heterogeneous e.g. `[1, "foo", true]`, Arrow arrays must be homogeneous - use strings to preserve all data |
 | `M`           | Map         | `Utf8` or Unflattened                | Depending on `unnest_depth` value                                                                                                 |
+
+### Number columns
+
+A DynamoDB number (`N`) is an arbitrary-precision decimal, so Spice infers each number column's type from the items it samples (`schema_infer_max_records`, default `10`). A column becomes `Int64` only when every sampled value is an integer that fits `Int64`, and `Float64` otherwise.
+
+A value read later that does not fit the inferred type, such as `12.345` in an `Int64` column, fails the read (a federated query, or an acceleration refresh) with an error that names the attribute, the value, and the column type:
+
+```text
+DynamoDB attribute 'price' has the number 12.345, which does not fit its column type Int64. Increase schema_infer_max_records so schema inference sees this value, or declare the column's type in `columns`
+```
+
+To avoid the error, increase `schema_infer_max_records` so the sample includes a non-integer value.
 
 ## Time format
 
@@ -603,7 +615,7 @@ WHERE address.city = 'San Francisco';
 
 :::warning[Limitations]
 
-- The DynamoDB connector will scan the first 10 items to determine the schema of the table. This may miss columns that are not present in the first 10 items.
+- The DynamoDB connector scans the first `schema_infer_max_records` items (default `10`) to determine the schema of the table. This may miss columns that are not present in those items, and a number column typed `Int64` from them fails the query on a later non-integer value (see [Number columns](#number-columns)).
 - The DynamoDB connector does not support Decimal type.
 
 :::
