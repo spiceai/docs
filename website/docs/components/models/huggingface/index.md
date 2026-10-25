@@ -43,6 +43,7 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `model_type`    | The architecture to load the model as. Supported text architectures: `mistral`, `gemma`, `mixtral`, `llama`, `phi2`, `phi3`, `qwen2`, `gemma2`, `starcoder2`, `phi3.5moe`, `deepseekv2`, `deepseekv3`, `qwen3`, `glm4`, `glm4moelite`, `glm4moe`, `qwen3moe`, `smollm3`, `granitemoehybrid`, `gpt_oss`, `qwen3next`. Supported multimodal architectures: `phi3v`, `idefics2`, `llava_next`, `llava`, `vllama`, `qwen2vl`, `idefics3`, `minicpmo`, `phi4mm`, `qwen2_5vl`, `gemma3`, `mistral3`, `llama4`, `gemma3n`, `gemma4`, `qwen3vl`, `qwen3vlmoe`, `qwen3_5`, `qwen3_5moe`, `voxtral`. | -       |
 | `tools`         | Which [tools] should be made available to the model. Set to `auto` to use all available tools.                                                                                            | -       |
 | `system_prompt` | An additional system prompt used for all chat completions to this model.                                                                                                                  | -       |
+| `hf_reasoning_effort` | The default `reasoning_effort` for every chat completion to this model. See [Reasoning effort for local models](../index.md#reasoning-effort-for-local-models). | - |
 
 ### `files`
 
