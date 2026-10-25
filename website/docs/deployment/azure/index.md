@@ -102,7 +102,7 @@ serviceAccount:
   name: spiceai
   annotations:
     azure.workload.identity/client-id: "<CLIENT_ID>"
-podLabels:
+additionalLabels:
   azure.workload.identity/use: "true"
 ```
 
@@ -215,6 +215,32 @@ az containerapp create \
   --secret-volume-mount /mnt/secrets
 ```
 
+The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` (port `8090` for HTTP and `50051` for Arrow Flight), which ingress cannot reach. The Azure CLI parses values that begin with `--` as its own options, so set the container's arguments in the app's YAML instead of with `--args`. Export the app:
+
+```bash
+az containerapp show --name spiceai --resource-group $RG --output yaml > spiceai.yaml
+```
+
+In `spiceai.yaml`, add an `args` list to the container under `properties.template.containers`:
+
+```yaml
+args:
+  - --http
+  - 0.0.0.0:8090
+  - --flight
+  - 0.0.0.0:50051
+```
+
+Then apply it, which creates a new revision:
+
+```bash
+az containerapp update --name spiceai --resource-group $RG --yaml spiceai.yaml
+```
+
+Add `--metrics` and `0.0.0.0:9090` to the list to serve Prometheus metrics.
+
+With `--ingress external`, the app is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
+
 To run multiple replicas with shared file-based acceleration, define an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) and reference it from the app's revision template, then point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`).
 
 #### 4. Scaling rules
@@ -257,8 +283,13 @@ az container create \
   --azure-file-volume-share-name spice-data \
   --azure-file-volume-account-name mystorageacct \
   --azure-file-volume-account-key "<key>" \
-  --azure-file-volume-mount-path /data
+  --azure-file-volume-mount-path /data \
+  --command-line "/usr/local/bin/spiced --http 0.0.0.0:8090 --flight 0.0.0.0:50051"
 ```
+
+The `--command-line` replaces the image's start command, so it names `/usr/local/bin/spiced` before its arguments. Without `--http 0.0.0.0:8090` and `--flight 0.0.0.0:50051`, `spiced` listens only on `127.0.0.1`, which the container's public IP address cannot reach.
+
+With `--ip-address public`, the container is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
 
 Refer to the [Azure Container Instances documentation](https://learn.microsoft.com/azure/container-instances/) for advanced networking, [virtual network integration](https://learn.microsoft.com/azure/container-instances/container-instances-virtual-network-concepts), and [managed identity](https://learn.microsoft.com/azure/container-instances/container-instances-managed-identity) configuration.
 
@@ -280,7 +311,7 @@ For detailed guidance, refer to the [Linux on Azure documentation](https://learn
 
 ## Authentication
 
-Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `azure_storage_account_key` on the [ABFS connector](../components/data-connectors/abfs)). When explicit credentials are not provided, Spice follows the standard [Azure Identity DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain, attempting credentials in this order:
+Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `abfs_access_key` on the [ABFS connector](../components/data-connectors/abfs)). When explicit credentials are not provided, Spice follows the standard [Azure Identity DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain, attempting credentials in this order:
 
 1. **Environment variables**:
    - `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET` (service principal with secret)
