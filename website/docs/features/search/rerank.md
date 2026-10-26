@@ -80,7 +80,7 @@ Both accept the same two tuning parameters:
 | `max_seq_length`  | Maximum sequence length for the `(query, document)` pair. When unset, the model's own configured maximum applies.                                                            | -       |
 | `truncate`        | How to handle a pair longer than the maximum sequence length: `none` rejects the request with an input-validation error, `end` discards the end of the pair, `start` discards the start. Matched case-insensitively. | `none`  |
 
-`huggingface:` rerankers additionally accept `hf_token` (also spelled `api_key`) for private or gated repositories.
+`huggingface:` rerankers additionally accept `hf_token` (also spelled `api_key`) for private or gated repositories, and `hf_endpoint` to download through a mirror or proxy of the Hub. They use the same [token, endpoint, cache and offline settings](../../components/models/huggingface#hugging-face-hub) as other Hugging Face models.
 
 ### LLM-as-Reranker
 
