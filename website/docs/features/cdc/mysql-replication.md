@@ -203,11 +203,22 @@ On `ALTER TABLE` against the replicated table, Spice re-fetches the table's layo
 
 - **Columns added on the source** are not replicated (a warning names them); add them to the dataset schema and restart to capture them.
 - **Dropping or renaming a dataset column** (or `RENAME TABLE` / `DROP TABLE`) stops the stream with an actionable error.
-- **Retyping a dataset column** keeps streaming while values remain convertible to the dataset's Arrow type; an unconvertible value stops the stream with a decode error.
+- **Retyping a dataset column** is handled as described in [Column type changes](#column-type-changes).
 
 If the stream stopped across a DDL boundary with an un-checkpointed tail, the restart may be unable to decode pre-DDL events — re-bootstrap with `mysql_replication_invalid_checkpoint_behavior: restart`. Quiescing writes to the table around DDL avoids that case entirely.
 
 Issuing a second `ALTER TABLE` before replication has caught up on the first can also detach the dataset — see [Layout adopted under lag](#layout-adopted-under-lag).
+
+### Column type changes
+
+When `ALTER TABLE ... MODIFY` changes a dataset column to a type that holds every value of its old type, such as `INT` to `DOUBLE` or `DECIMAL(10,2)` to `DECIMAL(12,2)`, the stream keeps applying changes. What happens to the column depends on the dataset's [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change):
+
+- **`block`** (the default) keeps the column's registered type. A later value is stored only when that type holds it exactly: an integer column takes the `DOUBLE` value `2.0` as `2`, and a value such as `1.5` stops the stream with an error. A value is never stored rounded.
+- **Every other policy** receives the new type as a schema change and applies it as the policy does for any schema change. For example, under `sync_all_columns` a [Cayenne](../../components/data-accelerators/cayenne/index.md) acceleration widens the column without a restart. A primary key column always keeps its registered type, as under `block`.
+
+The stream stops at the `ALTER` itself when the new type does not hold every value of the old one, such as `BIGINT` to `DOUBLE` or `FLOAT` to `DOUBLE(5,2)`. MySQL rewrites the stored values of such a column in place, with no row events, so the acceleration would otherwise keep values the source no longer has. This applies to primary key columns too. The stream also stops at the `ALTER` for a type change its change batches cannot carry: an integer column that becomes a `DECIMAL` with a scale, an unsigned integer column that becomes any `DECIMAL`, and a `FLOAT` column that becomes another numeric type.
+
+The error names the dataset, the source table, and the `ALTER`, and the dataset keeps serving the rows it held before it. To load the dataset with the new column type, remove the dataset's acceleration data and restart Spice. A dataset with `mysql_replication_initial_snapshot: disabled` must restart with `auto`, so the reload reads the table's existing rows.
 
 ## Source commit time
 
@@ -240,7 +251,7 @@ Exposed under `dataset_mysql_*` alongside the connection-pool [component metrics
 
 - **Failover only survives on a GTID source.** With `gtid_mode = ON` the persisted GTID set resolves against a promoted replica; on a file + offset source, resume positions do not survive a failover to a different primary (see [Resume identity](#resume-identity-gtid-or-file--offset)).
 - **One table per dataset.** Every dataset replicates a single source table, though datasets that connect the same way share one binlog connection — see [Sharing one binlog connection](#sharing-one-binlog-connection).
-- **Schema evolution is block-mode only** — compatible `ALTER TABLE` is tolerated (see [Schema changes](#schema-changes)), but `on_schema_change` policies that _adopt_ new columns (`append_new_columns` / `sync_all_columns`) are not yet wired to this connector.
+- **New source columns are not adopted** — compatible `ALTER TABLE` is tolerated (see [Schema changes](#schema-changes)), and a column type change reaches `on_schema_change` (see [Column type changes](#column-type-changes)), but `on_schema_change` policies that _adopt_ new columns (`append_new_columns` / `sync_all_columns`) do not add a column added on the source.
 - **XA (two-phase) transactions are not supported.** An XA transaction that touches the replicated table stops the stream with an error; XA activity on other tables logs a warning and is ignored.
 - Not supported source types: geometry/spatial, vectors, negative `TIME`.
 

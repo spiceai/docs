@@ -6,6 +6,12 @@ sidebar_position: 4
 pagination_next: null
 ---
 
+:::warning[Deprecated]
+
+The `sqlite` acceleration engine is deprecated in v2.4 and will be removed in v2.5. A Spicepod with a dataset or view that uses it logs one warning at startup, and one on each hot reload that adds or changes such a component, naming those datasets and views. A cluster executor does not log it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. Move these accelerations to [Spice Cayenne](../cayenne/index.md) before upgrading to v2.5; see [Migrating to Spice Cayenne](../cayenne/migration.md).
+
+:::
+
 To use SQLite as Data Accelerator, specify `sqlite` as the `engine` for acceleration.
 
 ```yaml
@@ -41,10 +47,10 @@ datasets:
 - The SQLite accelerator doesn't support arrow `Interval` types, as [SQLite](https://www.sqlite.org/lang_datefunc.html) doesn't have a native interval type.
 - The SQLite accelerator only supports arrow `List` types of primitive data types; lists with structs are not supported.
 - The SQLite accelerator doesn't support `Dictionary` or `Map` types.
-- SQLite may not be suitable for high row count use cases with complex join queries. Use [DuckDB](duckdb) instead.
+- SQLite may not be suitable for high row count use cases with complex join queries. Use [Spice Cayenne](../cayenne/index.md) instead.
 - `ROLLUP`, `CUBE`, and `GROUPING SETS` are evaluated in Spice, not in SQLite, because SQLite has no grouping sets.
 - `TRY_CAST` is never sent to SQLite, and a `CAST` is sent only when SQLite evaluates it the same way Spice does. See [Casts and Federation](#casts-and-federation).
-- `AVG` and `SUM` over a decimal column are never sent to SQLite. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits reads back changed. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).
+- `AVG` and `SUM` over a decimal column, and a `/` with a decimal operand, are never sent to SQLite. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits reads back changed. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).
 - `upper`, `lower`, `concat`, `LIKE`, and `ILIKE` are evaluated in Spice, not in SQLite, because SQLite answers them differently. Several functions SQLite does not have, such as `btrim` and `md5`, and every aggregate except `count`, `sum`, `avg`, `min`, and `max`, are also evaluated in Spice. See [Functions and Federation](#functions-and-federation).
 - Updating a dataset with SQLite acceleration while the Spice Runtime is running (hot-reload) will cause SQLite accelerator query federation to disable until the Runtime is restarted.
 
@@ -74,6 +80,8 @@ Every other `CAST`, and every `TRY_CAST`, is evaluated in Spice above the scan o
 SQLite has no decimal type. It stores a decimal value as a `REAL` or an `INTEGER`, and computes `avg` and `sum` over it in floating point or in 64-bit integers. Its `avg` returns a rounded floating-point value where Spice computes the average in decimal arithmetic and truncates it to the scale of the result type. Its `sum` over values stored as integers fails with an integer overflow once the total exceeds the 64-bit integer range, and a `sum` that includes a value stored as a `REAL` is computed in floating point instead.
 
 So that these aggregates follow Spice's decimal semantics, Spice does not send `AVG` or `SUM` over a decimal column to the SQLite accelerator, whether called as an aggregate or as a window function. The aggregate is evaluated in Spice above the scan of the accelerated table, and the scan is still sent to SQLite with its filters and projection, except for any expression Spice keeps local, such as the casts in [Casts and Federation](#casts-and-federation). An aggregate whose argument type Spice cannot determine is also evaluated in Spice. Aggregates over integer and floating-point columns, and other aggregates over decimal columns such as `MIN`, `MAX`, and `COUNT`, are still sent to SQLite.
+
+SQLite also computes `/` over a decimal in floating point, so a `/` with a decimal operand, such as `price / 7`, is evaluated in Spice in decimal arithmetic, as is a `/` whose operand type Spice cannot determine. An integer `/` is still sent to SQLite as integer division, and a floating-point `/` is still sent to SQLite.
 
 This changes where the aggregate runs, not how SQLite stores the values. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits is rounded when it is written and reads back changed, with no error ([spiceai/spiceai#14662](https://github.com/spiceai/spiceai/issues/14662)). An aggregate evaluated in Spice is exact over the values SQLite returns, so over such values it can still differ from an unaccelerated query. In the reproduction on that issue, the `arrow` and `duckdb` accelerators return such a value unchanged.
 
