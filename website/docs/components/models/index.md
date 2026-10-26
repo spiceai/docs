@@ -121,7 +121,7 @@ Model '<name>' loaded without its MTP layer, so it decodes without drafting: the
 
 ### Structured Output and Tool Choice
 
-A `response_format` of type `json_schema` or `json_object` is enforced with a grammar, so the reply is JSON that matches the schema, or a JSON object for `json_object`. For a reasoning model, the grammar applies after the reasoning block.
+A `response_format` of type `json_schema` or `json_object` is enforced with a grammar, so the reply is JSON that follows the schema, or a JSON object for `json_object`. llama.cpp builds the grammar from [a subset of JSON Schema](https://github.com/ggml-org/llama.cpp/blob/b11803/grammars/README.md#json-schemas--gbnf) and skips the rest without an error: for example, `minimum` and `maximum` apply only to an `integer`, not a `number`, and `uniqueItems` is not enforced. Validate such constraints in the application. For a reasoning model, the grammar applies after the reasoning block.
 
 For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and Hermes templates do, a request that sets both `response_format` and `tools` is answered with either a tool call or the schema's JSON. For other tool-call formats, a request that leaves the model to choose between a tool call and a reply (`tool_choice` unset or `auto`) is refused with HTTP 400:
 
