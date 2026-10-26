@@ -577,9 +577,10 @@ const config: Config = {
             to: '/docs/next/features/large-language-models/decisions'
           },
           // Linked from the runtime's Bedrock reasoning_effort messages (spiceai/spiceai#15422).
+          // The reasoning guidance is on the vNext page until a release ships it.
           {
             from: '/docs/components/models/aws-bedrock',
-            to: '/docs/components/models/bedrock'
+            to: '/docs/next/components/models/bedrock'
           },
           // 2021 blog posts
           {
