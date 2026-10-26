@@ -81,7 +81,7 @@ Spice serves a GGUF model on a single node, from the [`file`][file] or [`hugging
 
 The OpenAI-compatible API works the same way on both engines: streaming, `usage`, `finish_reason`, `reasoning_effort` and `reasoning_content` are unchanged, and so are the GGUF's own chat template and the `chat_template` and `context_length` parameters. Prompts are rendered and tool calls are parsed with the same code as on mistral.rs, so a GLM-5.3 tool call, which that parser does not read, stays unparsed on both engines. Each streamed tool call carries its own `index`.
 
-The `paged_attention` parameter has no effect on a GGUF model, because llama.cpp manages its own KV cache. A model that sets `paged_attention: disabled` logs this once at load, at info level:
+The `paged_attention` parameter has no effect on a GGUF model served by llama.cpp, which manages its own KV cache. It still applies to a GGUF model with `distributed_backend: ring`, which mistral.rs serves. The parameter is read only for `from: file:` models, and a `from: file:` GGUF model on one node that sets `paged_attention: disabled` logs this once at load, at info level:
 
 ```text
 Model '<name>' sets `paged_attention: disabled`, which has no effect: GGUF models are served by llama.cpp, which manages its own KV cache. Remove the parameter to silence this message.
@@ -123,13 +123,13 @@ Model '<name>' loaded without its MTP layer, so it decodes without drafting: the
 
 A `response_format` of type `json_schema` or `json_object` is enforced with a grammar, so the reply is JSON that matches the schema, or a JSON object for `json_object`. For a reasoning model, the grammar applies after the reasoning block.
 
-For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and Hermes templates do, a request that sets both `response_format` and `tools` is answered with either a tool call or the schema's JSON. For other tool-call formats, the request is refused with HTTP 400:
+For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and Hermes templates do, a request that sets both `response_format` and `tools` is answered with either a tool call or the schema's JSON. For other tool-call formats, a request that leaves the model to choose between a tool call and a reply (`tool_choice` unset or `auto`) is refused with HTTP 400:
 
 ```text
 Model '<name>' can't combine a `json_schema` or `json_object` `response_format` with `tools`: its chat template's tool-call format can't be enforced alongside a schema. Send one or the other.
 ```
 
-`tool_choice: required`, or a named function, forces one tool call through a grammar where the chat template uses `<tool_call>`. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
+`tool_choice: none` offers no tool, so the reply is the schema's JSON in any template. `tool_choice: required`, or a named function, takes precedence over `response_format`: the turn is a tool call, and `response_format` applies to a later turn. Where the chat template uses `<tool_call>`, the call is forced through a grammar. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
 
 ### GGUF architectures
 
