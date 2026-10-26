@@ -88,6 +88,7 @@ File types include:
 
 - `weights`: Model weights
   - For LLMs: `.gguf`, `.ggml`, or `.safetensors` files
+  - A GGUF model can list several `.gguf` files: the shards of a split model, and an optional multi-token prediction draft head whose name starts with `mtp-`. See [Local GGUF Models](../../components/models/index.md#local-gguf-models).
   - Pickle-based checkpoints (`.bin`, `.pt`, `.pth`, `.ckpt`) execute arbitrary code when loaded and are **rejected by default**. Set [`trust_pickle: true`](../../components/models/filesystem/index.md#params-optional) to load them from a fully trusted source.
   - These files contain the trained parameters of the model
 
@@ -135,7 +136,8 @@ Optional. A stable key forwarded to the LLM provider to enable prompt/prefix cac
 | xAI (Grok) | Sent as the `x-grok-conv-id` HTTP header |
 | AWS Bedrock (Converse) | Appends a native `CachePoint` block |
 | Databricks (hosted Claude) | Adds Claude-style `cache_control` to the last content part |
-| Local (mistral-rs) | Paged-attention scheduling is requested automatically, and used only on a CUDA build on Unix with a CUDA device available — never for architectures with no paged kernel. On a `from: file:` model, `paged_attention: disabled` forces dense attention. |
+| Local safetensors, and GGUF with `distributed_backend: ring` (mistral.rs) | Paged-attention scheduling is requested automatically, and used only on a CUDA build on Unix with a CUDA device available — never for architectures with no paged kernel. On a `from: file:` model, `paged_attention: disabled` forces dense attention. |
+| Local GGUF on a single node (llama.cpp) | Ignored. Each request starts from an empty KV cache, so no prompt prefix is reused across requests. `paged_attention` has no effect. |
 
 ```yaml
 models:
