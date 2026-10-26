@@ -156,6 +156,55 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'deepseek', 'models']
   },
   {
+    title: 'Running Qwen3.8 Locally',
+    description:
+      'Serve Qwen3.8-27B on a MacBook Pro with llama.cpp and Metal, with an abliterated variant.',
+    path: '/models/qwen3.8/README.md',
+    tags: ['ai', 'qwen', 'local', 'models']
+  },
+  {
+    title: 'Running Qwen3.6 Locally',
+    description:
+      'Serve Qwen3.6-35B-A3B on a MacBook Pro with llama.cpp and Metal, with an abliterated variant.',
+    path: '/models/qwen3.6/README.md',
+    tags: ['ai', 'qwen', 'local', 'models']
+  },
+  {
+    title: 'Running Qwen3.5 Locally',
+    description:
+      'Serve Qwen3.5-9B on any Apple silicon Mac with llama.cpp and Metal, with an abliterated variant.',
+    path: '/models/qwen3.5/README.md',
+    tags: ['ai', 'qwen', 'local', 'models']
+  },
+  {
+    title: 'Running GLM Locally',
+    description:
+      'Serve GLM-4.7-Flash on a MacBook Pro, and GLM-5.3-Flash on a 128 GB Mac, with llama.cpp and Metal, with abliterated variants.',
+    path: '/models/glm/README.md',
+    tags: ['ai', 'glm', 'local', 'models']
+  },
+  {
+    title: 'Running DeepSeek V4 Locally',
+    description:
+      'Serve DeepSeek-V4-Flash on a 128 GB Mac with llama.cpp and Metal, with an abliterated variant.',
+    path: '/models/deepseek-v4/README.md',
+    tags: ['ai', 'deepseek', 'local', 'models']
+  },
+  {
+    title: 'Running DeepSeek V4.1 Locally',
+    description:
+      'Serve DeepSeek-V4.1-Flash-1017 from a local GGUF, with an abliterated variant and the hardware it needs.',
+    path: '/models/deepseek-v4.1/README.md',
+    tags: ['ai', 'deepseek', 'local', 'models']
+  },
+  {
+    title: 'Running Kimi Locally',
+    description:
+      'Serve Kimi-Linear-48B-A3B on a MacBook Pro with llama.cpp and Metal, with an abliterated variant.',
+    path: '/models/kimi/README.md',
+    tags: ['ai', 'kimi', 'moonshot', 'local', 'models']
+  },
+  {
     title: 'Model Context Protocol (MCP)',
     description: 'Connect to MCP servers and use MCP tools with Spice.',
     path: '/mcp/README.md',
