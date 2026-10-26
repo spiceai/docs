@@ -67,7 +67,7 @@ Bedrock Guardrails filter model inputs and outputs. See [GuardrailConfiguration]
 
 #### Model Parameters
 
-Bedrock models accept the OpenAI-compatible chat completion parameters and map four of them onto the Bedrock Converse API inference configuration. To set a default for every request to the model, use the `bedrock_` prefix. A value in the request body takes precedence over the default.
+Bedrock models accept the OpenAI-compatible chat completion parameters and map four of them onto the Bedrock Converse API inference configuration, and `reasoning_effort` onto the model's additional request fields. To set a default for every request to the model, use the `bedrock_` prefix. A value in the request body takes precedence over the default.
 
 | Parameter                       | Converse API field | Description                                                     |
 | ------------------------------- | ------------------ | --------------------------------------------------------------- |
@@ -75,10 +75,30 @@ Bedrock models accept the OpenAI-compatible chat completion parameters and map f
 | `bedrock_temperature`           | `temperature`      | Sampling temperature (0.0 to 1.0). Lower is more deterministic. |
 | `bedrock_top_p`                 | `topP`             | Nucleus sampling probability (0.0 to 1.0).                      |
 | `bedrock_stop`                  | `stopSequences`    | Sequences that stop generation when encountered.                |
+| `bedrock_reasoning_effort`      | `additionalModelRequestFields` | Reasoning effort: `none`, `minimal`, `low`, `medium`, `high`, or `xhigh`. See [Reasoning Effort](#reasoning-effort). |
 
 Top-k sampling is not supported. Parameters named after the Converse API fields, such as `maxTokens` or `topK`, are not read and have no effect.
 
 See [Parameter Overrides](../../features/large-language-models/parameter_overrides) for details on setting default values.
+
+#### Reasoning Effort
+
+`reasoning_effort` in a `/v1/chat/completions` or `/v1/decisions` request, or `bedrock_reasoning_effort` as the default for every request, asks a reasoning model to reason. Spice sends it in the Converse API `additionalModelRequestFields`, in the shape the model family takes:
+
+| Model family | What Spice sends | AWS reference |
+| --- | --- | --- |
+| Claude 3.7 to Claude 4.5 (for example `anthropic.claude-sonnet-4-5-20250929-v1:0`) | `thinking` with `type: enabled` and a `budget_tokens` of 1,024 (`low`), 4,096 (`medium`), or 16,384 (`high`) | [Extended thinking](https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-extended-thinking.html) |
+| Claude 4.6 and later | `thinking` with `type: adaptive`, and `output_config.effort` | [Adaptive thinking](https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-adaptive-thinking.html) |
+| Amazon Nova 2 Lite | `reasoningConfig` with `maxReasoningEffort` | [Nova 2 extended thinking](https://docs.aws.amazon.com/nova/latest/nova2-userguide/extended-thinking.html) |
+| OpenAI gpt-oss | `reasoning_effort` | [OpenAI models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-openai.html) |
+
+Spice finds the family from the model ID, which can be a base model ID, a cross-region inference profile ID such as `us.anthropic.claude-sonnet-4-5-20250929-v1:0`, or a foundation model or inference profile ARN that names the model. Each family takes `low`, `medium`, or `high`: `minimal` is sent as `low`, and `xhigh` as `high`.
+
+- **`none`** sends nothing to Claude 3.7 to 4.5 and Nova 2 Lite, which do not reason by default, and sends `thinking` with `type: disabled` to Claude 4.6 and later. gpt-oss models always reason, so `none` is ignored with a warning.
+- **Claude 3.7 to 4.5 need room for the thinking budget.** Bedrock requires `budget_tokens` to be less than `maxTokens`. With no `max_completion_tokens` in the request, Spice sets `maxTokens` to the budget plus 4,096. With `max_completion_tokens`, the budget is at most half of it, and at least 1,024; a request whose `max_completion_tokens` is 1,024 or less fails with `400` and a message that says to increase `max_completion_tokens` or omit `reasoning_effort`.
+- **Other models**, such as Claude 3.5, Nova 1, or an application inference profile ARN, which does not name its model, receive nothing, and Spice logs a warning for each request.
+
+A streamed response carries the answer but not the model's reasoning text. A response that is not streamed returns the reasoning text in `content`, after the answer, rather than in `reasoning_content` ([spiceai/spiceai#15406](https://github.com/spiceai/spiceai/issues/15406)). With Claude 3.7 to 4.5, a multi-turn tool call with `reasoning_effort` can fail with a Bedrock validation error, because Spice does not send the model's earlier `thinking` blocks back with the tool results, as AWS requires for [extended thinking with tool use](https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-extended-thinking.html).
 
 ## Examples
 
