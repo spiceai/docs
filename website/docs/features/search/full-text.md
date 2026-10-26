@@ -78,6 +78,8 @@ columns:
 | `index_store` | `memory` | Where the index lives: `memory` (rebuilt on every start) or `file` (persisted on disk). If any indexed column of a dataset sets `file`, the dataset's index is persisted. |
 | `index_directory` | `.spice/data/fts/<catalog>/<schema>/<table>/` | Directory for a persisted index. Only applies with `index_store: file` — combining it with `index_store: memory` logs a warning and keeps the in-memory store. |
 
+On an accelerated dataset, an index that starts empty is filled from the acceleration before the dataset can be queried. At startup, before the refresh begins, Spice reads every row the local acceleration holds, not the source, and indexes it. This covers an in-memory index on an acceleration that keeps its rows across a restart, such as `mode: file`, because the startup refresh loads only the rows the acceleration is missing, and none of the rows it already holds would otherwise reach the index. It also covers a file-backed index whose directory did not survive, for example after the acceleration was restored from a [snapshot](../data-acceleration/snapshots.md), which restores the acceleration but not the index. If the rebuild fails part-way, nothing it indexed is kept, and the next startup rebuilds the index again. A dataset with `refresh_mode: caching` is not rebuilt this way, because its acceleration holds the rows cached for every caller in one table.
+
 #### Changing the configuration of a persisted index
 
 A persisted index records the schema it was built with, and that schema is what serves queries. On start, Spice compares the persisted schema against the current configuration:

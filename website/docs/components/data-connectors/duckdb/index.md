@@ -218,6 +218,12 @@ Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast ap
 
 DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
 
+## Decimal Division
+
+A `/` with a decimal operand, such as `price / 7` over a `DECIMAL` column, is never sent to DuckDB. The DuckDB dialect writes every division as `//`, so that an integer `/` stays integer division, and DuckDB evaluates both `//` and `/` over a `DECIMAL` as a `DOUBLE`, which carries about 16 significant digits. Spice would then cast that double back to the decimal result type, so the digits past the double's precision would look exact and be wrong. Spice evaluates the division itself, above the federated scan, in decimal arithmetic. A `/` whose operand type Spice cannot determine is also evaluated in Spice.
+
+Integer and floating-point `/` are still sent to DuckDB, and an integer `/` is still integer division. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
 ## Ordered Aggregates and `IGNORE NULLS`
 
 An aggregate can take an `ORDER BY` inside the call, as in `string_agg(name, ',' ORDER BY name)`. Spice sends that ordering to DuckDB for four aggregates: `string_agg`, `array_agg`, `first_value`, and `last_value`. DuckDB has `first_value` and `last_value` only as window functions, so these two are sent as DuckDB's `first` and `last` aggregates, which return the first and last value in the given order, including a `NULL`, as Spice does by default.

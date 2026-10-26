@@ -40,11 +40,13 @@ Some configurations load on Arrow but not on Cayenne. On Linux and macOS, with n
 | Name       | Description                     | Status            | Engine Modes     |
 | ---------- | ------------------------------- | ----------------- | ---------------- |
 | `cayenne`  | [Spice Cayenne][cayenne]        | Stable            | `memory`, `file`, `file_create`, `file_update` |
-| `arrow`    | In-Memory Arrow Records         | Stable            | `memory`         |
-| `duckdb`   | Embedded [DuckDB][duckdb]       | Stable            | `memory`, `file`, `file_create`, `file_update` |
-| `postgres` | Attached [PostgreSQL][postgres] (Spice.ai Enterprise) | Release Candidate | N/A              |
-| `sqlite`   | Embedded [SQLite][sqlite]       | Release Candidate | `memory`, `file`, `file_create`, `file_update` |
-| `turso`    | Embedded [Turso][turso]         | Beta              | `memory`, `file`, `file_create`, `file_update` |
+| `arrow`    | In-Memory Arrow Records         | Deprecated        | `memory`         |
+| `duckdb`   | Embedded [DuckDB][duckdb]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
+| `postgres` | Attached [PostgreSQL][postgres] (Spice.ai Enterprise) | Deprecated | N/A              |
+| `sqlite`   | Embedded [SQLite][sqlite]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
+| `turso`    | Embedded [Turso][turso]         | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
+
+Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. See [Migrating to Spice Cayenne](./cayenne/migration.md).
 
 [cayenne]: ./cayenne/index.md
 [duckdb]: ./duckdb/index.md
