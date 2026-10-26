@@ -216,4 +216,4 @@ The `prompt_cache_key` can also be passed per-request in the [`/v1/nsql` API](..
 
 For local models served by mistral.rs (safetensors models, and GGUF models with `distributed_backend: ring`), paged-attention scheduling is requested automatically for KV-cache prefix reuse, but it is not used everywhere: it needs a CUDA build on Unix with a CUDA device actually available, and even there the engine serves dense attention for architectures that have no paged kernel. On a `from: file:` model, `paged_attention: disabled` forces dense attention with a contiguous KV cache; a `huggingface:` model always takes the automatic path.
 
-A GGUF model on a single node is served by llama.cpp, which manages its own KV cache, so `paged_attention` has no effect on it. See [Local GGUF Models](../../components/models/index.md#local-gguf-models).
+A GGUF model on a single node is served by llama.cpp, which starts each request from an empty KV cache: `prompt_cache_key` reuses no prompt prefix, and `paged_attention` has no effect on it. See [Local GGUF Models](../../components/models/index.md#local-gguf-models).
