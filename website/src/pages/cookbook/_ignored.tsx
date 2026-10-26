@@ -172,7 +172,7 @@ const recipes: RecipeData[] = [
   {
     title: 'Running Qwen3.5 Locally',
     description:
-      'Serve Qwen3.5-9B on any Apple silicon Mac with llama.cpp and Metal, with an abliterated variant.',
+      'Serve Qwen3.5-9B on any Apple silicon Mac with 16 GB or more, with llama.cpp and Metal, with an abliterated variant.',
     path: '/models/qwen3.5/README.md',
     tags: ['ai', 'qwen', 'local', 'models']
   },
