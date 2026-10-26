@@ -29,6 +29,8 @@ Returns a string containing the generated text response. Returns NULL for NULL i
 
 Queries execute asynchronously, processing LLM calls in parallel across rows for improved performance. Each invocation issues an asynchronous call to the specified model provider.
 
+`ai()` can be used as a `GROUP BY` or `ORDER BY` key, inside a `DISTINCT` aggregate, in a window function, and in more than one aggregate of the same query, as well as in a `SELECT` list or a `WHERE` clause. Spice computes each such call in a projection below the grouping, sort, or window that uses it, and the output column keeps the name the query gave it.
+
 **Concurrency**: When a per-model rate controller is configured in the Spicepod, it manages concurrency and backpressure. Otherwise, concurrency falls back to DataFusion's `execution.target_partitions` setting. When multiple models with different providers are configured (e.g., OpenAI and Anthropic), each provider's requests are controlled independently.
 
 **Limits**:
@@ -135,7 +137,7 @@ ai_decide(input, questions[, model => 'name'][, on_error => 'fail' | 'null'])
 
 - **input**: The value to decide about. Text is sent as text; a struct, map, or list is sent as JSON; binary data is refused and must be cast to text first. A NULL `input` returns NULL without a model call.
 - **model** (optional): The name of a model in the Spicepod. When omitted, Spice uses the only model that can answer or, when there are several, the only decision model among them. Otherwise the query fails and lists the models to choose from.
-- **on_error** (optional): `'fail'` (the default) stops the query when the model cannot answer a row, after retrying rate limits and transient failures. `'null'` returns NULL for that row. When the model declines one question of an `ai_decide` call, or of calls that share a request, `'null'` sets only that question's answer to NULL and keeps the other answers.
+- **on_error** (optional): `'fail'` (the default) stops the query when the model cannot answer a row, after retrying rate limits and transient failures, up to 3 attempts in all. Each attempt can itself make a corrective call to a chat model whose reply was malformed, so one row can take up to 6 completion calls. A failure that does not change on retry is not retried: a request the provider rejects as invalid (such as a prompt too long for the model), unauthenticated, or not permitted, a model the provider does not find, and a reply cut off at the output token limit. `'null'` returns NULL for that row. When the model declines one question of an `ai_decide` call, or of calls that share a request, `'null'` sets only that question's answer to NULL and keeps the other answers.
 
 Every argument except `input` must be a constant. Constants are checked when the query is planned, before any model call.
 
