@@ -211,10 +211,11 @@ Issuing a second `ALTER TABLE` before replication has caught up on the first can
 
 ### Column type changes
 
-When `ALTER TABLE ... MODIFY` changes a dataset column to a type that holds every value of its old type, such as `INT` to `DOUBLE` or `DECIMAL(10,2)` to `DECIMAL(12,2)`, the stream keeps applying changes. What happens to the column depends on the dataset's [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change):
+When `ALTER TABLE ... MODIFY` changes a dataset column to a type that holds every value of its old type, such as `INT` to `DOUBLE` or `DECIMAL(10,2)` to `DECIMAL(12,2)`, what happens depends on the dataset's [`on_schema_change`](../../reference/spicepod/datasets#on_schema_change):
 
 - **`block`** (the default) keeps the column's registered type. A later value is stored only when that type holds it exactly: an integer column takes the `DOUBLE` value `2.0` as `2`, and a value such as `1.5` stops the stream with an error. A value is never stored rounded.
-- **Every other policy** receives the new type as a schema change and applies it as the policy does for any schema change. For example, under `sync_all_columns` a [Cayenne](../../components/data-accelerators/cayenne/index.md) acceleration widens the column without a restart. A primary key column always keeps its registered type, as under `block`.
+- **`fail`** receives the new type as a schema change, so the dataset stops at the type change, as it does for any schema change.
+- **`append_new_columns`, `sync_all_columns`, and `drop_and_recreate`** receive the new type as a schema change and apply it as the policy does for any schema change. For example, under `sync_all_columns` a [Cayenne](../../components/data-accelerators/cayenne/index.md) acceleration widens the column without a restart. A primary key column always keeps its registered type, as under `block`.
 
 The stream stops at the `ALTER` itself when the new type does not hold every value of the old one, such as `BIGINT` to `DOUBLE` or `FLOAT` to `DOUBLE(5,2)`. MySQL rewrites the stored values of such a column in place, with no row events, so the acceleration would otherwise keep values the source no longer has. This applies to primary key columns too. The stream also stops at the `ALTER` for a type change its change batches cannot carry: an integer column that becomes a `DECIMAL` with a scale, an unsigned integer column that becomes any `DECIMAL`, and a `FLOAT` column that becomes another numeric type.
 
