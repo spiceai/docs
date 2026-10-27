@@ -695,6 +695,16 @@ datasets:
       refresh_check_interval: 30s
 ```
 
+### Source That Stops Sending Mid-Refresh
+
+Once the source has sent the first batch of a `full` or `append` refresh, Spice waits at most 10 minutes for each later batch. A connection that the network stops carrying can otherwise leave a refresh waiting indefinitely, with the dataset serving stale data and other refreshes queued behind it. A refresh that waits longer fails with a transient error, is counted in [`dataset_acceleration_refresh_errors`](../observability#available-metrics), and, unless `refresh_retry_enabled` is `false`, is retried on a new connection with the backoff described above:
+
+```text
+The source of dataset 'orders' stopped sending data mid-refresh: no data for 600s after it started sending, so the connection is treated as lost and the refresh is retried
+```
+
+The wait for the first batch is not limited, so a source that takes a long time to plan and start a query is unaffected. A refresh that never receives its first batch, such as one that draws a pooled connection that died while idle, is not covered by this limit. The 10-minute limit cannot be configured.
+
 ## Retention Policy
 
 |                                    |                  |
