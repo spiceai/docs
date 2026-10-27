@@ -425,7 +425,15 @@ By default, `pagination` is set to `auto`, which automatically follows HTTP `Lin
 
 #### SSRF Protection
 
-When using URL mode, next-page URLs extracted from response bodies are validated to share the same origin as the base URL configured in `from`. Cross-origin redirects are rejected.
+When using URL mode, next-page URLs extracted from response bodies are validated to share the same origin as the base URL configured in `from`.
+
+A JSON API dataset does not follow a redirect to a private, loopback, or link-local address, including a host name that resolves to one, and the query fails with an error such as:
+
+```text
+Refused to connect to internal.example.com: the HTTPS data connector does not follow a redirect to a private, loopback, or link-local address
+```
+
+The check covers the hosts that a redirect introduces. The host in `from` and a configured proxy are resolved without it.
 
 ### Special Metadata Fields
 
