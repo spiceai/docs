@@ -100,7 +100,7 @@ File types include:
   - Usually a `tokenizer.json` file
   - Defines how input text is converted into tokens for the model
 
-- `tokenizer_config`: Tokenizer configuration
+- `tokenizerConfig`: Tokenizer configuration
   - Usually a `tokenizer_config.json` file
   - Contains additional configuration for the tokenizer
 

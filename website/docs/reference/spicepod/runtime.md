@@ -946,6 +946,7 @@ Configures an [OpenTelemetry](https://opentelemetry.io/) exporter that pushes me
 | `enabled`       | Yes      | `true`  | Whether the OpenTelemetry exporter is enabled.                                                                                                                                                                                                                |
 | `endpoint`      | No       | -       | The OpenTelemetry collector endpoint. Protocol is inferred from the format (see examples below).                                                                                                                                                              |
 | `push_interval` | Yes      | `60s`   | How frequently metrics are pushed to the collector. Specify as a [duration](../duration).                                                                                                                                                                     |
+| `temporality`   | Yes      | `delta` | Aggregation temporality of exported metrics: `delta`, `cumulative`, or `low_memory` (cumulative counters and delta histograms). Datadog requires `delta`. Use `cumulative` for a collector that forwards to Prometheus. Applies to the OTLP exporter only; the Prometheus `/metrics` endpoint always reports cumulative values. |
 | `metrics`       | Yes      | `[]`    | List of metric names to export. When empty (default), all metrics are exported.                                                                                                                                                                               |
 | `signals`       | Yes      | `[metrics]` | What the exporter sends: `metrics`, `logs`, or both. See [Exporting logs](#exporting-logs). `push_interval` and `metrics` apply to metrics only. |
 | `headers`       | Yes      | `{}`    | Map of headers to send with each export request. For HTTP these are sent as HTTP headers; for gRPC they are sent as metadata entries (keys must be lowercase ASCII). Values support the `${secrets:...}` [replacement syntax](../../components/secret-stores#using-secrets) for loading credentials from a [secret store](../../components/secret-stores). |
@@ -1121,14 +1122,36 @@ runtime:
   flight:
     max_message_size: 16MiB
     do_put_rate_limit_enabled: true
+    batch_size:
+      mode: adaptive
+      max: 131072
+    ipc_compression: zstd
 ```
 
 | Parameter name              | Optional | Default | Description                                                          |
 | --------------------------- | -------- | ------- | -------------------------------------------------------------------- |
 | `max_message_size`          | Yes      | -       | Maximum size of a single Arrow Flight message.                       |
 | `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
+| `batch_size`                | Yes      | `mode: adaptive`, `max: 131072` | Record batch size of Arrow Flight and Flight SQL query responses. With `mode: adaptive`, Spice raises the batch size of a response whose planner estimate is large, up to `max` rows. With `mode: default`, every response uses the query engine's configured batch size. |
+| `ipc_compression`           | Yes      | `none`  | Compression of the Arrow IPC record batches in Arrow Flight and Flight SQL responses: `none`, `lz4_frame`, or `zstd`. The client must support the codec to read the response. |
 
 The `DoPut` rate limit admits 100 writes per minute, shared by all clients of the runtime. Arrow Flight data writes, Flight SQL bulk ingestion (`CommandStatementIngest`), and Flight SQL statement updates (`CommandStatementUpdate`, sent by a Flight SQL client's execute-update call) count against it. Prepared statement calls, including parameter binding, do not. A write over the limit fails with the gRPC status `RESOURCE_EXHAUSTED`.
+
+## `runtime.tracing`
+
+Exports task history spans to a [Zipkin](https://zipkin.io/) collector. See [Zipkin](../../monitoring/zipkin) for an example.
+
+```yaml
+runtime:
+  tracing:
+    zipkin_enabled: true
+    zipkin_endpoint: http://localhost:9411/api/v2/spans
+```
+
+| Parameter name    | Optional | Default | Description |
+| ----------------- | -------- | ------- | ----------- |
+| `zipkin_enabled`  | No       | -       | Whether spans are exported to Zipkin. |
+| `zipkin_endpoint` | Yes      | -       | The Zipkin spans endpoint. Required when `zipkin_enabled` is `true`; without it, tracing setup fails with `zipkin_endpoint is required when zipkin_enabled is true`. When the endpoint is not reachable at startup, Spice prints `Zipkin endpoint '<endpoint>' is not reachable. Skipping Zipkin exporter initialization.` and runs without the Zipkin exporter. |
 
 ## `runtime.mcp`
 
