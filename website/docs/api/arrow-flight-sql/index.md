@@ -57,6 +57,14 @@ For point lookups and other small Flight SQL responses, fixed per-query costs (p
 - **Prepared statements**, for a lookup that runs often with different parameter values. `PREPARE` the statement, then `EXECUTE` it with bound parameters ([prepared statements](../reference/sql/prepared_statements)). Preparing saves parsing and planning work on each call, not queueing: `EXECUTE` still takes a [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) slot. Repeated SQL text also hits the [logical plan cache](../features/caching#logical-plan-cache).
 - **A low [`target_partitions`](../reference/performance-tuning#query-parallelism)** for a lookup that does not scan in parallel. Confirm the plan with [`EXPLAIN`](../reference/sql/explain).
 
+A Flight SQL prepared statement handle is valid only on the Spice process that created it. After that process restarts, or when a load balancer without session affinity sends a later call to another replica, the call fails with `InvalidArgument`:
+
+```text
+Invalid prepared statement handle: it was not issued by this Spice runtime, or the runtime has restarted since. Create the prepared statement again and retry. See: https://spiceai.org/docs/api/arrow-flight-sql
+```
+
+Create the prepared statement again and retry. No setting changes this.
+
 JDBC, ODBC, and ADBC clients connect to Spice over Flight SQL. Set the connection pool size to the sum of [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) across the Spice replicas behind the load balancer, divided by the number of application instances that share them — see [Client connection pools](../reference/performance-tuning#client-connection-pools).
 
 ## Long `DoGet` streams
