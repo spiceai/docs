@@ -117,7 +117,7 @@ This is supported for connectors that accept the [file format parameter](../../.
 
 ## Readiness with Snapshots
 
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](../snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from snapshot-assisted startup.
+An append-mode acceleration that defines a `time_column` and meets the conditions in [Serving an Existing Acceleration While the Source Is Unavailable](../data-refresh#serving-an-existing-acceleration-while-the-source-is-unavailable) is served as soon as its existing acceleration is available, whether it was reopened from disk or restored by [snapshot bootstrap](../snapshots), including while the source is unavailable. The first append refresh then catches up from the newest `time_column` value in the acceleration. In v2.4.0-rc.3 and earlier, such a dataset with snapshots enabled waited to report ready until its first append refresh completed.
 
 ## Combining with Upserts
 

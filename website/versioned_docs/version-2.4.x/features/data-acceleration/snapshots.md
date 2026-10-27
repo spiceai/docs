@@ -435,7 +435,7 @@ datasets:
 ```
 
 :::info Readiness with append refreshes
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after snapshot bootstrap. This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
+An append-mode acceleration that defines a `time_column` and meets the conditions in [Serving an Existing Acceleration While the Source Is Unavailable](./data-refresh#serving-an-existing-acceleration-while-the-source-is-unavailable) is served as soon as it is restored from a snapshot, including while the source is unavailable, and the first append refresh then catches up from the newest `time_column` value in the acceleration. In v2.4.0-rc.3 and earlier, it waited to report ready until that first append refresh completed. See [Fast Cold Starts](./data-refresh#fast-cold-starts-with-snapshots) for additional context.
 :::
 
 ## Serve a dataset from published snapshots
