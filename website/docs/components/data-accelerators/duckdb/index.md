@@ -5,6 +5,12 @@ description: 'DuckDB Data Accelerator Documentation'
 sidebar_position: 3
 ---
 
+:::warning[Deprecated]
+
+The `duckdb` acceleration engine is deprecated in v2.4 and will be removed in v2.5. A Spicepod with a dataset or view that uses it logs one warning at startup, and one on each hot reload that adds or changes such a component, naming those datasets and views. A cluster executor does not log it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. Move these accelerations to [Spice Cayenne](../cayenne/index.md) before upgrading to v2.5; see [Migrating to Spice Cayenne](../cayenne/migration.md).
+
+:::
+
 The DuckDB Data Accelerator helps improve query performance by using [DuckDB](https://duckdb.org/), an embedded analytical database engine optimized for efficient data processing.
 
 It supports in-memory and file-based operation modes, enabling workloads that exceed available memory and optionally providing persistent storage for datasets.
@@ -140,6 +146,7 @@ Consider the following limitations when using DuckDB acceleration:
 - A `CAST` or `TRY_CAST` into a string type is sent to DuckDB only when its operand does not reach a binary value. A text cast over a binary value is evaluated in Spice, which checks that the bytes are valid UTF-8. See [Text Casts over Binary Values](../../data-connectors/duckdb/index.md#text-casts-over-binary-values).
 - A cast from a floating-point or decimal value into an integer type, a cast into a binary type, and DataFusion's cast and type functions such as `arrow_cast` and `arrow_typeof` are evaluated in Spice, not in DuckDB. Spice truncates a fractional value toward zero, so `CAST(1.7 AS INT)` returns `1` as it does on an unaccelerated dataset, where DuckDB would round it to `2`. See [Casts and Type Functions Evaluated in Spice](../../data-connectors/duckdb/index.md#casts-and-type-functions-evaluated-in-spice).
 - `AVG` over a decimal column is evaluated in Spice rather than sent to DuckDB, because DuckDB averages a decimal as a `DOUBLE`. See [Decimal Averages](../../data-connectors/duckdb/index.md#decimal-averages).
+- A `/` with a decimal operand is evaluated in Spice rather than sent to DuckDB, because DuckDB divides a decimal as a `DOUBLE`. See [Decimal Division](../../data-connectors/duckdb/index.md#decimal-division).
 - `string_agg`, `array_agg`, `first_value`, and `last_value` with an `ORDER BY` inside the call are sent to DuckDB with their ordering. Any other aggregate whose result depends on an `ORDER BY` inside the call, such as `nth_value`, and any aggregate or window function with `IGNORE NULLS`, is evaluated in Spice, not in DuckDB. See [Ordered Aggregates and `IGNORE NULLS`](../../data-connectors/duckdb/index.md#ordered-aggregates-and-ignore-nulls).
 - `approx_distinct` is evaluated in Spice, not in DuckDB, because DuckDB has no function of that name. `encode(x, 'hex')` is sent to DuckDB as `lower(hex(x))`, and `encode` with any other encoding is evaluated in Spice. See [`approx_distinct` and `encode`](../../data-connectors/duckdb/index.md#approx_distinct-and-encode).
 

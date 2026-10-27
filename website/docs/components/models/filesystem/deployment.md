@@ -34,7 +34,7 @@ Model loading happens once at startup. A missing or unreadable file fails the sp
 
 | Format         | Extension                      | Notes                                                                  |
 | -------------- | ------------------------------ | ---------------------------------------------------------------------- |
-| GGUF           | `.gguf`                        | Quantized / unquantized; loaded via the mistral local loader.          |
+| GGUF           | `.gguf`                        | Quantized / unquantized; served by llama.cpp on a single node, and by mistral.rs with `distributed_backend: ring`. See [GGUF architectures](../index.md#gguf-architectures). |
 | GGML (legacy)  | `.ggml`                        | Legacy llama.cpp format.                                               |
 | Safetensors    | `.safetensors`                 | Native tensor format; preferred over `.bin` for safety.                 |
 | PyTorch        | `.bin` / `.pt` / `.pth` / `.ckpt` | Legacy pickle-based checkpoints. **Rejected by default** — these formats execute arbitrary code when loaded. Set [`trust_pickle: true`](index.md#params-optional) to load them from a fully trusted source. |
@@ -80,7 +80,7 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 - **Format support depends on compile features**: CUDA and Metal support are conditional on the Spice build flavor (default, CUDA).
 - **No hot reload**: Swapping the underlying model file requires a spicepod reload.
 - **No integrity check**: The provider trusts the file on disk. Validate checksums out-of-band for supply-chain assurance.
-- **Model_type override**: When the loader cannot auto-detect the architecture, `model_type` can force a known architecture.
+- **Model_type override**: When the loader cannot auto-detect the architecture of a model served by mistral.rs, `model_type` can force a known architecture. A GGUF model served by llama.cpp takes its architecture from the file; see [GGUF architectures](../index.md#gguf-architectures).
 
 ## Troubleshooting
 
@@ -89,6 +89,7 @@ Local inference operations emit `ai_completion` spans (and `health` spans for pr
 | `No such file or directory`                          | Path typo or missing mount.                         | Verify the file exists in the Spice process's filesystem (`ls` inside the container).                                    |
 | `Permission denied`                                  | Spice user lacks read on the file.                  | Adjust ACLs or mount with appropriate UID/GID.                                                                            |
 | Model fails to load with `unsupported architecture`  | Loader cannot infer architecture from filename.     | Set `model_type` explicitly.                                                                                              |
+| GGUF model fails to load with `Architecture '<architecture>' in <file> is not supported by this Spice release` | The llama.cpp release that this Spice release pins does not support the GGUF's architecture. | Upgrade Spice, or use a GGUF of an architecture listed in [GGUF architectures](../index.md#gguf-architectures). |
 | OOM on load                                          | File size exceeds device memory.                    | Use a smaller / more quantized variant; move to CPU with more RAM; split across GPUs if supported.                        |
 | Inference falls back to CPU unexpectedly             | CUDA / Metal not available.                         | Use a CUDA-enabled Spice build on GPU hosts; for macOS, use the Apple Silicon build.                                      |
 | Slow first inference after startup                   | JIT / weight-quantization warmup.                   | Issue a warmup request at startup; subsequent calls are hot.                                                              |
