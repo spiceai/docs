@@ -10,6 +10,12 @@ sidebar_position: 5
 The PostgreSQL Data Accelerator is available only in [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise).
 :::
 
+:::warning[Deprecated]
+
+The `postgres` acceleration engine is deprecated in v2.4 and will be removed in v2.5. A Spicepod with a dataset or view that uses it logs one warning at startup, and one on each hot reload that adds or changes such a component, naming those datasets and views. A cluster executor does not log it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. Move these accelerations to [Spice Cayenne](../cayenne/index.md) before upgrading to v2.5; see [Migrating to Spice Cayenne](../cayenne/migration.md).
+
+:::
+
 To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for acceleration.
 
 ```yaml

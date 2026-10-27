@@ -79,7 +79,7 @@ Retention runs only when a snapshot is published, so the snapshots of a dataset 
 
 A dropped snapshot is no longer listed by `GET /v1/datasets/{name}/acceleration/snapshots`, and `POST /v1/datasets/{name}/acceleration/snapshots/current` cannot make it current: the request returns `404 Not Found`. To roll back further than 28 days, keep a copy of the snapshot outside the location.
 
-A bucket lifecycle rule on the snapshot location can still delete files that `metadata.json` lists. Spice treats a snapshot whose file is gone as a failed download, and [`bootstrap_on_failure_behavior`](#failure-behavior) applies: `fallback` tries the next older snapshot, `warn` continues with an empty acceleration, and `retry` keeps retrying. When the file of an entry at least 24 hours old is gone, the publishing instance drops the entry and logs a warning that names the snapshot. The current and newest entries are never dropped this way, so a current or newest snapshot whose file is gone stays listed until a newer snapshot is published.
+A bucket lifecycle rule on the snapshot location can still delete files that `metadata.json` lists. Spice treats a snapshot whose file is gone as a failed download, and [`bootstrap_on_failure_behavior`](#failure-behavior) applies: `fallback` tries the next older snapshot, `warn` continues with an empty acceleration, and `retry` keeps retrying. A [`refresh_mode: snapshot`](./refresh-modes/snapshot.md) reader that has already loaded a snapshot never continues with an empty acceleration: when a poll loads no newer snapshot, the reader keeps serving the one it loaded and reports `reason="snapshot_download_failed"`. When the file of an entry at least 24 hours old is gone, the publishing instance drops the entry and logs a warning that names the snapshot. The current and newest entries are never dropped this way, so a current or newest snapshot whose file is gone stays listed until a newer snapshot is published.
 
 ## Configure snapshot storage
 
@@ -232,6 +232,8 @@ The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-s
 - `retry` – keep retrying the newest snapshot until it succeeds.
 - `fallback` – try older snapshot files until one loads successfully.
 - `warn` – log a warning and continue with an empty acceleration. (Default.)
+
+Once a [`refresh_mode: snapshot`](./refresh-modes/snapshot.md) reader has loaded a snapshot, a later poll that cannot load a newer one keeps serving the loaded snapshot under every setting, increments `dataset_acceleration_refresh_errors` with `reason="snapshot_download_failed"`, and tries again at the next poll.
 
 ## Enable snapshots per dataset
 

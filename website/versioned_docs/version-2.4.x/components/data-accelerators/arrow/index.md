@@ -5,6 +5,12 @@ description: 'In-Memory Arrow Data Accelerator Documentation'
 sidebar_position: 2
 ---
 
+:::warning[Deprecated]
+
+The `arrow` acceleration engine is deprecated in v2.4 and will be removed in v2.5. A Spicepod with a dataset or view that uses it logs one warning at startup, and one on each hot reload that adds or changes such a component, naming those datasets and views. A cluster executor does not log it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. Move these accelerations to [Spice Cayenne](../cayenne/index.md) before upgrading to v2.5. On Windows, where `arrow` is the default engine, an acceleration that sets no `engine` uses `arrow` and is included in the warning; Cayenne is not available on native Windows, so run Spice in Docker or WSL to use it; see [Migrating to Spice Cayenne](../cayenne/migration.md).
+
+:::
+
 The In-Memory Arrow Data Accelerator uses Apache Arrow to store data in-memory for fast access and query performance. It is the default data accelerator on Windows. On Linux and macOS, the default is [Spice Cayenne](../cayenne/index.md); see [Default Engine](../index.md#default-engine).
 
 ## Configuration
