@@ -63,7 +63,7 @@ Data only moves along one path: **application → sidecar → (optionally) clust
 A request is served from the first tier that can answer it:
 
 1. **Sidecar results cache** — repeat queries return from the in-memory [results cache](../../features/caching) in microseconds (`Results-Cache-Status: HIT`).
-2. **Sidecar working set** — novel queries that fit the locally materialized dataset execute on-node in single-digit milliseconds (Arrow, DuckDB, or SQLite).
+2. **Sidecar working set** — novel queries that fit the locally materialized dataset execute on-node in single-digit milliseconds against a local [Cayenne](../../components/data-accelerators/cayenne) acceleration.
 3. **Cluster delegation** — queries that exceed the working set are forwarded to the cluster. [Apache Ballista](../../features/distributed-query) distributes execution; [Spice Cayenne](../../components/data-accelerators/cayenne) accelerates large scans. The sidecar caches the result so subsequent reads drop back to tier 1.
 
 The cluster has its own results cache, so one sidecar's miss can become a cluster cache hit for every subsequent sidecar. Typical application-visible latency: p50 at tier 1, p95 at tier 2, tail at tier 3.
@@ -107,7 +107,7 @@ The cluster-sidecar split maps onto [acceleration snapshots](../../features/data
 
 This avoids snapshot conflicts, keeps the cluster as the authoritative refresh point, and gives every sidecar a warm start from the same materialization. For CDC-backed datasets with large initial state, the difference between a snapshot bootstrap and a full re-sync can be seconds versus minutes.
 
-Use DuckDB or SQLite in `mode: file` on the sidecar when snapshots are in play — snapshots persist and restore the acceleration file itself. Heavyweight [Cayenne](../../components/data-accelerators/cayenne) acceleration stays on the cluster.
+Use the same engine on the sidecar as on the cluster when snapshots are in play. A snapshot restores only into an acceleration of the engine that created it: a sidecar on another engine skips the cluster's snapshots and loads its working set from the cluster instead. Use [Cayenne](../../components/data-accelerators/cayenne) in `mode: file` on both; acceleration engines other than Cayenne are deprecated and will be removed in v2.5 (see the [Cayenne migration guide](../../components/data-accelerators/cayenne/migration)).
 
 For production Spicepod and Helm reference configurations, see [Read/Write Separation](/docs/deployment/read-write-separation).
 
@@ -153,8 +153,6 @@ datasets:
       refresh_mode: changes
       snapshots: create_only
       primary_key: id
-      on_conflict:
-        id: upsert
 
   - from: s3://lakehouse/events/
     name: events
@@ -200,7 +198,7 @@ datasets:
       spiceai_region: us-east-1
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: append
       refresh_check_interval: 10s
@@ -221,7 +219,7 @@ Spice Cloud datasets require `spiceai_api_key` and `spiceai_region`. For a self-
 
 1. The application (or agent) queries its sidecar on `localhost:8090`: `SELECT ... FROM orders WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 20`.
 2. The sidecar checks its results cache. Hit → return in microseconds.
-3. On a miss, the sidecar plans against its local catalog. `orders` is materialized locally (refreshed from the cluster every 10 seconds). It executes against DuckDB, returns in single-digit milliseconds, and populates the results cache. Origin Postgres sees no traffic.
+3. On a miss, the sidecar plans against its local catalog. `orders` is materialized locally (refreshed from the cluster every 10 seconds). It executes against the local Cayenne acceleration, returns in single-digit milliseconds, and populates the results cache. Origin Postgres sees no traffic.
 4. A follow-up hybrid search over a multi-gigabyte `tickets` index is not in the sidecar catalog as a local acceleration. The sidecar opens an Arrow Flight stream to the cluster. Ballista distributes the search; Cayenne segment statistics prune most files.
 5. Results stream back as Arrow record batches. The sidecar returns them to the application and caches them. A later LLM call can be served by a small local model on loopback, with the large-model call delegated to the cluster.
 6. The cluster independently caches its own results. The next replica that asks the same question gets it from the cluster cache.
@@ -267,7 +265,7 @@ The application sees one endpoint, one wire format, and one latency distribution
 
 ## Example Use Case
 
-A multi-tenant SaaS platform runs an AI support agent. Each tenant's agent pods include a Spice sidecar that materializes that tenant's working set (recent tickets, active customer records, the last 7 days of events, the tenant's private knowledge-base embeddings) into a local DuckDB + vector index. The spicepod exposes exactly those datasets — and no others — to the agent. The sidecar holds no credentials for Postgres, S3, or Snowflake.
+A multi-tenant SaaS platform runs an AI support agent. Each tenant's agent pods include a Spice sidecar that materializes that tenant's working set (recent tickets, active customer records, the last 7 days of events, the tenant's private knowledge-base embeddings) into a local Cayenne acceleration and vector index. The spicepod exposes exactly those datasets — and no others — to the agent. The sidecar holds no credentials for Postgres, S3, or Snowflake.
 
 Agent turns hit the sidecar on `localhost` and return in single-digit milliseconds; repeat retrievals return from the results cache in microseconds. Behind the sidecars, a Spice cluster (often Spice Cloud) ingests from PostgreSQL via CDC, S3 Iceberg tables, and Databricks. Cayenne acceleration and refresh schedules run on the cluster. When an agent asks a broader question — "summarize this tenant's churn signal across the last 12 months" — the sidecar recognizes the query exceeds its working set and delegates over Arrow Flight. The cluster executes it, the sidecar caches the result, and subsequent turns for that tenant return in microseconds.
 

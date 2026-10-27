@@ -7,6 +7,6 @@ pagination_prev: null
 pagination_next: null
 ---
 
-import Content from '@site/src/partials/deployment/architectures/_cluster-sidecar.mdx';
+import Content from '@site/src/partials/deployment/architectures/_cluster-sidecar-v2.3.mdx';
 
 <Content />

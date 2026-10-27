@@ -34,11 +34,21 @@ datasets:
 
 To account for clock skew or late-arriving rows, configure an overlap window with [`acceleration.refresh_append_overlap`](../../../reference/spicepod/datasets#accelerationrefresh_append_overlap). Rows within the overlap are re-read on each refresh. A row that arrives later than the overlap, with a `time_column` value older than the window, is not loaded by any later `append` refresh; a `full` refresh loads it.
 
-[Iceberg sources](#iceberg-sources-follow-table-snapshots) do not depend on the overlap for late rows: their append refresh reads what each new snapshot added.
+[Iceberg sources](#iceberg-sources-follow-table-snapshots) do not depend on the overlap for late rows: their append refresh reads what each new snapshot added. The exception is a keyed acceleration on an engine other than Cayenne, which [reads by time](#keyed-accelerations-on-other-engines-read-by-time).
 
 ## Iceberg Sources Follow Table Snapshots
 
 An `append` refresh of an [Iceberg](../../../components/data-connectors/iceberg.md) dataset, or of an Iceberg table read through the [Glue](../../../components/data-connectors/glue.md) connector, follows the table's snapshots instead of a time window. Spice saves the snapshot it last loaded. The next refresh reads the data files that the snapshots committed since then added, whatever their `time_column` values, so rows that a writer commits out of time order are loaded. A refresh of a table with no new snapshot scans no data.
+
+### Keyed accelerations on other engines read by time
+
+An acceleration on an engine other than Cayenne, with a `primary_key` that does not include the `time_column`, keeps the last row to arrive for each key. Its `append` refresh of an Iceberg source does not follow snapshots. It reads rows newer than the latest stored `time_column` value, less `refresh_append_overlap`, so a late row with an older `time_column` value does not replace the newer row already stored. A row that arrives later than the overlap is not loaded. Cayenne keeps the newest row for each key by `time_column`, so it follows snapshots and loads every new row.
+
+Such a dataset with no `refresh_append_overlap` logs this warning when it loads:
+
+```text
+Dataset '<name>' (`engine: <engine>`) has no `refresh_append_overlap`, so a row that arrives after a newer one is never loaded. Use `engine: cayenne` to load every new row, or set `refresh_append_overlap` to how late rows can arrive. See: https://spiceai.org/docs/features/data-acceleration/data-refresh
+```
 
 The first refresh, which has no saved snapshot, reads by time as described in [Configuration](#configuration). Each kind of snapshot since the saved one is handled as follows:
 
