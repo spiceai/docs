@@ -105,6 +105,8 @@ The HTTP/HTTPS connector does not read ORC. With `file_format: orc`, an HTTP dat
 
 ORC has no format-specific parameters, and the reader is read-only: `INSERT INTO` an ORC dataset is not supported.
 
+The reader limits how far a compressed ORC metadata stream, such as the file footer, a stripe footer, a row index, or a bloom filter, may expand: to 64 MiB or 100 times its compressed size, whichever is larger. A file whose metadata exceeds the limit fails to load with `ORC metadata stream exceeds the decompression limit of <n> bytes`. Column data streams are not limited.
+
 ### Collection schema inference
 
 When the dataset points at a directory rather than a single object, Spice merges the footers of **every** matching ORC object to infer the schema, not just the most recently modified one — a column that appears only in older files would otherwise be dropped, and a later scan reads every object. Columns absent from an individual file are filled with NULLs at scan time.

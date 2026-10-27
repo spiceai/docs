@@ -341,6 +341,8 @@ When the query memory pool cannot satisfy a reservation, the query is refused ra
 | `query_failures` metric | `err_code="ResourcesExhausted"` |
 | Runtime log | Logged at `warn` level (`Query refused, out of memory: …`), so a runtime refusing queries is visible at the default `INFO` verbosity |
 
+Scalar functions whose output size follows from their arguments (`repeat`, `lpad`, `rpad`, `array_repeat`, `array_resize`, `range`, and `generate_series`) reserve a lower bound of their output from the same pool before they run. When that reservation does not fit in the pool, the call is refused the same way. Because the reservation is a lower bound, it can be smaller than the actual output: for example, `lpad` and `rpad` reserve one byte per requested character, so a multibyte fill string produces more output than was reserved.
+
 A sustained rate of these means the deployment needs more memory, fewer concurrent queries, or fewer partitions — not that the client's SQL is malformed. Note that `/health` is served by a separate Tokio runtime and stays green while queries are being refused, so alert on `query_failures{err_code="ResourcesExhausted"}` rather than relying on health checks.
 
 ### Bounding Peak Memory with Concurrency

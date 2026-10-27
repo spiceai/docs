@@ -179,12 +179,12 @@ Datadog typically ingests OTLP metrics within seconds, but the associated tags (
 :::
 
 :::caution Manage tag cardinality in Datadog
-Datadog [bills on custom metric cardinality](https://docs.datadoghq.com/account_management/billing/custom_metrics/), driven by the number of unique tag-value combinations per metric. The custom tags added via `runtime.telemetry.properties` are typically low-cardinality (`environment`, `region`, `team`), but Spice metrics also carry a number of automatically populated dimensions — for example `dataset`, `protocol`, `client`, `client_version`, `client_system`, `user_agent`, `runtime`, `runtime_version`, `runtime_system` (see [Available Metrics](../features/observability#available-metrics)) — some of which can grow with the size of the deployment.
+Datadog [bills on custom metric cardinality](https://docs.datadoghq.com/account_management/billing/custom_metrics/), driven by the number of unique tag-value combinations per metric. The custom tags added via `runtime.telemetry.properties` are typically low-cardinality (`environment`, `region`, `team`), but Spice metrics also carry a number of automatically populated dimensions — for example `dataset`, `protocol`, `client`, `runtime`, `runtime_version`, `runtime_system` (see [Available Metrics](../features/observability#available-metrics)) — some of which can grow with the size of the deployment.
 
 Datadog's [Metrics without Limits™](https://docs.datadoghq.com/metrics/metrics-without-limits/) decouples ingestion from indexing for exactly this case. With Metrics without Limits™, every tag Spice emits is still ingested, but each metric is configured with one of:
 
 - an **allowlist** that keeps only the tags actually used in dashboards, monitors, and queries (e.g. keep `dataset` and `environment`, drop the rest), or
-- a **blocklist** that drops specific auto-populated tags that are not useful for a given metric (e.g. exclude `user_agent` or `client_version`).
+- a **blocklist** that drops specific auto-populated tags that are not useful for a given metric (e.g. exclude `runtime_system` or `runtime_version`).
 
 Only the indexed (queryable) tag combinations count toward custom metric billing. Configuration is done per metric in the Metrics Summary page or via the Metrics API, and the in-app UI surfaces an estimated indexed-metric volume before saving and can pre-populate an allowlist from tags actively queried in dashboards, monitors, and notebooks.
 :::
