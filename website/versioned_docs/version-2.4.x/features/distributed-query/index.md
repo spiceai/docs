@@ -134,6 +134,8 @@ Each scheduler and executor registers under its [instance identity](../../refere
 
 The identity is stable across restarts, so the scheduler recognizes an executor that restarts under the same identity as the same executor. It logs `Executor '<id>' restarted, so the tasks and shuffle output of its earlier run are rescheduled` and reschedules that work instead of waiting for the earlier run to time out.
 
+A scheduler restarted after a crash under the same identity waits until its predecessor's heartbeat has stayed unchanged for 30 seconds, then registers. A scheduler whose identity is held by a running scheduler logs an error and is refused. See [Instance identity](../../reference/spicepod/runtime.md#instance-identity).
+
 In v2.4.0-rc.2 and earlier, a scheduler registered under its `host:port` address and an executor under its advertise address, so two nodes on one host did not need distinct identities.
 
 ### Version Compatibility
