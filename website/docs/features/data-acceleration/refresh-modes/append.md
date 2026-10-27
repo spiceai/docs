@@ -42,7 +42,7 @@ An `append` refresh of an [Iceberg](../../../components/data-connectors/iceberg.
 
 ### Keyed accelerations on other engines read by time
 
-An acceleration on an engine other than Cayenne, with a `primary_key` that does not include the `time_column`, keeps the last row to arrive for each key. Its `append` refresh of an Iceberg source does not follow snapshots. It reads rows newer than the latest stored `time_column` value, less `refresh_append_overlap`, so a late row with an older `time_column` value does not replace the newer row already stored. A row that arrives later than the overlap is not loaded. Cayenne keeps the newest row for each key by `time_column`, so it follows snapshots and loads every new row.
+An acceleration on an engine other than Cayenne, with a `primary_key` that does not include the `time_column`, keeps the last row to arrive for each key. Its `append` refresh of an Iceberg source does not follow snapshots. It reads rows newer than the latest stored `time_column` value, less `refresh_append_overlap`. A late row with a `time_column` value older than that window is not loaded, so it does not replace the newer row already stored. A late row inside the window is loaded and, because the last row to arrive wins, can replace a newer stored row with the same key. Cayenne keeps the newest row for each key by `time_column`, so it follows snapshots and loads every new row.
 
 Such a dataset with no `refresh_append_overlap` logs this warning when it loads:
 
