@@ -6,6 +6,12 @@ sidebar_position: 3
 pagination_next: null
 ---
 
+:::warning[Deprecated]
+
+The DuckDB vector engine (`vectors.engine: duckdb`) is deprecated in v2.4 and will be removed in v2.5, together with the [DuckDB accelerator](../data-accelerators/duckdb) it requires, whose deprecation warning names the datasets and views that use it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. To migrate, remove the `vectors` block and set `acceleration.engine: cayenne`, which indexes embedding columns for `vector_search` itself; see [Migrating the DuckDB vector engine](../data-accelerators/cayenne/migration.md#migrating-the-duckdb-vector-engine).
+
+:::
+
 DuckDB can be used as a vector engine in Spice to store embeddings and execute vector similarity search using HNSW indexes via the [DuckDB VSS](https://duckdb.org/docs/extensions/vss) extension. This is useful when a dataset or view is already accelerated with DuckDB and a fully embedded, single-process vector store is preferred over an external service.
 
 The DuckDB vector engine requires the dataset or view to be accelerated with the [DuckDB accelerator](../data-accelerators/duckdb). Spice computes embeddings on the configured columns during refresh and write, stores them in the DuckDB accelerator alongside the source data, and creates an HNSW index that is used to answer `vector_search` and `/v1/search` queries.

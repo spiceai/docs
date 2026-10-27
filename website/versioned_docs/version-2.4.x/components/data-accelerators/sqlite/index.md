@@ -6,6 +6,12 @@ sidebar_position: 4
 pagination_next: null
 ---
 
+:::warning[Deprecated]
+
+The `sqlite` acceleration engine is deprecated in v2.4 and will be removed in v2.5. A Spicepod with a dataset or view that uses it logs one warning at startup, and one on each hot reload that adds or changes such a component, naming those datasets and views. A cluster executor does not log it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. Move these accelerations to [Spice Cayenne](../cayenne/index.md) before upgrading to v2.5; see [Migrating to Spice Cayenne](../cayenne/migration.md).
+
+:::
+
 To use SQLite as Data Accelerator, specify `sqlite` as the `engine` for acceleration.
 
 ```yaml
@@ -41,7 +47,7 @@ datasets:
 - The SQLite accelerator doesn't support arrow `Interval` types, as [SQLite](https://www.sqlite.org/lang_datefunc.html) doesn't have a native interval type.
 - The SQLite accelerator only supports arrow `List` types of primitive data types; lists with structs are not supported.
 - The SQLite accelerator doesn't support `Dictionary` or `Map` types.
-- SQLite may not be suitable for high row count use cases with complex join queries. Use [DuckDB](duckdb) instead.
+- SQLite may not be suitable for high row count use cases with complex join queries. Use [Spice Cayenne](../cayenne/index.md) instead.
 - `ROLLUP`, `CUBE`, and `GROUPING SETS` are evaluated in Spice, not in SQLite, because SQLite has no grouping sets.
 - `TRY_CAST` is never sent to SQLite, and a `CAST` is sent only when SQLite evaluates it the same way Spice does. See [Casts and Federation](#casts-and-federation).
 - `AVG` and `SUM` over a decimal column are never sent to SQLite. SQLite stores a decimal value as a double, so a value with more than about 15 significant digits reads back changed. See [Decimal Aggregates and Federation](#decimal-aggregates-and-federation).

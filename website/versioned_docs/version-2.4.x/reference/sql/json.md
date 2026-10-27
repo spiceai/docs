@@ -651,10 +651,12 @@ The scalar form takes only the JSON argument and always runs with default caps; 
 ## Federation and Pushdown
 
 These functions come from a Spice library, not from the source database, so a remote engine has no
-equivalent to call. A connector that installs the Spice function deny-list will not federate a plan
-containing one: a predicate such as `WHERE json_get_int(doc, 'id') = 1` disqualifies the node, the
-column is streamed to Spice, and the filter runs there. That is correct, but it costs a full remote
-scan. Whether — and which — JSON functions push down is therefore connector-specific.
+equivalent to call. A connector that installs the Spice function deny-list keeps each node that calls
+one of these functions in Spice and federates the largest parts of the plan beneath it. A predicate
+such as `WHERE json_get_int(doc, 'id') = 1` runs in Spice, so the column is streamed from the source
+at the cost of a full remote scan. Work beneath the function still runs at the source:
+`json_get_str(MIN(doc), 'a')` sends `SELECT min(doc)` to the source and applies `json_get_str` to the
+one row returned. Whether, and which, JSON functions push down is therefore connector-specific.
 
 **BigQuery** is the exception. A dataset read through the [ADBC data
 connector](../../components/data-connectors/adbc) with `adbc_driver: bigquery` uses a BigQuery
