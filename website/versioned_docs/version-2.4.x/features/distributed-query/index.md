@@ -128,6 +128,14 @@ spiced --role executor \
 
 Specifying `--scheduler-address` implies `--role executor`.
 
+### Instance Identity
+
+Each scheduler and executor registers under its [instance identity](../../reference/spicepod/runtime.md#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. Nodes on separate hosts or Kubernetes pods already have distinct identities. Processes on one host share its host name, so two schedulers, or two executors, on one host each need their own `SPICE_INSTANCE_ID`. This is in addition to what any two `spiced` processes on one host already need, such as their own instance directory, set with `SPICE_CONFIG_DIR`, because each process holds an exclusive lock on its instance directory.
+
+The identity is stable across restarts, so the scheduler recognizes an executor that restarts under the same identity as the same executor. It logs `Executor '<id>' restarted, so the tasks and shuffle output of its earlier run are rescheduled` and reschedules that work instead of waiting for the earlier run to time out.
+
+In v2.4.0-rc.2 and earlier, a scheduler registered under its `host:port` address and an executor under its advertise address, so two nodes on one host did not need distinct identities.
+
 ### Version Compatibility
 
 Run the same Spice version on every scheduler and executor in a cluster, and upgrade all of them together. A scheduler checks the cluster protocol version that each executor reports when it registers and polls for work, and rejects an executor built for a different Spice version. A rejected executor receives no work. The scheduler logs `Rejecting executor <id>: protocol version mismatch`, and the executor logs a warning like the following on each retry:
