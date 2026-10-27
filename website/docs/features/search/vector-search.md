@@ -84,6 +84,12 @@ The optional `keywords` field narrows the candidates to rows whose searched colu
 Search request rejected: 513 keywords were provided, and at most 512 are accepted. Shorten the `keywords` list.
 ```
 
+The `where` condition has the same 512-level nesting limit as a [SQL expression](../../reference/sql/operators.md#logical-operators). A condition nested deeper, such as a long chain of `AND` or `OR` terms, is rejected with HTTP `400` before any search runs:
+
+```text
+Invalid WHERE condition: it is nested more than 512 levels deep. Simplify it (for example, replace a long chain of OR conditions with an IN list).
+```
+
 ## Retrieving Full Documents
 
 If the dataset uses chunking, Spice returns relevant chunks. To retrieve entire documents, include the embedding column in `additional_columns`:

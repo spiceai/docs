@@ -367,6 +367,12 @@ An export is acknowledged only after its records are written. Delivery is at lea
 
 A record whose time or observed time is after 2262-04-11, which no nanosecond timestamp can hold, is rejected. When an export has other records, they are stored and the rejected ones are counted in the export's partial-success response. When every record in an export is rejected, including a single record sent alone, the export fails with `INVALID_ARGUMENT` (HTTP 400) and nothing is stored.
 
+Spice writes an export in batches of at most 256 MiB of string data. A single record whose string values, including the resource and scope attributes it carries, expand to more than 256 MiB fails the whole export with `INVALID_ARGUMENT` (HTTP 400), and nothing from that export is stored:
+
+```text
+The OpenTelemetry logs export contains one record that expands to <n> string bytes, above the per-batch limit of 268435456 bytes; reduce the record's body or attributes
+```
+
 #### Querying logs
 
 ```sql

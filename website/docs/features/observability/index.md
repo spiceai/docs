@@ -267,7 +267,7 @@ For full configuration details, see the [runtime.telemetry reference](../referen
 
 ## Available Metrics
 
-Spice exposes the following metrics. The **Dimensions** column lists labels available for filtering and aggregation; `—` indicates the metric is emitted without dimensions. Dimensions annotated _(request context)_ expand to: `protocol`, `client`, `client_version`, `client_system`, `user_agent`, `runtime`, `runtime_version`, `runtime_system` (individual labels are only emitted when the corresponding request attribute is present).
+Spice exposes the following metrics. The **Dimensions** column lists labels available for filtering and aggregation; `—` indicates the metric is emitted without dimensions. Dimensions annotated _(request context)_ expand to: `protocol`, `cache_namespace_kind` (`public`, `principal`, or `system`), `client`, `runtime`, `runtime_version`, and `runtime_system`. The `client`, `runtime`, `runtime_version`, and `runtime_system` labels are emitted only when the request has a `User-Agent`. `client` is the name of a known Spice client (`spice`, `repl`, `spicepy`, `spice-rs`, `gospice`, `spice.js`, `spice-java`, or `spice-dotnet`) or `other`. Request header values, such as the client version, the `User-Agent` string, or W3C `baggage`, are not recorded as labels.
 
 The cache counters (`results_cache_*`, `search_results_cache_*`, `embeddings_cache_*`) are published at zero when the runtime starts, so a counter that has not yet fired appears in a scrape as a zero series rather than being absent — an absent series indicates a scrape or exporter problem, not an idle cache.
 
