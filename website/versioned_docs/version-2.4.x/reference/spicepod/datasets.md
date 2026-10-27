@@ -1060,7 +1060,7 @@ datasets:
       enabled: true
       engine: cayenne
       mode: file
-      partition_by: block_date
+      partition_by: [block_date]
 ```
 
 ## `columns`
