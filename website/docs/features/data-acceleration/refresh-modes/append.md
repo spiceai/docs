@@ -34,7 +34,7 @@ datasets:
 
 To account for clock skew or late-arriving rows, configure an overlap window with [`acceleration.refresh_append_overlap`](../../../reference/spicepod/datasets#accelerationrefresh_append_overlap). Rows within the overlap are re-read on each refresh. A row that arrives later than the overlap, with a `time_column` value older than the window, is not loaded by any later `append` refresh; a `full` refresh loads it.
 
-[Iceberg sources](#iceberg-sources-follow-table-snapshots) do not depend on the overlap for late rows: their append refresh reads what each new snapshot added. The exception is a keyed acceleration on an engine other than Cayenne, which [reads by time](#keyed-accelerations-on-other-engines-read-by-time).
+[Iceberg sources](#iceberg-sources-follow-table-snapshots) do not depend on the overlap for late rows: their append refresh reads what each new snapshot added. The exception is a keyed acceleration on an engine other than Cayenne whose `primary_key` does not include the `time_column`, which [reads by time](#keyed-accelerations-on-other-engines-read-by-time).
 
 ## Iceberg Sources Follow Table Snapshots
 
