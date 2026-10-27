@@ -962,7 +962,7 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
-      partition_by: block_date
+      partition_by: [block_date]
 ```
 
 ## `columns`
