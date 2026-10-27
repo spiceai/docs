@@ -356,6 +356,12 @@ Spice rejects a SQL statement whose expression tree is nested more than 512 leve
 Query rejected: an expression is nested more than 512 levels deep. Simplify the query (for example, replace a long chain of OR/AND conditions with an IN list or a join).
 ```
 
+A selected, grouped, or ordered expression, or a `VALUES` cell, has the same 512-level limit and its own message. Compute part of a long chain of `+`, `||`, or `AND` in a subquery to bring it under the limit:
+
+```text
+Query rejected: a selected, grouped, ordered, or VALUES expression is nested more than 512 levels deep. Simplify the expression (for example, compute part of a long chain of +, || or AND in a subquery).
+```
+
 ### `AND`
 
 Logical And
