@@ -84,5 +84,5 @@ Time: 5.10000000 seconds. 1 rows.
 Query IDs can be abbreviated if they uniquely identify a query within the tracked session.
 
 :::note
-The `spice query` command requires the runtime to be running in [cluster mode](/docs/features/distributed-query) with `--role scheduler` and a scheduler state location configured (`runtime.scheduler.state_location`, or [`runtime.state.location`](../../reference/spicepod/runtime#runtimestate)).
+The `spice query` command requires the runtime to be running in [cluster mode](/docs/features/distributed-query) with `--role scheduler` and a scheduler state location configured ([`runtime.state.location`](../../reference/spicepod/runtime#runtimestate), or the deprecated `runtime.scheduler.state_location`).
 :::

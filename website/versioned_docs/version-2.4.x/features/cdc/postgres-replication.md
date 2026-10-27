@@ -304,6 +304,20 @@ Every Spice replica must have its own replication slot. Spice hashes the replica
 |---------------------------------|----------------------------------------------------------------|
 | `SPICE_INSTANCE_ID` env         | Preferred — set it explicitly per replica.                     |
 | `HOSTNAME` / `COMPUTERNAME` env | Fallback — works on Kubernetes where each pod has a distinct hostname. |
+| The host name                   | Last fallback, when none of the variables above is set.        |
+
+This is the [instance identity](../../reference/spicepod/runtime#instance-identity) that every Spice feature coordinating through shared state uses. An empty variable counts as unset. When an instance's identity changes, for example when `SPICE_INSTANCE_ID` is set on an instance that had none, its default slot name changes too: Spice creates a new slot, and the old slot keeps retaining WAL on the source until it is dropped. Find slots that no replica consumes with `SELECT slot_name, active FROM pg_replication_slots WHERE slot_name LIKE 'spice_%'`, then drop a confirmed-abandoned slot with `SELECT pg_drop_replication_slot('<slot name>')`.
+
+:::warning[Upgrading from v2.4.0-rc.2 and earlier]
+
+Earlier versions used the first of `SPICE_INSTANCE_ID`, `HOSTNAME`, and `COMPUTERNAME` that was set, even when its value was empty, and `unknown` when none was set. Later versions skip empty variables and fall back to the host name. Two kinds of instances therefore get a new default slot name, and create a new slot, on upgrade:
+
+- An instance with none of the variables set, such as a `systemd` service. Its old slot's name ends in `_3f484bfe`.
+- An instance whose earlier version selected an empty variable, for example an empty `SPICE_INSTANCE_ID`, or an unset `SPICE_INSTANCE_ID` with an empty `HOSTNAME`. It now uses the next non-empty variable, or the host name. Its old slot's name ends in `_38d394c2`.
+
+The old slot keeps retaining WAL until it is dropped. An instance whose earlier version selected a non-empty variable keeps its slot name.
+
+:::
 
 ### Example: Kubernetes StatefulSet
 

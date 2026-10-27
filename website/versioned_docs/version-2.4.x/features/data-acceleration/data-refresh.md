@@ -67,7 +67,7 @@ datasets:
 ```
 
 :::info Readiness with snapshots
-Append-mode accelerations that define a `time_column` wait to report ready until the first append refresh completes after [snapshot bootstrap](./snapshots). This keeps the dataset out of rotation until the freshest data is available while still benefiting from the snapshot-assisted startup.
+An append-mode acceleration that defines a `time_column` and meets the conditions in [Serving an Existing Acceleration While the Source Is Unavailable](#serving-an-existing-acceleration-while-the-source-is-unavailable) is served as soon as its existing acceleration is available, whether it was reopened from disk or restored by [snapshot bootstrap](./snapshots), including while the source is unavailable. The first append refresh then catches up from the newest `time_column` value in the acceleration. [`last_refresh`](#monitoring-freshness) does not show how current the data is until a refresh completes: a dataset that creates acceleration snapshots or was restored from one does not restore `last_refresh` from its checkpoint at startup, so while the source is unavailable it serves the persisted data without reporting it. In v2.4.0-rc.3 and earlier, such a dataset with snapshots enabled waited to report ready until its first append refresh completed.
 :::
 
 If late arriving data or clock-skew needs to be accounted for, an optional overlap can also be specified. See [`acceleration.refresh_append_overlap`](../../reference/spicepod/datasets#accelerationrefresh_append_overlap).
@@ -146,12 +146,6 @@ See [Caching Mode](./refresh-modes/caching) for detailed documentation and examp
 The `snapshot` refresh mode creates a read-only acceleration that reloads exclusively from the [snapshot store](./snapshots). The federated data source is never queried for refreshes — instead, the runtime polls the snapshot store on a configurable interval and atomically swaps in newer snapshots when available.
 
 ```yaml
-snapshots:
-  enabled: true
-  location: s3://my-bucket/snapshots/
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: postgres:public.my_table
     name: my_table
@@ -162,6 +156,7 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 30s  # Poll interval; defaults to 1m
       snapshots: enabled
+      snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
         duckdb_file: /nvme/my_table.db
 ```
@@ -178,8 +173,10 @@ datasets:
 - Each poll reads the snapshot store's metadata conditionally, sending the `ETag` recorded by the previous poll in `If-None-Match`. When the store reports that the metadata is unchanged, the poll ends without downloading it
 - When a newer snapshot is found, its schema is validated against the current acceleration schema before downloading
 - A poll reads the metadata once and uses that read for the snapshot id comparison, the schema validation, and the download, so the snapshot that is downloaded is the one whose schema was validated, even if a writer publishes another snapshot during the poll
-- With [`bootstrap_on_failure_behavior: retry`](./snapshots#failure-behavior), a failed download retries the whole poll. Each attempt reads the metadata again and validates the snapshot before downloading it, so a snapshot published to replace a broken one is picked up
-- A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one, in which case every poll logs the `snapshot metadata current id is older than the locally loaded snapshot` warning
+- Until a snapshot is loaded, with [`bootstrap_on_failure_behavior: retry`](./snapshots#failure-behavior), a failed download retries the whole poll. Each attempt reads the metadata again and validates the snapshot before downloading it, so a snapshot published to replace a broken one is picked up
+- A poll that does not load the current snapshot records no `ETag`, so the next poll reads the metadata in full. This applies when `bootstrap_on_failure_behavior: warn` skipped a failed download or `fallback` loaded an older snapshot, and when the store's current snapshot id is older than the loaded one
+- When a poll finds no published snapshot, or finds one older than the loaded snapshot, the dataset stays `Ready` and keeps serving the loaded snapshot. The poll increments `dataset_acceleration_refresh_errors` with `reason="snapshot_not_found"` or `reason="snapshot_older_than_loaded"` and logs a warning that begins `Dataset '<name>' cannot refresh from its snapshot location, so it keeps serving snapshot <id>`
+- Once a snapshot is loaded, a poll that cannot load a newer published snapshot does the same, whatever `bootstrap_on_failure_behavior` is set to: the dataset stays `Ready` and keeps serving the loaded snapshot, the poll increments `dataset_acceleration_refresh_errors` with `reason="snapshot_download_failed"` and logs the same warning, and the next poll tries again. A snapshot file that has not yet reached the location, because `metadata.json` arrived first, is checked every 10 seconds for up to 90 seconds before the poll reports it. A file that fails verification is reported at once
 - The accelerator file is swapped atomically — queries continue to be served from the previous snapshot until the swap completes
 - `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` statements are all rejected with an error since the acceleration is driven exclusively from snapshots
 
@@ -269,7 +266,7 @@ Query availability and source health are reported separately: a dataset can serv
 | `on_registration`     | Served from the existing acceleration   | `200` once registered             | `Ready` at registration, `Error` after a failed connection attempt, `Ready` once reconnected    |
 | `on_schema_resolved`  | Served from the existing acceleration   | `503` until the source is reached | `Initializing` at registration, `Error` after a failed connection attempt, `Ready` once reached |
 
-`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. Two kinds of dataset do not follow this table, because the existing acceleration is not treated as loaded until a refresh completes in this process: a dataset with `refresh_mode: append`, a `time_column`, and snapshot bootstrapping enabled, and a dataset that reads acceleration snapshots (`file_format: snapshot`) before it restores one. Until that refresh completes, `on_load` is not ready and queries return an error. `on_registration` is ready at registration and `on_schema_resolved` is ready once the source is reached, but in both cases queries go to the federated source rather than the persisted data, so they fail while the source is unavailable.
+`/v1/ready` stays `200` for `on_load` and `on_registration` after the status changes to `Error`, because runtime `on_load` readiness counts a dataset that has been `Ready` once. A dataset that reads acceleration snapshots (`file_format: snapshot`) does not follow this table before it restores a snapshot in this process, because its existing acceleration is not treated as loaded until then. Until it restores one, `on_load` is not ready and queries return an error. `on_registration` is ready at registration and `on_schema_resolved` is ready once the source is reached, but in both cases queries go to the federated source rather than the persisted data, so they fail while the source is unavailable.
 
 [`refresh_on_startup`](#refresh-on-startup) keeps its meaning for `refresh_mode: full`. With `auto`, the persisted data is served and the next refresh follows the refresh schedule. With `always`, the persisted data is served until the source is reached and the startup refresh replaces it. The other eligible refresh modes ignore `refresh_on_startup`: `append` refreshes at startup once the source is reached, adding new data to the persisted data instead of replacing it, `snapshot` checks for a newer snapshot at startup, and `disabled` does not refresh.
 
@@ -593,7 +590,7 @@ Keep the interval aligned with the freshness SLA and with what the origin can se
 
 ## Isolating refresh from queries
 
-By default the runtime runs acceleration refresh on a dedicated low-priority thread pool (`refresh-worker`), separate from the pool that executes queries. CDC apply (`refresh_mode: changes`) runs on its own default-priority pool (`cdc-apply-worker`) when any dataset streams changes, so a bulk refresh does not deprioritize the apply loop. Cayenne compaction runs on `compaction-worker` when a dataset can produce files to compact.
+By default the runtime runs acceleration refresh on a dedicated low-priority thread pool (`refresh-worker`), separate from the pool that executes queries. CDC apply (`refresh_mode: changes`) runs on its own default-priority pool (`cdc-apply-worker`) when any dataset streams changes, so a bulk refresh does not deprioritize the apply loop. When any dataset streams changes, the query pool runs at nice 5, so CDC apply and primary-key lookups, which run at nice 0, stay responsive on a saturated host. Cayenne compaction runs on `compaction-worker` when a dataset can produce files to compact.
 
 The pools still share the machine's CPU and memory. A full refresh can raise latency if it saturates the node or the query memory pool. Leave the default in place, and set `runtime.params.dedicated_thread_pool: disabled` only when a single shared pool is intentional — that puts refresh back on the query runtime. See [`dedicated_thread_pool`](../../reference/spicepod/runtime#dedicated-thread-pools).
 
@@ -698,6 +695,16 @@ datasets:
       refresh_retry_max_attempts: 10
       refresh_check_interval: 30s
 ```
+
+### Source That Stops Sending Mid-Refresh
+
+Once the source has sent the first batch of a `full` or `append` refresh, Spice waits at most 10 minutes for each later batch. A connection that the network stops carrying can otherwise leave a refresh waiting indefinitely, with the dataset serving stale data and other refreshes queued behind it. A refresh that waits longer fails with a transient error, is counted in [`dataset_acceleration_refresh_errors`](../observability#available-metrics), and, unless `refresh_retry_enabled` is `false`, is retried on a new connection with the backoff described above:
+
+```text
+The source of dataset 'orders' stopped sending data mid-refresh: no data for 600s after it started sending, so the connection is treated as lost and the refresh is retried
+```
+
+The wait for the first batch is not limited, so a source that takes a long time to plan and start a query is unaffected. A refresh that never receives its first batch, such as one that draws a pooled connection that died while idle, is not covered by this limit. The 10-minute limit cannot be configured.
 
 ## Retention Policy
 

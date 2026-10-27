@@ -1210,10 +1210,11 @@ Configures the cluster scheduler when running Spice in [cluster mode](../../depl
 
 ```yaml
 runtime:
-  scheduler:
-    state_location: s3://my-bucket/spice-cluster-state/
+  state:
+    location: s3://my-bucket/spice-state/
     params:
       s3_region: us-east-1
+  scheduler:
     partition_assignment_interval: 30s
     max_partition_assignments_per_interval: 100
     max_partitions_per_executor: 1000
@@ -1222,12 +1223,22 @@ runtime:
 
 | Parameter name                                     | Optional | Default | Description                                                            |
 | -------------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------- |
-| `state_location`                                   | Yes      | -       | Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Required unless [`runtime.state`](#runtimestate) is set, in which case `runtime.state.location` is used. |
-| `params`                                           | Yes      | -       | Object store parameters (e.g. `s3_region`). See [State location parameters](#state-location-parameters). When `state_location` is omitted, defaults to `runtime.state.params`. |
+| `state_location`                                   | Yes      | -       | Deprecated. Root URI for shared cluster state storage (e.g. `s3://bucket/path/`). Set [`runtime.state.location`](#runtimestate) instead. |
+| `params`                                           | Yes      | -       | Deprecated. Object store parameters (e.g. `s3_region`). See [State location parameters](#state-location-parameters). Set `runtime.state.params` instead. When `state_location` is omitted, defaults to `runtime.state.params`. |
 | `partition_assignment_interval`                    | Yes      | `30s`   | How often the scheduler runs partition assignment cycles.              |
 | `max_partition_assignments_per_interval`           | Yes      | `100`   | Maximum number of partition assignments per interval.                  |
 | `max_partitions_per_executor`                      | Yes      | `1000`  | Maximum number of partitions assigned to a single executor.            |
 | `partition_discovery_timeout`                      | Yes      | `60s`   | How long the scheduler waits for executor discovery before timing out. |
+
+The scheduler keeps its shared cluster state in the `cluster/` folder of [`runtime.state.location`](#runtimestate) and reads it with `runtime.state.params`. `runtime.scheduler.state_location` and `runtime.scheduler.params` are deprecated and will be removed in a future release. They still take precedence over `runtime.state`, and a scheduler or standalone instance that sets either one logs a startup warning that shows how to move to `runtime.state`:
+
+| Current setting | What the warning says |
+| --------------- | --------------------- |
+| `state_location` is the `cluster/` folder of `runtime.state.location` | Remove `state_location`: the state is already there. |
+| `state_location` ends in `cluster/` and `runtime.state` is not set | Remove `state_location` and set `runtime.state.location` to its parent, for example `s3://my-bucket/spice/` for `s3://my-bucket/spice/cluster/`, which keeps the state where it is. |
+| Any other `state_location`, and every `abfs://` or `abfss://` `state_location` | No `runtime.state` location holds the current state. Removing `state_location` (and setting `runtime.state.location`, when it is not set) makes the scheduler start empty in the new folder, so partition assignments are rebuilt and async query jobs are lost. An `abfs://` or `abfss://` `state_location` keeps its state at the container root, which is never a `runtime.state` folder. |
+
+The warning also asks to move the keys of `runtime.scheduler.params` into `runtime.state.params`. When `runtime.state.params` are already set, it asks to remove `runtime.scheduler.params` instead, because `runtime.state.params` serve every feature that keeps state under `runtime.state`, and to check that they give the scheduler access to its state. The warning names parameter keys, never their values.
 
 ## `runtime.state`
 
@@ -1252,9 +1263,9 @@ The following features store their state under `runtime.state` when their own se
 | Feature | Uses `runtime.state` when |
 | ------- | ------------------------- |
 | [SQL results cache warmup](../../features/caching#warming-the-cache-after-a-restart) | `runtime.caching.sql_results.warmup` is `on_first_refresh`. Without `runtime.state`, recorded query plans are written to `.spice/data/results_cache_warmup.json`. |
-| [Cluster scheduler](#runtimescheduler) | `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
+| [Cluster scheduler](#runtimescheduler) | The deprecated `runtime.scheduler.state_location` is not set. The scheduler's other settings still apply. |
 | [HTTP rate control](#limits-across-instances) | Always, in a Spice.ai Enterprise build: instances that share the location coordinate per-second and per-minute limits for every origin that sets one. Open-source builds keep rate-control state in memory. Rate control has no location of its own. |
-| [Acceleration snapshots](../../features/data-acceleration/snapshots#store-snapshots-under-runtimestate) | A dataset enables snapshots and `snapshots.location` is not set. Snapshots are available in Spice.ai Enterprise. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#store-snapshots-under-runtimestate) | A dataset enables snapshots and sets no `acceleration.snapshots_location`, and the deprecated top-level `snapshots.location` is not set. Snapshots are available in Spice.ai Enterprise. |
 
 A location set in a feature's own section takes precedence over `runtime.state`. Changing `runtime.state` requires a restart.
 
@@ -1278,7 +1289,7 @@ For example, `spice-state/cluster.json` moves to `spice-state/cluster/cluster.js
 
 Move the rate-control objects first, one spicepod folder at a time, and move only the objects named `<origin>-<16 hex digits>.json` in that folder. A spicepod name can match another folder in the table, such as `heartbeats`, `jobs`, `scheduler`, `cluster`, `rate-control`, or `results-cache`, and moving whole folders would then mix rate-control objects with scheduler objects. Move the scheduler and warmup objects after that.
 
-To keep the scheduler's previous layout instead of moving its objects, set `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
+To keep the scheduler's previous layout instead of moving its objects, set the deprecated `runtime.scheduler.state_location` to the old location. A scheduler with its own `state_location` does not use `runtime.state.params`, so also copy any parameters the location needs, such as credentials or an endpoint, into `runtime.scheduler.params`. Rate control and warmup have no location of their own, so their objects must be moved. Otherwise, the scheduler starts with fresh cluster state, rate control starts with no shared usage, and warmup records new query shapes.
 
 :::
 
@@ -1298,9 +1309,45 @@ Spice stops at startup and exits with an error in these cases:
 
 v2.4.0-rc.1 did not check the location. After an upgrade from rc.1, an instance whose `runtime.state` credentials are read-only does not become ready until they can write, and an instance whose store does not enforce conditional writes stops at startup.
 
+### Metrics for the state location
+
+Spice reports each feature's requests to its state location on the [metrics endpoint](../../features/observability/index.md#available-metrics). The metrics cover the `runtime.state` location and a location set in a feature's own section, such as a dataset's `acceleration.snapshots_location`.
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `state_store_request_duration_ms` | Histogram | Time in milliseconds of each request, labeled by `feature` and `operation`. |
+| `state_store_conflicts_total` | Counter | Conditional writes the store refused because another writer created or changed the object first, labeled by `feature`. |
+| `state_store_cleanup_deleted_total` | Counter | Objects that cleanup deleted, labeled by `feature`. |
+
+`feature` is `scheduler`, `rate_control`, `results_cache_warmup`, or `snapshots`. `operation` is `read`, `conditional_write`, `write`, `list`, or `delete`. A `write` is an unconditional upload, including a multipart upload, a copy, or a rename; snapshot files are uploaded this way. A read is timed until the response starts, a list or delete until it ends, and a multipart upload until it completes or is aborted. The two counters are published at zero for every `feature` when the runtime starts, so a missing series points to a scrape problem rather than an idle feature. The [startup check](#startup-check-of-the-state-location) is not measured.
+
+A rising `state_store_conflicts_total` means instances that share the location are contending for the same objects.
+
+### Instance identity
+
+Every feature that coordinates with other instances through shared state names the instance with one identity. Spice reads the identity once per process from the first of these that is set and not empty: the `SPICE_INSTANCE_ID` environment variable, the `HOSTNAME` environment variable, the `COMPUTERNAME` environment variable, and otherwise the operating system's host name. The identity stays the same across restarts, so a restarted instance resumes the state it held.
+
+| Feature | Uses the identity for |
+| ------- | --------------------- |
+| [Cluster scheduler](../../features/distributed-query#instance-identity) | Its registration in the shared cluster state. |
+| [Cluster executor](../../features/distributed-query#instance-identity) | Its executor ID when it registers with the schedulers. |
+| [Acceleration snapshots](../../features/data-acceleration/snapshots#several-instances-creating-one-datasets-snapshots) | The holder of a dataset's snapshot writer lease. |
+| [HTTP rate control](#limits-across-instances) | The name of each process's share of the per-window budget, paired with a per-process ID so that a restarted instance does not reuse its earlier run's share. |
+| [PostgreSQL replication](../../features/cdc/postgres-replication#multi-replica-deployments) | The default replication slot name. |
+
+Give each instance that shares state its own identity. On Kubernetes, `HOSTNAME` defaults to the pod name, which is already distinct. Instances on one host share its host name, so two schedulers or two executors started on the same machine each need their own `SPICE_INSTANCE_ID`. When Spice finds another running process with the same identity, it logs an error such as:
+
+```text
+Another running instance uses SPICE_INSTANCE_ID 'spice-0' at state location 's3://my-bucket/spice-state/'. Give each instance its own SPICE_INSTANCE_ID (for example the pod name).
+```
+
+A scheduler logs this error, and its registration is refused, when the scheduler already registered under its identity keeps sending heartbeats. A scheduler restarted after a crash is not reported as a duplicate, because the heartbeat its predecessor left stops advancing. It waits until it has seen that heartbeat unchanged for 30 seconds, then registers in its predecessor's place. In v2.4.0-rc.2 and earlier, a scheduler restarted within 30 seconds of its predecessor's last heartbeat failed to register and exited. A scheduler also logs the error when a second executor process connects under an ID that a running executor already uses, and a snapshot writer logs it when another process renews its lease. HTTP rate control does not detect a shared identity.
+
 ### State location parameters
 
-These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). A [snapshot location](../../features/data-acceleration/snapshots#configure-snapshot-storage) set with `snapshots.location` takes its parameters from `snapshots.params`. Snapshots stored under `runtime.state` use `runtime.state.params`, unless `snapshots.params` is set, which replaces them.
+These rules apply to `runtime.state.params`, and to the `params` of a feature that sets its own state location, such as [`runtime.scheduler`](#runtimescheduler). Snapshots stored under `runtime.state` use `runtime.state.params`. A dataset that sets [`acceleration.snapshots_params`](./datasets.md#accelerationsnapshots_params) uses those instead, and a dataset that sets `acceleration.snapshots_location` without `snapshots_params` uses no params. A location set with the deprecated top-level `snapshots.location` takes its parameters from `snapshots.params`, and `snapshots.params`, when set, also replace `runtime.state.params` for snapshots stored under `runtime.state`. See [Configure snapshot storage](../../features/data-acceleration/snapshots#configure-snapshot-storage).
+
+`runtime.state.params` can hold `s3_queue_url`, the SQS queue for [snapshot notifications](../../features/data-acceleration/refresh-modes/snapshot#reload-on-s3-event-notifications). The scheduler, HTTP rate control, and SQL results cache warmup accept it there without a warning and do not use it. A feature's own `params`, such as `runtime.scheduler.params`, still log a warning for it.
 
 An `s3://` location takes `s3_region`, `s3_endpoint`, `s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, `client_timeout`, and `allow_http`. `s3_auth` is `iam_role` (the default) or `key`. With `s3_auth: key`, both `s3_key` and `s3_secret` must be set. A location that sets `s3_auth: key` without both keys fails instead of connecting with the credentials from the environment, and the error reads:
 
