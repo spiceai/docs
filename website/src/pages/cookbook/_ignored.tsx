@@ -191,13 +191,6 @@ const recipes: RecipeData[] = [
     tags: ['ai', 'deepseek', 'local', 'models']
   },
   {
-    title: 'Running DeepSeek V4.1 Locally',
-    description:
-      'Serve DeepSeek-V4.1-Flash-1017 from a local GGUF, with an abliterated variant and the hardware it needs.',
-    path: '/models/deepseek-v4.1/README.md',
-    tags: ['ai', 'deepseek', 'local', 'models']
-  },
-  {
     title: 'Running Kimi Locally',
     description:
       'Serve Kimi-Linear-48B-A3B on a MacBook Pro with llama.cpp and Metal, with an abliterated variant.',
