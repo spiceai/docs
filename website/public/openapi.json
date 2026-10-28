@@ -7,7 +7,7 @@
       "name": "Apache-2.0",
       "identifier": "Apache-2.0"
     },
-    "version": "2.0.0-unstable"
+    "version": "2.5.0-unstable"
   },
   "servers": [
     {
@@ -150,6 +150,9 @@
               }
             }
           },
+          "400": {
+            "description": "The specified model is a decision model; use POST /v1/decisions"
+          },
           "404": {
             "description": "The specified model was not found"
           },
@@ -160,6 +163,38 @@
                 "schema": {},
                 "example": {
                   "error": "An internal server error occurred while processing the chat completion."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/config": {
+      "get": {
+        "tags": [
+          "Iceberg"
+        ],
+        "summary": "Get Iceberg API config",
+        "description": "This endpoint returns the Iceberg Catalog API configuration, including details about overrides, defaults, and available endpoints.",
+        "operationId": "get_config",
+        "responses": {
+          "200": {
+            "description": "API configuration retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "overrides": {},
+                  "defaults": {},
+                  "endpoints": [
+                    "GET /v1/{prefix}/namespaces",
+                    "GET /v1/{prefix}/namespaces/{namespace}",
+                    "HEAD /v1/{prefix}/namespaces/{namespace}",
+                    "GET /v1/{prefix}/namespaces/{namespace}/tables",
+                    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
+                    "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}"
+                  ]
                 }
               }
             }
@@ -343,7 +378,7 @@
           "Datasets"
         ],
         "summary": "Refresh Dataset",
-        "description": "Trigger an on-demand refresh for an accelerated dataset.\n\nThis endpoint triggers an on-demand refresh for an accelerated dataset.\nThe refresh only applies to `full` and `append` refresh modes (not `changes` mode).",
+        "description": "Trigger an on-demand refresh for an accelerated dataset.\n\nThe refresh only applies to `full` and `append` refresh modes (not\n`changes` mode). Datasets without acceleration return 400 — the\nprevious `load: on_demand` flow has been removed; deferred datasets\n(declared schema + `ready_state: on_registration`) are materialised\nautomatically on first query and do not need a manual trigger.",
         "operationId": "post_dataset_refresh",
         "parameters": [
           {
@@ -387,7 +422,7 @@
             }
           },
           "400": {
-            "description": "Acceleration not enabled for the dataset",
+            "description": "Dataset is not accelerated; nothing to refresh",
             "content": {
               "application/json": {
                 "schema": {
@@ -511,6 +546,59 @@
         }
       }
     },
+    "/v1/decisions": {
+      "post": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Create a decision",
+        "description": "Answers typed questions about `input`, compatible with `OpenAI`'s Decisions API: a\n`predicate` returns the probability a statement is true, a `choice` returns the\nmost probable of its `choices` with the distribution and a confidence, and a\n`score` returns the probability-weighted 0-based index of its `levels`. Answers come\nback in question order with each question's `name`. `model` names any model in the\nSpicepod: a decision model such as `TypeSafe` Jev, whose probabilities are\ncalibrated, or a chat model, whose probabilities are its own estimates.",
+        "operationId": "post_decisions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The answers, in question order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request, including unknown fields, image inputs, and `reasoning_effort` for a decision model"
+          },
+          "401": {
+            "description": "The model provider rejected the credentials"
+          },
+          "403": {
+            "description": "The model provider denied access"
+          },
+          "404": {
+            "description": "No model with this name"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "500": {
+            "description": "The model could not answer"
+          },
+          "503": {
+            "description": "The model provider is unavailable"
+          }
+        }
+      }
+    },
     "/v1/embeddings": {
       "post": {
         "tags": [
@@ -594,31 +682,222 @@
         }
       }
     },
-    "/v1/config": {
+    "/v1/mcp": {
       "get": {
         "tags": [
-          "Iceberg"
+          "mcp"
         ],
-        "summary": "Get Iceberg API config",
-        "description": "This endpoint returns the Iceberg Catalog API configuration, including details about overrides, defaults, and available endpoints.",
-        "operationId": "get_config",
+        "summary": "Open an MCP server-to-client SSE stream",
+        "description": "Legacy-era only (`2025-11-25` and earlier). Open a long-lived server-to-client SSE stream for an MCP session created via `POST /v1/mcp`. `2026-07-28` clients do not use GET; they POST `subscriptions/listen` instead. The `Mcp-Session-Id` header must identify an existing legacy session.",
+        "operationId": "mcp_stream",
+        "parameters": [
+          {
+            "name": "Mcp-Session-Id",
+            "in": "header",
+            "description": "Legacy-era only (`2025-11-25` and earlier). Session identifier returned on `initialize` and required on subsequent requests in that session. Ignored for `2026-07-28` requests, which are sessionless.",
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
-            "description": "API configuration retrieved successfully",
+            "description": "SSE stream (`text/event-stream`) of server-originated MCP messages."
+          },
+          "401": {
+            "description": "Unauthorized. The `/v1/mcp` endpoint requires `runtime.auth` to be configured. Configure an API key provider in your Spicepod and retry with credentials."
+          },
+          "403": {
+            "description": "Forbidden. The `Host` header value is not in the `runtime.mcp.allowed_hosts` list, or the `Origin` header is not in `runtime.cors.allowed_origins`. Host `[\"*\"]` disables the Host check. Origin `[\"*\"]` expands to localhost defaults — it does not accept every Origin."
+          },
+          "404": {
+            "description": "Unknown or expired `Mcp-Session-Id`."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Send a Model Context Protocol message",
+        "description": "Send a JSON-RPC message to the Spice MCP server using the MCP Streamable HTTP transport. Spice is dual-era: `2026-07-28` clients call `server/discover` and tools without a session; legacy clients may still `initialize` and use `Mcp-Session-Id`. The response is either a single JSON-RPC response (`application/json`) or an SSE stream (`text/event-stream`), selected via the `Accept` header.",
+        "operationId": "mcp_message",
+        "parameters": [
+          {
+            "name": "MCP-Protocol-Version",
+            "in": "header",
+            "description": "Required for `2026-07-28` requests. Must match `_meta['io.modelcontextprotocol/protocolVersion']` in the JSON-RPC body. Spice serves `2026-07-28` and remains dual-era for legacy `initialize` clients.",
+            "required": false
+          },
+          {
+            "name": "Mcp-Method",
+            "in": "header",
+            "description": "Required for `2026-07-28` requests. Must match the JSON-RPC `method` (e.g. `server/discover`, `tools/list`, `tools/call`). Header/body mismatches are rejected with HTTP 400 and JSON-RPC `-32020`.",
+            "required": false
+          },
+          {
+            "name": "Mcp-Name",
+            "in": "header",
+            "description": "Required for `2026-07-28` `tools/call` (and `resources/read` / `prompts/get`) requests. Must match `params.name` or `params.uri`.",
+            "required": false
+          },
+          {
+            "name": "Mcp-Param-*",
+            "in": "header",
+            "description": "For `2026-07-28` `tools/call` requests, one header per tool argument annotated with `x-mcp-header`. The header name is `Mcp-Param-` plus the annotation value (for example `Mcp-Param-Region`). The value must match the corresponding argument in the JSON-RPC body; mismatches are rejected with HTTP 400 and JSON-RPC `-32020`.",
+            "required": false
+          },
+          {
+            "name": "Mcp-Session-Id",
+            "in": "header",
+            "description": "Legacy-era only (`2025-11-25` and earlier). Session identifier returned on `initialize` and required on subsequent requests in that session. Ignored for `2026-07-28` requests, which are sessionless.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response. Returned as `application/json` for a single response or `text/event-stream` when the server streams additional messages."
+          },
+          "202": {
+            "description": "Message accepted (for JSON-RPC notifications / responses that do not require a reply)."
+          },
+          "400": {
+            "description": "Malformed JSON-RPC payload, unsupported protocol version (`-32022` lists supported versions), or Streamable HTTP header/body mismatch (`-32020`)."
+          },
+          "401": {
+            "description": "Unauthorized. The `/v1/mcp` endpoint requires `runtime.auth` to be configured. Configure an API key provider in your Spicepod and retry with credentials."
+          },
+          "403": {
+            "description": "Forbidden. The `Host` header value is not in the `runtime.mcp.allowed_hosts` list, or the `Origin` header is not in `runtime.cors.allowed_origins`. Configure `runtime.mcp.allowed_hosts` or `runtime.cors.allowed_origins`. Host `[\"*\"]` disables the Host check. Origin `[\"*\"]` expands to localhost defaults — it does not accept every Origin. A concrete Origin list 403s a mismatched `Origin`."
+          },
+          "404": {
+            "description": "Unknown method, or unknown/expired `Mcp-Session-Id` on a legacy-era request."
+          },
+          "413": {
+            "description": "Payload too large. Maximum allowed size is 32 MiB."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Terminate an MCP Streamable HTTP session",
+        "description": "Legacy-era only (`2025-11-25` and earlier). Terminate the MCP session identified by the `Mcp-Session-Id` header. `2026-07-28` requests are sessionless and do not use DELETE. Subsequent legacy requests bearing the same session id will receive `404 Not Found`.",
+        "operationId": "mcp_terminate_session",
+        "parameters": [
+          {
+            "name": "Mcp-Session-Id",
+            "in": "header",
+            "description": "Legacy-era only (`2025-11-25` and earlier). Session identifier returned on `initialize` and required on subsequent requests in that session. Ignored for `2026-07-28` requests, which are sessionless.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session terminated."
+          },
+          "401": {
+            "description": "Unauthorized. The `/v1/mcp` endpoint requires `runtime.auth` to be configured. Configure an API key provider in your Spicepod and retry with credentials."
+          },
+          "403": {
+            "description": "Forbidden. The `Host` header value is not in the `runtime.mcp.allowed_hosts` list, or the `Origin` header is not in `runtime.cors.allowed_origins`. Host `[\"*\"]` disables the Host check. Origin `[\"*\"]` expands to localhost defaults — it does not accept every Origin."
+          },
+          "404": {
+            "description": "Unknown or already-terminated `Mcp-Session-Id`."
+          }
+        }
+      }
+    },
+    "/v1/models": {
+      "get": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "List Models",
+        "description": "List all models, both machine learning and language models, available in the runtime.\nWhen `status=true` and a model is in `Error`, the response also includes:\n- `error`: structured code object with `category`, `type`, and stable `code`\n- `error_message`: user-visible details",
+        "operationId": "get_models",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "description": "The format of the response (e.g., `json` or `csv`).",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Format"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "If true, includes the status of each model in the response.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "metadata_fields",
+            "in": "query",
+            "description": "A comma-separated list of metadata fields to include in the response (e.g., `supports_responses_api`)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of models in JSON format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelListResponse"
+                },
+                "example": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "gpt-4",
+                      "object": "model",
+                      "owned_by": "openai",
+                      "datasets": null,
+                      "status": "ready",
+                      "error": null,
+                      "error_message": null
+                    },
+                    {
+                      "id": "text-embedding-ada-002",
+                      "object": "model",
+                      "owned_by": "openai-internal",
+                      "datasets": [
+                        "text-dataset-1",
+                        "text-dataset-2"
+                      ],
+                      "status": "error",
+                      "error": {
+                        "category": "model",
+                        "type": "auth",
+                        "code": "model.auth"
+                      },
+                      "error_message": "Invalid API key"
+                    }
+                  ]
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "\nid,object,owned_by,datasets,status,error,error_message\ngpt-4,model,openai,,ready,,\ntext-embedding-ada-002,model,openai-internal,\"text-dataset-1,text-dataset-2\",error,model.auth,Invalid API key\n"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error occurred while processing models",
             "content": {
               "application/json": {
                 "schema": {},
                 "example": {
-                  "overrides": {},
-                  "defaults": {},
-                  "endpoints": [
-                    "GET /v1/{prefix}/namespaces",
-                    "GET /v1/{prefix}/namespaces/{namespace}",
-                    "HEAD /v1/{prefix}/namespaces/{namespace}",
-                    "GET /v1/{prefix}/namespaces/{namespace}/tables",
-                    "GET /v1/{prefix}/namespaces/{namespace}/tables/{table}",
-                    "HEAD /v1/{prefix}/namespaces/{namespace}/tables/{table}"
-                  ]
+                  "error": "App not initialized"
                 }
               }
             }
@@ -730,12 +1009,26 @@
         "tags": [
           "Iceberg"
         ],
-        "summary": "Check if a namespace exists.",
-        "description": "This endpoint returns a 200 OK response if the namespace exists, otherwise it returns a 404 Not Found response.",
+        "summary": "Load an Iceberg namespace",
+        "description": "Returns the namespace if it exists. Spice does not store namespace properties, so `properties` is `null`.",
         "operationId": "get_namespace",
         "responses": {
           "200": {
-            "description": "Namespace exists"
+            "description": "Namespace exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetNamespaceResponse"
+                },
+                "example": {
+                  "namespace": [
+                    "spice",
+                    "public"
+                  ],
+                  "properties": null
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid namespace format"
@@ -817,8 +1110,8 @@
         "tags": [
           "Iceberg"
         ],
-        "summary": "Get a table.",
-        "description": "This endpoint returns the table if it exists, otherwise it returns a 404 Not Found response.",
+        "summary": "Load a table.",
+        "description": "A table Spice reads unchanged from an Iceberg table (a federated `iceberg:`\nor `glue:` dataset, a table in an Iceberg or Glue catalog, or an Iceberg DDL\ntable) is returned as that Iceberg table: its current metadata and metadata\nlocation, loaded from its catalog on every request, so an Iceberg client\nreads the snapshot Spice's next query reads. A column added to the table\noutside Spice reaches the client at once, while Spice keeps the columns the\ntable had when it was registered until it is reloaded. Any other table\n(accelerated, with columns Spice computes such as embeddings, a view, or a\nsource that is not Iceberg) is refused with `400`, naming the reason: query\nit with SQL through Spice instead.",
         "operationId": "get_table",
         "parameters": [
           {
@@ -842,7 +1135,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Table exists",
+            "description": "The Iceberg table Spice reads the table from",
             "content": {
               "application/json": {
                 "schema": {
@@ -851,11 +1144,8 @@
               }
             }
           },
-          "404": {
-            "description": "Table does not exist"
-          },
-          "500": {
-            "description": "An internal server error occurred while getting the table",
+          "400": {
+            "description": "The table cannot be read as an Iceberg table",
             "content": {
               "application/json": {
                 "schema": {
@@ -863,10 +1153,37 @@
                 },
                 "example": {
                   "error": {
-                    "message": "Request failed. An internal server error occurred while getting the table.",
-                    "r#type": "InternalServerError",
-                    "code": 500
+                    "message": "Failed to load table 'spice.public.orders' as an Iceberg table: it is accelerated, so Spice answers queries from its acceleration rather than from an Iceberg table that Iceberg clients can read directly. Query it with SQL through Spice instead, over HTTP (`/v1/sql`) or Arrow Flight SQL. See: https://spiceai.org/docs/api/HTTP/get-table",
+                    "type": "BadRequestException",
+                    "code": 400
                   }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Table does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IcebergResponseError"
+                },
+                "example": {
+                  "error": {
+                    "message": "Table 'spice.public.orders' does not exist",
+                    "type": "NoSuchTableException",
+                    "code": 404
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The table's Iceberg catalog could not be reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IcebergResponseError"
                 }
               }
             }
@@ -886,7 +1203,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/NamespacePath"
             }
           },
           {
@@ -904,205 +1221,6 @@
           },
           "404": {
             "description": "Table does not exist"
-          }
-        }
-      }
-    },
-    "/v1/mcp": {
-      "get": {
-        "tags": [
-          "mcp"
-        ],
-        "summary": "Open an MCP server-to-client SSE stream",
-        "description": "Open a long-lived server-to-client SSE stream for the current MCP session as defined by the Streamable HTTP transport. The `Mcp-Session-Id` header must identify an existing session created via `POST /v1/mcp`.",
-        "operationId": "mcp_stream",
-        "parameters": [
-          {
-            "name": "Mcp-Session-Id",
-            "in": "header",
-            "description": "Session identifier returned by the server on `initialize` and required on subsequent requests to maintain MCP session continuity.",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "SSE stream (`text/event-stream`) of server-originated MCP messages."
-          },
-          "401": {
-            "description": "Unauthorized. The `/v1/mcp` endpoint requires `runtime.auth` to be configured. Configure an API key provider in your Spicepod and retry with credentials."
-          },
-          "403": {
-            "description": "Forbidden. The `Host` header value is not in the `runtime.mcp.allowed_hosts` list."
-          },
-          "404": {
-            "description": "Unknown or expired `Mcp-Session-Id`."
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "mcp"
-        ],
-        "summary": "Send a Model Context Protocol message",
-        "description": "Send a JSON-RPC message to the Spice MCP server using the MCP Streamable HTTP transport. The response is either a single JSON-RPC response (`application/json`) or an SSE stream (`text/event-stream`), selected via the `Accept` header. Session continuity is carried via the `Mcp-Session-Id` header.",
-        "operationId": "mcp_message",
-        "parameters": [
-          {
-            "name": "Mcp-Session-Id",
-            "in": "header",
-            "description": "Session identifier returned by the server on `initialize` and required on subsequent requests to maintain MCP session continuity.",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "JSON-RPC response. Returned as `application/json` for a single response or `text/event-stream` when the server streams additional messages."
-          },
-          "202": {
-            "description": "Message accepted (for JSON-RPC notifications / responses that do not require a reply)."
-          },
-          "400": {
-            "description": "Malformed JSON-RPC payload."
-          },
-          "401": {
-            "description": "Unauthorized. The `/v1/mcp` endpoint requires `runtime.auth` to be configured. Configure an API key provider in your Spicepod and retry with credentials."
-          },
-          "403": {
-            "description": "Forbidden. The `Host` header value is not in the `runtime.mcp.allowed_hosts` list. Configure `runtime.mcp.allowed_hosts` or set it to `[\"*\"]` to allow all hosts."
-          },
-          "404": {
-            "description": "Unknown or expired `Mcp-Session-Id`."
-          },
-          "413": {
-            "description": "Payload too large. Maximum allowed size is 32 MiB."
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "mcp"
-        ],
-        "summary": "Terminate an MCP Streamable HTTP session",
-        "description": "Terminate the MCP session identified by the `Mcp-Session-Id` header. Subsequent requests bearing the same session id will receive `404 Not Found`.",
-        "operationId": "mcp_terminate_session",
-        "parameters": [
-          {
-            "name": "Mcp-Session-Id",
-            "in": "header",
-            "description": "Session identifier returned by the server on `initialize` and required on subsequent requests to maintain MCP session continuity.",
-            "required": false
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Session terminated."
-          },
-          "401": {
-            "description": "Unauthorized. The `/v1/mcp` endpoint requires `runtime.auth` to be configured. Configure an API key provider in your Spicepod and retry with credentials."
-          },
-          "403": {
-            "description": "Forbidden. The `Host` header value is not in the `runtime.mcp.allowed_hosts` list."
-          },
-          "404": {
-            "description": "Unknown or already-terminated `Mcp-Session-Id`."
-          }
-        }
-      }
-    },
-    "/v1/models": {
-      "get": {
-        "tags": [
-          "AI"
-        ],
-        "summary": "List Models",
-        "description": "List all models, both machine learning and language models, available in the runtime.\nWhen `status=true` and a model is in `Error`, the response also includes:\n- `error`: structured code object with `category`, `type`, and stable `code`\n- `error_message`: user-visible details",
-        "operationId": "get_models",
-        "parameters": [
-          {
-            "name": "format",
-            "in": "query",
-            "description": "The format of the response (e.g., `json` or `csv`).",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/Format"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "description": "If true, includes the status of each model in the response.",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "metadata_fields",
-            "in": "query",
-            "description": "A comma-separated list of metadata fields to include in the response (e.g., `supports_responses_api`)",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of models in JSON format",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelListResponse"
-                },
-                "example": {
-                  "object": "list",
-                  "data": [
-                    {
-                      "id": "gpt-4",
-                      "object": "model",
-                      "owned_by": "openai",
-                      "datasets": null,
-                      "status": "ready",
-                      "error": null,
-                      "error_message": null
-                    },
-                    {
-                      "id": "text-embedding-ada-002",
-                      "object": "model",
-                      "owned_by": "openai-internal",
-                      "datasets": [
-                        "text-dataset-1",
-                        "text-dataset-2"
-                      ],
-                      "status": "error",
-                      "error": {
-                        "category": "model",
-                        "type": "auth",
-                        "code": "model.auth"
-                      },
-                      "error_message": "Invalid API key"
-                    }
-                  ]
-                }
-              },
-              "text/csv": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "\nid,object,owned_by,datasets,status,error,error_message\ngpt-4,model,openai,,ready,,\ntext-embedding-ada-002,model,openai-internal,\"text-dataset-1,text-dataset-2\",error,model.auth,Invalid API key\n"
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error occurred while processing models",
-            "content": {
-              "application/json": {
-                "schema": {},
-                "example": {
-                  "error": "App not initialized"
-                }
-              }
-            }
           }
         }
       }
@@ -1135,12 +1253,12 @@
               },
               "example": {
                 "query": "Get the top 5 customers by total sales",
-                "model": "nql",
                 "stream": false,
-                "sample_data_enabled": true,
+                "sample_data_enabled": false,
                 "datasets": [
                   "sales_data"
-                ]
+                ],
+                "prompt_cache_key": "sales-dashboard"
               }
             }
           },
@@ -1240,6 +1358,278 @@
         }
       }
     },
+    "/v1/nsql/context": {
+      "get": {
+        "tags": [
+          "SQL"
+        ],
+        "summary": "Text-to-SQL Context (NSQL)",
+        "description": "Return the same context block that `/v1/nsql` injects into the configured NSQL model.\n\nThe response is a markdown/plain-text block or JSON object containing the in-scope datasets, schemas,\nSpice-specific SQL functions, registered user-defined functions, relevant JSON/Spark compatibility functions,\nand optional sample data.",
+        "operationId": "get_nsql_context",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "The format of the response, one of 'text/markdown' (default), 'text/plain', or 'application/json'.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "description": "The name of the model whose dataset allowlist should be used. If omitted, Spice defaults to the only compatible LLM model configured in the Spicepod.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_sampling",
+            "in": "query",
+            "description": "Whether distinct-value samples are included in the context block. Also accepts `sample_data_enabled` for compatibility with `/v1/nsql` request bodies. Default: false.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sampling_limit",
+            "in": "query",
+            "description": "Maximum number of rows per distinct-value sample. Default: 3, maximum: 100.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "include_examples",
+            "in": "query",
+            "description": "Whether example rows are included in the context block. Defaults to `include_sampling` when omitted, matching `/v1/nsql` `sample_data_enabled` behavior.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "examples_limit",
+            "in": "query",
+            "description": "Maximum number of example rows per dataset. Default: 3, maximum: 100.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "datasets",
+            "in": "query",
+            "description": "Names of datasets to include in the context block. If omitted, all datasets visible to the selected model are included.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NSQL context block",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "# Spice.ai NSQL Context\n\n## Datasets\n- `sales_data`\n\n## Schemas\n| table | column | type | nullable |\n| --- | --- | --- | --- |\n| sales_data | customer_id | Utf8 | false |\n\n## SQL Functions\nUse Spice.ai/DataFusion SQL."
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "# Spice.ai NSQL Context\n\n## Datasets\n- `sales_data`"
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsqlContextJsonResponse"
+                },
+                "example": {
+                  "context": "# Spice.ai NSQL Context\n- Write SQL for the Spice runtime...",
+                  "instructions": [
+                    "Write SQL for the Spice runtime, which uses Apache DataFusion with the SQL parser configured for the PostgreSQL dialect."
+                  ],
+                  "sql": {
+                    "engine": "Apache DataFusion",
+                    "version": "52.5.0",
+                    "dialect": "PostgreSQL",
+                    "parser": "DataFusion SQL parser configured with PostgreSQL dialect",
+                    "notes": [
+                      "Spice supports standard DataFusion SQL plus additional Spice-specific and registered user-defined functions listed in this context."
+                    ]
+                  },
+                  "datasets": [
+                    {
+                      "name": "sales.orders",
+                      "schema": "sales",
+                      "table": "orders",
+                      "description": "Customer orders",
+                      "metadata": {
+                        "description": "Customer orders"
+                      },
+                      "columns": [
+                        {
+                          "name": "customer_id",
+                          "data_type": "Utf8",
+                          "nullable": false,
+                          "description": "Customer account identifier",
+                          "metadata": {
+                            "description": "Customer account identifier"
+                          },
+                          "primary_key": false,
+                          "unique": false,
+                          "indexed": true,
+                          "vector_search": true,
+                          "full_text_search": true
+                        }
+                      ],
+                      "primary_key": [
+                        "order_id"
+                      ],
+                      "unique_constraints": [],
+                      "foreign_keys": [
+                        {
+                          "columns": [
+                            "customer_id"
+                          ],
+                          "foreign_table": "spice.sales.customers",
+                          "foreign_columns": [
+                            "id"
+                          ]
+                        }
+                      ],
+                      "indexes": [
+                        {
+                          "name": "customer_id",
+                          "columns": [
+                            "customer_id"
+                          ],
+                          "kind": "enabled",
+                          "source": "spicepod.acceleration.indexes"
+                        }
+                      ],
+                      "search": {
+                        "vector": [
+                          {
+                            "column": "customer_id",
+                            "function": "vector_search",
+                            "syntax": "vector_search(sales.orders, 'query text', customer_id)",
+                            "model": "embed_model",
+                            "engine": "duckdb_vector_index",
+                            "row_id_columns": [
+                              "order_id"
+                            ],
+                            "vector_size": 384,
+                            "chunked": false,
+                            "index": {
+                              "name": "duckdb_vector_index",
+                              "columns": [
+                                "customer_id",
+                                "order_id"
+                              ],
+                              "kind": "duckdb_vector_index",
+                              "source": "runtime_index"
+                            },
+                            "required_columns": [
+                              "customer_id",
+                              "order_id"
+                            ],
+                            "notes": []
+                          }
+                        ],
+                        "full_text": [
+                          {
+                            "column": "customer_id",
+                            "function": "text_search",
+                            "syntax": "text_search(sales.orders, 'query text', customer_id)",
+                            "engine": "tantivy",
+                            "index_store": "memory",
+                            "row_id_columns": [
+                              "order_id"
+                            ],
+                            "index": {
+                              "name": "full_text",
+                              "columns": [
+                                "customer_id",
+                                "order_id"
+                              ],
+                              "kind": "full_text",
+                              "source": "runtime_index"
+                            },
+                            "required_columns": [
+                              "customer_id",
+                              "order_id"
+                            ],
+                            "notes": []
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "functions": {
+                    "summary": "Spice SQL runs on Apache DataFusion with the SQL parser configured for the PostgreSQL dialect.",
+                    "json": [],
+                    "search": [],
+                    "additional": [],
+                    "spark_compatibility": {
+                      "description": "Spark-compatible scalar functions are available.",
+                      "functions": []
+                    },
+                    "user_defined": []
+                  },
+                  "samples": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Dataset 'sales.orders' not found"
+              }
+            }
+          },
+          "406": {
+            "description": "Requested response content type is not available",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Supported response content types are text/markdown, text/plain, and application/json"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Unexpected internal error. App not prepared in runtime."
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/packages/generate": {
       "post": {
         "tags": [
@@ -1313,16 +1703,19 @@
           "Ready"
         ],
         "summary": "Check Readiness",
-        "description": "Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message \"ready\". If not, it returns a 503 status with the message \"not ready\".\n\nThe behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://spiceai.org/docs/components/data-accelerators/data-refresh#ready-state) for more details.\n\nIn distributed (scheduler) mode the readiness response can additionally be gated on executor availability via the `min_ready_executors` and `min_ready_executors_percent` query parameters (both optional). Both gates must pass when supplied. Pass `verbose=true` to get a multi-line diagnostic body explaining each gate.\n\n### Readiness Probe\nIn production deployments, the /v1/ready endpoint can be used as a readiness probe for a Spice deployment to ensure traffic is routed to the Spice runtime only after all datasets have finished loading.\n\nExample Kubernetes readiness probe:\n```yaml\nreadinessProbe:\n httpGet:\n   path: /v1/ready\n   port: 8090\n```\n\nExample with executor gating (scheduler role):\n```yaml\nreadinessProbe:\n httpGet:\n   path: /v1/ready?min_ready_executors=3&min_ready_executors_percent=80\n   port: 8090\n```",
+        "description": "Check the runtime status of all the components of the runtime. If the service is ready, it returns an HTTP 200 status with the message \"ready\". If not, it returns a 503 status with the message \"not ready\".\n\nThe behavior for when an accelerated dataset is considered ready is configurable via the `ready_state` parameter. See [Data refresh](https://spiceai.org/docs/components/data-accelerators/data-refresh#ready-state) for more details.\n\nIn distributed (scheduler) mode the readiness response can additionally be gated on executor\navailability via the `min_ready_executors` and `min_ready_executors_percent` query parameters\n(both optional). Both must pass when supplied. Pass `verbose=true` to get a multi-line\ndiagnostic body explaining each gate.\n\n### Readiness Probe\nIn production deployments, the /v1/ready endpoint can be used as a readiness probe for a Spice deployment to ensure traffic is routed to the Spice runtime only after all datasets have finished loading.\n\nExample Kubernetes readiness probe:\n```yaml\nreadinessProbe:\n httpGet:\n   path: /v1/ready\n   port: 8090\n```\n\nExample with executor gating (scheduler role):\n```yaml\nreadinessProbe:\n httpGet:\n   path: /v1/ready?min_ready_executors=3&min_ready_executors_percent=80\n   port: 8090\n```",
         "operationId": "ready",
         "parameters": [
           {
             "name": "min_ready_executors",
             "in": "query",
-            "description": "Minimum number of currently-ready executors required for the probe to succeed. A ready executor has a live FlightSQL client that the scheduler can route queries to. A value of 0 is treated as disabled. Requires scheduler role; a non-zero value outside scheduler role returns 400.",
+            "description": "Minimum number of currently-ready executors required for the probe to succeed. \"Ready\"\nmeans the scheduler has a live `FlightSQL` client for the executor — i.e. it can route\nqueries to it. A value of `0` is treated as \"gate disabled\" and never blocks. Requires\nscheduler role; supplying a non-zero value outside scheduler role returns `400`.",
             "required": false,
             "schema": {
-              "type": "integer",
+              "type": [
+                "integer",
+                "null"
+              ],
               "format": "int32",
               "minimum": 0
             }
@@ -1330,23 +1723,24 @@
           {
             "name": "min_ready_executors_percent",
             "in": "query",
-            "description": "Minimum percentage (0-100) of currently-ready executors relative to the number of registered executors. A value of 0 is treated as disabled. Values above 100 return 400. Requires scheduler role; a non-zero value outside scheduler role returns 400.",
+            "description": "Minimum percentage (0-100) of currently-ready executors relative to the number of\nexecutors currently registered (control stream open). A value of `0` is treated as \"gate\ndisabled\" and never blocks. Values above 100 return `400`. Requires scheduler role;\nsupplying a non-zero value outside scheduler role returns `400`.",
             "required": false,
             "schema": {
-              "type": "integer",
+              "type": [
+                "integer",
+                "null"
+              ],
               "format": "int32",
-              "minimum": 0,
-              "maximum": 100
+              "minimum": 0
             }
           },
           {
             "name": "verbose",
             "in": "query",
-            "description": "When true, the response body becomes a multi-line diagnostic listing the result of each gate. The HTTP status code is unchanged.",
+            "description": "When `true`, the response body becomes a multi-line diagnostic listing the result of each\ngate. The HTTP status code is unchanged. Useful for `kubectl describe` / curl debugging.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             }
           }
         ],
@@ -1472,6 +1866,9 @@
               }
             }
           },
+          "400": {
+            "description": "The specified model provider does not support the Responses API or the request is invalid"
+          },
           "404": {
             "description": "The specified model was not found"
           },
@@ -1482,6 +1879,20 @@
                 "schema": {},
                 "example": {
                   "error": "An internal server error occurred while processing the response."
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The specified model is unavailable via the Responses API",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "message": "model 'my_model' is unavailable via /v1/responses",
+                  "type": "service_unavailable_error",
+                  "param": "model",
+                  "code": "service_unavailable"
                 }
               }
             }
@@ -1936,15 +2347,102 @@
                 "example": [
                   {
                     "name": "get_readiness",
-                    "description": "Retrieves the readiness status of all runtime components including registered datasets, models, and embeddings.",
+                    "description": "Report the readiness state of every Spice runtime component (datasets, accelerators, models, embeddings, catalogs).",
                     "parameters": null
                   },
                   {
                     "name": "list_datasets",
-                    "description": "List all SQL tables available.",
+                    "description": "List every dataset, view, and catalog visible to this runtime.",
                     "parameters": null
                   }
                 ]
+              }
+            }
+          },
+          "401": {
+            "description": "Tool routes require runtime auth to be configured",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "message": "Tool invocation (/v1/tools/*) requires `runtime.auth` to be configured."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tools/search": {
+      "get": {
+        "tags": [
+          "Tools"
+        ],
+        "summary": "List Searchable Tool Registry Tools",
+        "description": "Returns the small set of tool definitions an external LLM client should inject to use Spice's searchable tool registry. Invoke returned tools with `POST /v1/tools/{name}`.",
+        "operationId": "list_searchable_tool_registry_tools",
+        "parameters": [
+          {
+            "name": "embedding_model",
+            "in": "query",
+            "description": "Embedding model name to use for searchable tool discovery. Required only when multiple embedding models are configured.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Searchable tool registry tools to inject into an external LLM prompt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ListToolElement"
+                  }
+                },
+                "example": [
+                  {
+                    "name": "tool_search",
+                    "description": "Search the Spice tool registry for tools relevant to the current task.",
+                    "parameters": {
+                      "type": "object"
+                    }
+                  },
+                  {
+                    "name": "tool_invoke",
+                    "description": "Invoke one Spice tool returned by tool_search.",
+                    "parameters": {
+                      "type": "object"
+                    }
+                  },
+                  {
+                    "name": "list_datasets",
+                    "description": "List every dataset, view, and catalog visible to this runtime.",
+                    "parameters": null
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Searchable tool registry is not configured",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Tool routes require runtime auth to be configured",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "message": "Tool invocation (/v1/tools/*) requires `runtime.auth` to be configured."
+                }
               }
             }
           }
@@ -1965,6 +2463,15 @@
             "in": "path",
             "description": "Name of the tool",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "embedding_model",
+            "in": "query",
+            "description": "Embedding model to use when invoking the searchable tool registry's tool_search meta-tool",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -2015,14 +2522,33 @@
               }
             }
           },
+          "400": {
+            "description": "Invalid searchable tool registry configuration",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Tool routes require runtime auth to be configured",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "message": "Tool invocation (/v1/tools/*) requires `runtime.auth` to be configured."
+                }
+              }
+            }
+          },
           "404": {
             "description": "Tool not found",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Tool no_sql not found"
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "message": "Tool 'no_sql' not found"
+                }
               }
             }
           },
@@ -3714,6 +4240,13 @@
               }
             ]
           },
+          "reasoning_content": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Reasoning / chain-of-thought content (e.g. extracted from a `<think>` block),\nkept separate from the user-facing `content`. Populated by reasoning models\nsuch as GLM, DeepSeek-R1, and QwQ."
+          },
           "refusal": {
             "type": [
               "string",
@@ -3995,6 +4528,53 @@
             "description": "A custom tool that processes input using a specified format."
           }
         ]
+      },
+      "ChoiceOption": {
+        "type": "object",
+        "description": "One option of a choice question.",
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/ChoiceValue"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChoiceProbability": {
+        "type": "object",
+        "description": "The probability of one choice option.",
+        "required": [
+          "value",
+          "probability"
+        ],
+        "properties": {
+          "probability": {
+            "type": "number",
+            "format": "double"
+          },
+          "value": {
+            "$ref": "#/components/schemas/ChoiceValue"
+          }
+        }
+      },
+      "ChoiceValue": {
+        "oneOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "A choice value. `OpenAI` treats a string and a boolean with the same text as\ndifferent values."
       },
       "ClickButtonType": {
         "type": "string",
@@ -4468,11 +5048,7 @@
             "description": "Array of filters to combine. Items can be ComparisonFilter or CompoundFilter."
           },
           "type": {
-            "type": "string",
-            "enum": [
-              "and",
-              "or"
-            ],
+            "$ref": "#/components/schemas/CompoundType",
             "description": "'Type of operation: `and` or `or`.'"
           }
         }
@@ -5296,7 +5872,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/ServiceTier",
+                "$ref": "#/components/schemas/ServiceTierResponse",
                 "description": "The service tier used for processing the request. This field is only included if the `service_tier` parameter is specified in the request."
               }
             ]
@@ -5944,9 +6520,23 @@
             "type": "string",
             "description": "The source where the dataset is located (e.g., `postgres:syncs`)"
           },
+          "last_refresh": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "When the dataset's last successful refresh completed (RFC 3339), read from its\nacceleration's checkpoint at startup unless the dataset creates snapshots or\nwas restored from one. Those datasets report it once a refresh completes.\nOnly included when `status=true`, for an accelerated dataset with a known\nrefresh completion time."
+          },
           "name": {
             "type": "string",
             "description": "The name of the dataset"
+          },
+          "next_refresh": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "When the dataset's next scheduled refresh is due (RFC 3339). Interval schedules\ninclude jitter. Cron schedules initially report the next cron time, then the\njittered start time once the event fires, if jitter applies. A pending or\nunsuccessful refresh retains its due time even after that time passes.\nOnly included when `status=true`, for an accelerated dataset with a refresh\nschedule."
           },
           "properties": {
             "type": "object",
@@ -5983,6 +6573,450 @@
           "status": {
             "type": "boolean",
             "description": "Whether to include the status field in the response. When `true`, the response includes\nthe current status of each dataset (e.g., `ready`, `initializing`, `refreshing`, `error`).\nDefaults to `false`."
+          }
+        }
+      },
+      "DecisionAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "probability",
+              "type"
+            ],
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "probability": {
+                "type": "number",
+                "format": "double"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "predicate"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "choice",
+              "probabilities",
+              "confidence",
+              "type"
+            ],
+            "properties": {
+              "choice": {
+                "$ref": "#/components/schemas/ChoiceValue"
+              },
+              "confidence": {
+                "type": "number",
+                "format": "double"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "probabilities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ChoiceProbability"
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "choice"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "score",
+              "probabilities",
+              "confidence",
+              "type"
+            ],
+            "properties": {
+              "confidence": {
+                "type": "number",
+                "format": "double"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "probabilities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LevelProbability"
+                }
+              },
+              "score": {
+                "type": "number",
+                "format": "double"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "score"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The model declined to answer this question; the other answers stand.",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "refusal"
+                ]
+              }
+            }
+          }
+        ],
+        "description": "The answer to one question. `name` echoes the question's name, or is null."
+      },
+      "DecisionInput": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecisionInputMessage"
+            }
+          }
+        ],
+        "description": "The evidence every question is answered from."
+      },
+      "DecisionInputMessage": {
+        "type": "object",
+        "description": "A user message carrying text.",
+        "required": [
+          "role",
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/DecisionMessageContent"
+          },
+          "role": {
+            "$ref": "#/components/schemas/DecisionInputRole"
+          },
+          "type": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DecisionMessageType"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "DecisionInputPart": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "text",
+              "type"
+            ],
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "input_text"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "image_url",
+              "type"
+            ],
+            "properties": {
+              "detail": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "image_url": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "input_image"
+                ]
+              }
+            }
+          }
+        ],
+        "description": "One part of a message. Image parts are accepted by the schema and refused with a\nmessage naming the limitation, so a client learns why rather than seeing a parse error."
+      },
+      "DecisionInputRole": {
+        "type": "string",
+        "description": "Only user messages are accepted.",
+        "enum": [
+          "user"
+        ]
+      },
+      "DecisionMessageContent": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecisionInputPart"
+            }
+          }
+        ],
+        "description": "A message's content: a string, or a list of parts."
+      },
+      "DecisionMessageType": {
+        "type": "string",
+        "description": "The optional `type` of an input message.",
+        "enum": [
+          "message"
+        ]
+      },
+      "DecisionQuestion": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "How likely a statement about the input is true. Answered with a `probability`.",
+            "required": [
+              "instructions",
+              "type"
+            ],
+            "properties": {
+              "instructions": {
+                "type": "string"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "predicate"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Which of the supplied options fits the input. Answered with the most probable\noption and the distribution over all of them.",
+            "required": [
+              "instructions",
+              "choices",
+              "type"
+            ],
+            "properties": {
+              "choices": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ChoiceOption"
+                },
+                "description": "Between 2 and 255 distinct options."
+              },
+              "instructions": {
+                "type": "string"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "choice"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Where the input sits on ordered levels, lowest first. Answered with the\nprobability-weighted 0-based level index.",
+            "required": [
+              "instructions",
+              "levels",
+              "type"
+            ],
+            "properties": {
+              "instructions": {
+                "type": "string"
+              },
+              "levels": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ScoreLevel"
+                },
+                "description": "Between 2 and 10 levels, lowest first."
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "score"
+                ]
+              }
+            }
+          }
+        ],
+        "description": "A question about the input, with an optional name echoed in its answer."
+      },
+      "DecisionRequest": {
+        "type": "object",
+        "description": "Request body for `POST /v1/decisions`.",
+        "required": [
+          "model",
+          "input",
+          "questions"
+        ],
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/DecisionInput",
+            "description": "Shared evidence for every question: a text string, or user messages with text\nparts."
+          },
+          "model": {
+            "type": "string",
+            "description": "The model that answers: the name of a model under `models` in the Spicepod."
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecisionQuestion"
+            },
+            "description": "What to decide, in order: between 1 and 200 questions."
+          },
+          "reasoning_effort": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReasoningEffort",
+                "description": "How much a chat model reasons before it answers. Omitted keeps the model's\nsetting. A Spice extension: `OpenAI`'s Decisions API has no such field, and a\ndecision model returns 400 for it."
+              }
+            ]
+          },
+          "safety_identifier": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Opaque end-user identifier, at most 128 characters. Forwarded to `OpenAI`\ndecision models."
+          }
+        },
+        "additionalProperties": false
+      },
+      "DecisionResponse": {
+        "type": "object",
+        "description": "Response body for `POST /v1/decisions`.",
+        "required": [
+          "model",
+          "answers"
+        ],
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecisionAnswer"
+            },
+            "description": "One answer per question, in question order."
+          },
+          "model": {
+            "type": "string",
+            "description": "The model that answered."
+          },
+          "usage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DecisionUsage",
+                "description": "Tokens the decision used. Omitted when the model did not report them."
+              }
+            ]
+          }
+        }
+      },
+      "DecisionUsage": {
+        "type": "object",
+        "description": "Tokens a decision used.",
+        "required": [
+          "input_tokens",
+          "output_tokens"
+        ],
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "input_tokens_details": {
+            "$ref": "#/components/schemas/InputTokensDetails"
+          },
+          "output_tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "output_tokens_details": {
+            "$ref": "#/components/schemas/OutputTokensDetails"
+          },
+          "total_tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         }
       },
@@ -6062,7 +7096,6 @@
         "type": "object",
         "description": "A simplified message input to the model (EasyInputMessage in the OpenAPI spec).\n\nThis is the most user-friendly way to provide messages, supporting both simple\nstring content and structured content. Role can include `assistant` for providing\nprevious assistant responses.",
         "required": [
-          "type",
           "role",
           "content"
         ],
@@ -7015,6 +8048,31 @@
           }
         }
       },
+      "GetNamespaceResponse": {
+        "type": "object",
+        "description": "The Iceberg REST `GetNamespaceResponse`.",
+        "required": [
+          "namespace"
+        ],
+        "properties": {
+          "namespace": {
+            "$ref": "#/components/schemas/Namespace"
+          },
+          "properties": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Always `null`: Spice does not store namespace properties, and the spec\nasks a server without them to return `null` rather than `{}`.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "GrammarSyntax": {
         "type": "string",
         "enum": [
@@ -7066,7 +8124,9 @@
         "type": "string",
         "enum": [
           "NoSuchNamespaceException",
+          "NoSuchTableException",
           "BadRequestException",
+          "ServiceUnavailableException",
           "InternalServerError"
         ]
       },
@@ -7598,6 +8658,22 @@
             "type": "integer",
             "format": "int32",
             "description": "The number of tokens that were retrieved from the cache.\n[More on prompt caching](https://platform.openai.com/docs/guides/prompt-caching).",
+            "minimum": 0
+          }
+        }
+      },
+      "InputTokensDetails": {
+        "type": "object",
+        "description": "Breakdown of input tokens. Zero unless the model reports a cache.",
+        "properties": {
+          "cache_write_tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "cached_tokens": {
+            "type": "integer",
+            "format": "int64",
             "minimum": 0
           }
         }
@@ -8197,6 +9273,29 @@
           }
         }
       },
+      "LevelProbability": {
+        "type": "object",
+        "description": "The probability of one score level, by its 0-based index.",
+        "required": [
+          "value",
+          "label",
+          "probability"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "probability": {
+            "type": "number",
+            "format": "double"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "ListTablesResponse": {
         "type": "object",
         "required": [
@@ -8232,12 +9331,20 @@
       },
       "LoadTableResponse": {
         "type": "object",
+        "description": "The Iceberg REST `LoadTableResult`: the table's metadata and where it is\nstored. No `config` or `storage-credentials`: a client reads the table's\nfiles with its own credentials.",
         "required": [
           "metadata"
         ],
         "properties": {
           "metadata": {
-            "$ref": "#/components/schemas/TableMetadata"
+            "type": "object",
+            "description": "Iceberg table metadata, see `<https://iceberg.apache.org/spec/#table-metadata>`."
+          },
+          "metadata-location": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -8983,6 +10090,539 @@
           }
         }
       },
+      "NsqlColumnContext": {
+        "type": "object",
+        "required": [
+          "name",
+          "data_type",
+          "nullable",
+          "metadata",
+          "primary_key",
+          "unique",
+          "indexed",
+          "vector_search",
+          "full_text_search"
+        ],
+        "properties": {
+          "data_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "full_text_search": {
+            "type": "boolean"
+          },
+          "indexed": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "primary_key": {
+            "type": "boolean"
+          },
+          "source_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unique": {
+            "type": "boolean"
+          },
+          "vector_search": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NsqlContextJsonResponse": {
+        "type": "object",
+        "required": [
+          "context",
+          "instructions",
+          "sql",
+          "datasets",
+          "functions",
+          "samples"
+        ],
+        "properties": {
+          "context": {
+            "type": "string",
+            "description": "The rendered NSQL context block injected into `/v1/nsql` model requests."
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlDatasetContext"
+            },
+            "description": "In-scope datasets with schema, metadata, relationship, key, and index details."
+          },
+          "functions": {
+            "$ref": "#/components/schemas/NsqlFunctionContext",
+            "description": "Available function groups filtered to the current `DataFusion` context."
+          },
+          "instructions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "High-level SQL generation instructions."
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SampleContextBlock"
+            },
+            "description": "Optional sample blocks included when requested."
+          },
+          "sql": {
+            "$ref": "#/components/schemas/NsqlSqlContext",
+            "description": "SQL engine and dialect details for Spice SQL."
+          }
+        }
+      },
+      "NsqlDatasetContext": {
+        "type": "object",
+        "required": [
+          "name",
+          "table",
+          "metadata",
+          "columns",
+          "primary_key",
+          "unique_constraints",
+          "foreign_keys",
+          "indexes",
+          "search"
+        ],
+        "properties": {
+          "catalog": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlColumnContext"
+            }
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "foreign_keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlForeignKeyContext"
+            }
+          },
+          "indexes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlIndexContext"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "primary_key": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "search": {
+            "$ref": "#/components/schemas/NsqlDatasetSearchContext"
+          },
+          "table": {
+            "type": "string"
+          },
+          "unique_constraints": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "NsqlDatasetSearchContext": {
+        "type": "object",
+        "required": [
+          "vector",
+          "full_text"
+        ],
+        "properties": {
+          "full_text": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlFullTextSearchContext"
+            }
+          },
+          "vector": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlVectorSearchContext"
+            }
+          }
+        }
+      },
+      "NsqlForeignKeyContext": {
+        "type": "object",
+        "required": [
+          "columns",
+          "foreign_table",
+          "foreign_columns"
+        ],
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "foreign_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "foreign_table": {
+            "type": "string"
+          }
+        }
+      },
+      "NsqlFullTextSearchContext": {
+        "type": "object",
+        "required": [
+          "column",
+          "function",
+          "syntax",
+          "engine",
+          "index_store",
+          "row_id_columns",
+          "required_columns",
+          "notes"
+        ],
+        "properties": {
+          "column": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "function": {
+            "type": "string"
+          },
+          "index": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NsqlIndexContext"
+              }
+            ]
+          },
+          "index_store": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_id_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "syntax": {
+            "type": "string"
+          }
+        }
+      },
+      "NsqlFunctionContext": {
+        "type": "object",
+        "required": [
+          "summary",
+          "json",
+          "search",
+          "additional",
+          "spark_compatibility",
+          "user_defined"
+        ],
+        "properties": {
+          "additional": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlFunctionContextEntry"
+            }
+          },
+          "json": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlFunctionContextEntry"
+            }
+          },
+          "search": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsqlFunctionContextEntry"
+            }
+          },
+          "spark_compatibility": {
+            "$ref": "#/components/schemas/NsqlSparkFunctionContext"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "user_defined": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserFunctionContextEntry"
+            }
+          }
+        }
+      },
+      "NsqlFunctionContextEntry": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "example": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "function_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "signatures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "syntax": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "NsqlIndexContext": {
+        "type": "object",
+        "required": [
+          "columns",
+          "kind",
+          "source"
+        ],
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "NsqlSparkFunctionContext": {
+        "type": "object",
+        "required": [
+          "description",
+          "functions"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "functions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NsqlSqlContext": {
+        "type": "object",
+        "required": [
+          "engine",
+          "version",
+          "dialect",
+          "parser",
+          "notes"
+        ],
+        "properties": {
+          "dialect": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "parser": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "NsqlVectorSearchContext": {
+        "type": "object",
+        "required": [
+          "column",
+          "function",
+          "syntax",
+          "model",
+          "row_id_columns",
+          "chunked",
+          "required_columns",
+          "notes"
+        ],
+        "properties": {
+          "chunked": {
+            "type": "boolean"
+          },
+          "column": {
+            "type": "string"
+          },
+          "engine": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "function": {
+            "type": "string"
+          },
+          "index": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NsqlIndexContext"
+              }
+            ]
+          },
+          "input_mode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "model": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "row_id_columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "syntax": {
+            "type": "string"
+          },
+          "vector_size": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
+        }
+      },
       "OutputItem": {
         "oneOf": [
           {
@@ -9536,6 +11176,17 @@
           }
         }
       },
+      "OutputTokensDetails": {
+        "type": "object",
+        "description": "Breakdown of output tokens. Zero unless the model reports reasoning.",
+        "properties": {
+          "reasoning_tokens": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
       "PredictionContent": {
         "oneOf": [
           {
@@ -9611,7 +11262,7 @@
         "type": "string",
         "description": "The retention policy for the prompt cache.",
         "enum": [
-          "in-memory",
+          "in_memory",
           "24h"
         ]
       },
@@ -9793,7 +11444,8 @@
           "full",
           "append",
           "changes",
-          "caching"
+          "caching",
+          "snapshot"
         ]
       },
       "RefreshOverrides": {
@@ -9858,16 +11510,37 @@
             "description": "Names of datasets to sample from when constructing model context; this is a sampling hint and does not restrict which tables queries can target. If omitted, all datasets are used."
           },
           "model": {
-            "type": "string",
-            "description": "The name of the model to use for SQL generation. Default: \"nql\""
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The name of the model to use for SQL generation. If omitted, Spice defaults to the only compatible LLM model configured in the Spicepod."
+          },
+          "prompt_cache_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Stable prompt-cache key forwarded to the configured NSQL model for provider-specific cache handling."
           },
           "query": {
             "type": "string",
             "description": "The natural language query to be converted into SQL"
           },
+          "reasoning_effort": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReasoningEffort",
+                "description": "How much the model reasons before it writes SQL. Omitted keeps the model setting."
+              }
+            ]
+          },
           "sample_data_enabled": {
             "type": "boolean",
-            "description": "Whether sample data is included in the context for SQL generation. Default: true"
+            "description": "Whether sample data is included in the context for SQL generation. Default: false"
           },
           "stream": {
             "type": "boolean",
@@ -10063,7 +11736,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/ServiceTier",
+                "$ref": "#/components/schemas/ServiceTierResponse",
                 "description": "Specifies the processing type used for serving the request.\n- If set to 'auto', then the request will be processed with the service tier configured in the Project settings. Unless otherwise configured, the Project will use 'default'.\n- If set to 'default', then the request will be processed with the standard pricing and performance for the selected model.\n- If set to '[flex](https://platform.openai.com/docs/guides/flex-processing)' or '[priority](https://openai.com/api-priority-processing/)', then the request will be processed with the corresponding service tier.\n- When not set, the default behavior is 'auto'.\n\nWhen the `service_tier` parameter is set, the response body will include the `service_tier` value based on the processing mode actually used to serve the request. This response value may be different from the value set in the parameter."
               }
             ]
@@ -10339,6 +12012,40 @@
           "developer"
         ]
       },
+      "SampleContextBlock": {
+        "type": "object",
+        "required": [
+          "title",
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ScoreLevel": {
+        "type": "object",
+        "description": "One level of a score question.",
+        "required": [
+          "label"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "Scroll": {
         "type": "object",
         "description": "A scroll action.",
@@ -10460,12 +12167,30 @@
       },
       "ServiceTier": {
         "type": "string",
+        "description": "The processing tier a request asks for.",
         "enum": [
           "auto",
           "default",
           "flex",
           "scale",
           "priority"
+        ]
+      },
+      "ServiceTierResponse": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "auto",
+              "default",
+              "flex",
+              "scale",
+              "priority"
+            ]
+          },
+          {
+            "type": "string"
+          }
         ]
       },
       "SpicepodSummary": {
@@ -10576,6 +12301,13 @@
             "enum": [
               "ShuttingDown"
             ]
+          },
+          {
+            "type": "string",
+            "description": "The component is configured but not loaded yet",
+            "enum": [
+              "NotLoaded"
+            ]
           }
         ],
         "description": "Represents the status of a component (e.g. dataset, model, etc).\n\nThe `Error` variant optionally carries a human-readable error message describing\nwhat caused the component to enter the error state. Use [`ComponentStatus::error`]\nfor an error without a message, or [`ComponentStatus::error_with_message`] to\ninclude one.",
@@ -10619,12 +12351,6 @@
           }
         ]
       },
-      "TableFormatVersion": {
-        "type": "string",
-        "enum": [
-          "V2"
-        ]
-      },
       "TableIdentifier": {
         "type": "object",
         "required": [
@@ -10637,80 +12363,6 @@
           },
           "namespace": {
             "$ref": "#/components/schemas/Namespace"
-          }
-        }
-      },
-      "TableMetadata": {
-        "type": "object",
-        "required": [
-          "format-version",
-          "table-uuid",
-          "location",
-          "schemas",
-          "last-updated-ms",
-          "last-column-id",
-          "last-sequence-number",
-          "current-schema-id",
-          "partition-specs",
-          "default-spec-id",
-          "last-partition-id",
-          "sort-orders",
-          "default-sort-order-id"
-        ],
-        "properties": {
-          "current-schema-id": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "default-sort-order-id": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "default-spec-id": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "format-version": {
-            "$ref": "#/components/schemas/TableFormatVersion"
-          },
-          "last-column-id": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "last-partition-id": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "last-sequence-number": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0
-          },
-          "last-updated-ms": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "location": {
-            "type": "string"
-          },
-          "partition-specs": {
-            "type": "object"
-          },
-          "schemas": {
-            "type": "object",
-            "description": "Iceberg schemas, see `<https://apache.github.io/iceberg/spec/#schemas>`."
-          },
-          "sort-orders": {
-            "type": "object"
-          },
-          "table-uuid": {
-            "type": "string",
-            "example": "2b9da507-2c07-4bb3-9f0b-8df66a5e9e53"
           }
         }
       },
@@ -11530,6 +13182,41 @@
           "url": {
             "type": "string",
             "description": "The URL of the web resource."
+          }
+        }
+      },
+      "UserFunctionContextEntry": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "volatility",
+          "from"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "from": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "syntax": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "volatility": {
+            "type": "string"
           }
         }
       },

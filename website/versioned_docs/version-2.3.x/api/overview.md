@@ -29,3 +29,13 @@ Spice provides high-performance, industry-standard APIs:
 ### Request Correlation
 
 HTTP, Arrow Flight, and Flight SQL requests accept a `spice-trace-id` header (gRPC metadata for Flight) carrying a 32-character hexadecimal trace ID. The runtime records the ID in [`runtime.task_history`](../reference/task_history#correlating-requests-with-spice-trace-id) and prefixes the query's log records with it. SQL query responses return the ID in a `spice-trace-id` header.
+
+### Text-to-SQL Context
+
+`GET /v1/nsql/context` returns the context that [`POST /v1/nsql`](./HTTP/post-nsql) gives a model to generate SQL: the datasets in scope and their schemas, the Spice-specific SQL functions, registered user-defined functions, and, when requested, sample data. It builds the context without calling the model, so it helps inspect what a text-to-SQL model sees or supply the same context to a model outside Spice.
+
+```bash
+curl "http://localhost:8090/v1/nsql/context?include_sampling=true" -H "Accept: application/json"
+```
+
+The `Accept` header selects Markdown (`text/markdown`, the default), plain text (`text/plain`), or a structured JSON object (`application/json`). Any other type returns `406`. The `model` query parameter names the model whose dataset allowlist applies. When it is omitted and the Spicepod has exactly one model, Spice uses that model; with no models or several, the request returns `400`. Sample data is off by default: `include_sampling=true` adds distinct-value samples, and `include_examples` adds example rows and defaults to the value of `include_sampling`. `sampling_limit` and `examples_limit` set the rows per sample, default to 3, and accept at most 100.
