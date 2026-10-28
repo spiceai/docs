@@ -49,6 +49,8 @@ name: my_spicepod
 datasets:
   - from: spice.ai/spiceai/quickstart/datasets/taxi_trips
     name: taxi_trips
+    params:
+      spiceai_region: us-east-1
     acceleration:
       enabled: true
 

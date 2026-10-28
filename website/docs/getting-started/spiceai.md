@@ -127,7 +127,7 @@ The output displays the results of the query along with the query execution time
 Time: 0.00538925 seconds. 10 rows.
 ```
 
-You can experiment with the time it takes to generate queries when using non-accelerated datasets. You can change the acceleration setting from `true` to `false` in the datasets.yaml file.
+You can experiment with the time it takes to generate queries when using non-accelerated datasets. To do so, change `acceleration.enabled` from `true` to `false` in `datasets/taxi_trips/dataset.yaml`.
 
 ### Additional Example
 
@@ -136,7 +136,7 @@ You can experiment with the time it takes to generate queries when using non-acc
 SELECT AVG(trip_distance) FROM taxi_trips;
 ```
 
-The output displays the average gas used:
+The output displays the average trip distance:
 
 ```bash
 +-------------------------------+
