@@ -28,6 +28,16 @@ This section provides a comprehensive reference for SQL support in Spice.ai, inc
 - [LIMIT Clause](sql/select#limit-clause)
 - [EXCLUDE and EXCEPT Clause](sql/select#exclude-except-replace-and-ilike-clauses)
 
+### [DDL](sql/ddl)
+
+- [Options](sql/ddl#options)
+- [CREATE TABLE](sql/ddl#create-table)
+- [ALTER TABLE](sql/ddl#alter-table)
+- [DROP TABLE](sql/ddl#drop-table)
+- [SHOW CREATE TABLE](sql/ddl#show-create-table)
+- [CREATE, ALTER, DROP, and SHOW CREATE CATALOG](sql/ddl#create-alter-drop-and-show-create-catalog)
+- [Who can define datasets and catalogs](sql/ddl#who-can-define-datasets-and-catalogs)
+
 ### [Subqueries](sql/subqueries)
 
 - [Subquery Operators](sql/subqueries#subquery-operators)
