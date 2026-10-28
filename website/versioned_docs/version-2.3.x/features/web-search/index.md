@@ -37,7 +37,7 @@ Start Spice with `spice run`. Then, execute the following command, which makes a
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8090/v1/responses" -d '{"model": "openai_model", "input": "what is the latest news today? use the web search tool"}' | jq -r '.output[] | select(.type=="message") | .content[] | select(.type=="output_text") | .text'
 ```
 
-To invoke this model, use [`spice chat --responses`](../cli/reference/chat) for an interactive REPL or the OpenAI-compatible `/v1/responses` HTTP endpoint in the runtime. To learn more about configuring models provided by OpenAI, view [the reference](../components/models/openai).
+To invoke this model, use the OpenAI-compatible `/v1/responses` HTTP endpoint in the runtime, as in the example above. In v2.3, [`spice chat`](../cli/reference/chat) sends every message to `/v1/chat/completions` and has no `--responses` flag. To learn more about configuring models provided by OpenAI, view [the reference](../components/models/openai).
 
 ## References
 
