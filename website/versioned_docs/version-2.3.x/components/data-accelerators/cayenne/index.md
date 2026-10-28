@@ -609,14 +609,14 @@ datasets:
 
 ```yaml
 datasets:
-  - from: postgresql://db/events
+  - from: postgres:public.events
     name: fast_events
     acceleration:
       engine: cayenne
       enabled: true
       mode: file
       params:
-        # Auto-generates bucket: spice-{spicepod-name}-fast_events--usw2-az1--x-s3
+        # Auto-generates bucket: spice-{spicepod-name}-fast-events--usw2-az1--x-s3
         cayenne_s3_zone_ids: usw2-az1
 ```
 

@@ -57,12 +57,14 @@ datasets:
   - from: mssql:dbo.orders
     name: orders
     params:
-      mssql_connection_string: |
-        Server=tcp:my-server.database.windows.net,1433;
-        Database=mydb;
-        Authentication=Active Directory Default;
-        Encrypt=True;
+      mssql_host: my-server.database.windows.net
+      mssql_port: 1433
+      mssql_database: mydb
+      mssql_username: ${ secrets:MSSQL_USER }
+      mssql_password: ${ secrets:MSSQL_PASSWORD }
 ```
+
+The connector authenticates with a SQL Server login and encrypts the connection by default. It does not support Microsoft Entra ID authentication: an `Authentication=` keyword in `mssql_connection_string` is ignored, and the connection is attempted as a SQL Server login.
 
 ### Example: Azure Databricks
 
@@ -175,15 +177,16 @@ Refer to the [Azure OpenAI Service models](https://learn.microsoft.com/azure/ai-
 
 ## Authentication
 
-All Azure integrations support the standard [Azure Identity DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain. When credentials are not explicitly configured, Spice attempts the following in order:
+Spice does not use the Azure Identity [`DefaultAzureCredential`](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain. Each integration resolves Azure credentials on its own:
 
-1. **Environment variables** — service principal (`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`), certificate (`AZURE_CLIENT_CERTIFICATE_PATH`), or username/password.
-2. **Workload Identity** — federated tokens on AKS via `AZURE_FEDERATED_TOKEN_FILE`. See [Workload Identity for AKS](https://learn.microsoft.com/azure/aks/workload-identity-overview).
-3. **Managed Identity** — system-assigned or user-assigned identities on Azure VMs, AKS, Container Apps, and ACI. See [Managed identities for Azure resources](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview).
-4. **Azure CLI** — cached credentials from a local `az login` session.
-5. **Azure Developer CLI / Azure PowerShell** — used when the corresponding CLI is signed in.
+| Integration                    | Credentials                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Azure Blob Storage / ADLS Gen2 | `abfs_*` parameters and `AZURE_*` environment variables. The first complete credential wins: bearer token, account key, workload identity (`AZURE_FEDERATED_TOKEN_FILE`), service principal secret, SAS token, Azure CLI (only with `abfs_use_cli: true`), then managed identity. Certificate and username/password credentials are not used. |
+| Azure Key Vault                | Chosen by `auth_method`. `default` uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. Managed and workload identity require `auth_method: managed_identity` or `auth_method: workload_identity`.                                                                       |
+| Azure SQL Database             | A SQL Server login in `mssql_connection_string`, or `mssql_username` and `mssql_password`. Microsoft Entra ID authentication is not supported.                                                                                                                                                                                    |
+| Azure OpenAI                   | `azure_api_key` or `azure_entra_token`.                                                                                                                                                                                                                                                                                           |
 
-For a deployment-side overview of these mechanisms, see the [Authentication](../azure#authentication) section of the Azure deployment guide.
+For the order in detail, see the [Authentication](../azure#authentication) section of the Azure deployment guide.
 
 ### Role Assignments
 
@@ -193,7 +196,7 @@ Each principal must have the appropriate Azure RBAC role for the services it acc
 | ------------------------------ | -------------------------------------------------------------- |
 | Azure Blob Storage / ADLS Gen2 | `Storage Blob Data Reader` or `Storage Blob Data Contributor`  |
 | Azure Key Vault                | `Key Vault Secrets User` (data plane) or RBAC equivalent       |
-| Azure SQL Database             | Database-level role assignments granted to the Entra principal |
+| Azure SQL Database             | Database permissions granted to the SQL login                  |
 | Azure OpenAI                   | `Cognitive Services OpenAI User`                               |
 | Azure Container Registry       | `AcrPull` for image pulls                                      |
 
