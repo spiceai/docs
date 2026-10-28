@@ -101,7 +101,7 @@ For a model llama.cpp splits, the nodes take two roles:
   Model '<name>' is served by the first machine in 'nodes' (<head>); this machine holds part of it.
   ```
 
-The node at `node_rank` _r_ serves its GPU on port `12345` plus _r_, at its own address in `nodes`, and llama.cpp's connections between nodes use the ports 1000 above those. Each node needs a GPU that llama.cpp can use. These connections are neither authenticated nor encrypted, so every node must run `spiced` with [`--allow-insecure-connections`](../../cli/reference/spiced). Run the nodes only on a trusted private network: any host that reaches a node's GPU server can use that GPU. Without the flag, the model fails to load with:
+The node at `node_rank` _r_ serves its GPU on port `12345` plus _r_, at its own address in `nodes`, and llama.cpp's connections between nodes use the ports 1000 above those. Each node needs a GPU that llama.cpp can use. These connections are neither authenticated nor encrypted, so every node must run `spiced` with [`--allow-insecure-connections`](../../cli/reference/spiced.md). Run the nodes only on a trusted private network: any host that reaches a node's GPU server can use that GPU. Without the flag, the model fails to load with:
 
 ```text
 Model '<name>' is split across nodes over connections that are neither authenticated nor encrypted, so it loads only when spiced runs with `--allow-insecure-connections`. Start spiced with `--allow-insecure-connections` on every node in `nodes`, and only on a trusted private network: any host that reaches a node's GPU server can use that GPU.
