@@ -41,9 +41,9 @@ export const Article = ({ article }: { article: ProcessedFile }) => {
         Continue reading
       </Button>
       {/* Absolute Shadow */}
-      <div className='absolute bottom-0 left-0 h-20 w-full bg-gradient-to-t from-neutral transition-opacity group-hover:opacity-100 md:opacity-0' />
+      <div className='absolute bottom-0 left-0 h-20 w-full bg-linear-to-t from-neutral transition-opacity group-hover:opacity-100 md:opacity-0' />
 
-      <div className='absolute bottom-0 left-0 h-10 w-full bg-gradient-to-t from-neutral transition-opacity group-hover:opacity-100 md:opacity-0' />
+      <div className='absolute bottom-0 left-0 h-10 w-full bg-linear-to-t from-neutral transition-opacity group-hover:opacity-100 md:opacity-0' />
     </article>
   )
 }

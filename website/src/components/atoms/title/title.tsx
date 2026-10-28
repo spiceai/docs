@@ -5,7 +5,7 @@ const titleVariants = cva('text-alpha-900 font-sans', {
   variants: {
     variant: {
       small: 'text-lg font-semibold leading-7',
-      medium: 'text-2xl leading-8 md:text-4xl tracking-tight',
+      medium: 'text-2xl md:text-4xl tracking-tight',
       large: 'text-3xl md:text-6xl font-medium'
     }
   },

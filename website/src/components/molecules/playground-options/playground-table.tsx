@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden'
 
 import { ResponseData } from './playground-options'
-import { Dialog, DialogContent } from 'components/ui/dialog'
+import { Dialog, DialogContent } from '../../ui/dialog'
 
 import { DialogTitle } from '@radix-ui/react-dialog'
 
@@ -74,14 +74,14 @@ const TableData = ({ data }: { data: ResponseData }) => {
 const Shadows = () => {
   return (
     <>
-      <div className='absolute bottom-0 left-0 h-20 w-full bg-gradient-to-t from-neutral' />
-      <div className='absolute bottom-0 left-0 h-20 w-full bg-gradient-to-t from-neutral/60' />
+      <div className='absolute bottom-0 left-0 h-20 w-full bg-linear-to-t from-neutral' />
+      <div className='absolute bottom-0 left-0 h-20 w-full bg-linear-to-t from-neutral/60' />
 
-      <div className='absolute top-0 h-full w-20 bg-gradient-to-r from-neutral' />
-      <div className='absolute top-0 h-full w-20 bg-gradient-to-r from-neutral' />
+      <div className='absolute top-0 h-full w-20 bg-linear-to-r from-neutral' />
+      <div className='absolute top-0 h-full w-20 bg-linear-to-r from-neutral' />
 
-      <div className='absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-neutral' />
-      <div className='absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-neutral' />
+      <div className='absolute right-0 top-0 h-full w-20 bg-linear-to-l from-neutral' />
+      <div className='absolute right-0 top-0 h-full w-20 bg-linear-to-l from-neutral' />
     </>
   )
 }

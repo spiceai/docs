@@ -4,7 +4,7 @@ import remarkParse from 'remark-parse'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkExtractFrontmatter from 'remark-extract-frontmatter'
 
-import { GITHUB_BLOG_REPO } from 'lib/constants'
+import { GITHUB_BLOG_REPO } from '@site/src/lib/constants'
 
 type FrontMatter = {
   date: string

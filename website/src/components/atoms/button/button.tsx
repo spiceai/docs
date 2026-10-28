@@ -10,7 +10,7 @@ type ButtonAnchorProps = Omit<
 >;
 
 const buttonVariants = cva(
-  'rounded-xl font-semibold transition-all outline-none',
+  'rounded-xl font-semibold transition-all outline-hidden',
   {
     variants: {
       variant: {
