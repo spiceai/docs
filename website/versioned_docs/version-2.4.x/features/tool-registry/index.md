@@ -289,3 +289,13 @@ Two ways to inspect the catalog from outside the model:
 `GET /v1/functions` is a *function* listing, not a tool one: it returns every enabled entry in the Spicepod's `functions:` section that registered successfully — scalar and table functions alike, whether or not they are exposed as tools — and returns an empty list when `runtime.functions.enabled` is false. Use it to check that a function loaded; use `GET /v1/tools` to check what the model can reach.
 
 For tools (built-in plus MCP plus function-derived), the model can call `tool_search` with an open-ended query (e.g. `query: "*"`) — though in practice, asking for the tools relevant to the current step is what the model actually wants.
+
+## Using the Registry from an External LLM Client
+
+An LLM client that runs outside Spice, such as an agent framework that calls its own model, can use the registry over HTTP. `GET /v1/tools/search` returns the tool definitions to give that model: `tool_search`, `tool_invoke`, and `list_datasets` when that tool is registered. When the model calls one of them, send its arguments as the JSON body of `POST /v1/tools/{name}`, for example `POST /v1/tools/tool_search`.
+
+```bash
+curl "http://localhost:8090/v1/tools/search" -H "X-API-Key: <api-key>"
+```
+
+`tool_search` needs an embedding model from the Spicepod's `embeddings` section. With one configured, Spice uses it. With several configured, add the `embedding_model` query parameter, naming one of them, to both `GET /v1/tools/search` and `POST /v1/tools/tool_search`. These HTTP routes do not read a model's `tool_embedding_model` parameter. `GET /v1/tools/search` returns `400` when no embedding model is configured, when `embedding_model` is required but missing or names no configured model, or when a registered tool uses a [reserved name](#reserved-tool-names-and-conflicts). Like the other tool routes, it returns `401` unless [`runtime.auth`](../../reference/spicepod/runtime.md#runtimeauth) is configured.

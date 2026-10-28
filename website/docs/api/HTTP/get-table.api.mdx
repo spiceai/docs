@@ -1,11 +1,11 @@
 ---
 id: get-table
-title: "Get a table."
-description: "This endpoint returns the table if it exists, otherwise it returns a 404 Not Found response."
-sidebar_label: "Get a table."
+title: "Load a table."
+description: "A table Spice reads unchanged from an Iceberg table (a federated `iceberg:`"
+sidebar_label: "Load a table."
 hide_title: true
 hide_table_of_contents: true
-api: eJy1Vm1v20YM/isH9ssGSJbqvLQRhgHZkBYBunxIs34JjOaso63rpDvljsoLDP33gSfZViKnWZruk2WSR/LIh89xBSSXHrJLOM1xjm4JswgU+tzpmrQ1kMFFob1Ao2qrDQmH1DjjBRUoSM5LFHohNAm80558JCwV6G61RxaujaXYT/fFmSXxwTZGCYe+tsbjBCKwNTrJoU4VZLBE+hrcQgS1dLJCQsf5rcDICiELP76WOVtozq+WVMA4aRQbS2EX23w5psPrRjtUkJFrMAKfF1hJyFZA9zUH8eS0WULbRpu466yej/mKcDM27mrjWT9NU/55FCeUvSs4RJBbQ2iI7WRdlzoP1Uy+eTZejYPZ+TfM6UFal1AhSSVJcvtrxz0h3aWw0TzjYWFdJSm+Qec5zagrWNw0WkEEpe3SgvXtOfNSeoqbWklCFVcbSW7LpjJxd44FHq8bNDnGpqnm6PjOjXNoKO58daa1dKQ5RuxrzH1oz0I2JYX/A3dbwyDz1lFsnWKcDc5spGw1qso4gW15tCFchjS7mnSivSlEUGmjq6aCLG2fCvUKP/01X+7hUe9GwIwADdtewpcp14I0lbhG4odw+Et/th018eXpjLv0gz4eA+c5N4f7O90MIPofPLQDtI9HfIzT0Vy12xnZMXMPuaBnbdEfiIRHFFe/FUS1z5JE1jIvcLLUVDTzibaJ7uwTDp286U/9fjUJQQeDsCupwUDvQsidrOqAiun8SMmD9F08zdN38f58vhcfLdJ5/F4tDg/lAR7hwR5T60MY/bXmmaHmk5UqaM97VoS2Zf1+uv8ULyqLXhjbv0ic98EuEj02gjvojCyFR3eDTqBz1gmbh9lW4rbQJYolEmmz3BL6z2LcEG1MLJ34Wbb2Xi45lWDFGSncQVIsffnorL3vAm8neJofzuznJi/O1i/vyV2Odc/7f0h1zvPoaSg97ZvwOfTgZF2UNQB6fAf5BcccomOo3KVYg6Y3GGB0UOfNbaHPTiykLlFNxA9DJLz5b/oS7bpg37DsIE3btkN0hVTYfgMKjxkVkEFy8zbZrDE+WW2+2yRE8skq/Lb8joUA3a7UuBIyYBbIkoTZqCysp+x9epSOKOQTq4XCGyxtXaGh/rIT8ac1C71sHIpbTYW4imP2yGQx43B54zTdh3iy1l//Qf6esU6bhQ0o6fvhGkO6wp0bk691jkpsTUqdI096tlm9jgOLxdMJJ68VGtILzXQ+1LQRbN4vmE7SSRo3xncjy6xrPVXSDLx+RBJy27AHma22M/5/7789TAjvKKlLqcMTGvq36lFwCTdvIdouvrymZMM1uIMCS7vrziLgdvPJ1WouPf7tyrZl8XWDLnQpghvpdLDm/int+VtBtpClx+9U45fznod+Fd/fsXfeqxdKcw+cQdnwP4ggYGew2vPe/aqcfkY6PXZmbQQFSsWAu1z1uuOcKWxwavQQ8BxshvrjyQW07b8qu5kd
+api: eJztWN1v2zYQ/1cO3ENSQP5olgKbMAzI1rQrUBRr4j7FQc2QZ4ktRaokZScw9L8PR0q2HKfJQ/e05ckyj/fB+/jdkRsWeOFZfsXeCbxBV7DrjEn0wqk6KGtYzs4g8BuNcFkrgeCQSw+NESU3BUpYOlsBN9Cxd3uPOSxRouMBJSxUouWLubEOFoVuMF+A5IF7DBnwjkmZoSDr4K1uEAQPXNsio4UB+fXr93MT+V6A8uAwNM6gBO4hlDzs25ODCh5E4xyaABUGTsqBG7n9MzfaCk5HzkBbLvujRcZkAlgDuEJ3Bw6/NehDBt4ObRJaoQlzk3wUSgRveO1LG5LzjjwYvA3wrUlCuPRjOANhdVMZ4JKUBhsZo9lzY5vglRz4XpSYJCddwANYIzCDdam2MfqKWHe7ouj43XkLSi5hXaIBFWDNyXOF8gEdSmhMUJrWo0OTF8ZwZu7AhhJdb9QxFwJ1Cm4GaxXKrZ6kX9iqbgJ68I0oKSJY3aCUyhSeor1SuE7hnBtvGycwhUx5MHYbuS6sy8ajTEoWp9PpIgPDK2WKeDyH3FuTJ4fODZ2INl5+fA+hdLYpys4iZXxALscsY7Ymy5U17yTLWYHhczwWy1jNHa8woKN62DDDK2R5/PE1F7RDUT3UPJTsfpHMSoTtTrDLXRBJJ+WLcihZHlyDGfOixIqzfMPCXU1KfHDKFKxts63e3qqndf6Aumva7GtrPHqin0yn9HOoZ7+8h1Cw1RzrhWVMWBPQBJLD61qrVFWTL56EbQ6NsTdfUIQHT9drvTi/nMHiveVyRpou0Dc6LPKd7iO/X9XrEh2mTJ4bH6yjRP5gYSGsWapiQdm3oHVe4Eg4lGiC4tovcuB9ad073pGfm6XS6FOOES7YtYEB877rr1hvEUFq7Sjvgkpu3lKe9MK+33u+DDwiLH4rQ6h9Ppl0ADvmNQHE2Lpi4msUk58i26hn+30xZm221T7qEW9nxlWfGhkzjdbsum0zFlTQZOLQ/zFlWNsS/fR7SZOMFtxQWd+khCE4uN8ufiRphg5H56w79HZafoK3Qu95QabEXWSRxENZcXUnSpmABTqWsaV1FQ9p6ecTlrFKGVU1Fcun0eVJ+mEJdvoOCBlDQ9xX7IO9bET5oQeX81uByclZR4oxGS7/weVF6lDD1Ut0KyXwk+ErrvR9nncmoDNc0y50570n+9h38YrrMzJ0mBhD4kOEPl+6DRnDW17VGveCs3URe8OVTp2QWlCXRUeeMGdcNzdaibF1Ep0/eiiZ8q6B7TUpbzvM4sav0fnYMRT6XY/fblfWgOOp35XcfGfA2ZsxEmDQnGBSjkvlUAR9N4aPsdU/2ZgysCt08Nds9jccLyarlxP/TS9eEEydOWfX8EarogwkYAyXiDn0pR/dwlWseWmFn/BaTUjOpMAw6sury62HEyPl9Ol02vb1fPpAPcdjS4upSeOt8uG5bp/rdlC3s0cK9SBxOq99xxN9Sp52Kflq+vMjLebI70qxG9WFbbSEXd8RJcrndP1fpWvKnApDabtJP874oWQ5I4Tdjut+stl+t5OYUX6yib8ty5iPpqY7QeM0yxlhbz6Z0PikS+tD/sv01+nB6PaeyCBxhdrWFU2USdIY/oxDaOOwu9eMRiSRhrNrUicap8Jd1Mdr9fkr0vc10ZRZ2hjD7uCObmwVPjg7xzKUsNuilUAa2vLtFeMsjoujkzEZr+IYu1To9iltxuj4SfDJ+NV4OmqMT42lzVhtfai4GUilMbG/04/vm7bZleDzw8Lzw8J/6WGhA9aAt2FSa64MlUcEjE0HO1ds9ZJuVlvgYRnLh+8LCXtoNdXXdcYIX4hzs7nhHj853ba0HA0jWMjYijsVdxNgSOXpW7J8ybXHR6rv+KJrSy/g8ceLB8/VLXJzx8gC3dA/lrEIVoM3E3rQ+CGb/g1zOrC6bjNWIpeEcFebjnYmqDkNuA7mAgLebRd5ez5jbfsPch5o/g==
 sidebar_class_name: "get api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -24,7 +24,7 @@ import Translate from "@docusaurus/Translate";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Get a table."}
+  children={"Load a table."}
 >
 </Heading>
 
@@ -38,7 +38,16 @@ import Translate from "@docusaurus/Translate";
 
 
 
-This endpoint returns the table if it exists, otherwise it returns a 404 Not Found response.
+A table Spice reads unchanged from an Iceberg table (a federated `iceberg:`
+or `glue:` dataset, a table in an Iceberg or Glue catalog, or an Iceberg DDL
+table) is returned as that Iceberg table: its current metadata and metadata
+location, loaded from its catalog on every request, so an Iceberg client
+reads the snapshot Spice's next query reads. A column added to the table
+outside Spice reaches the client at once, while Spice keeps the columns the
+table had when it was registered until it is reloaded. Any other table
+(accelerated, with columns Spice computes such as embeddings, a view, or a
+source that is not Iceberg) is refused with `400`, naming the reason: query
+it with SQL through Spice instead.
 
 <Heading
   id={"request"}

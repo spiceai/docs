@@ -1,1 +1,1 @@
-{"parameters":[{"name":"namespace","in":"path","required":true,"schema":{"type":"string"}},{"name":"table","in":"path","required":true,"schema":{"type":"string"}}]}
+{"parameters":[{"name":"namespace","in":"path","required":true,"schema":{"type":"string","description":"An Iceberg namespace path. Multi-level namespaces separate their parts with the unit separator character (`\\u001F`).","title":"NamespacePath"}},{"name":"table","in":"path","required":true,"schema":{"type":"string"}}]}

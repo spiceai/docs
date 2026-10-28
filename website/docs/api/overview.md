@@ -59,3 +59,13 @@ HTTP, Arrow Flight, and Flight SQL requests accept a `spice-trace-id` header (gR
 ```
 
 JSON object keys are unordered, so clients that parse the response as an object, including the Spice SDKs, are unaffected. Clients that read the body as text or match on key positions should parse it as JSON instead. Starting in v2.5, `DECIMAL` values in this format keep their exact digits and scale, the same as `application/json`. Earlier versions converted them to floating-point numbers.
+
+### Text-to-SQL Context
+
+`GET /v1/nsql/context` returns the context that [`POST /v1/nsql`](./HTTP/post-nsql) gives a model to generate SQL: the datasets in scope and their schemas, the Spice-specific SQL functions, registered user-defined functions, and, when requested, sample data. It builds the context without calling the model, so it helps inspect what a text-to-SQL model sees or supply the same context to a model outside Spice.
+
+```bash
+curl "http://localhost:8090/v1/nsql/context?include_sampling=true" -H "Accept: application/json"
+```
+
+The `Accept` header selects Markdown (`text/markdown`, the default), plain text (`text/plain`), or a structured JSON object (`application/json`). Any other type returns `406`. The `model` query parameter names the model whose dataset allowlist applies. When it is omitted and the Spicepod has exactly one model, Spice uses that model; with no models or several, the request returns `400`. Sample data is off by default: `include_sampling=true` adds distinct-value samples, and `include_examples` adds example rows and defaults to the value of `include_sampling`. `sampling_limit` and `examples_limit` set the rows per sample, default to 3, and accept at most 100.

@@ -30,6 +30,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/HTTP/post-decisions",
+          label: "Create a decision",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "api/HTTP/post-embeddings",
           label: "Create Embeddings",
           className: "api-method post",
@@ -45,6 +51,54 @@ const sidebar: SidebarsConfig = {
           id: "api/HTTP/post-responses",
           label: "post_responses",
           className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Iceberg",
+      items: [
+        {
+          type: "doc",
+          id: "api/HTTP/get-config",
+          label: "Get Iceberg API config",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-iceberg-namespaces",
+          label: "List Iceberg namespaces",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-namespace",
+          label: "Load an Iceberg namespace",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/head-namespace",
+          label: "Check Namespace exists",
+          className: "api-method head",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/list-tables",
+          label: "list_tables",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-table",
+          label: "Load a table.",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/head-table",
+          label: "Check if a table exists.",
+          className: "api-method head",
         },
       ],
     },
@@ -75,54 +129,6 @@ const sidebar: SidebarsConfig = {
           id: "api/HTTP/post-dataset-cdc",
           label: "Ingest Debezium CDC changes",
           className: "api-method post",
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Iceberg",
-      items: [
-        {
-          type: "doc",
-          id: "api/HTTP/get-config",
-          label: "Get Iceberg API config",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/get-iceberg-namespaces",
-          label: "List Iceberg namespaces",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/get-namespace",
-          label: "Check if a namespace exists.",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/head-namespace",
-          label: "Check Namespace exists",
-          className: "api-method head",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/list-tables",
-          label: "list_tables",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/get-table",
-          label: "Get a table.",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/head-table",
-          label: "Check if a table exists.",
-          className: "api-method head",
         },
       ],
     },
@@ -159,6 +165,12 @@ const sidebar: SidebarsConfig = {
           id: "api/HTTP/post-nsql",
           label: "Text-to-SQL (NSQL)",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-nsql-context",
+          label: "Text-to-SQL Context (NSQL)",
+          className: "api-method get",
         },
         {
           type: "doc",
@@ -224,6 +236,12 @@ const sidebar: SidebarsConfig = {
           type: "doc",
           id: "api/HTTP/list-tools",
           label: "List Tools",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/list-searchable-tool-registry-tools",
+          label: "List Searchable Tool Registry Tools",
           className: "api-method get",
         },
         {

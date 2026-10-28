@@ -1,11 +1,11 @@
 ---
 id: get-namespace
-title: "Check if a namespace exists."
-description: "This endpoint returns a 200 OK response if the namespace exists, otherwise it returns a 404 Not Found response."
-sidebar_label: "Check if a namespace exists."
+title: "Load an Iceberg namespace"
+description: "Returns the namespace if it exists. Spice does not store namespace properties, so `properties` is `null`."
+sidebar_label: "Load an Iceberg namespace"
 hide_title: true
 hide_table_of_contents: true
-api: eJzFUsFu2zAM/RWBZ8V2gxw23YZiK4IO3SU7FUGr2ExE1JY0iXZbGP73gUmXpOmw604SRPK9R703AttdBnMPyxo3mHaw1tBgrhNFpuDBwMpRVuibGMizSsh98llZNa8q9eNWJcwx+IyKtoodKm87zNHWqPCFMmetAjtMzyQt5/OLaqHuAqtvoffNEaYADSFissK+bMDADvnhCAoa/nRmMCPMq0qO94rvLiTApGHxt8alH2xLzZnmbUid5cPA4l/ITcCsfOADBUyThg7ZhTfFoCFadmCgHK7KI34ux+N9Ag0Z04BJ/n+EPrVgwDFHU5ZtqG3rQmbzqfpcwaUn36WsGhywDbFDz+qAVKjr4Le06xOqZ2KnHmczQXwsYFoLXd0n4tc9n4308IRyX0uN/DbIwkzcIhhIvWfq8AP1yqHKkWps1KmlpRp9RpmX/cDAl2hrh7N5IeKpQc+0JUzvK5MGWf8APC+qopr1PrPdtCi1GDJ31p+hXjusnyRp9kPOikulI9TBM3r+Lxnm1yiCGV+4jK0lLwvtLR7fknEPwxVoOGUDNJhT0NcaxH/pG8eNzfgztdMkz796THvbNAw20f63xMSzBN58XcE0/QbWuFKi
+api: eJy9VMFu2zAM/RWCZzdJiw3YfCuGYShQDEPXnZJgVmwmVidLmkRnDQz/+0DFs9M0GLDLTlEkme/xvUd1yGoXMV/iXUkbCjtcZ1hRLIP2rJ3FHB+I22AjcE1gVUPRq5JAb0Ez0LOOHGfw1euSoHIUwTqGyC6cXvbBeQqsKWYQHRTT/wJ0hMK2xhQzzFC2leDeVZjjjvj7WAQzDBS9s5Ei5h3eLBby85Lr5xHyyAwzLJ1lsix3lfdGl6n+/CnKBx3GsqZGyYoPnjBHt3mikvFchceaYJAIHj5+fYTiE/EI9zAwS00E+tnqQJWoOtFfZzi1LXjT0QSuQlCHV9i3doSeNFVHR4yODE7MiOBV4JjB1gWgZ9V4Q1AsVxjFnBVmsELfbowuV7hORDVTE0/QIwdtd9hnyJoNneopmy/pH79ZTnqJia/Tc2t+qcMfi/N/CYqyVeoweipXVsUfERRECnsK8Etz7VqW8wbYQUgZHVAgKK4pANfKQtH1qVdVVVooKfPlQhsnrQ8UDqn1Czf6E3kuRUBqDOqfubw8OoHZYMN5JIR8n+q/uZTtO7tXRlcnam1daBRj+uDN34Zh1DtNBQpEQ1y7YciEkeIac5zvr+dj/TjvxnWPGR61l8eiwzYYzLFm9vl8blypTO0i5+8W7xev4nsvx1DRnozzDVkeXJzBB2e3etcGSoZCcXUlFYsZ9muBK9ug+ZDwlNfff5Cs13Km7dYlbwYjQmtZN3RxapPoFUxXjC5JjBrckZB6VdZ0dTMT8roiy3qrKbw86TOU9o+Fb2ZvZ4ur1kZWG3OcDhe5Ufak6r1TFagLs3tOs5seqf/62g7JZnrmuTdKW+kjOdsNgVji/lpGe4wEZpi/eNPEdrnXdRsV6VswfS/bP1sKya0M9yroJJJ4l2FNqhJplx0mQ/G2LMlLBvfKtOkRPH+mxfExr58+PmLf/wbCgVgn
 sidebar_class_name: "get api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -24,7 +24,7 @@ import Translate from "@docusaurus/Translate";
 <Heading
   as={"h1"}
   className={"openapi__heading"}
-  children={"Check if a namespace exists."}
+  children={"Load an Iceberg namespace"}
 >
 </Heading>
 
@@ -38,7 +38,7 @@ import Translate from "@docusaurus/Translate";
 
 
 
-This endpoint returns a 200 OK response if the namespace exists, otherwise it returns a 404 Not Found response.
+Returns the namespace if it exists. Spice does not store namespace properties, so `properties` is `null`.
 
 <ParamsDetails>
   
