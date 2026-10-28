@@ -152,6 +152,8 @@ If AWS credentials are not explicitly provided in the configuration, the connect
 
 The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
 
+For an Iceberg table, the Glue and S3 clients resolve credentials from the credential source on each request, so temporary credentials, such as those from IAM roles for service accounts (IRSA), EKS Pod Identity, an assumed role, or an SSO session, are refreshed when they expire, and refreshes keep working without a restart. In v2.4.0 and earlier, credentials for an Iceberg table were resolved once when the dataset loaded, so every refresh after they expired failed with `ExpiredTokenException` until Spice restarted.
+
 :::note[IAM Permissions]
 Regardless of the credential source, the IAM role or user must have appropriate S3/Glue permissions (e.g., `s3:ListBucket`, `glue:GetTable`) to access the tables. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
 :::

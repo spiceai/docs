@@ -73,18 +73,38 @@ In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the bac
 
 Spice serves a GGUF model on a single node, from the [`file`][file] or [`huggingface`][hf] provider, with [llama.cpp](https://github.com/ggml-org/llama.cpp). The model's file format selects the engine, so no Spicepod change is needed.
 
-| Model                                                   | Served by             |
-| ------------------------------------------------------- | --------------------- |
-| GGUF on one node, `from: file:` or `from: huggingface:` | llama.cpp             |
-| GGUF with `distributed_backend: ring` (Enterprise)      | mistral.rs, unchanged |
-| Safetensors                                             | mistral.rs, unchanged |
+| Model                                                                                                       | Served by                     |
+| ----------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| GGUF on one node, `from: file:` or `from: huggingface:`                                                     | llama.cpp                     |
+| GGUF with `distributed_backend: ring` (Enterprise), of an architecture llama.cpp splits by tensor           | llama.cpp, split across nodes |
+| GGUF with `distributed_backend: ring` (Enterprise), of an architecture llama.cpp does not split by tensor   | mistral.rs, unchanged         |
+| Safetensors                                                                                                 | mistral.rs, unchanged         |
 
 The OpenAI-compatible API works the same way on both engines: streaming, `usage`, `finish_reason`, `reasoning_effort` and `reasoning_content` are unchanged, and so are the GGUF's own chat template and the `chat_template` and `context_length` parameters. Prompts are rendered and tool calls are parsed with the same code as on mistral.rs, so a GLM-5.3 tool call, which that parser does not read, stays unparsed on both engines. Each streamed tool call carries its own `index`.
 
-The `paged_attention` parameter has no effect on a GGUF model served by llama.cpp, which manages its own KV cache. It still applies to a GGUF model with `distributed_backend: ring`, which mistral.rs serves. The parameter is read only for `from: file:` models, and a `from: file:` GGUF model on one node that sets `paged_attention: disabled` logs this once at load, at info level:
+The `paged_attention` parameter has no effect on a GGUF model served by llama.cpp, which manages its own KV cache. It still applies to a GGUF model with `distributed_backend: ring` that mistral.rs serves. The parameter is read only for `from: file:` models, and a `from: file:` GGUF model on one node that sets `paged_attention: disabled` logs this once at load, at info level:
 
 ```text
 Model '<name>' sets `paged_attention: disabled`, which has no effect: GGUF models are served by llama.cpp, which manages its own KV cache. Remove the parameter to silence this message.
+```
+
+### GGUF Models Split Across Nodes
+
+Multi-node inference with `distributed_backend: ring` is a [Spice.ai Enterprise](https://spice.ai/docs/enterprise/getting-started/distributions) feature. Every node runs `spiced` with the same model definition, the same rank-ordered `nodes` list, and its own `node_rank`. Each node reads `general.architecture` from the header of the model's first GGUF file and asks the pinned llama.cpp whether it splits that architecture by tensor. When it does, llama.cpp serves the model split tensor-parallel across one or more GPUs on every node. Otherwise, mistral.rs's ring serves it, as in v2.4.0 and earlier.
+
+For a model llama.cpp splits, the nodes take two roles:
+
+- **The head** (`node_rank: 0`) serves its own GPU, waits up to 10 minutes for every other node to serve its GPU, then loads the model across all of them and serves the OpenAI-compatible API. Only the head reads the model's weights, so a `huggingface:` model is downloaded only on the head.
+- **Every other node** serves its GPU and holds its share of the model for the head. Its load completes once it serves its GPU, and it refuses chat requests with:
+
+  ```text
+  Model '<name>' is served by the first machine in 'nodes' (<head>); this machine holds part of it.
+  ```
+
+The node at `node_rank` _r_ serves its GPU on port `12345` plus _r_, at its own address in `nodes`, and llama.cpp's connections between nodes use the ports 1000 above those. Each node needs a GPU that llama.cpp can use. These connections are neither authenticated nor encrypted, so every node must run `spiced` with [`--allow-insecure-connections`](../../cli/reference/spiced). Run the nodes only on a trusted private network: any host that reaches a node's GPU server can use that GPU. Without the flag, the model fails to load with:
+
+```text
+Model '<name>' is split across nodes over connections that are neither authenticated nor encrypted, so it loads only when spiced runs with `--allow-insecure-connections`. Start spiced with `--allow-insecure-connections` on every node in `nodes`, and only on a trusted private network: any host that reaches a node's GPU server can use that GPU.
 ```
 
 ### Multi-Token Prediction Draft Heads

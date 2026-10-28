@@ -34,7 +34,7 @@ Model loading happens once at startup. A missing or unreadable file fails the sp
 
 | Format         | Extension                      | Notes                                                                  |
 | -------------- | ------------------------------ | ---------------------------------------------------------------------- |
-| GGUF           | `.gguf`                        | Quantized / unquantized; served by llama.cpp on a single node, and by mistral.rs with `distributed_backend: ring`. See [GGUF architectures](../index.md#gguf-architectures). |
+| GGUF           | `.gguf`                        | Quantized / unquantized; served by llama.cpp on a single node. With `distributed_backend: ring`, split across nodes by llama.cpp when it splits the architecture by tensor, and served by mistral.rs otherwise. See [GGUF architectures](../index.md#gguf-architectures) and [GGUF models split across nodes](../index.md#gguf-models-split-across-nodes). |
 | GGML (legacy)  | `.ggml`                        | Legacy llama.cpp format.                                               |
 | Safetensors    | `.safetensors`                 | Native tensor format; preferred over `.bin` for safety.                 |
 | PyTorch        | `.bin` / `.pt` / `.pth` / `.ckpt` | Legacy pickle-based checkpoints. **Rejected by default** — these formats execute arbitrary code when loaded. Set [`trust_pickle: true`](index.md#params-optional) to load them from a fully trusted source. |

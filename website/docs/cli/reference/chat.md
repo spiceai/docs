@@ -35,6 +35,14 @@ spice chat [flags] [<message>]
 - `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
 - `--output <format>`, `-o` Output format: `table` (default) or `json`.
 
+## Chat Completions and Responses API
+
+Before it sends a message, `spice chat` asks the runtime's `/v1/models` endpoint whether the model supports the Responses API (the `supports_responses_api` metadata field). It chats with a model that does, an OpenAI, Azure OpenAI, or xAI model, through [`/v1/responses`](../../api/HTTP/post-responses), and with every other model through [`/v1/chat/completions`](../../api/HTTP/post-chat-completions). Hosted tools configured with [`openai_responses_tools`](../../components/models/openai/#params) or [`azure_openai_responses_tools`](../../components/models/azure), such as `web_search`, are attached only to Responses API requests, and only when the model also sets `tools` (for example, `tools: auto`). They work in `spice chat` for a model chatted with through `/v1/responses`. The model is chatted with through `/v1/responses` whether or not it sets `responses_api: enabled`.
+
+A Responses API stream that ends before the response completes is reported as an error, and a response that stops early, for example at its output token limit, prints the same notice that the answer is incomplete as on `/v1/chat/completions`.
+
+In v2.4.0 and earlier, `spice chat` sends every message to `/v1/chat/completions`, so hosted tools configured on the model are not available in `spice chat`.
+
 ## Examples
 
 When exactly one model is **ready**, `spice chat` opens a REPL that uses that model automatically:
