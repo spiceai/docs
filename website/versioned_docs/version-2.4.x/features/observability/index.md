@@ -31,7 +31,7 @@ Query metrics on this endpoint — `query_duration_ms`, `query_executions`, `que
 
 ### Default Configuration
 
-The metrics endpoint listens on port `9090` by default. The endpoint address is logged at startup:
+The metrics endpoint is disabled by default. When `spiced` starts with `--metrics`, the endpoint address is logged at startup:
 
 ```bash
 2024-11-28T19:48:10.942003Z  INFO runtime::metrics_server: Spice Runtime Metrics listening on 127.0.0.1:9090
@@ -53,6 +53,18 @@ FROM spiceai/spiceai:latest
 CMD ["--metrics", "0.0.0.0:9090"]
 EXPOSE 9090
 ```
+
+### Restrict Access to the Metrics Endpoint
+
+The metrics endpoint does not check [API keys](../../api/auth/index.md). It also does not require a client certificate when [mTLS](../../api/tls/index.md#probe-and-metrics-access) is configured. Any caller that can reach the `--metrics` address can read every metric, and metric labels include dataset names and HTTP route templates. When [TLS](../../api/tls/index.md) is enabled, the endpoint is served over TLS, which encrypts the connection but does not restrict who can scrape it.
+
+Bind the metrics endpoint to a loopback or private interface that only the metrics scraper can reach. When the scraper runs on the same host, bind to loopback:
+
+```bash
+spiced --metrics 127.0.0.1:9090
+```
+
+In containers and Kubernetes, the endpoint must listen on `0.0.0.0` inside the container for a scraper in another pod or on another host to reach it, and the Spice Helm chart starts `spiced` with `--metrics 0.0.0.0:9090`. Keep the metrics port off public load balancers and ingress, and restrict which pods can connect to it, for example with a Kubernetes [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/). Do not publish the metrics port to the host or the internet unless the network in front of it limits access to the scraper.
 
 ### Verifying the Endpoint
 

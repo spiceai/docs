@@ -58,6 +58,8 @@ Or using `Authorization: Bearer`:
 
 The `/health` and `/v1/ready` endpoints are not protected and can be accessed without an API key.
 
+API keys do not protect the Prometheus metrics endpoint. When `spiced` runs with `--metrics`, `/metrics` is served on its own listener without an API key check, and its labels include dataset names and HTTP route templates. Bind the metrics endpoint to a loopback or private interface, as described in [Restrict Access to the Metrics Endpoint](../../features/observability/index.md#restrict-access-to-the-metrics-endpoint).
+
 ## Flight SQL
 
 For the Flight SQL endpoint, the API key is expected to be included in the `Authorization` header as a Bearer token, i.e. `Authorization: Bearer ${ api_key }`.
