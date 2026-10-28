@@ -56,6 +56,8 @@ Primary key column 'region' has null values. Every primary key column must be no
 
 Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
 
+The [DuckDB](../../components/data-accelerators/duckdb) and [SQLite](../../components/data-accelerators/sqlite) accelerators also reject a write that carries a null in a primary key column, with an error that names the column(s), before the write reaches the engine. On SQLite, a `NaN` in a floating-point primary key column is rejected as a null, because SQLite stores a `NaN` as `NULL`. In earlier releases, including v2.4.x, SQLite stored a row with a null primary key.
+
 ## One row per primary key on Spice Cayenne
 
 On the [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) accelerator, a `primary_key` alone decides which version of a key is kept, with nothing else to configure. Cayenne is the [default engine](../../components/data-accelerators/index.md#default-engine) on Linux and macOS, so this also applies to an acceleration that sets no `engine` there. A refresh keeps:

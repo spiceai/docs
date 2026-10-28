@@ -81,8 +81,10 @@ Initialized search results cache; max size: 128.00 MiB, item ttl: 1s, shards: 16
 
 A table invalidation walks every shard to evict the entries that read the table, so its cost is
 proportional to the number of cached entries. The walk runs on a blocking thread, not on the query
-runtime. SQL results are invalidated only by client writes, dataset reload, and dataset unload; an
-accelerated refresh leaves them to expire by age. See
+runtime. SQL results are invalidated only by client writes, dataset reload, dataset unload, and
+the view, catalog, and function changes listed in
+[Cached Results and Definition Changes](#cached-results-and-definition-changes); an accelerated
+refresh leaves them to expire by age. See
 [Cached Results and Dataset Refresh](#cached-results-and-dataset-refresh). Search results are also
 invalidated by refreshes, and search result invalidations always evict entries.
 
@@ -122,7 +124,7 @@ The hashing algorithm determines how cache keys are hashed before being stored, 
 - **`ahash`:** Uses the [AHash](https://github.com/tkaitchuck/ahash) algorithm for hashing the cache keys. The AHash algorithm is a [high quality](https://github.com/tkaitchuck/aHash/blob/master/compare/readme#Quality) hashing algorithm, and has claimed resistance against hashing DoS attacks. AHash has higher performance than SipHash1-3, especially when used with `cache_key_type: plan`.
 - **`blake3`:** Uses the [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) cryptographic hash function. BLAKE3 is a fast, parallelizable hash function that provides cryptographic security while maintaining high performance. It is suitable for scenarios requiring both speed and cryptographic guarantees.
 - **`xxh64`, `xxh128`:** Variants of the XXH hashing algorithm with different output sizes. These algorithms offer a balance between speed and collision resistance, with larger hash sizes providing better collision resistance at the cost of performance.
-- **`xxh32`:** Deprecated, and will be removed in a future release. A runtime that sets it logs a warning at startup. Use `xxh3` instead.
+- **`xxh32`:** Deprecated, and will be removed in a future release. A runtime that sets it logs a warning at startup. Use `xxh3` instead. A cache key is a 64-bit hash, and a 32-bit hash would leave half of it unused, so `xxh32` builds its keys with XXH64, the same as `xxh64`.
 
 Use `xxh3` (the default) for its superior speed in most scenarios. Use `ahash`, `xxh64` or `xxh128` for reduced collision probability when caching a large number of queries. Use `blake3` when cryptographic security is required. Use `siphash` when protection against hash flooding attacks is a priority.
 
@@ -402,6 +404,18 @@ Removing a dataset, for example by deleting it from a Spicepod the runtime watch
 :::note[Expiry from memory still counts from storage]
 The cache removes an entry from memory `item_ttl + stale_while_revalidate_ttl` after it was stored, while servability counts from when its query started. An entry can therefore stay in memory, unserved, for about as long as its query ran. A lookup that finds such an entry counts as a miss.
 :::
+
+### Cached Results and Definition Changes
+
+A change to a definition that cached results were computed from clears every cached SQL result, together with the [logical plan cache](#logical-plan-cache). The following changes clear both caches:
+
+- a [view](../../reference/spicepod/views.md) is updated or removed;
+- a Spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md), either one whose declaration changed or one whose name a provider is already registered under;
+- a Spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md).
+
+A cached result records the tables a view reads, not the view itself, so the cache cannot find the entries that read through a changed view and clears all of them. A query that started before the clear does not store its result, even when it reads no table. After a view is updated, a repeat of an earlier query returns the result of the new definition. After a view is removed, the repeat fails because the view no longer exists.
+
+In earlier releases, including v2.4.x, updating or removing a view and replacing a catalog cleared only the logical plan cache. A query on an updated view could return the previous definition's result, and with `cache_key_type: sql` a removed view could still answer, until the cached result aged past `item_ttl`.
 
 ### HTTP/Flight API
 

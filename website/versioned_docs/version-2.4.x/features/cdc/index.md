@@ -66,8 +66,11 @@ datasets:
       refresh_mode: changes
       params:
         cdc_max_coalesce_age_ms: 1000 # this dataset lingers longer than the global 250ms
-        cdc_prefetch_buffer: 1024 # ...and buffers more aggressively
 ```
+
+:::note
+In v2.4.0, a per-dataset `cdc_prefetch_buffer` is accepted but has no effect: the dataset's change queue is sized from the instance-wide value (`runtime.params.cdc_prefetch_buffer`, then `SPICE_CDC_PREFETCH_BUFFER`, then the default of `128`). The `dataset_acceleration_cdc_prefetch_buffer_capacity` metric reports the size in use. To buffer more change events, set `cdc_prefetch_buffer` under `runtime.params`, which applies to every CDC-accelerated dataset. The other four parameters take effect per dataset as described above.
+:::
 
 ## Supported Data Connectors
 
