@@ -49,11 +49,11 @@ runtime:
         - ${ secrets:admin_key }:admin # admin; clients send the value of admin_key
 ```
 
-An `:admin` key can do everything a read-write key can, and can also define, change, and remove datasets and catalogs with [SQL DDL](../../reference/sql/ddl.md). Defining a source can use any configured secret, read local files, and reach any host, so a read-write key, such as one an OpenTelemetry exporter uses, cannot do it.
+An `:admin` key, available from v2.5, can do everything a read-write key can, and can also define, change, and remove datasets and catalogs with [SQL DDL](../../reference/sql/ddl.md). Defining a source can use any configured secret, read local files, and reach any host, so a read-write key, such as one an OpenTelemetry exporter uses, cannot do it.
 
-:::warning[Breaking change]
+:::warning[Upgrading from v2.4 and earlier]
 
-A key written with a literal `:admin` ending used to be a read-only key whose value included `:admin`. It is now an admin key whose value is the text before `:admin`.
+In v2.4 and earlier, a key written with a literal `:admin` ending is a read-only key whose value includes `:admin`. From v2.5, it is an admin key whose value is the text before `:admin`.
 
 :::
 
@@ -131,7 +131,7 @@ When `runtime.auth` is not configured, `spiced` logs a warning at startup if the
 `runtime.auth` is not configured, so any caller who can reach this runtime can modify dataset 'orders' (`access: read_write`), dataset 'trips' (accelerated), catalog 'lake' (`access: read_write_create`). Configure `runtime.auth` with a read-write API key, or restrict network access to authorized callers. See https://spiceai.org/docs/api/auth
 ```
 
-The warning itself does not change runtime behavior. It is not logged when [`runtime.tls.client_auth_mode`](../../reference/spicepod/runtime.md#runtimetlsclient_auth_mode) is `required`. To resolve it, configure `runtime.auth` with a [read-write key](#read-only-and-read-write-keys) for callers that need to write, or restrict network access to the runtime to authorized callers.
+The warning itself does not change runtime behavior. It is not logged when [`runtime.tls.client_auth_mode`](../../reference/spicepod/runtime.md#runtimetlsclient_auth_mode) is `required`. To resolve it, configure `runtime.auth` with a [read-write key](#read-only-read-write-and-admin-keys) for callers that need to write, or restrict network access to the runtime to authorized callers.
 
 ## Cookbook
 

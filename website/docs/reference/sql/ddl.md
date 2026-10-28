@@ -5,7 +5,7 @@ description: 'Define, change, inspect, and remove Spice datasets and catalogs wi
 sidebar_position: 25
 ---
 
-Data Definition Language (DDL) statements define the datasets and catalogs Spice serves, with the same capabilities and the same names as a [Spicepod](../spicepod/index.md). A dataset or catalog defined with SQL is kept across restarts, loads exactly as a Spicepod one does, and takes [DML](dml.md) as its `access` allows.
+Data Definition Language (DDL) statements define the datasets and catalogs Spice serves, with the same capabilities and the same names as a [Spicepod](../spicepod/index.md). A dataset or catalog defined with SQL is kept across restarts, loads exactly as a Spicepod one does, and takes [DML](dml.md) as its `access` allows. These statements are available from v2.5.
 
 ```sql
 CREATE TABLE orders WITH (
@@ -141,7 +141,9 @@ Defining a source can use any configured secret, read local files, and reach any
 
 - **Without authentication**, only a caller on the same machine can define them: Spice must listen on loopback only (the default `127.0.0.1`), and a request over HTTP must not come from a web page on another site.
 
-[Task history](../task_history.md) and the list of active queries (`GET /v1/sql/active`) record these statements with the value of each parameter not declared non-secret replaced by `'<redacted>'`, as `SHOW CREATE` prints it. So that a mistyped statement records no more than a correct one, every statement with the keyword `CREATE` or `ALTER`, such as `CREATE VIEW`, is recorded without its comments and with every literal outside a well-formed `key = value` option, such as a column's `COMMENT`, also replaced by `'<redacted>'`. SQL that fails to parse is recorded the same way, whatever its first word, such as a mistyped `CRATE TABLE` or an `ATTACH`, and SQL that cannot even be read into words, such as text with an unterminated quote, is recorded as `<redacted: the statement could not be parsed>`. The error a statement fails with is recorded without the values its text had redacted. The `sql` tool records the statements an agent runs through it the same way, with every parameter's value redacted.
+[Task history](../task_history.md) records these statements with the value of each parameter not declared non-secret replaced by `'<redacted>'`, as `SHOW CREATE` prints it. So that a mistyped statement records no more than a correct one, every statement with the keyword `CREATE`, `ALTER`, or `ATTACH`, such as `CREATE VIEW`, is recorded without its comments and with every literal outside a well-formed `key = value` option, such as a column's `COMMENT`, also replaced by `'<redacted>'`. Spice does not run `ATTACH`, but other engines connect a database with it. SQL that fails to parse is recorded the same way, whatever its first word, such as a mistyped `CRATE TABLE`, and SQL that cannot even be read into words, such as text with an unterminated quote, is recorded as `<redacted: the statement could not be parsed>`. The error a statement fails with is recorded without the values its text had redacted. The `sql` tool records the statements an agent runs through it the same way, with every parameter's value redacted, and arguments that are not the tool's JSON as `<redacted: the statement could not be parsed>`; `tool_invoke`, which a model that searches for tools calls, records a call to `sql` as `sql` does.
+
+The list of running queries (`GET /v1/sql/active`) shows each API key only the statements it ran, and shows a statement with the keyword `CREATE`, `ALTER`, or `ATTACH` as task history records it. It shows any other statement as it was sent, including one that will fail to parse; task history then records that statement redacted, as above.
 
 A statement runs to the end even when its client disconnects first, and task history records its outcome.
 
