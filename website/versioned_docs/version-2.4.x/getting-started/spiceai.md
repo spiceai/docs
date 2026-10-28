@@ -82,6 +82,15 @@ Select `y` when prompted whether to accelerate the data:
 Locally accelerate (y/n)? y
 ```
 
+`spice dataset configure` does not prompt for the region of the Spice Cloud app, which the runtime requires for a `spice.ai` dataset. Open `datasets/taxi_trips/dataset.yaml` and add the region under `params`:
+
+```yaml
+params:
+  spiceai_region: us-east-1
+```
+
+The runtime reloads the dataset when the file is saved.
+
 You should see the following output from your runtime terminal:
 
 ```bash
@@ -121,7 +130,7 @@ The output displays the results of the query along with the query execution time
 Time: 0.00538925 seconds. 10 rows.
 ```
 
-You can experiment with the time it takes to generate queries when using non-accelerated datasets. You can change the acceleration setting from `true` to `false` in the datasets.yaml file.
+You can experiment with the time it takes to generate queries when using non-accelerated datasets. To do so, change `acceleration.enabled` from `true` to `false` in `datasets/taxi_trips/dataset.yaml`.
 
 ### Additional Example
 
@@ -130,7 +139,7 @@ You can experiment with the time it takes to generate queries when using non-acc
 SELECT AVG(trip_distance) FROM taxi_trips;
 ```
 
-The output displays the average gas used:
+The output displays the average trip distance:
 
 ```bash
 +-------------------------------+
