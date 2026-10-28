@@ -1363,7 +1363,7 @@
             "name": "Accept",
             "in": "header",
             "description": "The format of the response, one of 'text/markdown' (default), 'text/plain', or 'application/json'.",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
