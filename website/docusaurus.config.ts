@@ -255,11 +255,6 @@ const config: Config = {
           label: 'API'
         },
         { to: 'releases', label: 'Releases', position: 'left' },
-        {
-          label: 'Blog',
-          href: 'https://spice.ai/blog',
-          position: 'left'
-        },
         { to: 'cookbook', label: 'Cookbook', position: 'left' },
         { to: 'docs/reference/sql', label: 'SQL Reference', position: 'left' },
         // Version dropdown is only shown when versions exist
@@ -278,19 +273,15 @@ const config: Config = {
           position: 'right'
         },
         {
-          label: 'X',
-          href: 'https://x.com/spice_ai',
-          position: 'right'
-        },
-        {
-          label: 'Slack',
-          href: 'https://spice.ai/slack',
-          position: 'right'
-        },
-        {
-          label: 'YouTube',
-          href: 'https://www.youtube.com/@spiceai',
-          position: 'right'
+          type: 'dropdown',
+          label: 'Community',
+          position: 'right',
+          items: [
+            { label: 'X', href: 'https://x.com/spice_ai' },
+            { label: 'Slack', href: 'https://spice.ai/slack' },
+            { label: 'YouTube', href: 'https://www.youtube.com/@spiceai' },
+            { label: 'Blog', href: 'https://spice.ai/blog' }
+          ]
         },
         {
           href: 'https://github.com/spiceai/spiceai',
