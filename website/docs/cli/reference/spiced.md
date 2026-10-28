@@ -52,7 +52,7 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--node-mtls-ca-certificate-file <PATH>` — CA certificate used to validate peer node identities.
 - `--node-mtls-certificate-file <PATH>` — Certificate file used for both server TLS and client mTLS on the node port.
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.
-- `--allow-insecure-connections` — Run cluster connections without mTLS, for local development and testing on a trusted network. Cluster connections are then neither authenticated nor encrypted. Has no effect when the `--node-mtls-*` flags are set. See [Local development without mTLS](../../features/distributed-query/index.md#local-development-without-mtls).
+- `--allow-insecure-connections` — Run cluster connections without mTLS, for local development and testing on a trusted network. Cluster connections are then neither authenticated nor encrypted. Has no effect on cluster connections when the `--node-mtls-*` flags are set. See [Local development without mTLS](../../features/distributed-query/index.md#local-development-without-mtls). It is also required on every node of a GGUF model that llama.cpp splits across nodes, whose connections are never authenticated or encrypted, with or without the `--node-mtls-*` flags. See [GGUF models split across nodes](../../components/models/index.md#gguf-models-split-across-nodes).
 
 ### Spice Cloud Connect flags
 

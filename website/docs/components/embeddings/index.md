@@ -155,6 +155,14 @@ datasets:
       file_format: parquet
 ```
 
+### Rows That Are Embedded
+
+Spice applies a query's or a refresh's filters and `LIMIT` before it computes embeddings where it can, so the rows they discard cost no embedding requests. A filter that references only the dataset's own columns, and no embedding column, is applied before any embedding is computed: Spice passes the filter to the source where the source can use it, and applies the rest itself. When every filter on the scan is of this kind, a `LIMIT` is applied before embeddings are computed too, to each partition of the scan.
+
+This covers a `WHERE` clause and `LIMIT` in [`refresh_sql`](../features/data-acceleration/data-refresh#refresh-sql), the [refresh data window](../features/data-acceleration/data-refresh#refresh-data-window), the time-column filter of an `append` refresh, and a filtered query on a dataset that is not accelerated. A filter that references an embedding column, or that cannot be evaluated during the scan, such as one that contains a subquery, is applied after embeddings are computed.
+
+In v2.4.0 and earlier, rows that a source returned were embedded before a filter or `LIMIT` that the source applied only in part, or not at all, discarded them. For example, an `append` refresh could embed every row the source returned, not only the new rows it loaded.
+
 ### Passthrough Embeddings
 
 If the dataset already contains embedding columns, Spice can use them for vector search and other embedding features. The schema must match that of Spice-generated embeddings (or be adapted with a [view](../reference/spicepod#views)).
