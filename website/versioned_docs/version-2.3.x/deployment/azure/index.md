@@ -68,7 +68,7 @@ For burst or low-utilization workloads, attach [virtual nodes](https://learn.mic
 
 #### 2. Configure workload identity for Azure access
 
-Most Spice connectors (ABFS, Azure SQL, Key Vault, Azure OpenAI) accept Azure credentials from the environment. Use [workload identity](https://learn.microsoft.com/azure/aks/workload-identity-overview) so pods receive scoped, federated tokens without static secrets:
+The ABFS connector and the `azure_keyvault` secret store can authenticate with an Azure identity instead of a static secret. Use [workload identity](https://learn.microsoft.com/azure/aks/workload-identity-overview) so pods receive scoped, federated tokens without static secrets:
 
 ```bash
 # 1. Create a user-assigned managed identity
@@ -93,7 +93,7 @@ az identity federated-credential create \
   --audiences api://AzureADTokenExchange
 ```
 
-Reference the identity from the Helm release so Spice pods inherit federated tokens via the [DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain:
+Reference the identity from the Helm release. Workload identity then injects `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_FEDERATED_TOKEN_FILE` into the pod. The ABFS connector reads them automatically, and the `azure_keyvault` secret store uses them when `auth_method` is `workload_identity` (see [Authentication](#authentication)):
 
 ```yaml
 # values.yaml
@@ -311,25 +311,28 @@ For detailed guidance, refer to the [Linux on Azure documentation](https://learn
 
 ## Authentication
 
-Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `abfs_access_key` on the [ABFS connector](../components/data-connectors/abfs)). When explicit credentials are not provided, Spice follows the standard [Azure Identity DefaultAzureCredential](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain, attempting credentials in this order:
+Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `abfs_access_key` on the [ABFS connector](../components/data-connectors/abfs)). Spice does not use the Azure Identity [`DefaultAzureCredential`](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain. Each component resolves Azure credentials on its own.
 
-1. **Environment variables**:
-   - `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET` (service principal with secret)
-   - `AZURE_CLIENT_CERTIFICATE_PATH` (service principal with certificate)
-   - `AZURE_USERNAME`, `AZURE_PASSWORD` (resource owner password — not recommended)
+**Azure Blob Storage and ADLS Gen2.** The ABFS connector first validates its explicit `abfs_*` authentication parameters, whether set in the Spicepod or loaded from a secret store under the same name. They must name at most one method: `abfs_access_key`, `abfs_bearer_token`, `abfs_sas_string`, client credentials, `abfs_use_cli: true`, `abfs_msi_endpoint`, `abfs_federated_token_file`, or `abfs_skip_signature: true`. Client credentials need all three of `abfs_client_id`, `abfs_client_secret`, and `abfs_tenant_id`. Otherwise the dataset fails to load with `Multiple authentication methods were provided` or `Incomplete client credentials`. The check reads only `abfs_*` parameters, so `abfs_client_id` with the tenant ID and secret in `AZURE_*` environment variables fails as incomplete.
 
-2. **Workload Identity** (AKS): federated tokens injected via `AZURE_FEDERATED_TOKEN_FILE`, `AZURE_AUTHORITY_HOST`, `AZURE_CLIENT_ID`, and `AZURE_TENANT_ID`. See [Workload Identity for AKS](https://learn.microsoft.com/azure/aks/workload-identity-overview).
+After validation, the connector starts from the `AZURE_*` environment variables, such as `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_FEDERATED_TOKEN_FILE`, and lets each `abfs_*` parameter override the matching value. With no `abfs_*` authentication parameters, the environment alone supplies the credential, as with AKS workload identity. It uses the first credential that is fully configured, in this order:
 
-3. **Managed identity**: System-assigned or user-assigned identities on Azure VMs, AKS, Container Apps, and ACI. See [What are managed identities?](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview).
+1. A bearer token.
+2. An account access key.
+3. Workload identity: a client ID, a tenant ID, and a federated token file, which [Workload Identity for AKS](https://learn.microsoft.com/azure/aks/workload-identity-overview) injects.
+4. A service principal: a client ID, a client secret, and a tenant ID.
+5. A SAS token.
+6. The Azure CLI login from `az login`, only when `abfs_use_cli` is `true`.
+7. A [managed identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) through the Azure Instance Metadata Service. A client ID, such as `AZURE_CLIENT_ID`, selects a user-assigned identity.
 
-4. **Azure CLI**: Cached credentials from a local `az login` session. Common during development.
+The ABFS connector does not use certificate credentials (`AZURE_CLIENT_CERTIFICATE_PATH`), a username and password, the Azure Developer CLI, or Azure PowerShell.
 
-5. **Azure Developer CLI** (`azd`) and **Azure PowerShell**: Used when the corresponding CLI is signed in.
+**Azure Key Vault.** The [`azure_keyvault`](../components/secret-stores/azure-keyvault) secret store chooses its credential with the `auth_method` parameter. The default, `default`, uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. The store uses a managed identity or workload identity only when `auth_method` is `managed_identity` or `workload_identity`.
 
-For services with explicit parameters (Blob Storage, Azure SQL, Cosmos DB, OpenAI), prefer named credentials or managed identity over environment variables in production.
+**Azure SQL and Azure OpenAI.** The [MSSQL connector](../components/data-connectors/mssql) authenticates with a SQL Server login, and [Azure OpenAI models](../components/models/azure) authenticate with `azure_api_key` or `azure_entra_token`. Neither reads an Azure identity from the environment.
 
 :::note[Role assignments]
-Regardless of the credential source, the principal must have the appropriate Azure role assignments (for example, `Storage Blob Data Reader` on a storage account, or `SQL DB Contributor` on Azure SQL). When a Spicepod connects to multiple Azure services, the principal must have permissions across all of them.
+Regardless of the credential source, the principal must have the appropriate Azure role assignments (for example, `Storage Blob Data Reader` on a storage account, or `Key Vault Secrets User` on a key vault). When a Spicepod connects to multiple Azure services, the principal must have permissions across all of them.
 :::
 
 ## Resources

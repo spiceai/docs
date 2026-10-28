@@ -34,9 +34,9 @@ The API key authentication is applied on startup and changes will not take effec
 
 :::
 
-## Read-only and read-write keys
+## Read-only, read-write, and admin keys
 
-Each API key is read-only unless it ends in `:rw`. The suffix is not part of the key: clients send the text before it. A `:ro` suffix marks a key as read-only explicitly.
+Each API key is read-only unless it ends in `:rw` or `:admin`. The suffix is not part of the key: clients send the text before it. A `:ro` suffix marks a key as read-only explicitly.
 
 ```yaml
 runtime:
@@ -46,7 +46,16 @@ runtime:
       keys:
         - ${ secrets:reader_key } # read-only
         - ${ secrets:writer_key }:rw # read-write; clients send the value of writer_key
+        - ${ secrets:admin_key }:admin # admin; clients send the value of admin_key
 ```
+
+An `:admin` key can do everything a read-write key can, and can also define, change, and remove datasets and catalogs with [SQL DDL](../../reference/sql/ddl.md). Defining a source can use any configured secret, read local files, and reach any host, so a read-write key, such as one an OpenTelemetry exporter uses, cannot do it.
+
+:::warning[Breaking change]
+
+In Spice v2.4 and earlier, a key written with a literal `:admin` ending is a read-only key whose value includes `:admin`. In later releases, it is an admin key whose value is the text before `:admin`.
+
+:::
 
 The built-in [`sql` tool](../../components/tools/index.md) writes data only for a request authenticated with a read-write key, or with a verified client certificate when client certificates identify callers, and only to a dataset or catalog configured with write access, such as `access: read_write`. Every other request, including a request to a runtime without `runtime.auth`, runs the tool read-only. This applies to tool calls a model makes from `/v1/chat/completions`, `/v1/responses`, [`/v1/messages`](../../features/large-language-models/messages.md), and the `ai()` SQL function, to `/v1/tools`, and to [MCP](../../features/large-language-models/mcp.md). Scheduled [worker](../../reference/spicepod/workers.md) prompts run without an API key, so their `sql` tool calls are read-only.
 
@@ -122,7 +131,7 @@ When `runtime.auth` is not configured, `spiced` logs a warning at startup if the
 `runtime.auth` is not configured, so any caller who can reach this runtime can modify dataset 'orders' (`access: read_write`), dataset 'trips' (accelerated), catalog 'lake' (`access: read_write_create`). Configure `runtime.auth` with a read-write API key, or restrict network access to authorized callers. See https://spiceai.org/docs/api/auth
 ```
 
-The warning itself does not change runtime behavior. It is not logged when [`runtime.tls.client_auth_mode`](../../reference/spicepod/runtime.md#runtimetlsclient_auth_mode) is `required`. To resolve it, configure `runtime.auth` with a [read-write key](#read-only-and-read-write-keys) for callers that need to write, or restrict network access to the runtime to authorized callers.
+The warning itself does not change runtime behavior. It is not logged when [`runtime.tls.client_auth_mode`](../../reference/spicepod/runtime.md#runtimetlsclient_auth_mode) is `required`. To resolve it, configure `runtime.auth` with a [read-write key](#read-only-read-write-and-admin-keys) for callers that need to write, or restrict network access to the runtime to authorized callers.
 
 ## Cookbook
 

@@ -70,6 +70,8 @@ WITH x AS (SELECT a, MAX(b) AS b FROM t GROUP BY a)
 SELECT a, b FROM x;
 ```
 
+Each named subquery is a common table expression (CTE). A CTE that reads an earlier CTE adds a level of query nesting, and Spice rejects a statement nested more than 64 levels deep. See [Nesting depth limit](./subqueries.md#nesting-depth-limit).
+
 ### SELECT clause
 
 The `SELECT` clause is used to select data from a database by defining the columns it returns. Each `select_expr` in the

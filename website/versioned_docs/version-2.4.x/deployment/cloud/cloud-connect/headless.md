@@ -80,6 +80,12 @@ stateful:
 
 command:
   - /usr/local/bin/spiced
+  - --http
+  - 0.0.0.0:8090
+  - --metrics
+  - 0.0.0.0:9090
+  - --flight
+  - 0.0.0.0:50051
   - --token
   - '$(SPICE_ENROLL_KEY)'
 
@@ -93,13 +99,15 @@ additionalEnv:
     value: /data/.spice
 ```
 
+Setting `command` replaces the chart's default command, which is what binds `spiced` to `0.0.0.0`, so the list repeats the default's `--http`, `--metrics`, and `--flight` arguments. Without them, `spiced` listens only on `127.0.0.1`, and the chart's probes on port `8090` cannot reach it.
+
 Installing the chart:
 
 ```shell
 helm upgrade --install spiceai spiceai/spiceai -f values.yaml
 ```
 
-Once the pod is ready, `--token` and `SPICE_ENROLL_KEY` come out of `values.yaml` and the release is upgraded again.
+Once the pod is ready, `--token`, its value, and `SPICE_ENROLL_KEY` come out of `values.yaml`, the bind arguments stay, and the release is upgraded again.
 
 :::warning
 One replica only. Two replicas cannot share one Cloud Connect identity.
