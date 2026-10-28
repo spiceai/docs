@@ -5,7 +5,7 @@ description: 'Define, change, inspect, and remove Spice datasets and catalogs wi
 sidebar_position: 25
 ---
 
-Data Definition Language (DDL) statements define the datasets and catalogs Spice serves, with the same capabilities and the same names as a [Spicepod](../spicepod/index.md). A dataset or catalog defined with SQL is kept across restarts, loads exactly as a Spicepod one does, and takes [DML](dml.md) as its `access` allows. These statements are available from v2.5.
+Data Definition Language (DDL) statements define the datasets and catalogs Spice serves, with the same capabilities and the same names as a [Spicepod](../spicepod/index.md). A dataset or catalog defined with SQL is kept across restarts, loads exactly as a Spicepod one does, and takes [DML](dml.md) as its `access` allows. Spice v2.4 and earlier do not support these statements.
 
 ```sql
 CREATE TABLE orders WITH (

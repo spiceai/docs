@@ -49,11 +49,11 @@ runtime:
         - ${ secrets:admin_key }:admin # admin; clients send the value of admin_key
 ```
 
-An `:admin` key, available from v2.5, can do everything a read-write key can, and can also define, change, and remove datasets and catalogs with [SQL DDL](../../reference/sql/ddl.md). Defining a source can use any configured secret, read local files, and reach any host, so a read-write key, such as one an OpenTelemetry exporter uses, cannot do it.
+An `:admin` key can do everything a read-write key can, and can also define, change, and remove datasets and catalogs with [SQL DDL](../../reference/sql/ddl.md). Defining a source can use any configured secret, read local files, and reach any host, so a read-write key, such as one an OpenTelemetry exporter uses, cannot do it.
 
-:::warning[Upgrading from v2.4 and earlier]
+:::warning[Breaking change]
 
-In v2.4 and earlier, a key written with a literal `:admin` ending is a read-only key whose value includes `:admin`. From v2.5, it is an admin key whose value is the text before `:admin`.
+In Spice v2.4 and earlier, a key written with a literal `:admin` ending is a read-only key whose value includes `:admin`. In later releases, it is an admin key whose value is the text before `:admin`.
 
 :::
 
