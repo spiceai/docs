@@ -1,0 +1,74 @@
+---
+id: get-nsql-context
+title: "Text-to-SQL Context (NSQL)"
+description: "Return the same context block that `/v1/nsql` injects into the configured NSQL model."
+sidebar_label: "Text-to-SQL Context (NSQL)"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Text-to-SQL Context (NSQL)"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/v1/nsql/context"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Return the same context block that `/v1/nsql` injects into the configured NSQL model.
+
+The response is a markdown/plain-text block or JSON object containing the in-scope datasets, schemas,
+Spice-specific SQL functions, registered user-defined functions, relevant JSON/Spark compatibility functions,
+and optional sample data.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./get-nsql-context.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./get-nsql-context.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./get-nsql-context.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

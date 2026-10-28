@@ -5053,6 +5053,14 @@
           }
         }
       },
+      "CompoundType": {
+        "type": "string",
+        "description": "Type of operation: `and` or `or`.",
+        "enum": [
+          "and",
+          "or"
+        ]
+      },
       "ComputerAction": {
         "oneOf": [
           {
@@ -10075,6 +10083,10 @@
             }
           }
         }
+      },
+      "NamespacePath": {
+        "type": "string",
+        "description": "An Iceberg namespace path. Multi-level namespaces separate their parts with the unit separator character (`\\u001F`)."
       },
       "NamespacesResponse": {
         "type": "object",

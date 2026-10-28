@@ -1,0 +1,1 @@
+{"parameters":[{"name":"embedding_model","in":"query","description":"Embedding model name to use for searchable tool discovery. Required only when multiple embedding models are configured.","required":false,"schema":{"type":"string"}}]}

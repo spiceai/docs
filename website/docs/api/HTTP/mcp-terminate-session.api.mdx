@@ -1,11 +1,11 @@
 ---
 id: mcp-terminate-session
 title: "Terminate an MCP Streamable HTTP session"
-description: "Terminate the MCP session identified by the `Mcp-Session-Id` header. Subsequent requests bearing the same session id will receive `404 Not Found`."
+description: "Legacy-era only (`2025-11-25` and earlier). Terminate the MCP session identified by the `Mcp-Session-Id` header. `2026-07-28` requests are sessionless and do not use DELETE. Subsequent legacy requests bearing the same session id will receive `404 Not Found`."
 sidebar_label: "Terminate an MCP Streamable HTTP session"
 hide_title: true
 hide_table_of_contents: true
-api: eJzNVMFu2zAM/RWCZ8dJux4234auQwt0w4Ckp6GoFYttiMqSJtHpssD/PtBxmrYpdt7JhiiR7z0+cotiHjJWP7FtIt4WaCk3iaNw8FjhglLL3giBrAi+nf+ATDlz8MCWvPA9k4XlZojW35o4me/Ckytbw4qMpVTCvFtm+tWRF0j6zZJhSSaxfxgeZtPSi7zwxM5BooZ4TVCfzc7gexD4Gjpv6xILDJGSUYBXFivFfSd7mHdjGiwwmmRaEkrKbovetIQVvsaIBbLS3CHFt+znb7kmSCRd8gfSmdKaEgQPNXsWNo7/UA3G24ErJ7IazO9IIAFaw14M+1fKNsEL+45lo2T3WbC6Ny5Tf6tHOQafKWO1xdPZmX7eB/6siy2xL/BsdnJ898abTlYh8R+yJSy0kdP1ybRtYg3kbQw8guZEGerUeeGWSn1UK4clKeJ7fuiSJjjf/4Px8PnHFTzSBmIKa7aUgD1sQpdgHrmhGOwolKQNPLGsoEk0aG1cHhF/OEb8NaQlW0t+hHsZsuzdBmvjOgLO4INoucGZe9BtE0vjXHgie7cKWXINjrOMpd4R8sY/+vDkISQwLpGxm8lB0yPHl9j3BbYkq6DOtORIaLCirLDCUVYscOeanTG75NSBIrGaTl1ojFNk1cfZp9mRIa81DJbW5EJs1U27TC9lH3SsJxPNqIhutVzTJZbNUM9Evnsk/b/VGPv7oLyFxemAjFIdlVals3bNwuGK44Z8Jn0/ztfnaJoVTU5LBX+Ym9eRvkClv0t8Ws7K2aTzWczSkcZiyNIa/yLrYQ2Z3azMJZFp9QFcLhbPs/MW9RZ1mMjL/7rKZBOVn9BvmUZn2Cv/wRHb0TU/cX2CxX47qzX0bLtdmkw3yfW9Hv/qKA0dLXBtEg9Can+L/WbTxlvOGthvkn9I9T/svXeVGXx7vMOHmccKB7M/j9+Xi+uLxQX2/V+wkWkt
+api: eJztVU1vGzcQ/SsDntpAu/qI3aa6BamDGEjaALJPjuCldkdawhTJklw5W8FAfkR+YX9JZ7i7km351h566Elacvj45s2b4V5EuQlifiO2pRPLkagwlF65qKwRc/ERN7JsM/QSrNEt/FDMJrPzbDrNZucFSFMBSq8V+h9zuEK/VUZGhFgjfHr3GQKGQDigKjRRrRVWsGrTbvGpdNmi284uqwJqlBX6HBj/p2zyczZ7U4DHPxoMMYD0OIBp+kkXVxaMjdAEhF8vPl5cXeSwaFaBj5gIOhE/IqyIpzKbdHmQW3zEDe6V1hRZotoRs7PJGfxGwO9tY6oiFyNhHeXPglxWJAnpdBuHVG97GIpy0hMu7bCae2Hog6Kf5klhimXtshX/RO3Fc209pRAbb0hkWi6UUVFJrf7E7iQroXy3GY46HQRShrSRcdAlh8uNsRy/tv7lqozgvlZl/bw4rNhwmZivpQ74sOSl4KyhODHfi9nkjH+eZj9kdBC3ysXDSJxNpqex10Y2sbae0qvIeeyo8W46ptoUgKZyVvW5EYsAhW9Ioy3mfKiAaMkOUFqzVpvGM8C74T9JBW8/X8IdtuC83ZG6nqVpbeNh4VSJzla9ntG3ZJ1YQ0kYXARKtWf8+pTxe+tXqqK4nu4HG+Jge9hJ3SCokBydKoFH0pRULrW291jd1nQqFKBViCOgwqTA373aKHMAO8IcIErrwwHDpvBQ5MAcoLj5Il59EcsCKhXkikqYUNNeWWN5l0N3waNI/OpIg8BKaltKzbSgwrVsNFnpr2/fQdG3xY6JLEm2CLhDUqzD6nV6wQXX5s7Ye8PJSe0pozY7GuJkbhAOAVHb1ZZ7s0JNHZiaMdb03XuCFgL63dCajdfcgzG6+Xh84D9/M/llctqSvE2p7VBbt+WO6ZAeeyaZoMgyRmRGS76ubLyKbbpPOnVLhqL/S95TZm0576ii5hHRF+nkarZJYMuR2Q4hmr6pi/h8P2HeOkllymY5kz9Og6c7JBKn3wHP8vN8kjUmRC437znKfyvNI9TjMKeO4Fm+iFSMLR+AD1dXh9n+nPVeUF9FIvH/49E9HrF1rGfEr3HstKTxT3onB+57l96I3ZQC+/eXrchr+/1KBrz2+uGBl4mJTw6iQhKZVDj202h4S9hofQMPY/dfKs1/+qV5Ud7UbKdPb5qytJE69DAzuvrTHPkbgzQd8g==
 sidebar_class_name: "delete api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -38,7 +38,7 @@ import Translate from "@docusaurus/Translate";
 
 
 
-Terminate the MCP session identified by the `Mcp-Session-Id` header. Subsequent requests bearing the same session id will receive `404 Not Found`.
+Legacy-era only (`2025-11-25` and earlier). Terminate the MCP session identified by the `Mcp-Session-Id` header. `2026-07-28` requests are sessionless and do not use DELETE. Subsequent legacy requests bearing the same session id will receive `404 Not Found`.
 
 <Heading
   id={"request"}

@@ -1,11 +1,11 @@
 ---
 id: mcp-stream
 title: "Open an MCP server-to-client SSE stream"
-description: "Open a long-lived server-to-client SSE stream for the current MCP session as defined by the Streamable HTTP transport. The `Mcp-Session-Id` header must identify an existing session created via `POST /v1/mcp`."
+description: "Legacy-era only (`2025-11-25` and earlier). Open a long-lived server-to-client SSE stream for an MCP session created via `POST /v1/mcp`. `2026-07-28` clients do not use GET; they POST `subscriptions/listen` instead. The `Mcp-Session-Id` header must identify an existing legacy session."
 sidebar_label: "Open an MCP server-to-client SSE stream"
 hide_title: true
 hide_table_of_contents: true
-api: eJzdVU2P3DYM/SuETi1ge2a3ObS+BUHaLNAgC8zkFCzWGoszJlaWtBLt3cnA/72gP/Zrkp6LnmyIFvn43iN9UqwPSZXfVFsHdZMpg6mOFJi8U6X6EtCBBuvdIbfUo4GEsceYs89rS+gYNpuPkDiibmHvI3CDUHcxSujzh2tImBJ5BzqBwT05NLA7jl9txkt6ZxE+bbfXwFG7FHzkArYNQvW5Dvlmup1fmQoa1AYjtF1iIIOOaX8E7QAfKTG5w1OpOqJmNNCThur6y2YLq/5i1dahKlSmfMCopb0ro0rp+nZCrzIVdNQtMkYh5KScblGV6jUOlSkSZiY06i1h84cLQMIIEbmLL/qeGATvoCJHTNrSd6xAOwMR7zuKaCSYul3C+054lGNMnIA9tJoca3KvyK29Y3Id8VE6XLKocq9twuFGjlLwLmFS5UldrtfyeAP8WcZfKsZHXmGPjvPprPoV/H7R3kc6kBspFhAtpqQPmAo1ZOrd+uI891enO258pO9oZnEXRQCdCZ7mJiligip2jqnFQi5V0vMOpcM9HbooCT4s76L+++sruMMjhOh7En+Qg6PvImwC1Ri8mYnleIQH4kbcMWqj7YL4t3PEf/q4I2PQzXA/+cRPDuy17RAogfMs5UTUJ9BtHQptrX9Ac9v4xKkCS4nnUu9+RM6d8w8OfAR8DKP6b61fqGHIVIvcePHsAXk0KzeqVDORKlOTOpN1u2jFo8yhXK2sr7UVLOXv6z/WZ5b9W8JgsEfrQyt+mzK9JHpkrspzyShwbqRc3UXi41hPB7q9Q3m/kRi5vZdOmdjKCM3knJUWbpPoZOD5E0s1uoRyf57A90HXDeaXhYB/nqzXkSFT0v6U+LJYF+u8c4llv0gs+MStdi+yTrttGaSfbrW3oE9Kpg0d/z/XIx+DkDNugGA1OSFvtNNpttw31V+obPlfiK/k7HTa6YRfox0GOb7vMI52yFSvI40qiDmyZXGKawwlCSyL6l+I/i+s1R8yM5r+/BcxrghVqnFSngb3r49bNQz/AKSAmfA=
+api: eJztVc1u3DYQfpWBTkmx2r/GaeqegiBtDTSwgXVOjmFxpdkVYS6pktTam4WBPkSfsE/SbyhpbWdT9NAeeuhJIuf/m2+G+yyqdchOr7JN2WTXo6ziUHrdRO1sdpr9wmtV7nL2ipw1O3pRzKfzk3w2y+cnBSlbEStvNPuXYzpv2JIi4+w6N3rLFQX2W/Z5dHkJHRtpsXhPIXpWG1o5D3v68O4CaiEgHJUQRJhttaLi4nxxSZPtbIK8ijFJ3Nf59Lt8/qagzlugypF1kdrA9NP7yx8o1ryjZFiEdnmoI0yMDpFtQdriq6oxXdZMxYeyyRdd7PysKqiGiD1t2hBJV4igVzvJke9hru2aTEJjyHecjTLXABqJcVYBLaR605UHUaO82nBkL+juM4sDVJ7HhJoWmLvI2T9Bv3c6JI5L8hxbbwEorgttddTK6M/cWXr+tdW+EwpYOEqH5JoDsNUWcKp4KJbO1taJvjTuWTcGkxHd1bqsSXkerAw+AtMQLDtdKRP44VquQoPWMNDZZ/PpVD7Pq39ClhdF5Ps44S1SzLu74iW51cAw5/Va20QeIdQGYdWaEfphlL2azo59f7SqjTXMPvPAhoFrxLZqnO6xQNaBCt8C0w2Pxaig6GjJVDq70uvWi4N3w7/Q5e3FGd2CiI13Wy2EApQ713paNLrkxlU9/tHv6E7HWnifmgZo+oy/Pc74R+eXuoJen+7PLsQDZbfKtEw6pHFInePHpFHUWBnj7ri6qWEVCpJ5GBEamRTPE3oHZ49uDi5K58PBRwd2wFBKDlRcfcq++ZRdF1TpoJZoefKaZGXN5S02Q7J4osn3DTAIgqRxpTKSFlW8Uq0B9f747XfSODvuMlElYIuE7gOxzleP06uvdfbWujsrxSFKYviXgw5jWGM2aydTu+aYxjXWOPQswEVHrW54W29kSmNsTieTQ8anb6bfT4+HVsQoZsvGNRuZqc7TU5akthd5Lh4lnWsJV7Zex12Kpxp9Awrh/1pk2q6cVBp1NLJE+rYchRZiBCEZ6HVQMThjzsS+30FvG4XG5POxJP+4L55LgJCU3zmej0/G07zF9pQGi6xB/Rtln3jt1v+w0f9y8X+Z9D7DIGE5x/9fm799beKuEaTTLmyMwtOBTiRu7nv+XmXbGRT7t1xIKnf7/VIF/ujNw4NcY137xC20WHmdWipMGw3vkFCwH+ZhZf9LXftPv1JfhTeN4fGznTYuBGl2D6sEvMBu+RNHRDWf
 sidebar_class_name: "get api-method"
 info_path: docs/api/HTTP/runtime
 custom_edit_url: null
@@ -38,7 +38,7 @@ import Translate from "@docusaurus/Translate";
 
 
 
-Open a long-lived server-to-client SSE stream for the current MCP session as defined by the Streamable HTTP transport. The `Mcp-Session-Id` header must identify an existing session created via `POST /v1/mcp`.
+Legacy-era only (`2025-11-25` and earlier). Open a long-lived server-to-client SSE stream for an MCP session created via `POST /v1/mcp`. `2026-07-28` clients do not use GET; they POST `subscriptions/listen` instead. The `Mcp-Session-Id` header must identify an existing legacy session.
 
 <Heading
   id={"request"}
