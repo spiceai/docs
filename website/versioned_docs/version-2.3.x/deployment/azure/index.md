@@ -313,7 +313,9 @@ For detailed guidance, refer to the [Linux on Azure documentation](https://learn
 
 Most Azure services that Spice connects to accept explicit credentials through component parameters (for example, an `abfs_access_key` on the [ABFS connector](../components/data-connectors/abfs)). Spice does not use the Azure Identity [`DefaultAzureCredential`](https://learn.microsoft.com/dotnet/api/azure.identity.defaultazurecredential) chain. Each component resolves Azure credentials on its own.
 
-**Azure Blob Storage and ADLS Gen2.** The ABFS connector combines its `abfs_*` parameters with `AZURE_*` environment variables, such as `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_FEDERATED_TOKEN_FILE`. It uses the first credential that is fully configured, in this order:
+**Azure Blob Storage and ADLS Gen2.** The ABFS connector first validates its explicit `abfs_*` authentication parameters, whether set in the Spicepod or loaded from a secret store under the same name. They must name at most one method: `abfs_access_key`, `abfs_bearer_token`, `abfs_sas_string`, client credentials, `abfs_use_cli: true`, `abfs_msi_endpoint`, `abfs_federated_token_file`, or `abfs_skip_signature: true`. Client credentials need all three of `abfs_client_id`, `abfs_client_secret`, and `abfs_tenant_id`. Otherwise the dataset fails to load with `Multiple authentication methods were provided` or `Incomplete client credentials`. The check reads only `abfs_*` parameters, so `abfs_client_id` with the tenant ID and secret in `AZURE_*` environment variables fails as incomplete.
+
+After validation, the connector starts from the `AZURE_*` environment variables, such as `AZURE_STORAGE_ACCOUNT_KEY`, `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_FEDERATED_TOKEN_FILE`, and lets each `abfs_*` parameter override the matching value. With no `abfs_*` authentication parameters, the environment alone supplies the credential, as with AKS workload identity. It uses the first credential that is fully configured, in this order:
 
 1. A bearer token.
 2. An account access key.
