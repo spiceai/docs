@@ -415,7 +415,7 @@ A change to a definition that cached results were computed from clears every cac
 
 A cached result records the tables a view reads, not the view itself, so the cache cannot find the entries that read through a changed view and clears all of them. A query that started before the clear does not store its result, even when it reads no table. After a view is updated, a repeat of an earlier query returns the result of the new definition. After a view is removed, the repeat fails because the view no longer exists.
 
-In earlier releases, including v2.4.x, updating or removing a view and replacing a catalog cleared only the logical plan cache. A query on an updated view could return the previous definition's result, and with `cache_key_type: sql` a removed view could still answer, until the cached result aged past `item_ttl`.
+In earlier releases, including v2.4.x, updating or removing a view and replacing a catalog cleared only the logical plan cache. A query on an updated view could return the previous definition's result, and with `cache_key_type: sql` a removed view could still answer, until the cached result aged past `item_ttl`, or past `item_ttl + stale_while_revalidate_ttl` when `stale_while_revalidate_ttl` is set.
 
 ### HTTP/Flight API
 
