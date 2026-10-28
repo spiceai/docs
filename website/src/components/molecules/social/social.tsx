@@ -34,7 +34,7 @@ export const Social = () => {
           rel='noreferrer'
           aria-label='Spice.ai Slack Community'
         >
-          <Icon iconName='discord' className={iconClasses} />
+          <Icon iconName='slack' className={iconClasses} />
         </Link>
         <Link
           href='https://www.youtube.com/@spiceai'

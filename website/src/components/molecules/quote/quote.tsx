@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
-export default function Quote({children, name, title, company, imageUrl}) {
+type QuoteProps = {
+  children: ReactNode;
+  name: string;
+  title: string;
+  company: string;
+  imageUrl: string;
+};
+
+export default function Quote({children, name, title, company, imageUrl}: QuoteProps) {
   return (
     <blockquote className='mb-1'>
       <p className="italic font-semibold" dir="ltr">{children}</p>

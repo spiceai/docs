@@ -47,7 +47,7 @@ export const InstallOptions = () => {
 
   return (
     <div className='pt-14'>
-      <div className='flew-row relative mx-auto grid h-12 grid-cols-3 gap-2 px-2 backdrop-blur-sm md:flex'>
+      <div className='flew-row relative mx-auto grid h-12 grid-cols-3 gap-2 px-2 backdrop-blur-xs md:flex'>
         <span
           className={clsx(
             'absolute bottom-0 top-0 -z-10 rounded-lg bg-alpha-100 px-4 py-3 transition-all duration-300',

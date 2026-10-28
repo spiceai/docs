@@ -87,7 +87,7 @@ const Background = () => {
           <Line key={index} />
         ))}
       </div>
-      <div className='absolute bottom-0 left-0 h-40 w-full bg-gradient-to-t from-neutral-50' />
+      <div className='absolute bottom-0 left-0 h-40 w-full bg-linear-to-t from-neutral-50' />
     </div>
   )
 }

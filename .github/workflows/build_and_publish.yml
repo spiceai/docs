@@ -23,11 +23,11 @@ jobs:
       deployments: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Install dependencies
         working-directory: website
@@ -50,7 +50,7 @@ jobs:
       - name: Deploy
         id: deploy
         if: ${{ steps.can_deploy.outputs.can_deploy == 'true' }}
-        uses: cloudflare/wrangler-action@v3.14.1
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
         with:
           workingDirectory: website
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Add deploy comment to PR
         if: ${{ github.event_name == 'pull_request' && steps.can_deploy.outputs.can_deploy == 'true' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({
