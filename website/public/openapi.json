@@ -920,7 +920,7 @@
             "description": "The parent namespace from which to retrieve child namespaces.",
             "required": false,
             "schema": {
-              "$ref": "#/components/schemas/Namespace"
+              "type": "string"
             }
           }
         ],
@@ -934,17 +934,13 @@
                 },
                 "example": {
                   "namespaces": [
-                    {
-                      "parts": [
-                        "catalog_a"
-                      ]
-                    },
-                    {
-                      "parts": [
-                        "catalog_b",
-                        "schema_1"
-                      ]
-                    }
+                    [
+                      "catalog_a"
+                    ],
+                    [
+                      "catalog_b",
+                      "schema_1"
+                    ]
                   ]
                 }
               }
@@ -1075,20 +1071,16 @@
                 "example": {
                   "identifiers": [
                     {
-                      "namespace": {
-                        "parts": [
-                          "catalog_a"
-                        ]
-                      },
+                      "namespace": [
+                        "catalog_a"
+                      ],
                       "name": "table_1"
                     },
                     {
-                      "namespace": {
-                        "parts": [
-                          "catalog_b",
-                          "schema_1"
-                        ]
-                      },
+                      "namespace": [
+                        "catalog_b",
+                        "schema_1"
+                      ],
                       "name": "table_2"
                     }
                   ]
@@ -10071,17 +10063,10 @@
         }
       },
       "Namespace": {
-        "type": "object",
-        "required": [
-          "parts"
-        ],
-        "properties": {
-          "parts": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
+        "type": "array",
+        "description": "An Iceberg namespace as the list of its parts, for example `[\"spice\", \"public\"]`.",
+        "items": {
+          "type": "string"
         }
       },
       "NamespacePath": {
