@@ -362,6 +362,8 @@ A selected, grouped, or ordered expression, or a `VALUES` cell, has the same 512
 Query rejected: a selected, grouped, ordered, or VALUES expression is nested more than 512 levels deep. Simplify the expression (for example, compute part of a long chain of +, || or AND in a subquery).
 ```
 
+Subqueries and common table expressions that read one another have a separate limit of 64 levels. See [Nesting depth limit](./subqueries.md#nesting-depth-limit).
+
 ### `AND`
 
 Logical And

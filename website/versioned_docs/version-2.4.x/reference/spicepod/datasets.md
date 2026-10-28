@@ -945,7 +945,7 @@ For detailed information about metrics available for specific components, see th
 
 ## `acceleration.indexes`
 
-Optional. Specify which indexes should be applied to the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
+Optional. Specify which indexes should be applied to the locally accelerated table. On the in-memory Arrow acceleration engine, indexes are built as a [hash index](../../features/data-acceleration/hash-index).
 
 The `indexes` field is a map where the key is the column reference and the value is the index type.
 
@@ -967,7 +967,7 @@ datasets:
 
 ## `acceleration.primary_key`
 
-Optional. Specify the primary key constraint on the locally accelerated table. Not supported for in-memory Arrow acceleration engine.
+Optional. Specify the primary key constraint on the locally accelerated table. On the in-memory Arrow acceleration engine, the primary key is built as a [hash index](../../features/data-acceleration/hash-index).
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
@@ -991,7 +991,7 @@ datasets:
 `on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams on engines other than Spice Cayenne and Arrow still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets. Cayenne durable write-back does not require it.
 :::
 
-Optional. Specify what should happen when a constraint is violated. Not supported for in-memory Arrow acceleration engine.
+Optional. Specify what should happen when a constraint is violated. On the in-memory Arrow acceleration engine, only `upsert` on the `primary_key` takes effect. Arrow ignores `drop` and logs a warning, and it applies `upsert_dedup` and `upsert_dedup_by_row_id` as plain `upsert`, so a write that repeats a primary key value fails with `Primary key values must be unique`.
 
 The `on_conflict` field is a map where the key is the column reference and the value is the conflict resolution strategy.
 

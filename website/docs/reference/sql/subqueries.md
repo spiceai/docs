@@ -348,6 +348,20 @@ A correlated `[NOT] EXISTS` can be pushed down to a federated source. Spice reje
 The error identifies the correlation. Distinct relation aliases allow the outer reference to
 remain unambiguous inside the subquery.
 
+## Nesting depth limit
+
+Spice rejects a SQL statement whose queries are nested more than 64 levels deep, before it plans the query. A subquery or derived table adds one level to the query that contains it. A common table expression (CTE) that reads an earlier CTE is planned on top of it, so in a `WITH` chain where each CTE reads the one before it, each CTE adds one level. CTEs that do not read each other are wide rather than deep and do not add to the depth. The limit is fixed and cannot be configured, and it also applies to `EXPLAIN` of such a statement.
+
+For example, a `WITH` chain of 63 CTEs, each reading the one before it, followed by a `SELECT` from the last CTE, is 64 levels deep and is accepted. A chain of 64 CTEs is rejected.
+
+A rejected query fails with HTTP `400` on `/v1/sql` and the gRPC status `InvalidArgument` over Arrow Flight SQL, and the error contains:
+
+```text
+Query rejected: queries are nested more than 64 levels deep, counting subqueries and common table expressions that read one another. Simplify the query (for example, combine steps of a long WITH chain).
+```
+
+To bring a query under the limit, combine consecutive steps of a long `WITH` chain into one CTE. Expressions have a separate limit of 512 levels; see [Logical Operators](./operators.md#logical-operators).
+
 ## Subquery categories
 
 Subqueries can be categorized as one or more of the following based on the
