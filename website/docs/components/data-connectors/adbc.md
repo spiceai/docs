@@ -326,8 +326,8 @@ For Trino, credentials are embedded in the connection URI (`trino://user:pass@ho
 For drivers that accept `adbc_username` and `adbc_password` (e.g., Redshift, Snowflake), these can be set through environment variables:
 
 ```bash
-SPICE_SECRET_ADBC_USERNAME=myuser \
-SPICE_SECRET_ADBC_PASSWORD=mypassword \
+SPICE_ADBC_USERNAME=myuser \
+SPICE_ADBC_PASSWORD=mypassword \
 spice run
 ```
 

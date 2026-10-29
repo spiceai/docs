@@ -115,7 +115,7 @@ spec:
     spec:
       chart: spiceai
       # Pin to a specific chart version for reproducible deployments
-      version: 1.11.5
+      version: 2.3.4
       sourceRef:
         kind: HelmRepository
         name: spiceai
@@ -182,7 +182,7 @@ spec:
   chart:
     spec:
       chart: spiceai
-      version: 1.11.5
+      version: 2.3.4
       sourceRef:
         kind: HelmRepository
         name: spiceai
@@ -220,7 +220,7 @@ Upgrade by changing `spec.chart.spec.version` to a newer chart version, then com
 spec:
   chart:
     spec:
-      version: 1.11.5
+      version: 2.3.4
 ```
 
 To track the latest chart version automatically, set `version: '*'` or a semver range such as `1.x`. Pinning to a specific version is recommended for production.
@@ -284,7 +284,7 @@ Example referencing a pre-existing `Secret` named `spice-secrets`:
 spec:
   values:
     additionalEnv:
-      - name: SPICE_SECRET_SPICEAI_KEY
+      - name: SPICE_SPICEAI_KEY
         valueFrom:
           secretKeyRef:
             name: spice-secrets

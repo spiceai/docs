@@ -284,7 +284,7 @@ Example referencing a pre-existing `Secret` named `spice-secrets`:
 spec:
   values:
     additionalEnv:
-      - name: SPICE_SECRET_SPICEAI_KEY
+      - name: SPICE_SPICEAI_KEY
         valueFrom:
           secretKeyRef:
             name: spice-secrets

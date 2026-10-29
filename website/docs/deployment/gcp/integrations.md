@@ -46,11 +46,13 @@ datasets:
     params:
       adbc_driver: bigquery
       adbc_uri: 'bigquery:///my-gcp-project'
-      adbc_driver_options: |
-        adbc.bigquery.sql.dataset_id=my_dataset
-        adbc.bigquery.sql.auth_type=adbc.bigquery.sql.auth_type.json_credential_file
+      adbc_driver_options: >-
+        adbc.bigquery.sql.dataset_id=my_dataset;
+        adbc.bigquery.sql.auth_type=adbc.bigquery.sql.auth_type.json_credential_file;
         adbc.bigquery.sql.auth_credentials=/var/run/secrets/gcp/key.json
 ```
+
+`adbc_driver_options` is a single string of `key=value` pairs separated by semicolons. A line break does not separate options, so end every pair except the last with `;`.
 
 When the runtime uses Workload Identity, omit `auth_type` and `auth_credentials` — the BigQuery driver picks up Application Default Credentials automatically.
 
@@ -140,7 +142,9 @@ When no explicit credentials are supplied, Spice reads `GOOGLE_APPLICATION_CREDE
 
 ## Authentication
 
-All GCP integrations support the standard [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials) chain. When credentials are not explicitly configured, Spice attempts the following in order:
+Vertex AI models and embeddings do not search for credentials. They require exactly one of `google_service_account_path`, `google_service_account_key`, or `google_application_default_credentials`, and `google_application_default_credentials` reads only the service account file that the `GOOGLE_APPLICATION_CREDENTIALS` environment variable names. Attached service accounts and Workload Identity do not authenticate them.
+
+Cloud Storage (`gs://`) access follows the standard [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials) chain. When credentials are not explicitly configured, Spice attempts the following in order:
 
 1. **`GOOGLE_APPLICATION_CREDENTIALS`** — path to a service account JSON key file.
 2. **Attached service account** — Compute Engine, Cloud Run, or GKE node default service account.

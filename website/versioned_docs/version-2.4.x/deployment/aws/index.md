@@ -177,7 +177,7 @@ Create a task definition for the [`spiceai/spiceai` image](https://hub.docker.co
       ],
       "secrets": [
         {
-          "name": "SPICE_SECRET_SPICEAI_KEY",
+          "name": "SPICE_SPICEAI_KEY",
           "valueFrom": "arn:aws:secretsmanager:us-east-1:123456789012:secret:spiceai/api-key"
         }
       ],

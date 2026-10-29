@@ -114,7 +114,7 @@ helm repo update
 
 helm upgrade --install spiceai spiceai/spiceai \
   --namespace spiceai --create-namespace \
-  --version 1.11.5 \
+  --version 2.3.4 \
   -f values.yaml
 ```
 
@@ -201,7 +201,7 @@ az containerapp create \
   --name spiceai \
   --resource-group $RG \
   --environment $ENV \
-  --image spiceai/spiceai:2.0.0 \
+  --image spiceai/spiceai:2.3.4 \
   --target-port 8090 \
   --ingress external \
   --transport http \
