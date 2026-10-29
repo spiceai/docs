@@ -299,7 +299,7 @@ Use this function to integrate full-text search directly into your data workflow
 
 With the default Tantivy engine, the `query` string is parsed with the [Tantivy query syntax](https://docs.rs/tantivy/latest/tantivy/query/struct.QueryParser.html). Words separated by spaces match documents that contain any of them, `AND`, `OR`, and `NOT` combine terms, double quotes match an exact phrase (`"exact match"`), `column:word` searches one indexed column, and `word^2` boosts a term's weight. Parentheses group terms, as in `title:(spice OR runtime) AND NOT draft`.
 
-When the query cannot be parsed, for example because of an unbalanced quote, Spice searches for its words instead: the query is split into lowercase words with punctuation dropped, operator words such as `AND` are searched as ordinary words, and documents that contain any of the words match. A query that nests groups (`(...)` or `column:(...)`) and `NOT` prefixes more than 16 levels deep cannot be parsed either, so it also runs as a word search. v2.4.x and earlier parse deeper nesting.
+When the query cannot be parsed, for example because of an unbalanced quote, Spice searches for its words instead: the query is split into lowercase words with punctuation dropped, operator words such as `AND` are searched as ordinary words, and documents that contain any of the words match. A query can nest at most 15 groups (`(...)` or `column:(...)`) and `NOT` prefixes, combined, around a term. A query nested deeper cannot be parsed either, so it also runs as a word search. v2.4.x and earlier parse deeper nesting.
 
 ## Cookbook
 
