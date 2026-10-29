@@ -3636,7 +3636,7 @@ cosine_distance(vector1, vector2)
 
 Both arguments are lists of `Float32` or `Float64` values (`List`, `LargeList`, or `FixedSizeList`), such as an embedding column and a query vector. The two vectors must have the same length, or the query fails with `Both arrays must have the same length`. A vector with zero magnitude has no direction and returns `0.5`, with one exception: two zero vectors of type `FixedSizeList<Float32, N>` return `0`. A vector that contains `NaN` or an infinite value returns `NULL`.
 
-When Spice pushes a query down to DuckDB, `cosine_distance` runs as DuckDB's [`array_cosine_distance`](https://duckdb.org/docs/stable/sql/functions/array#array_cosine_distancearray1-array2), which returns `1 - cosine_similarity`, from `0` to `2`, so the same query can return twice the value.
+These results describe Spice's own evaluation. When Spice pushes a query down to DuckDB, `cosine_distance` runs as DuckDB's [`array_cosine_distance`](https://duckdb.org/docs/stable/sql/functions/array#array_cosine_distancearray1-array2) instead, which returns `1 - cosine_similarity`, from `0` to `2`, so the same query can return twice the value, and DuckDB's own handling of zero, `NaN`, and infinite inputs applies.
 
 #### Example
 
