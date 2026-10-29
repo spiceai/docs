@@ -66,7 +66,7 @@ In v2.4.0 and earlier, a pool size that was not a whole number logged a warning 
 
 #### Connection Lifetime
 
-`mysql_connection_max_lifetime` sets how long a pooled connection is used before it is closed and replaced, as a duration such as `10m`. `0s` keeps connections open indefinitely. Each connection's lifetime is extended by a random amount, so connections opened together are not replaced together: up to a fifth of the lifetime, or up to `abs_conn_ttl_jitter` seconds when the connection string sets it. A connection is not closed while a query is using it.
+`mysql_connection_max_lifetime` sets how long a pooled connection is used before it is closed and replaced, as a duration such as `10m`. `0s` keeps connections open indefinitely. When the lifetime comes from `mysql_connection_max_lifetime` or the default, each connection's lifetime is extended by a random amount, so connections opened together are not replaced together: up to a fifth of the lifetime, or up to `abs_conn_ttl_jitter` seconds when the connection string sets it. A lifetime set only by the connection string's `abs_conn_ttl` uses its `abs_conn_ttl_jitter` as given, and with no `abs_conn_ttl_jitter` it adds none. A connection is not closed while a query is using it.
 
 Replacing a connection resolves the host again. With a load-balanced hostname, such as an [Amazon Aurora reader endpoint](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Reader), this spreads a long-running Spice instance across the servers behind it instead of keeping every connection on the servers it first reached. The [MySQL catalog](../../catalogs/mysql) accepts the same parameter.
 
