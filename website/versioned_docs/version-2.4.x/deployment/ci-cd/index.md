@@ -169,10 +169,10 @@ Both guides include end-to-end manifests targeting the official chart, including
 For deployments that target a container runtime or a cloud VM rather than Kubernetes, invoke the standard provider tooling from any pipeline runner:
 
 - [Docker](https://spiceai.org/docs/deployment/docker) — build, push, and run the `spiceai/spiceai` image. Pipelines typically run `docker build` and `docker push` against a registry, then `docker compose up -d` or `docker run` on the target host.
-- [AWS](https://spiceai.org/docs/deployment/aws) — deploy the published CloudFormation template through the AWS CLI or any CloudFormation-aware action.
+- [AWS](https://spiceai.org/docs/deployment/aws) — deploy a CloudFormation template that defines the Spice resources, as the AWS guide describes, through the AWS CLI or any CloudFormation-aware action. Spice does not publish a template.
 - [Azure](https://spiceai.org/docs/deployment/azure) — deploy through ARM/Bicep templates or the Azure CLI.
 
-Each provider guide includes the deployment artifact (image, template, or script) that the pipeline invokes.
+Each provider guide describes the deployment that the pipeline automates. The container image is published; templates and scripts are defined by the deployment.
 
 ## Spice Cloud Platform
 

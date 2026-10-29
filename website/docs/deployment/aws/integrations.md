@@ -238,7 +238,7 @@ datasets:
 
 ### Supported AWS Regions
 
-S3 Express One Zone is available in select regions. Spice automatically derives the region from zone IDs:
+S3 Express One Zone is available in select regions. Spice derives the region from the prefix of each zone ID. The table lists some of the prefixes it recognizes:
 
 | Zone ID Prefix | Region         |
 | -------------- | -------------- |
