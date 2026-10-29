@@ -76,6 +76,8 @@ Spice pins the DuckDB session backing this connector to `SET TimeZone = 'UTC'`, 
 | AWS S3     | `s3://bucket/path/metadata.ducklake`                                |
 | PostgreSQL | `postgres:dbname=mydb host=localhost user=postgres password=secret` |
 
+Write a password as a secret, such as `password=${secrets:PG_PASS}`. Spice gives DuckDB the password of a PostgreSQL or MySQL metadata database, in key-value form or, for PostgreSQL, as a URI, in a DuckDB secret rather than in the connection string it attaches, so the errors DuckDB raises when it cannot connect, which a query's caller and task history read, leave it out.
+
 ## Authentication
 
 ### AWS S3
@@ -171,7 +173,7 @@ datasets:
   - from: ducklake:customer
     name: customer
     params:
-      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=postgres"
+      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=${secrets:PG_PASS}"
 ```
 
 ### Multiple tables with YAML anchors

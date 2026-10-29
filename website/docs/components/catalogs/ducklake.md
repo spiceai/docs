@@ -40,7 +40,7 @@ Supported connection string formats:
 | AWS S3     | `ducklake:s3://bucket/path/metadata.ducklake`                                |
 | PostgreSQL | `ducklake:postgres:dbname=mydb host=localhost user=postgres`                 |
 
-The connection string can also be provided via the `ducklake_connection_string` parameter. Put no password in `from`: `GET /v1/catalogs`, `SHOW CREATE CATALOG`, and task history show `from` as written. Set a connection string that holds a password in `ducklake_connection_string`, with the password as a secret, as in [PostgreSQL metadata backend](#postgresql-metadata-backend).
+The connection string can also be provided via the `ducklake_connection_string` parameter. Put no password in `from`: `GET /v1/catalogs`, `SHOW CREATE CATALOG`, and task history show `from` as written. Set a connection string that holds a password in `ducklake_connection_string`, with the password as a secret, as in [PostgreSQL metadata backend](#postgresql-metadata-backend). Spice gives DuckDB the password of a PostgreSQL or MySQL metadata database, in key-value form or, for PostgreSQL, as a URI, in a DuckDB secret rather than in the connection string it attaches, so the errors DuckDB raises when it cannot connect, which a query's caller and task history read, leave it out.
 
 ## `name`
 
