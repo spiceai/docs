@@ -75,6 +75,8 @@ To bound memory use, Spice rejects a data page whose header declares an uncompre
 
 Spice also checks the list lengths a file's footer metadata declares, such as its number of schema elements or row groups, against the bytes left in the footer. Each list entry takes at least one byte, so a declared length larger than the remaining bytes marks the footer as malformed, and the read fails before memory is reserved for the list. Reading such a file, including inferring its schema when the dataset loads, fails with an error such as `Parquet error: Thrift list declares 2147483647 elements, which is more than the 1 bytes of input remaining`, where the two numbers come from the file.
 
+A file's schema may nest fields, such as structs and lists inside one another, at most 100 levels below its root. Loading a file whose footer schema nests deeper fails with `Parquet schema nesting depth exceeds the maximum of 100`. In v2.4.x and earlier, such a file could exhaust the stack and stop the runtime while the dataset loaded or refreshed.
+
 Supported compression codecs:
 
 - [`UNCOMPRESSED`](https://parquet.apache.org/docs/file-format/data-pages/compression/#uncompressed)
@@ -106,6 +108,8 @@ The HTTP/HTTPS connector does not read ORC. With `file_format: orc`, an HTTP dat
 ORC has no format-specific parameters, and the reader is read-only: `INSERT INTO` an ORC dataset is not supported.
 
 The reader limits how far a compressed ORC metadata stream, such as the file footer, a stripe footer, a row index, or a bloom filter, may expand: to 64 MiB or 100 times its compressed size, whichever is larger. A file whose metadata exceeds the limit fails to load with `ORC metadata stream exceeds the decompression limit of <n> bytes`. Column data streams are not limited.
+
+The ORC footer describes a file's schema as a tree of types. A dataset fails to load when that tree nests more than 100 levels deep, with an error that contains `type tree nests more than 100 levels`, or when one footer type appears more than once in the tree, with an error such as `type 1 appears more than once in the type tree`. In v2.4.x and earlier, such a file could exhaust the stack and stop the runtime while the dataset loaded or refreshed.
 
 ### Collection schema inference
 

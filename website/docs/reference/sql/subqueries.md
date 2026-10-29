@@ -362,6 +362,18 @@ Query rejected: queries are nested more than 64 levels deep, counting subqueries
 
 To bring a query under the limit, combine consecutive steps of a long `WITH` chain into one CTE. Expressions have a separate limit of 512 levels; see [Logical Operators](./operators.md#logical-operators).
 
+### CTE expansion limit
+
+Spice plans a separate copy of a CTE for every reference to it, so CTEs that each read an earlier CTE more than once multiply in size. For example, ten CTEs that each read the one before twice expand to 1,024 copies of the first. Spice counts, for each statement, the table references that its CTE references expand to, and rejects the statement before planning when the count is more than 4,096. Each reference to a CTE counts the table references in that CTE's expanded body, or one when the body reads no table. Table references written directly in the query, outside any CTE, do not count, so a wide query without CTEs is not affected. A CTE read exactly 4,096 times is accepted, and one read 4,097 times is rejected.
+
+The rejected query fails with HTTP `400` on `/v1/sql` and the gRPC status `InvalidArgument` over Arrow Flight SQL, and the error contains:
+
+```text
+Query rejected: common table expressions expand to more than 4096 table references, because each reference to a WITH query plans its own copy of that query. Simplify the query (for example, read each WITH query fewer times from later WITH queries).
+```
+
+v2.4.x and earlier do not have this limit.
+
 ## Subquery categories
 
 Subqueries can be categorized as one or more of the following based on the
