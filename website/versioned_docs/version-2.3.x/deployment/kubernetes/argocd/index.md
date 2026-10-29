@@ -85,7 +85,7 @@ spec:
     repoURL: https://helm.spiceai.org
     chart: spiceai
     # Pin to a specific chart version for reproducible deployments
-    targetRevision: 1.11.5
+    targetRevision: 2.3.4
     helm:
       releaseName: spiceai
       valuesObject:
@@ -137,7 +137,7 @@ spec:
   sources:
     - repoURL: https://helm.spiceai.org
       chart: spiceai
-      targetRevision: 1.11.5
+      targetRevision: 2.3.4
       helm:
         releaseName: spiceai
         valueFiles:
@@ -182,7 +182,7 @@ Upgrade the running Spice.ai deployment by changing `spec.source.targetRevision`
 ```yaml
 spec:
   source:
-    targetRevision: 1.11.5
+    targetRevision: 2.3.4
 ```
 
 To pin to the latest chart version automatically, set `targetRevision: '*'`. Pinning to a specific version is recommended for production environments to ensure reproducible deployments.
@@ -230,7 +230,7 @@ spec:
     helm:
       valuesObject:
         additionalEnv:
-          - name: SPICE_SECRET_SPICEAI_KEY
+          - name: SPICE_SPICEAI_KEY
             valueFrom:
               secretKeyRef:
                 name: spice-secrets
@@ -275,10 +275,10 @@ spec:
         elements:
           - name: spiceai-dev
             namespace: spiceai-dev
-            chartVersion: 1.11.5
+            chartVersion: 2.3.4
           - name: spiceai-prod
             namespace: spiceai-prod
-            chartVersion: 1.11.5
+            chartVersion: 2.3.4
   template:
     metadata:
       name: '{{name}}'

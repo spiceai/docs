@@ -197,7 +197,7 @@ Add extra environment variables using the `additionalEnv` property. This can be 
 additionalEnv:
   - name: SPICED_LOG
     value: 'DEBUG'
-  - name: SPICE_SECRET_SPICEAI_KEY
+  - name: SPICE_SPICEAI_KEY
     valueFrom:
       secretKeyRef:
         name: spice-secrets
@@ -412,7 +412,7 @@ resources:
 additionalEnv:
   - name: SPICED_LOG
     value: 'INFO'
-  - name: SPICE_SECRET_SPICEAI_KEY
+  - name: SPICE_SPICEAI_KEY
     valueFrom:
       secretKeyRef:
         name: spice-secrets

@@ -129,7 +129,7 @@ Image layers are cached and distributed. Use `--env-file`, `docker run -e`, or a
 
 ## Environment Variables and Secrets
 
-Spice loads secrets from environment variables prefixed with `SPICE_SECRET_`. See the [Environment Secret Store](../components/secret-stores/env) for details.
+The [environment secret store](../components/secret-stores/env) resolves `${secrets:<key>}` from the environment variable `SPICE_<key>` or `<key>`, trying the key as written and then in uppercase. For example, `${secrets:pg_pass}` reads `SPICE_PG_PASS` or `PG_PASS`.
 
 Pass secrets at runtime with `--env-file` (preferred) or `-e`:
 
@@ -146,7 +146,7 @@ Common runtime variables:
 | Variable              | Purpose                                                               |
 | --------------------- | --------------------------------------------------------------------- |
 | `SPICED_LOG`          | Log level: `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`. Default `INFO`. |
-| `SPICE_SECRET_<NAME>` | Inject a named secret referenced from a Spicepod.                     |
+| `SPICE_<NAME>`        | A secret referenced from a Spicepod as `${secrets:<name>}`.             |
 
 ## Persistence
 

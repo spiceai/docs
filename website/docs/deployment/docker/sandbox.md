@@ -27,7 +27,7 @@ Building a custom Docker image based on v1.3.0 that installs additional dependen
 FROM debian:bookworm-slim
 
 # Copy the spiced binary from the spiceai/spiceai image into the custom image.
-COPY --from=spiceai/spiceai:v1.3.0 /usr/local/bin/spiced /usr/local/bin/spiced
+COPY --from=spiceai/spiceai:1.3.0 /usr/local/bin/spiced /usr/local/bin/spiced
 
 # Install any additional dependencies needed for the image.
 RUN apt update && apt install -y --no-install-recommends <your-dependencies>
