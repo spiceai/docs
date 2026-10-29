@@ -59,7 +59,7 @@ spice cloud service uninstall
 
 Each action resolves the service for the directory it runs from. `stop` leaves the definition in place, so the service still comes back at the next boot or login.
 
-`spice cloud status` reports the service's state, under `Local enrolled-instance state:`, and `spice cloud logs` reads its output. Both read the project from Spice Cloud, so both need an authenticated session.
+`spice cloud status` reports the service's state, under `Local enrolled-instance state:`. It reads the project from Spice Cloud, so it needs an authenticated session. `spice cloud logs` reads the service's output, as described in [Reading logs](#reading-logs), and works without one.
 
 ## Reading logs
 
@@ -71,7 +71,9 @@ spice cloud logs -f            # follow new lines
 
 `Ctrl-C` ends the log output without touching the service.
 
-On Linux the lines come from the systemd journal. launchd stores no logs, so on macOS the runtime writes its own files and the command reads those:
+`spice cloud logs` first asks Spice Cloud for the project's logs. When Spice Cloud returns no lines, or the request fails, for example because no session is signed in, the command reads the local service's logs instead, provided the directory's enrolled identity belongs to the same organization and project. It then prints a warning that begins `Spice Cloud logs for project '<project>' were unavailable, so logs from this directory's local service are shown instead`. `-f` follows only local service logs: when Spice Cloud returns the logs, `-f` fails with an error that begins ``--follow` is not supported when logs are served by Spice Cloud``.
+
+When the command reads the local service, on Linux the lines come from the systemd journal. launchd stores no logs, so on macOS the runtime writes its own files and the command reads those:
 
 | Service | Log file                                    |
 | ------- | ------------------------------------------- |
