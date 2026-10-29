@@ -22,6 +22,7 @@ Scalar functions help transform, compute, and manipulate data at the row level. 
 - [Array Functions](#array-functions)
 - [Struct Functions](#struct-functions)
 - [Map Functions](#map-functions)
+- [Vector Functions](#vector-functions)
 - [Hashing Functions](#hashing-functions)
 - [Encoding Functions](#encoding-functions)
 - [Union Functions](#union-functions)
@@ -3623,6 +3624,71 @@ map_extract(map, key)
 
 Alias: `element_at`.
 
+## Vector Functions
+
+### `cosine_distance`
+
+Returns the cosine distance between two vectors as a `Float64`, scaled to the range `0` to `1`: `(1 - cosine_similarity) / 2`. Vectors that point the same way have a distance of `0`, orthogonal vectors `0.5`, and opposite vectors `1`. This differs from the common `1 - cosine_similarity` definition, whose range is `0` to `2`.
+
+```sql
+cosine_distance(vector1, vector2)
+```
+
+Both arguments are lists of `Float32` or `Float64` values (`List`, `LargeList`, or `FixedSizeList`), such as an embedding column and a query vector. The two vectors must have the same length, or the query fails with `Both arrays must have the same length`. A vector with zero magnitude has no direction and returns `0.5`, with one exception: two zero vectors of type `FixedSizeList<Float32, N>` return `0`. A vector that contains `NaN` or an infinite value returns `NULL`.
+
+These results describe Spice's own evaluation. When Spice pushes a query down to DuckDB, `cosine_distance` runs as DuckDB's [`array_cosine_distance`](https://duckdb.org/docs/stable/sql/functions/array#array_cosine_distancearray1-array2) instead, which returns `1 - cosine_similarity`, from `0` to `2`, so the same query can return twice the value, and DuckDB's own handling of zero, `NaN`, and infinite inputs applies.
+
+#### Example
+
+```sql
+> SELECT cosine_distance([1.0, 0.0], [0.0, 1.0]) AS orthogonal, cosine_distance([1.0, 0.0], [-1.0, 0.0]) AS opposite;
++------------+----------+
+| orthogonal | opposite |
++------------+----------+
+| 0.5        | 1.0      |
++------------+----------+
+```
+
+### `l2_distance`
+
+Returns the Euclidean (L2) distance between two vectors as a `Float64`.
+
+```sql
+l2_distance(vector1, vector2)
+```
+
+Both arguments must be `FixedSizeList<Float32, N>` with the same `N`, the type of an embedding column. Other list types fail with `l2_distance requires both arguments to be FixedSizeList<Float32, N> with matching N`; cast them with `arrow_cast`, as in the example.
+
+#### Example
+
+```sql
+> SELECT l2_distance(arrow_cast([0.0, 0.0], 'FixedSizeList(2, Float32)'), arrow_cast([3.0, 4.0], 'FixedSizeList(2, Float32)')) AS l2;
++-----+
+| l2  |
++-----+
+| 5.0 |
++-----+
+```
+
+### `l2_squared_distance`
+
+Returns the squared Euclidean distance between two vectors as a `Float64`. It ranks vectors in the same order as [`l2_distance`](#l2_distance) and skips the square root. It takes the same arguments as `l2_distance`.
+
+```sql
+l2_squared_distance(vector1, vector2)
+```
+
+#### Example
+
+```sql
+> SELECT l2_squared_distance(arrow_cast([0.0, 0.0], 'FixedSizeList(2, Float32)'), arrow_cast([3.0, 4.0], 'FixedSizeList(2, Float32)')) AS l2sq;
++------+
+| l2sq |
++------+
+| 25.0 |
++------+
+```
+
 ## Hashing Functions
 
 Hashing functions compute cryptographic hashes and checksums for data integrity, fingerprinting, and security applications. Binary digest output is returned as a `Binary` (bytes) array; use `encode(..., 'hex')` to render as hex.
@@ -3646,6 +3712,27 @@ digest(expression, algorithm)
 
 ```sql
 > SELECT encode(digest('spice.ai', 'sha256'), 'hex');
+```
+
+### `digest_many`
+
+Computes one digest over several values of any type, using the named hash algorithm. The last argument is the algorithm: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, or `'sha512'`. The return type is that of the matching function: `md5` returns a lowercase hex string, and the SHA-2 algorithms return a binary digest. Other algorithm names, including those [`digest`](#digest) accepts such as `'blake3'`, fail with `digest_many: digest function <name> not found`.
+
+Each value is converted to its display text and prefixed with that text's length in bytes, and a `NULL` is written as a marker of its own, before the values are joined and hashed. Values therefore stay separate where one ends and the next begins: `('ab', 'c')` and `('a', 'bc')` produce different digests, and a `NULL` produces a different digest from the string `'NULL'`. Two values with the same display text still produce the same digest. The display text of a binary value keeps only its first 10 bytes, so binary values that share those bytes collide; pass them through [`encode`](#encode) first, such as `digest_many(encode(payload, 'hex'), 'sha256')`.
+
+```sql
+digest_many(expression[, ..., expression], algorithm)
+```
+
+#### Example
+
+```sql
+> SELECT digest_many('a', 1, 'md5') AS d;
++----------------------------------+
+| d                                |
++----------------------------------+
+| 5e04e82f051a53cc3ad3cbb279ebaee5 |
++----------------------------------+
 ```
 
 ### `md5`
