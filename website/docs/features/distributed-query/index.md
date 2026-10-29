@@ -145,11 +145,15 @@ spiced --role executor \
 
 Specifying `--scheduler-address` implies `--role executor`.
 
+An executor that cannot bind its configured cluster port listens on a free port instead, logs `Unable to bind executor flight server to <configured address>, using dynamic port <address>`, and registers that port with the scheduler, which sends the executor's Flight requests to it. In v2.4.x and earlier, the executor registered the configured port, so schedulers sent its Flight requests, such as cluster `runtime.task_history` queries, to whichever process held that port.
+
 ### Instance Identity
 
 Each scheduler and executor registers under its [instance identity](../../reference/spicepod/runtime.md#instance-identity): the `SPICE_INSTANCE_ID` environment variable, else `HOSTNAME`, else `COMPUTERNAME`, else the host name. Nodes on separate hosts or Kubernetes pods already have distinct identities. Processes on one host share its host name, so two schedulers, or two executors, on one host each need their own `SPICE_INSTANCE_ID`. This is in addition to what any two `spiced` processes on one host already need, such as their own instance directory, set with `SPICE_CONFIG_DIR`, because each process holds an exclusive lock on its instance directory.
 
 The identity is stable across restarts, so the scheduler recognizes an executor that restarts under the same identity as the same executor. It logs `Executor '<id>' restarted, so the tasks and shuffle output of its earlier run are rescheduled` and reschedules that work instead of waiting for the earlier run to time out.
+
+Schedulers decide which of an executor's processes is the latest by the order in which the processes first registered, which they record in `executor_processes.json` beside `cluster.json` in the scheduler's state location. A replacement process is therefore accepted as a restart even when its host's clock reads earlier than its predecessor's, and a process that registered before the executor's current process is refused as a duplicate. When the record cannot be read or written, schedulers order the processes by their process IDs, which depend on the clocks of the hosts that created them. An executor's entry is removed 24 hours after its latest process registered, unless the executor is connected. In v2.4.x and earlier, schedulers always ordered by process ID, so a replacement whose host clock read earlier than its predecessor's was refused as a duplicate, and queries failed with `no ready executor` until those schedulers restarted.
 
 A scheduler restarted after a crash under the same identity waits until its predecessor's heartbeat has stayed unchanged for 30 seconds, then registers. A scheduler whose identity is held by a running scheduler logs an error and is refused. See [Instance identity](../../reference/spicepod/runtime.md#instance-identity).
 
