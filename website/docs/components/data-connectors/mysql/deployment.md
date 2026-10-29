@@ -60,7 +60,7 @@ Invalid values fail the dataset at load with an error that names the parameter: 
 
 :::note
 
-In v2.4.0 and earlier, a pool size that was not a whole number logged a warning and fell back to the `mysql_async` default for that bound, `10` for the minimum or `100` for the maximum. A `mysql_connection_string` ignored `mysql_pool_min` and `mysql_pool_max` and used its own `pool_min` and `pool_max` settings or the same `10` and `100` defaults, and connections had no maximum lifetime. Datasets that relied on any of these now use the values above, or fail at load until the value is corrected.
+In v2.4.0 and earlier, a pool size that was not a whole number logged a warning and fell back to the `mysql_async` default for that bound, `10` for the minimum or `100` for the maximum, and both bounds became `10` and `100` when that left the minimum above the maximum. A `mysql_connection_string` ignored `mysql_pool_min` and `mysql_pool_max` and used its own `pool_min` and `pool_max` settings or the same `10` and `100` defaults, and connections had no maximum lifetime. Datasets that relied on any of these now use the values above, or fail at load until the value is corrected.
 
 :::
 
