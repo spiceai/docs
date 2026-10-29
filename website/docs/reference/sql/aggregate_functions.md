@@ -525,6 +525,10 @@ sum(expression)
 +-----------------------+
 ```
 
+The sum of an integer column fails when the total does not fit a `BIGINT` (or an unsigned 64-bit integer for unsigned input), instead of wrapping around. The error begins `Overflow in SUM of BIGINT`. Running totals are kept in a wider type, so only the final total of each group must fit: values whose partial sums leave the `BIGINT` range and come back return the correct total. The check also covers `sum(DISTINCT ...)` and `sum` as a window function. The sum of a `DECIMAL` column is not checked.
+
+As with [integer arithmetic](./operators.md#integer-overflow), the check applies when Spice computes the aggregate itself; a `sum` pushed down to a data source or to an accelerator that runs its own SQL engine follows that engine's behavior. v2.4.x and earlier wrap the total around on overflow.
+
 ### `var`
 
 Returns the statistical sample variance of a set of numbers.

@@ -16,6 +16,12 @@ Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses t
 - [/ (divide)](#op_divide)
 - [% (modulo)](#op_modulo)
 
+### Integer overflow
+
+Integer `+`, `-`, and `*` fail when the result does not fit the operands' integer type, instead of wrapping around. For example, adding `1` to a `BIGINT` column that holds `9223372036854775807` fails with an error that begins `Overflow in integer +`. An integer literal such as `1` is a `BIGINT`, so `int_column + 1` is computed as a `BIGINT`. `DECIMAL` arithmetic is not checked.
+
+The check applies when Spice evaluates the expression itself, as it does for file datasets and Arrow or Cayenne acceleration. An expression that is pushed down to a data source, or to an accelerator that runs its own SQL engine such as DuckDB, follows that engine's overflow behavior. v2.4.x and earlier wrap the result around on overflow. The [`sum`](./aggregate_functions.md#sum) aggregate has the same check.
+
 ### `+` {#op_plus}
 
 Addition
