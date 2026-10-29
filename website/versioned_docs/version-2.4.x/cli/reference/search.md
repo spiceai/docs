@@ -10,10 +10,10 @@ Performs embeddings-based searches across search-configured datasets.
 ### Usage
 
 ```shell
-spice search [query] [flags]
+spice search [flags]
 ```
 
-`query` - a search query
+The command takes no query argument. It opens an interactive `search>` prompt: type a query and press Enter to search.
 
 #### Flags
 
