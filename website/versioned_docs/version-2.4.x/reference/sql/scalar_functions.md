@@ -3816,7 +3816,9 @@ Returns the cosine distance between two vectors as a `Float64`, scaled to the ra
 cosine_distance(vector1, vector2)
 ```
 
-Both arguments are lists of `Float32` or `Float64` values (`List`, `LargeList`, or `FixedSizeList`), such as an embedding column and a query vector. The two vectors must have the same length, or the query fails with `Both arrays must have the same length`. A vector with zero magnitude has no direction and returns `0.5`. A vector that contains `NaN` or an infinite value returns `NULL`.
+Both arguments are lists of `Float32` or `Float64` values (`List`, `LargeList`, or `FixedSizeList`), such as an embedding column and a query vector. The two vectors must have the same length, or the query fails with `Both arrays must have the same length`. A vector with zero magnitude has no direction and returns `0.5`, with one exception: two zero vectors of type `FixedSizeList<Float32, N>` return `0`. A vector that contains `NaN` or an infinite value returns `NULL`.
+
+When Spice pushes a query down to DuckDB, `cosine_distance` runs as DuckDB's [`array_cosine_distance`](https://duckdb.org/docs/stable/sql/functions/array#array_cosine_distancearray1-array2), which returns `1 - cosine_similarity`, from `0` to `2`, so the same query can return twice the value.
 
 #### Example
 
@@ -3898,7 +3900,7 @@ digest(expression, algorithm)
 
 Computes one digest over several values of any type, using the named hash algorithm. The last argument is the algorithm: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, or `'sha512'`. The return type is that of the matching function: `md5` returns a lowercase hex string, and the SHA-2 algorithms return a binary digest. Other algorithm names, including those [`digest`](#digest) accepts such as `'blake3'`, fail with `digest_many: digest function <name> not found`.
 
-Each value is converted to its string form and prefixed with its length in bytes, and a `NULL` is written as a marker of its own, before the values are joined and hashed. Distinct tuples therefore produce distinct inputs to the hash: `('ab', 'c')` and `('a', 'bc')` produce different digests, and a `NULL` produces a different digest from the string `'NULL'`.
+Each value is converted to its display text and prefixed with that text's length in bytes, and a `NULL` is written as a marker of its own, before the values are joined and hashed. Values therefore stay separate where one ends and the next begins: `('ab', 'c')` and `('a', 'bc')` produce different digests, and a `NULL` produces a different digest from the string `'NULL'`. Two values with the same display text still produce the same digest. The display text of a binary value keeps only its first 10 bytes, so binary values that share those bytes collide; pass them through [`encode`](#encode) first, such as `digest_many(encode(payload, 'hex'), 'sha256')`.
 
 ```sql
 digest_many(expression[, ..., expression], algorithm)
