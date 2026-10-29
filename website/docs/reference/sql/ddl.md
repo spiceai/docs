@@ -84,7 +84,7 @@ ALTER TABLE name SET ( key = value [, ...] );
 ALTER TABLE name RESET ( key [, ...] );
 ```
 
-`RESET` removes a key, so the field takes its default; `RESET (acceleration)` removes the acceleration. A new `from`, or a new value of any connector parameter, deletes the acceleration data, so the dataset loads from its new source: a parameter can name another database, file, or table.
+`RESET` removes a key, so the field takes its default; `RESET (acceleration)` removes the acceleration. A new `from`, or a new value of any connector parameter, deletes the acceleration data, so the dataset loads from its new source: a parameter can name another database, file, or table. Turning acceleration on, or giving it another `engine`, `mode`, or `params`, starts it from the source as well: what its store holds under the dataset's name, which an earlier definition left there, is deleted first, so changing an acceleration parameter reloads the dataset. A `CREATE TABLE` of a name that an earlier definition, or a Spicepod, accelerated starts from the source the same way.
 
 ## DROP TABLE
 
