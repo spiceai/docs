@@ -42,6 +42,8 @@ Upon startup, Spice subscribes to the specified topic using either a uniquely ge
 
 Schema is automatically inferred from the first available topic message in JSON format. The connector creates the appropriate table schema for acceleration based on the detected data structure.
 
+While Spice waits for the messages it infers the schema from, a transient broker error, such as a refused connection or all brokers being down, does not fail the dataset: the Kafka client tries the next broker address or reconnects, and Spice keeps waiting. If a transient error has occurred and no message arrives within 20 seconds of the start of the wait for a message, the dataset fails to load with that error. A common case is a `kafka_bootstrap_servers` of `localhost:<port>` on a host where `localhost` resolves to the IPv6 address `::1` first while the broker listens only on IPv4. The [Debezium connector](./debezium) waits the same way for its first change event. In v2.4.0 and earlier, the first transient error failed the dataset load.
+
 ## Consumer Group Management
 
 The Kafka connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, so Spice can track consumption progress.

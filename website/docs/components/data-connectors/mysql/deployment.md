@@ -46,12 +46,39 @@ For production, use `required` (the default). To verify against a specific CA ra
 
 The connector uses a per-dataset connection pool with the following defaults:
 
-| Parameter                   | Default | Description                                    |
-| --------------------------- | ------- | ---------------------------------------------- |
-| `mysql_pool_min`            | `1`     | Minimum idle connections held by the pool.     |
-| `mysql_pool_max`            | `5`     | Maximum connections the pool will open.        |
+| Parameter                       | Default | Description                                                  |
+| ------------------------------- | ------- | ------------------------------------------------------------ |
+| `mysql_pool_min`                | `1`     | Minimum idle connections held by the pool.                   |
+| `mysql_pool_max`                | `5`     | Maximum connections the pool will open.                      |
+| `mysql_connection_max_lifetime` | `5m`    | How long a connection is used before it is closed and replaced. |
 
-Both values are parsed leniently, and an unusable value produces **no error and no log message**. A non-integer value is discarded and the pool falls back to the underlying `mysql_async` pool defaults — `10` for `mysql_pool_min` and `100` for `mysql_pool_max`, not the `1` and `5` above. A `mysql_pool_min` greater than `mysql_pool_max` (or a `mysql_pool_max` of `0`) is likewise **not** rejected at startup: the invalid pair is discarded and the same `10`/`100` defaults apply. Because a typo silently widens the pool instead of failing, double-check both values when tuning them. Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients.
+A dataset with `refresh_mode: changes` uses its pool only for schema checks at startup, so its pool defaults to a minimum of `0` and a maximum of `2` for any bound that is not set.
+
+Each setting resolves in the same order whether the server is given as individual parameters or as `mysql_connection_string`: the Spicepod parameter, then the connection string's query setting (`pool_min`, `pool_max`, or `abs_conn_ttl` in seconds, with `abs_conn_ttl_jitter`), then the default. A setting given in both places with different values fails the dataset with an error that names both. When a minimum is set above the default maximum and no maximum is set, the maximum is raised to the minimum.
+
+Invalid values fail the dataset at load with an error that names the parameter: a pool size that is not a whole number, a `mysql_pool_max` of `0`, a `mysql_pool_min` greater than `mysql_pool_max`, and a lifetime outside `1s` to `365d` (other than `0s`). Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients.
+
+:::note
+
+In v2.4.0 and earlier, a pool size that was not a whole number logged a warning and fell back to the `mysql_async` default for that bound, `10` for the minimum or `100` for the maximum. A `mysql_connection_string` ignored `mysql_pool_min` and `mysql_pool_max` and used its own `pool_min` and `pool_max` settings or the same `10` and `100` defaults, and connections had no maximum lifetime. Datasets that relied on any of these now use the values above, or fail at load until the value is corrected.
+
+:::
+
+#### Connection Lifetime
+
+`mysql_connection_max_lifetime` sets how long a pooled connection is used before it is closed and replaced, as a duration such as `10m`. `0s` keeps connections open indefinitely. When the lifetime comes from `mysql_connection_max_lifetime` or the default, each connection's lifetime is extended by a random amount, so connections opened together are not replaced together: up to a fifth of the lifetime, or up to `abs_conn_ttl_jitter` seconds when the connection string sets it. A lifetime set only by the connection string's `abs_conn_ttl` uses its `abs_conn_ttl_jitter` as given, and with no `abs_conn_ttl_jitter` it adds none. A connection is not closed while a query is using it.
+
+Replacing a connection resolves the host again. With a load-balanced hostname, such as an [Amazon Aurora reader endpoint](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Reader), this spreads a long-running Spice instance across the servers behind it instead of keeping every connection on the servers it first reached. The [MySQL catalog](../../catalogs/mysql) accepts the same parameter.
+
+#### Connection Log
+
+Each pool logs the server its new connections reach, as the server reports itself, including the instance name on Aurora MySQL:
+
+```text
+MySQL dataset 'orders' opened connection 1234 to 'reader.example.internal:3306', which reached server 'ip-10-0-1-23:3306' (Aurora instance 'orders-reader-2').
+```
+
+The line is logged at `INFO` the first time in 10 minutes that a pool reaches a server, and at `DEBUG` otherwise, so a pool that opens a connection per query does not log a line per query.
 
 ### Retry Behavior
 

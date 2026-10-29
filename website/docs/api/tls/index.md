@@ -86,6 +86,8 @@ When TLS is configured using **file paths** (`certificate_file` / `key_file` or 
 
 - In-flight TLS connections are unaffected — only new handshakes use the rotated certificate.
 - If a rotated file contains invalid PEM data, the runtime logs the error and continues serving with the previous certificate.
+- If a rotated certificate does not match the private key, for example when only one of the two files has been replaced, the runtime logs a warning naming both files and continues serving with the previous pair. Writing the matching file triggers another reload that picks up the new pair. At startup, a certificate that does not match its key fails with `TLS certificate <cert> does not match private key <key>`.
+- A reload that reads the certificate and key already being served, such as the second of the two reloads that a rotation of both files triggers, is skipped and not counted.
 - File changes are detected via polling (every 2 seconds). Atomic file renames are handled correctly.
 
 When TLS is configured using **inline values** (`certificate` / `key`, including `${secrets:…}` references), certificates are loaded once at startup and are not automatically reloaded.
@@ -95,7 +97,7 @@ The `runtime_tls_reload_total` OTel counter tracks reload attempts:
 | Label    | Values                    |
 | -------- | ------------------------- |
 | `scope`  | `public`, `cluster`       |
-| `result` | `ok`, `io_error`, `parse_error` |
+| `result` | `ok`, `io_error`, `parse_error`, `key_mismatch` |
 
 :::info
 
