@@ -31,6 +31,14 @@ If `SPICEPOD_PATH` is omitted, `spiced` uses the current working directory. When
 - `--very-verbose` — Equivalent to `-vv`.
 - `--set-runtime <key.subkey=value>` — Override a runtime configuration value. Can be repeated; see [examples in `spice run`](./run#--set-runtime).
 
+### Hot reload
+
+With `--pods-watcher-enabled`, which `spice run` sets, the runtime applies edits to the Spicepod without a restart. Starting in v2.5, a reload also does the following:
+
+- A view that reads a dataset the edit adds, changes, or removes registers again, including a view that reads the dataset in a subquery or through another view. The view then reads the dataset as the Spicepod now declares it, or fails when the dataset was removed. In v2.4.x and earlier, the view kept answering from the previous table.
+- When an edit changes an accelerated dataset while its source is unavailable, so the dataset cannot load with its new configuration, the runtime retries loading it, as it does for a newly added dataset, and the dataset answers queries once the source is reachable. A later edit or removal of the dataset replaces the retry. A failure to initialize the accelerator itself is not retried. In v2.4.x and earlier, the dataset stayed unregistered, with status `Error`, until the runtime restarted.
+- With the default [`ready_state: on_load`](../../reference/spicepod/runtime#runtimeready_state), [`/v1/ready`](../../api/HTTP/ready) does not wait for a component that was removed from the Spicepod before it finished loading. In v2.4.x and earlier, such a component kept `/v1/ready` at `503`.
+
 ### TLS flags
 
 These configure TLS for the HTTP and Flight servers.

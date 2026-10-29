@@ -287,6 +287,14 @@ catalogs:
 
 - The Databricks Catalog Connector (`mode: spark_connect`) does not yet support streaming query results from Spark.
 
+- In `mode: delta_lake`, the catalog does not register a [catalog-managed Delta table](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#catalog-managed-tables), a table with a `delta.feature.catalogManaged` or `delta.feature.catalogOwned` property, because Databricks does not permit reading such a table directly from storage. Queries against the table do not resolve, and the runtime logs a warning for each skipped table that `include` and `exclude` select. The warning contains:
+
+  ```text
+  Table '<catalog>.<schema>.<table>' is a catalog-managed Delta table and is not registered, so queries against it will not resolve. Databricks does not allow reading it directly from storage; use a catalog `mode` other than `delta_lake`.
+  ```
+
+  To query these tables, use `mode: sql_warehouse` or `mode: spark_connect`. In v2.4.x and earlier, reading such a table failed with a Delta Lake reader error.
+
 :::warning[Memory Considerations]
 
 When using the Databricks (mode: delta_lake) Catalog connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
