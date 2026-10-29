@@ -513,7 +513,21 @@ against the HTTP or Arrow Flight API.
 
 ## Custom Cache Keys
 
-Set the `Spice-Cache-Key` header to supply a custom cache key. When set, a supplied cache key takes precedence over `caching.sql_results.cache_key_type`.
+Set the `Spice-Cache-Key` header to add a custom key to a request's cache entry. A custom key partitions entries; it does not replace the request's own key. Spice hashes the custom key together with:
+
+- for SQL queries, the raw SQL text and the bound parameter values;
+- for search requests, the full search request.
+
+When the header is set, Spice looks up the entry before planning, so `caching.sql_results.cache_key_type` does not apply to that request. The raw SQL text is used as is, the same text `cache_key_type: sql` keys on.
+
+As a result:
+
+- Requests with the same custom key, the same SQL text, and the same parameters share one entry.
+- A different query, or the same query with a different parameter value, gets its own entry, even under the same custom key.
+- Queries that differ only in whitespace, formatting, or form (for example, two semantically equivalent queries) do not share an entry. To share one, send the same SQL text.
+- Entries cached with a custom key never collide with entries cached without one, and a custom key never shares entries across principals.
+
+There is no option to make a custom key the whole cache key, so different queries cannot be made to share one result.
 
 :::info[Info]
 A valid cache key consists of up to 128 alphanumeric characters (and the characters `-` and `_`).
@@ -521,75 +535,47 @@ A valid cache key consists of up to 128 alphanumeric characters (and the charact
 
 ### HTTP Example
 
-Consider the case of two semantically equivalent queries:
-
-```
-Time: 0.0251325 seconds. 2 rows.
-sql> select * from users where org_id = 1;
-+----+--------+-------+----------------+
-| id | org_id | name  | email          |
-+----+--------+-------+----------------+
-| 1  | 1      | Jane  | jane@spice.ai  |
-| 2  | 1      | Sarah | sarah@spice.ai |
-+----+--------+-------+----------------+
-
-Time: 0.008993042 seconds. 2 rows.
-sql> select * from users where split_part(email, '@', 2) = 'spice.ai';
-+----+--------+-------+----------------+
-| id | org_id | name  | email          |
-+----+--------+-------+----------------+
-| 1  | 1      | Jane  | jane@spice.ai  |
-| 2  | 1      | Sarah | sarah@spice.ai |
-+----+--------+-------+----------------+
-```
-
-To share a cache key for these queries, set `Spice-Cache-Key`. The first request is a cache miss:
+The first request under a custom key is a cache miss:
 
 ```bash
 $ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select * from users where org_id = 1;"
 HTTP/1.1 200 OK
 content-type: application/json
-x-cache: Miss from spiceai
 results-cache-status: MISS
 vary: Spice-Cache-Key
-vary: origin, access-control-request-method, access-control-request-headers
-content-length: 119
-date: Thu, 24 Jul 2025 14:15:53 GMT
+...
 
 [{"id":1,"org_id":1,"name":"Jane","email":"jane@spice.ai"},{"id":2,"org_id":1,"name":"Sarah","email":"sarah@spice.ai"}]
 ```
 
-The subsequent request with the different (but semantically equivalent) query is a cache hit:
+The same SQL text under the same key is a cache hit:
+
+```bash
+$ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select * from users where org_id = 1;"
+HTTP/1.1 200 OK
+content-type: application/json
+results-cache-status: HIT
+vary: Spice-Cache-Key
+...
+
+[{"id":1,"org_id":1,"name":"Jane","email":"jane@spice.ai"},{"id":2,"org_id":1,"name":"Sarah","email":"sarah@spice.ai"}]
+```
+
+A different query under the same key is its own entry, so it is a miss and returns its own result:
 
 ```bash
 $ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select * from users where split_part(email, '@', 2) = 'spice.ai';"
 HTTP/1.1 200 OK
 content-type: application/json
-x-cache: Hit from spiceai
-results-cache-status: HIT
+results-cache-status: MISS
 vary: Spice-Cache-Key
-vary: origin, access-control-request-method, access-control-request-headers
-content-length: 119
-date: Thu, 24 Jul 2025 14:18:00 GMT
+...
 ```
 
-:::warning[Note]
-When supplying a custom cache key, **ensure the semantic equivalence of queries**. For example, this is expected behavior:
+The same holds for parameterized queries. With one `Spice-Cache-Key`, `SELECT count(*) FROM t WHERE x > $1` with `$1 = 7` and with `$1 = 8` are two entries.
 
-```bash
-$ curl -i -XPOST http://localhost:8090/v1/sql -H"spice-cache-key: users_spiceai" -d "select 1"
-HTTP/1.1 200 OK
-content-type: application/json
-x-cache: Hit from spiceai
-results-cache-status: HIT
-vary: Spice-Cache-Key
-vary: origin, access-control-request-method, access-control-request-headers
-content-length: 119
-date: Thu, 24 Jul 2025 14:21:32 GMT
-
-[{"id":1,"org_id":1,"name":"Jane","email":"jane@spice.ai"},{"id":2,"org_id":1,"name":"Sarah","email":"sarah@spice.ai"}]
-```
-
+:::warning[Changed behavior]
+In earlier releases the custom key was the whole cache key. Different queries sent with the same `Spice-Cache-Key` shared one entry and returned whichever result was cached first. Clients that relied on this to share a result across equivalent queries now get a miss for each distinct SQL text. Send the same SQL text to share an entry.
 :::
 
 ## Metrics
