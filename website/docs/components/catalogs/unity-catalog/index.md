@@ -109,6 +109,8 @@ One of the following auth values must be provided for Azure Blob:
   
   For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.delta.io/latest/delta-drop-feature.html)
 
+- With `unity_catalog_credential_vending: enabled`, the catalog does not register a [catalog-managed Delta table](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#catalog-managed-tables), a table with a `delta.feature.catalogManaged` or `delta.feature.catalogOwned` property, and logs a warning that contains `is a catalog-managed Delta table and is not registered`. Queries against the table do not resolve.
+
 ## Cookbook
 
 - A cookbook recipe to configure an open-source Unity Catalog as a catalog connector in Spice. [Unity Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/unity_catalog#readme)

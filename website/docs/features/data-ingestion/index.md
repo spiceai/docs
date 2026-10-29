@@ -103,7 +103,7 @@ Spice stores received metrics in two kinds of dataset. A [metrics store](#metric
 Spice receives metrics over both OTLP transports:
 
 - **OTLP/gRPC**: `opentelemetry.proto.collector.metrics.v1.MetricsService/Export` on the Flight port (default `127.0.0.1:50051`). When [API key authentication](../../api/auth/index.md) is enabled, the export needs a key with write access, and a read-only key gets `PERMISSION_DENIED` with the message `API key does not allow write access`. Nothing from a refused export is stored.
-- **OTLP/HTTP**: `POST /v1/metrics` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`. The decompressed body is limited to 128 MiB. When [API key authentication](../../api/auth/index.md) is enabled, the request needs a key with write access, and a read-only key gets `403`. A request with a supported `Content-Type` gets its errors as a `google.rpc.Status` in the request's encoding.
+- **OTLP/HTTP**: `POST /v1/metrics` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`. The decompressed body is limited to 128 MiB, and a JSON body to 4,194,304 JSON values, counting every object, array, string, number, boolean, and null. A larger JSON body gets `400` with an error message that contains `Invalid OTLP JSON body: the body has more than 4194304 JSON values; split the export into smaller requests`. When [API key authentication](../../api/auth/index.md) is enabled, the request needs a key with write access, and a read-only key gets `403`. A request with a supported `Content-Type` gets its errors as a `google.rpc.Status` in the request's encoding.
 
 For example, an OpenTelemetry Collector that sends metrics over HTTP:
 
@@ -315,7 +315,7 @@ The logs dataset requires Cayenne. A dataset with `otlp_logs: all` and another e
 #### Sending logs
 
 - **OTLP/gRPC**: `opentelemetry.proto.collector.logs.v1.LogsService/Export` on the Flight port (default `127.0.0.1:50051`), the same port as OTLP metrics. gzip is accepted, and messages up to 128 MiB.
-- **OTLP/HTTP**: `POST /v1/logs` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`, up to 128 MiB.
+- **OTLP/HTTP**: `POST /v1/logs` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`, up to 128 MiB. A JSON body has the same 4,194,304-value limit as `POST /v1/metrics`.
 
 Both require write access when [API key authentication](../../api/auth/index.md) is enabled. For example, an OpenTelemetry Collector:
 

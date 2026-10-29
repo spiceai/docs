@@ -1138,6 +1138,8 @@ runtime:
 
 The `DoPut` rate limit admits 100 writes per minute, shared by all clients of the runtime. Arrow Flight data writes, Flight SQL bulk ingestion (`CommandStatementIngest`), and Flight SQL statement updates (`CommandStatementUpdate`, sent by a Flight SQL client's execute-update call) count against it. Prepared statement calls, including parameter binding, do not. A write over the limit fails with the gRPC status `RESOURCE_EXHAUSTED`.
 
+Spice refuses a compressed Arrow IPC batch that a client sends, such as a `DoPut` write, Flight SQL bulk ingestion, or bound prepared statement parameters, when the decompressed size its buffers declare is more than 64 MiB and more than 100 times the size of its compressed body. The request fails with the gRPC status `INVALID_ARGUMENT` and a message that contains `compressed Arrow IPC message declares`. Compressed data under either bound decodes as before, and uncompressed messages are not checked. The [Spice.ai](../../components/data-connectors/spiceai) and [Flight SQL](../../components/data-connectors/flightsql) data connectors apply the same check to the batches a remote server returns. v2.4.x and earlier do not check the declared size.
+
 ## `runtime.tracing`
 
 Exports task history spans to a [Zipkin](https://zipkin.io/) collector. See [Zipkin](../../monitoring/zipkin) for an example.

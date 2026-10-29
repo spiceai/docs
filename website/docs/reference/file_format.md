@@ -142,6 +142,8 @@ Vortex has no format-specific parameters. It is not available on Windows builds.
 | `csv_delimiter`                | Char    | `,`     | Character used to separate fields.                                                                    |
 | `csv_schema_infer_max_records` | Integer | `1000`  | **Deprecated.** Use `schema_infer_max_records` instead. Maximum records scanned for schema inference. |
 
+When `csv_has_header` is `true`, Spice matches each file's columns to the dataset's columns by header name, so a file that lists the same columns in a different order returns each value under its own column. A registered column that no file header names is handled as described in [File datasets: missing columns](../components/data-connectors#file-missing-columns). When `csv_has_header` is `false`, columns are matched by position. In v2.4.x and earlier, columns are matched by position even when the file has a header, so a reordered file returns values under the wrong column names.
+
 ## TSV
 
 TSV (tab-separated values) is a first-class format. Set `file_format: tsv` or use a `.tsv` file extension. The delimiter is always tab and cannot be changed.
@@ -154,6 +156,8 @@ TSV (tab-separated values) is a first-class format. Set `file_format: tsv` or us
 | `tsv_quote`                    | Char    | `"`     | Character used to quote fields containing special characters.                                         |
 | `tsv_escape`                   | Char    | _none_  | Character used to escape special characters within a field.                                           |
 | `tsv_schema_infer_max_records` | Integer | `1000`  | **Deprecated.** Use `schema_infer_max_records` instead. Maximum records scanned for schema inference. |
+
+TSV files match columns by header name or by position under the same rules as [CSV](#csv), controlled by `tsv_has_header`.
 
 ## JSON
 

@@ -346,6 +346,8 @@ Spice integrates with multiple secret stores to help manage sensitive data secur
 
   For more details on dropping Delta table features, refer to the official documentation: [Drop Delta table features](https://docs.databricks.com/en/delta/drop-feature.html#:~:text=Databricks%20provides%20limited%20support%20for,data%20files%20backing%20the%20table.)
 
+- In `mode: delta_lake`, a dataset that points at a [catalog-managed Delta table](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#catalog-managed-tables), a table with a `delta.feature.catalogManaged` or `delta.feature.catalogOwned` property, fails to load, because Databricks does not permit reading such a table directly from storage. The error names the table and contains `is a catalog-managed Delta table`. Use `mode: sql_warehouse` or `mode: spark_connect` for these tables. In v2.4.x and earlier, loading failed with a Delta Lake reader error instead.
+
 - When using `mode: spark_connect`, correlated scalar subqueries can only be used in filters, aggregations, projections, and UPDATE/MERGE/DELETE commands. [Spark Docs](https://spark.apache.org/docs/latest/sql-error-conditions-unsupported-subquery-expression-category-error-class.html#unsupported_correlated_scalar_subquery)
 
 - In `mode: spark_connect` and `mode: sql_warehouse`, Spice-specific functions, such as the [JSON functions](../../../reference/sql/json.md) and user-defined functions, are evaluated in Spice, not sent to Databricks, for both datasets and `catalogs:` entries. Databricks still reads the table, and Spice applies the function. See [Federation and Pushdown](../../../reference/sql/json.md#federation-and-pushdown).
