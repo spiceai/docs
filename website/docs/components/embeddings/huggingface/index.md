@@ -12,7 +12,7 @@ The following parameters are specific to HuggingFace models:
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `hf_token`    | The Huggingface access token. See [access tokens](../models/huggingface#access-tokens).                                                                                   | -       |
 | `hf_endpoint` | The Hugging Face Hub endpoint to download the model from, to read through a mirror or proxy of the Hub. See [endpoint](../models/huggingface#endpoint).                   | `HF_ENDPOINT`, then `https://huggingface.co` |
-| `pooling`  | The [pooling method](https://huggingface.co/docs/text-embeddings-inference/en/cli_arguments) for embedding models. Supported values are `cls`, `mean`, `splade`, `last_token` | -       |
+| `pooling`  | The [pooling method](https://huggingface.co/docs/text-embeddings-inference/en/cli_arguments) for embedding models. Supported values are `cls`, `mean`, `splade`, `last_token`. When unset, the pooling the repository's `1_Pooling/config.json` selects, otherwise `mean`; see [Pooling](./deployment.md#pooling) | -       |
 
 Here is an example configuration in `spicepod.yaml`:
 

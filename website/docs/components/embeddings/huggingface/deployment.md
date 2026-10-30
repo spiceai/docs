@@ -65,7 +65,9 @@ Pooled-embed calls do **not** currently auto-truncate inputs longer than the mod
 | `splade`      | SPLADE sparse pooling (for sparse retrieval).                         |
 | `last_token`  | Use the final token's embedding (useful for decoder-only models).     |
 
-When `pooling` is unset, the loader defaults to `mean` and logs a warning. Set the pooling strategy explicitly for deterministic behavior across Spice versions.
+When `pooling` is unset, the loader reads the pooling the model repository selects in its Sentence Transformers [`1_Pooling/config.json`](https://sbert.net/docs/package_reference/sentence_transformer/models.html), as [Text Embeddings Inference](https://huggingface.co/docs/text-embeddings-inference/en/cli_arguments) does: `cls` when `pooling_mode_cls_token` is `true`, otherwise `mean` when `pooling_mode_mean_tokens` is `true`, otherwise `last_token` when `pooling_mode_lasttoken` is `true`. When the repository has no such file, or the file selects none of these, the loader defaults to `mean` and logs a warning. A `pooling` value that is set always takes precedence over the file.
+
+In v2.4.1 and earlier, the loader ignored `1_Pooling/config.json` and used `mean` whenever `pooling` was unset, so a model trained with `cls` or last-token pooling produced different embeddings. Set `pooling` explicitly to keep the same embeddings across Spice versions.
 
 ## Capacity & Sizing
 
@@ -119,6 +121,6 @@ Embedding requests emit `text_embed` spans in [task history](../../../reference/
 | `401 Unauthorized` on download                       | Missing / invalid `hf_token`; gated model.              | Set `hf_token`; accept the model's license on Hugging Face.                                                        |
 | `Missing tokenizer.json` at load                     | Model repo does not ship a fast tokenizer.              | Use a model that ships `tokenizer.json`, or convert via `AutoTokenizer.save_pretrained`.                            |
 | Input too long errors on `embed_pooled`              | No auto-truncation.                                     | Truncate at the caller; or set `max_seq_length` on the dataset.                                                     |
-| `Pooling defaulted to 'mean'` warning                | `pooling` not set.                                      | Set pooling explicitly to silence the warning and lock in behavior.                                                 |
+| `params.pooling` not provided and no `1_Pooling/config.json` found warning | `pooling` not set, and the repository selects no pooling. | Set pooling explicitly to silence the warning and lock in behavior.                                                 |
 | First request extremely slow                         | Model downloading / warmup.                             | Pre-warm: `huggingface-cli download <repo>` into `HF_HUB_CACHE`.                                                     |
 | OOM during batched embedding                         | Batch size × sequence length exceeds device memory.     | Reduce caller batch size; use a smaller model; upgrade device memory.                                               |

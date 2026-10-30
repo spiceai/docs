@@ -84,7 +84,7 @@ Both accept the same two tuning parameters:
 
 ### LLM-as-Reranker
 
-Any registered chat model can also be used as a reranker without additional configuration. When a model name resolves to a chat model instead of a dedicated reranker, Spice wraps it in an LLM-based reranking adapter.
+Any registered chat model can also be used as a reranker without additional configuration. When a model name resolves to a chat model instead of a dedicated reranker, Spice wraps it in an LLM-based reranking adapter. A model with a native decisions API, such as OpenAI `gpt-6-luna`, reranks as a [decision model](#decision-models-as-rerankers) instead, unless the call sets `via => 'chat'` or a `prompt_template`.
 
 ```yaml
 models:
@@ -135,9 +135,23 @@ For decision models, the `strategy` parameter controls how many requests are sen
 
 The question is fixed, so `prompt_template` does not apply to decision models. If the model fails for any candidate, or returns an answer that is not a probability between 0 and 1, the whole `rerank()` query fails.
 
+OpenAI `gpt-6-luna` and its dated snapshots serve both chat and decisions, and rerank through the Decisions API by default, scored the same way. A chat model without a native decisions API, such as `gpt-4o-mini`, can also rerank this way with `via => 'decisions'`, through its chat adapter.
+
 ### Model Resolution
 
-The `model` name is looked up in this order: dedicated rerankers, then chat models, then decision models. The first match is used. `strategy` applies to chat models and decision models, and dedicated rerankers ignore it.
+A dedicated reranker named by `model` is always used as is. Any other model reranks through one of two paths, which the optional `via` argument selects:
+
+| `via`         | `prompt_template` | Path |
+| ------------- | ----------------- | ---- |
+| Not set       | Not set           | Decisions when the model has a native decisions API (TypeSafe models, OpenAI `gpt-6-luna`), otherwise chat. When the model has no handler for that path, the other path is used. |
+| Not set       | Set               | Chat, with the template. |
+| `'chat'`      | Optional          | Chat. |
+| `'decisions'` | Not set           | Decisions. A chat model answers through its chat adapter. |
+| `'decisions'` | Set               | The query fails: the decisions path asks a fixed question. |
+
+`via` and `prompt_template` apply only to chat and decision models; setting either for a dedicated reranker fails the query. A model that has no chat completions, such as TypeSafe Jev, cannot use `via => 'chat'` or `prompt_template`, and the query fails with an error that says to remove them. On the chat path, `strategy` defaults to `listwise`; on the decisions path, to `pointwise`. Dedicated rerankers ignore `strategy`.
+
+In v2.4.1 and earlier, the `model` name was looked up in this order: dedicated rerankers, then chat models, then decision models, and `via` did not exist. OpenAI `gpt-6-luna` therefore reranked through chat completions with the listwise strategy, and its `rerank_score` was a relative score from one prompt. It now reranks through the Decisions API with the pointwise strategy, one request per candidate, and its `rerank_score` is the probability that the document is relevant. Add `via => 'chat'` to keep the earlier behavior. A `prompt_template` passed to a decision model with no chat completions was ignored in v2.4.1 and earlier, and now fails the query.
 
 ## SQL Usage
 
