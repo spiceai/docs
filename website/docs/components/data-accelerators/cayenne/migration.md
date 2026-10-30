@@ -127,7 +127,7 @@ Failed to load dataset 'orders' (cayenne): the Cayenne metastore '<metadata dir>
 
 One Spice instance keeps a single Cayenne metastore, shared by every file-mode Cayenne dataset, so deleting it rebuilds all of them from their sources. Check each of them with [Step 1](#step-1-check-whether-the-acceleration-can-be-rebuilt) before you delete it.
 
-Before you delete the directory the error names, list what it holds. A directory set with [`cayenne_metadata_dir`](./index.md) can also hold files that Spice did not write, such as a source file or another application's data, and deleting the directory deletes them too. Move every file that Spice did not write out of the directory first, and back up the directory if you are not sure.
+Back up the directory the error names, then list what it holds before you delete it. The Cayenne metastore is `cayenne.db` and the files beside it whose names start with `cayenne.db`, such as `cayenne.db-log`. A directory set with [`cayenne_metadata_dir`](./index.md) can also hold other files, such as a source file or the default DuckDB and SQLite acceleration files in `.spice/data` that [Step 3](#step-3-delete-the-old-acceleration-data) lists, and deleting the directory deletes them too. Move every file whose name does not start with `cayenne.db` out of the directory first.
 
 ## Migrating the DuckDB vector engine
 
