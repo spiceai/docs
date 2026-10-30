@@ -8,7 +8,7 @@ Those workloads share a third requirement: **isolation**. Giving an application 
   src='/img/deployment/cluster-sidecar.png'
 />
 
-The [cluster-sidecar architecture](https://spice.ai/blog/cluster-sidecar-architecture) addresses all three. Application sidecars handle the hot path with a scoped, locally accelerated working set, while a centralized Spice [cluster](./cluster) (or the [Spice Cloud Platform](./hosted)) provides distributed compute for heavy queries, data ingestion, acceleration, and refresh. When a sidecar needs to reach beyond its materialized working set — a historical query, a cross-dataset join, a broad search — it transparently delegates to the cluster over Arrow Flight, which executes the query and returns results. The sidecar can then cache those results for future use.
+The [cluster-sidecar architecture](https://spice.ai/blog/cluster-sidecar-architecture) addresses all three. Application sidecars handle the hot path with a scoped, locally accelerated working set, while a centralized Spice [cluster](./cluster) (or the [Spice Cloud Platform](./hosted)) provides distributed compute for heavy queries, data ingestion, acceleration, and refresh. Queries on datasets the sidecar does not accelerate — a historical table, a cross-dataset join, a broad search — go to the cluster over Arrow Flight, which executes the query and returns results. The sidecar can then cache those results for future use.
 
 From the application's perspective, everything is `localhost`. From an infrastructure perspective, the system delivers the throughput of a distributed query engine, the latency of an embedded database, and a hard isolation boundary between the application and origin data systems — without ETL between them, sync jobs, or consistency gaps.
 
@@ -64,7 +64,7 @@ A request is served from the first tier that can answer it:
 
 1. **Sidecar results cache** — repeat queries return from the in-memory [results cache](../../features/caching) in microseconds (`Results-Cache-Status: HIT`).
 2. **Sidecar working set** — novel queries that fit the locally materialized dataset execute on-node in single-digit milliseconds against a local [Cayenne](../../components/data-accelerators/cayenne) acceleration.
-3. **Cluster delegation** — queries that exceed the working set are forwarded to the cluster. [Apache Ballista](../../features/distributed-query) distributes execution; [Spice Cayenne](../../components/data-accelerators/cayenne) accelerates large scans. The sidecar caches the result so subsequent reads drop back to tier 1.
+3. **Cluster delegation** — queries on datasets the sidecar does not accelerate are forwarded to the cluster. [Apache Ballista](../../features/distributed-query) distributes execution; [Spice Cayenne](../../components/data-accelerators/cayenne) accelerates large scans. The sidecar caches the result so subsequent reads drop back to tier 1.
 
 The cluster has its own results cache, so one sidecar's miss can become a cluster cache hit for every subsequent sidecar. Typical application-visible latency: p50 at tier 1, p95 at tier 2, tail at tier 3.
 
@@ -92,7 +92,7 @@ Sidecars stay lightweight because they do **not** own ingest:
 
 Sidecar-to-cluster communication is [Arrow Flight](https://arrow.apache.org/docs/format/Flight.html) over gRPC. Results flow as Arrow record batches directly into the sidecar's query engine with no JSON or row-based serialization detour.
 
-The sidecar decides locally whether a query can be served from its working set. If not, it forwards and streams results back. The application sees one endpoint and one query. It never knows whether execution happened locally or whether Ballista fanned the query out across cluster executors.
+Each sidecar dataset decides where its queries run. A dataset with acceleration enabled answers from the local acceleration. A dataset without acceleration forwards every query to the cluster and streams the results back. An accelerated dataset does not forward a query because the rows it asks for are outside the working set; to fall back to the cluster when the local acceleration returns no rows, set [`on_zero_results: use_source`](../../reference/spicepod/datasets#accelerationon_zero_results). The application sees one endpoint and one query. It never knows whether execution happened locally or whether Ballista fanned the query out across cluster executors.
 
 Configure delegation with the [Spice.ai Data Connector](../../components/data-connectors/spiceai): point a sidecar dataset at a Spice Cloud app (`spice.ai/<org>/<app>/datasets/<name>`) or at a self-hosted cluster (`spice.ai:https://cluster.example:50051`). Combine with local acceleration to materialize the hot working set; leave acceleration off to always delegate.
 
@@ -108,6 +108,8 @@ The cluster-sidecar split maps onto [acceleration snapshots](../../features/data
 This avoids snapshot conflicts, keeps the cluster as the authoritative refresh point, and gives every sidecar a warm start from the same materialization. For CDC-backed datasets with large initial state, the difference between a snapshot bootstrap and a full re-sync can be seconds versus minutes.
 
 Use the same engine on the sidecar as on the cluster when snapshots are in play. A snapshot restores only into an acceleration of the engine that created it: a sidecar on another engine skips the cluster's snapshots and loads its working set from the cluster instead. Use [Cayenne](../../components/data-accelerators/cayenne) in `mode: file` on both; acceleration engines other than Cayenne are deprecated and will be removed in v2.5 (see the [Cayenne migration guide](../../components/data-accelerators/cayenne/migration)).
+
+Acceleration snapshots are available in [Spice.ai Enterprise](https://spice.ai/docs/enterprise/getting-started/distributions). The examples below set the snapshot location on each dataset with `snapshots_location` and `snapshots_params`, which require Spice v2.4.0 or later; the top-level `snapshots` section is deprecated (see [Migrate from the top-level `snapshots` section](../../features/data-acceleration/snapshots#migrate-from-the-top-level-snapshots-section)).
 
 For production Spicepod and Helm reference configurations, see [Read/Write Separation](/docs/deployment/read-write-separation).
 
@@ -137,12 +139,6 @@ runtime:
       stale_while_revalidate_ttl: 30s
       encoding: zstd
 
-snapshots:
-  enabled: true
-  location: s3://my-bucket/spice-snapshots/
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: postgres:public.orders
     name: orders
@@ -152,6 +148,9 @@ datasets:
       mode: file
       refresh_mode: changes
       snapshots: create_only
+      snapshots_location: s3://my-bucket/spice-snapshots/
+      snapshots_params:
+        s3_auth: iam_role
       primary_key: id
 
   - from: s3://lakehouse/events/
@@ -166,6 +165,9 @@ datasets:
       refresh_mode: append
       refresh_check_interval: 15m
       snapshots: create_only
+      snapshots_location: s3://my-bucket/spice-snapshots/
+      snapshots_params:
+        s3_auth: iam_role
 ```
 
 The sidecar is much smaller. It pulls from the cluster, keeps a working-set engine local, and caches results. It holds no origin credentials.
@@ -183,13 +185,6 @@ runtime:
       item_ttl: 30s
       stale_while_revalidate_ttl: 30s
 
-snapshots:
-  enabled: true
-  location: s3://my-bucket/spice-snapshots/
-  bootstrap_on_failure_behavior: warn
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: spice.ai/<your-org>/<your-app>/datasets/orders
     name: orders
@@ -203,6 +198,9 @@ datasets:
       refresh_mode: append
       refresh_check_interval: 10s
       snapshots: bootstrap_only
+      snapshots_location: s3://my-bucket/spice-snapshots/
+      snapshots_params:
+        s3_auth: iam_role
 
   - from: spice.ai/<your-org>/<your-app>/datasets/events
     name: events
@@ -220,7 +218,7 @@ Spice Cloud datasets require `spiceai_api_key` and `spiceai_region`. For a self-
 1. The application (or agent) queries its sidecar on `localhost:8090`: `SELECT ... FROM orders WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 20`.
 2. The sidecar checks its results cache. Hit → return in microseconds.
 3. On a miss, the sidecar plans against its local catalog. `orders` is materialized locally (refreshed from the cluster every 10 seconds). It executes against the local Cayenne acceleration, returns in single-digit milliseconds, and populates the results cache. Origin Postgres sees no traffic.
-4. A follow-up hybrid search over a multi-gigabyte `tickets` index is not in the sidecar catalog as a local acceleration. The sidecar opens an Arrow Flight stream to the cluster. Ballista distributes the search; Cayenne segment statistics prune most files.
+4. A follow-up hybrid search over a multi-gigabyte `tickets` index runs on a dataset the sidecar declares without acceleration. The sidecar opens an Arrow Flight stream to the cluster. Ballista distributes the search; Cayenne segment statistics prune most files.
 5. Results stream back as Arrow record batches. The sidecar returns them to the application and caches them. A later LLM call can be served by a small local model on loopback, with the large-model call delegated to the cluster.
 6. The cluster independently caches its own results. The next replica that asks the same question gets it from the cluster cache.
 
@@ -231,7 +229,7 @@ The application sees one endpoint, one wire format, and one latency distribution
 - **Kubernetes-native** — designed to run on Kubernetes, leveraging pod-level sidecars with cluster-level orchestration. The same topology also works outside Kubernetes wherever the application has a network path to the cluster.
 - Sub-millisecond reads via sidecar caching on loopback, with centralized data management in the cluster.
 - Structural isolation — sidecars expose a scoped catalog, hold no origin credentials, and bound resource use per pod.
-- Transparent query delegation — sidecars automatically route queries beyond their cached working set to the cluster.
+- Transparent query delegation — sidecars forward queries on datasets they do not accelerate to the cluster, and the application uses the same endpoint either way.
 - Sidecars remain lightweight — only a working set and a results cache, no ingest or heavy acceleration overhead.
 - Cluster (or Spice Cloud) handles complex operations: data ingestion, [Spice Cayenne](../../components/data-accelerators/cayenne) acceleration, [distributed query](../../features/distributed-query), hybrid search, and refresh from sources.
 - Works with both self-managed Spice clusters and the managed [Spice Cloud Platform](./hosted) as the centralized backend. The Spice Cloud cluster-sidecar model is the most common production topology.
@@ -267,7 +265,7 @@ The application sees one endpoint, one wire format, and one latency distribution
 
 A multi-tenant SaaS platform runs an AI support agent. Each tenant's agent pods include a Spice sidecar that materializes that tenant's working set (recent tickets, active customer records, the last 7 days of events, the tenant's private knowledge-base embeddings) into a local Cayenne acceleration and vector index. The spicepod exposes exactly those datasets — and no others — to the agent. The sidecar holds no credentials for Postgres, S3, or Snowflake.
 
-Agent turns hit the sidecar on `localhost` and return in single-digit milliseconds; repeat retrievals return from the results cache in microseconds. Behind the sidecars, a Spice cluster (often Spice Cloud) ingests from PostgreSQL via CDC, S3 Iceberg tables, and Databricks. Cayenne acceleration and refresh schedules run on the cluster. When an agent asks a broader question — "summarize this tenant's churn signal across the last 12 months" — the sidecar recognizes the query exceeds its working set and delegates over Arrow Flight. The cluster executes it, the sidecar caches the result, and subsequent turns for that tenant return in microseconds.
+Agent turns hit the sidecar on `localhost` and return in single-digit milliseconds; repeat retrievals return from the results cache in microseconds. Behind the sidecars, a Spice cluster (often Spice Cloud) ingests from PostgreSQL via CDC, S3 Iceberg tables, and Databricks. Cayenne acceleration and refresh schedules run on the cluster. When an agent asks a broader question — "summarize this tenant's churn signal across the last 12 months" — over a dataset the sidecar declares without acceleration, the sidecar delegates the query over Arrow Flight. The cluster executes it, the sidecar caches the result, and subsequent turns for that tenant return in microseconds.
 
 The origin Postgres sees exactly one consumer (the cluster). If a replica is compromised, the attacker gets a loopback endpoint scoped to that tenant's working set, not database credentials and not a query interface to the whole warehouse.
 
