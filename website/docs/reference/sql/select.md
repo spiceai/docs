@@ -232,6 +232,14 @@ Example:
 SELECT a, b, ARRAY_AGG(c, ORDER BY d) FROM table GROUP BY a, b;
 ```
 
+#### Grouping set limit
+
+Spice rejects a `GROUP BY` that expands to more than 4096 grouping sets, before it plans the query. `CUBE` of `n` expressions produces `2^n` sets, `ROLLUP` of `n` expressions produces `n + 1`, `GROUPING SETS` with `k` sets produces `k`, and separate elements multiply. `CUBE` therefore accepts at most 12 expressions, the same limit as [PostgreSQL](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS). The limit is fixed. A rejected query fails with HTTP `400` on `/v1/sql` and the gRPC status `InvalidArgument` over Arrow Flight SQL, and the error contains:
+
+```text
+Query rejected: GROUP BY expands to more than 4096 grouping sets. CUBE of n expressions produces 2^n sets, and separate CUBE, ROLLUP and GROUPING SETS elements multiply. Group by fewer expressions.
+```
+
 #### `GROUP BY ALL`
 
 Use GROUP BY ALL to group by every column in the SELECT list that isn’t inside an aggregate function. This keeps the column definitions in one place, simplifies the query, and prevents bugs by keeping the SELECT granularity aligned with the GROUP BY granularity (e.g., preventing unintended duplication).

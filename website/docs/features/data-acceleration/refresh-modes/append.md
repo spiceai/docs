@@ -81,6 +81,12 @@ The trade-off is that each refresh re-reads the boundary day from the source rat
 
 `refresh_append_overlap` still subtracts its duration from the high-water mark, but on a day-granular column the resulting window is quantized to the day boundary, so an overlap shorter than a day re-reads the whole boundary day.
 
+## Floating-Point Unix Time Columns
+
+A floating-point `time_column` configured as `unix_seconds`, `unix_millis`, or `unix_nanos`, such as `1700000000.25` seconds, is read as Unix time, the same as an integer column. The high-water mark is the accelerated maximum rounded down to a whole unit, so each refresh reads only rows after that unit and may read again rows from the unit that holds the maximum. A maximum that is negative, `NaN`, or infinite fails the refresh with an error that names the value.
+
+In v2.4.1 and earlier, the maximum of a floating-point time column was converted to a timestamp as nanoseconds, so a value such as `1.7e9` seconds became a mark about 1.7 seconds after 1970, and every append refresh read the whole source table.
+
 ## Partition Pruning with `time_partition_column`
 
 Datasets partitioned by a less-granular time column (day, month, year) can specify [`time_partition_column`](../../../reference/spicepod/datasets#time_partition_column) in addition to `time_column` for efficient partition pruning at the source.
