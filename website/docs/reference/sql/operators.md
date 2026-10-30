@@ -501,6 +501,16 @@ Converts an expression to the specified data type.
 +----------------------------+
 ```
 
+#### Nested type limit
+
+Spice rejects a data type nested more than 32 levels deep, such as `ARRAY<ARRAY<...>>` or `STRUCT<...>` inside one another, before it parses the statement. The check counts the brackets that follow `ARRAY`, `STRUCT`, `MAP`, `NULLABLE`, `LOWCARDINALITY`, `TUPLE`, `NESTED`, `UNION`, and `TABLE`. The limit is fixed. A rejected query fails with HTTP `400` on `/v1/sql` and the gRPC status `InvalidArgument` over Arrow Flight SQL, and the error contains:
+
+```text
+Query rejected: a data type is nested more than 32 levels deep. Simplify the type.
+```
+
+A type nested with the `[]` suffix, such as `INT[][]`, is not counted by that check. The planner rejects such a type, or any other data type, nested more than 64 array or struct levels deep, with an error that contains `SQL data type nesting depth exceeds the maximum of 64`.
+
 ### `::` (PostgreSQL-style cast) {#op_double_colon}
 
 Shorthand syntax for type conversion, equivalent to `CAST`.
