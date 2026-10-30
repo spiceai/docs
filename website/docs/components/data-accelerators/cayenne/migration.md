@@ -109,6 +109,24 @@ A dataset with [snapshots](../../../features/data-acceleration/snapshots) enable
 
 Delete the files ending in `.duckdb`, `.sqlite`, or `.turso` under each migrated dataset's `dataset=<name>/` folders, but only once every instance that reads those snapshots has moved to Cayenne: a reader still on the old engine needs them to load. Do not delete the folders themselves, because Cayenne writes its own `.cayenne` snapshots into the same place.
 
+## Removing the Turso metastore
+
+Spice v2.4.1 and earlier offered an experimental Turso backend for Cayenne's own metastore, selected with `acceleration.params.cayenne_metastore: turso`. The backend is removed, and SQLite is Cayenne's only metastore. This is separate from the `turso` acceleration engine described above.
+
+A dataset that still sets `cayenne_metastore: turso` over a SQLite metastore loads normally, because the parameter has no effect. Spice logs a warning once per dataset:
+
+```text
+Dataset 'orders' sets `cayenne_metastore: turso`, which is no longer supported and has no effect: the dataset uses the built-in metastore. Remove `cayenne_metastore` from this dataset. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
+```
+
+A metastore that the Turso backend wrote cannot be opened, whether or not the parameter is still set, and there is no in-place conversion. The dataset fails to load with an error that names the metastore file and its directory:
+
+```text
+Failed to load dataset 'orders' (cayenne): the Cayenne metastore '<metadata dir>/cayenne.db' was written by the Turso metastore, which is no longer supported, so it cannot be opened. Stop Spice, remove `cayenne_metastore` from every dataset that sets it, delete the Cayenne metastore directory '<metadata dir>', then start Spice to reload the datasets from their sources. Every Cayenne dataset that uses this metastore also reloads from its source. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
+```
+
+One Spice instance keeps a single Cayenne metastore, shared by every file-mode Cayenne dataset, so deleting the directory rebuilds all of them from their sources. Check each of them with [Step 1](#step-1-check-whether-the-acceleration-can-be-rebuilt) before you delete it.
+
 ## Migrating the DuckDB vector engine
 
 The [DuckDB vector engine](../../vectors/duckdb) (`vectors.engine: duckdb`) is deprecated in v2.4 and will be removed in v2.5 along with the DuckDB accelerator it depends on. A Cayenne acceleration does not need a vector engine: Cayenne indexes every embedding column itself, so `vector_search` and `/v1/search` work on a Cayenne dataset or view as soon as its embeddings are configured.

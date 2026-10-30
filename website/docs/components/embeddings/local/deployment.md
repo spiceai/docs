@@ -47,7 +47,7 @@ Pooled-embed calls do **not** currently auto-truncate inputs longer than the mod
 | `splade`      | SPLADE sparse pooling (for sparse retrieval).                         |
 | `last_token`  | Use the final token's embedding (useful for decoder-only models).     |
 
-When `pooling` is unset, the loader defaults to `mean` and logs a warning. Set the pooling strategy explicitly for deterministic behavior across Spice versions.
+When `pooling` is unset, the loader defaults to `mean` and logs a warning. A local model does not read a Sentence Transformers `1_Pooling/config.json`, because the loader uses only the weights, `config.json`, and tokenizer files, so set `pooling` to the value that file selects. Set the pooling strategy explicitly for deterministic behavior across Spice versions.
 
 ## Capacity & Sizing
 
@@ -105,6 +105,6 @@ Embedding requests emit `text_embed` spans in [task history](../../../reference/
 | `Permission denied`                                  | Spice user lacks read on the files.                    | Adjust ACLs or mount with appropriate UID/GID.                                                                     |
 | `Missing tokenizer.json` at load                     | Model directory missing the fast tokenizer.            | Add `tokenizer.json`; convert via `AutoTokenizer.save_pretrained`.                                                 |
 | Input too long errors on `embed_pooled`              | No auto-truncation.                                    | Truncate at the caller, or set `max_seq_length` on the dataset.                                                    |
-| `Pooling defaulted to 'mean'` warning                | `pooling` not set.                                     | Set pooling explicitly.                                                                                             |
+| `params.pooling` not provided and no `1_Pooling/config.json` found warning | `pooling` not set.                       | Set pooling explicitly.                                                                                             |
 | Inference falls back to CPU unexpectedly             | CUDA / Metal unavailable.                              | Use a CUDA-enabled Spice build on GPU hosts; on macOS, use the Apple Silicon build.                                |
 | OOM during batched embedding                         | Batch × sequence length exceeds device memory.         | Reduce caller batch size; use a smaller model; upgrade device memory.                                              |
