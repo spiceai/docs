@@ -67,6 +67,23 @@ Create the prepared statement again and retry. No setting changes this.
 
 JDBC, ODBC, and ADBC clients connect to Spice over Flight SQL. Set the connection pool size to the sum of [`max_concurrent_queries`](../reference/spicepod/runtime#runtimequerymax_concurrent_queries) across the Spice replicas behind the load balancer, divided by the number of application instances that share them — see [Client connection pools](../reference/performance-tuning#client-connection-pools).
 
+## Metadata request limits
+
+The Flight SQL metadata commands that clients and BI tools use to browse catalogs have size limits on their request fields. A request past a limit fails with the gRPC status `InvalidArgument`, and the message names the field and the limit:
+
+| Command        | Field                                                  | Limit       |
+| -------------- | ------------------------------------------------------ | ----------- |
+| `GetSqlInfo`   | `info`, the requested info IDs                         | 1024 entries |
+| `GetTables`    | `table_types`                                          | 1024 entries |
+| `GetTables`    | `db_schema_filter_pattern`, `table_name_filter_pattern` | 1024 bytes  |
+| `GetDbSchemas` | `db_schema_filter_pattern`                             | 1024 bytes  |
+
+Repeated entries in a list are removed before it is used, and they do not change the result. For example, a `GetSqlInfo` request that lists 1025 info IDs fails with:
+
+```text
+GetSqlInfo info lists 1025 entries; the limit is 1024
+```
+
 ## Long `DoGet` streams
 
 [`runtime.query.timeout`](../reference/spicepod/runtime#runtimequerytimeout) applies to Flight SQL for the whole query, including result streaming. If a query times out while receiving results, the `DoGet` stream ends with an error. Acceleration refreshes are exempt from that timeout.
