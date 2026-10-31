@@ -230,7 +230,7 @@ Spice fails an integer division or modulo by zero with a `Divide by zero` error 
 
 ## `substr` Positions
 
-DuckDB counts a negative or zero `substr` start from the end of the string, so `substr(s, -2, 4)` over `abc` returns `bc` in DuckDB and `a` in Spice. A `substr` call is sent to DuckDB only when its start is an integer literal from 1 to 4294967295 and its length, when given, is an integer literal from 0 to 4294967295. Any other `substr` call, including one whose start or length is a column, is evaluated in Spice.
+DuckDB counts a negative `substr` start from the end of the string, so `substr(s, -2, 4)` over `abc` returns `bc` in DuckDB and `a` in Spice. A `substr` call is sent to DuckDB only when its start is an integer literal from 1 to 4294967295 and its length, when given, is an integer literal from 0 to 4294967295. Any other `substr` call, including one whose start or length is a column, is evaluated in Spice.
 
 ## `LIKE` Patterns with a Backslash
 
