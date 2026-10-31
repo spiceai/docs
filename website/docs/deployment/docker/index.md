@@ -59,7 +59,7 @@ The `-models` image tags were removed in Spice v2.0 — AI/ML support is now par
 Pin to a specific version in production to avoid unexpected upgrades:
 
 ```bash
-docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.0.0 --http 0.0.0.0:8090
+docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.4.0 --http 0.0.0.0:8090
 ```
 
 ## Run with Docker Compose
@@ -97,7 +97,7 @@ For deployments that ship a Spicepod and data with the runtime, build a custom i
 ```dockerfile
 # AI features are included in the default image as of Spice v2.0.
 # See https://hub.docker.com/r/spiceai/spiceai/tags for all tags.
-FROM spiceai/spiceai:2.0.0
+FROM spiceai/spiceai:2.4.0
 
 WORKDIR /app
 
@@ -130,7 +130,7 @@ Image layers are cached and distributed. Use `--env-file`, `docker run -e`, or a
 
 ## Environment Variables and Secrets
 
-Spice loads secrets from environment variables prefixed with `SPICE_SECRET_`. See the [Environment Secret Store](../components/secret-stores/env) for details.
+The [environment secret store](../components/secret-stores/env) resolves `${secrets:<key>}` from the environment variable `SPICE_<key>` or `<key>`, trying the key as written and then in uppercase. For example, `${secrets:pg_pass}` reads `SPICE_PG_PASS` or `PG_PASS`.
 
 Pass secrets at runtime with `--env-file` (preferred) or `-e`:
 
@@ -148,7 +148,7 @@ Common runtime variables:
 | Variable              | Purpose                                                               |
 | --------------------- | --------------------------------------------------------------------- |
 | `SPICED_LOG`          | Log level: `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`. Default `INFO`. |
-| `SPICE_SECRET_<NAME>` | Inject a named secret referenced from a Spicepod.                     |
+| `SPICE_<NAME>`        | A secret referenced from a Spicepod as `${secrets:<name>}`.             |
 | `TMPDIR`              | Temporary directory. Unset in the image, so the runtime uses `/tmp`; see [Temporary files](#temporary-files). |
 
 ## Persistence

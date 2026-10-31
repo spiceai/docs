@@ -708,6 +708,16 @@ The source of dataset 'orders' stopped sending data mid-refresh: no data for 600
 
 The wait for the first batch is not limited, so a source that takes a long time to plan and start a query is unaffected. A refresh that never receives its first batch, such as one that draws a pooled connection that died while idle, is not covered by this limit. The 10-minute limit cannot be configured.
 
+### Slow Refresh Warning
+
+Spice logs a warning while a `full` or `append` refresh of an accelerated dataset or view runs much longer than its recent refreshes did, so a source that slows down is reported before the refresh finishes. Spice keeps the durations of the last 10 successful refreshes of each mode. Once there are at least 3, a refresh that is still running after three times their median, and at least 30 seconds longer than the median, logs one warning:
+
+```text
+WARN Refresh of dataset 'orders' has run for 2m 30s, more than 3 times the 50s its last 10 full refreshes took at the median, so its accelerated data is falling further behind the source than usual. A slower source or network path is the usual cause: compare the dataset's `dataset_acceleration_refresh_bytes_written` rate with earlier refreshes, and check the load on the server its connections reached. See: https://spiceai.org/docs/features/data-acceleration/data-refresh
+```
+
+The warning does not stop or retry the refresh, and it cannot be configured. To compare the refresh's throughput with earlier refreshes, chart [`dataset_acceleration_refresh_bytes_written`](../observability#available-metrics) as a rate, for example `rate(dataset_acceleration_refresh_bytes_written[1m])` in Prometheus.
+
 ## Retention Policy
 
 |                                    |                  |

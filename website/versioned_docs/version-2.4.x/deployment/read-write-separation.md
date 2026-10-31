@@ -324,7 +324,7 @@ spec:
               value: http://127.0.0.1:8090
 
         - name: spiceai
-          image: spiceai/spiceai:1.11.5
+          image: spiceai/spiceai:2.4.0
           args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051']
           volumeMounts:
             - name: spicepod

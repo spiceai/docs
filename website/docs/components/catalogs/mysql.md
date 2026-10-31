@@ -65,6 +65,14 @@ Connection can be configured using a connection string or individual parameters.
 | `mysql_sslmode`     | The SSL mode for the connection (`disabled`, `required`, or `preferred`). Default: `required`. |
 | `mysql_sslrootcert` | Path to the SSL root certificate file.                                                         |
 
+### Connection pool
+
+The following parameter applies with either the connection string or the individual parameters.
+
+| Parameter Name                  | Description |
+| ------------------------------- | ----------- |
+| `mysql_connection_max_lifetime` | How long a pooled connection is used before it is closed and replaced, such as `10m`. Accepts a duration from `1s` to `365d`, or `0s` to keep connections open indefinitely. When `mysql_connection_string` sets `abs_conn_ttl`, that value is used unless this parameter is set; setting both to different values fails the catalog. Default: `5m`. See [Connection Pool Sizing](../data-connectors/mysql/deployment#connection-pool-sizing). |
+
 ## Authentication
 
 ### Connection string
