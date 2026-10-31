@@ -165,7 +165,7 @@ The following data connectors support file format configuration:
 
 A federated file dataset, one read from these connectors without [acceleration](../../features/data-acceleration/index.md), lists its files again each time a query scans it. Each scan reads the files as they are when it runs: a file added after an earlier query is read, and a file replaced in place is read at its new size and version. Per-file metadata that Spice caches, such as Parquet footers and file statistics, stays in use for files that did not change.
 
-A query answered from the [SQL results cache](../../features/caching/index.md) does not scan the dataset, so it returns the rows from when the result was cached until the entry expires, after `item_ttl` (1 second by default). Send the `cache-control: no-cache` header with a query that must read the current files.
+A query answered from the [SQL results cache](../../features/caching/index.md) does not scan the dataset, so it returns the rows from when the result was cached for up to `item_ttl` (1 second by default), plus `stale_while_revalidate_ttl` when that is set, even if the background revalidation fails (see [Stale-While-Revalidate](../../features/caching/index.md#stale-while-revalidate)). Send the `cache-control: no-cache` header with a query that must read the current files.
 
 Listing again adds a directory listing to each scan. On an object store, a listing is one `LIST` request per page of results, and S3 returns at most 1,000 keys per page, so a dataset with many files adds several requests to each scan. An accelerated dataset avoids that cost on the query path: it serves queries from the acceleration and reads the source files when it refreshes.
 
