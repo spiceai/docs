@@ -163,11 +163,13 @@ The following data connectors support file format configuration:
 
 ### File Changes in Federated Datasets
 
-A federated file dataset, one read from these connectors without [acceleration](../../features/data-acceleration/index.md), lists its files again each time a query scans it. Each query reads the files as they are when it runs: a file added after an earlier query is read, and a file replaced in place is read at its new size and version. Per-file metadata that Spice caches, such as Parquet footers and file statistics, stays in use for files that did not change.
+A federated file dataset, one read from these connectors without [acceleration](../../features/data-acceleration/index.md), lists its files again each time a query scans it. Each scan reads the files as they are when it runs: a file added after an earlier query is read, and a file replaced in place is read at its new size and version. Per-file metadata that Spice caches, such as Parquet footers and file statistics, stays in use for files that did not change.
+
+A query answered from the [SQL results cache](../../features/caching/index.md) does not scan the dataset, so it returns the rows from when the result was cached until the entry expires, after `item_ttl` (1 second by default). Send the `cache-control: no-cache` header with a query that must read the current files.
 
 Listing again adds a directory listing to each scan. On an object store, a listing is one `LIST` request per page of results, and S3 returns at most 1,000 keys per page, so a dataset with many files adds several requests to each scan. An accelerated dataset avoids that cost on the query path: it serves queries from the acceleration and reads the source files when it refreshes.
 
-In v2.4.1 and earlier, a federated file dataset answers from the file list its first query read, for as long as the runtime runs. A file added later is not read, so counts and aggregates miss its rows, and a file replaced in place can fail to read with errors such as `Requested range was invalid`, or return the old rows. Restart the runtime to read the current files.
+In v2.4.1 and earlier, a federated file dataset with a `file_format`, such as Parquet or CSV, answers from the file list its first query read, for as long as the runtime runs. A file added later is not read, so counts and aggregates miss its rows, and a file replaced in place can fail to read with errors such as `Requested range was invalid`, or return the old rows. Restart the runtime to read the current files. A dataset read as [documents](#document-formats) lists its files on every scan in those versions as well.
 
 ### Hive Partitioning
 
