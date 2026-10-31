@@ -39,7 +39,7 @@ Some variant distributions are only available in **nightly images** (data) or ex
 | Windows  | x86_64 (MSVC)           | —                                      | MSVC toolchain      |
 
 :::note
-Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supported on Windows natively — use WSL instead.
+Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) does not build for native Windows: run it under WSL or in Docker, and use the Windows CLI against it.
 :::
 
 ## Distribution Availability
@@ -236,10 +236,10 @@ Uses the system's default allocator (glibc malloc on Linux).
 | Linux aarch64                 | ✅       | Nightly         | Enterprise only | ❌     | ❌                |
 | macOS aarch64 (Apple Silicon) | ✅       | Nightly         | Enterprise only | ✅     | ❌                |
 | Windows (WSL)                 | ✅       | Nightly         | Enterprise only | ❌     | Cloud/Enterprise |
-| Windows (Native)              | ❌       | Enterprise only | Enterprise only | ❌     | Enterprise only  |
+| Windows (Native)              | ❌       | ❌               | ❌               | ❌     | ❌                |
 
 :::note
-Native Windows support for the Spice runtime is available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing). Open source users on Windows should use Windows Subsystem for Linux (WSL).
+The Spice runtime does not run natively on Windows in any distribution. On Windows, run it under Windows Subsystem for Linux (WSL) or in Docker, and use the Windows `spice` CLI against it.
 :::
 
 ## Choosing a Distribution

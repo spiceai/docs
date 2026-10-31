@@ -47,11 +47,49 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 
 ### `files`
 
-The specific file path for Huggingface model. For example, GGUF model formats require a specific file path, other varieties (e.g. `.safetensors`) are inferred.
+The files of the repository to load. Safetensors models are inferred from the repository and need no `files`.
 
-A GGUF model is served by llama.cpp; see [Local GGUF Models](../index.md#local-gguf-models). Every `.gguf` file listed in `files` is downloaded: the shards of a split model, and an optional multi-token prediction draft head, whose name starts with `mtp-`. The files go into the same Hugging Face cache, with the same revision (`repo:revision`), `hf_token` and offline behavior as the rest of the model.
+A GGUF model is served by llama.cpp; see [Local GGUF Models](../index.md#local-gguf-models). A GGUF repository usually offers several quantizations of one model, each a single `.gguf` file or a series of shards (`Model-Q4_K_M-00001-of-00003.gguf`, ...), often one folder each. Spice resolves a GGUF model's `files` against the repository's file listing, without downloading weights to decide:
 
-#### Example
+- **An exact `.gguf` path** loads that file. A path that names one shard of a series also loads the series' other shards. No draft head is added.
+- **A quantization name or folder**, such as `Q4_K_M` or `UD-Q3_K_XL`, loads every shard of that quantization, plus the repository's multi-token prediction (MTP) draft head, if it has one: the `Q8_0` head when the repository offers it, otherwise the head with the quantization's own tag. Heads whose file name contains `-shared` are not chosen.
+- **No `files`**: when the repository has no top-level safetensors weights (`model.safetensors.index.json`, `model.safetensors`, `model-NNNNN-of-NNNNN.safetensors`, or `consolidated.safetensors`) and no sharded PyTorch weights (`pytorch_model-NNNNN-of-NNNNN.bin`, `.pt`, or `.pth`), Spice loads the largest complete quantization whose weights fit the memory free for the model, keeping 10% of that memory and a further 4 GiB for the context and compute buffers. It adds the quantization's draft head the same way as for a named quantization. The free memory is the GPUs' free memory, or without a GPU, the memory the process can still use.
+
+A quantization is one GGUF file or one complete series of shards. MTP draft heads, whose file names start with `mtp-`, and `mmproj` vision projectors are not quantizations. Each quantization has a name that is unique in the repository: its folder, when the folder holds no other quantization, otherwise its quantization tag, otherwise its path. A name that matches several quantizations fails to load with an error that names them, and a name that matches none fails with an error that lists the repository's quantizations.
+
+An entry is resolved this way when it has `type: weights` or no `type`, and is not a safetensors, GGML, or `.bin` file. Other entries load as listed. The files go into the same Hugging Face cache, with the same revision (`repo:revision`), `hf_token` and offline behavior as the rest of the model.
+
+When Spice picks a quantization, or resolves a name, the load log names what it loads. A quantization Spice picks is logged with the `files:` entry that pins it, in this form:
+
+```text
+Model '<name>' loads quantization <quantization> (<n> files) (<size> GB) from Hugging Face repo '<repo>', the largest of its <count> complete GGUF quantizations whose weights fit the <memory> GiB of memory free for it with room for the context; <next larger quantization> (<size> GB) does not. Pin it with `files: [{path: <quantization>}]`.
+```
+
+When no quantization fits, the model fails to load with an error that names the smallest quantization; name one in `files` to load it anyway. A model split across machines with `nodes` does not pick a quantization: with no `files`, it loads a repository's only quantization and otherwise fails, so that every machine loads the same weights.
+
+The choice compares only the size of the weights with the free memory. A quantization that fits only by placing some of its weights in system memory is not picked, but naming it in `files` loads it. Fitting a model to its hardware with the engine's own estimate is tracked in [spiceai/spiceai#15577](https://github.com/spiceai/spiceai/issues/15577).
+
+In v2.4.1 and earlier, a GGUF model lists every `.gguf` file to load in `files`, including each shard and the draft head, and a GGUF repository with no `files` fails to load.
+
+#### Example: Pick a Quantization
+
+```yaml
+models:
+  - from: huggingface:huggingface.co/unsloth/Qwen3-0.6B-GGUF
+    name: qwen
+```
+
+#### Example: Name a Quantization
+
+```yaml
+models:
+  - from: huggingface:huggingface.co/unsloth/Qwen3-0.6B-GGUF
+    name: qwen
+    files:
+      - path: Q4_K_M
+```
+
+#### Example: Name a File
 
 ```yaml
 models:

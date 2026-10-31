@@ -527,7 +527,7 @@ Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its query exec
 
 ### Query Parallelism
 
-DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the runtime's [CPU entitlement](spicepod/runtime#runtimecpu) in whole cores, providing maximum parallelism. Override it with `runtime.query.target_partitions`, or state the entitlement itself with `runtime.cpu.cores` to size partitions and every other CPU-derived pool together.
+DataFusion automatically parallelizes queries across available CPU cores. By default, the number of partitions equals the runtime's [CPU entitlement](spicepod/runtime#runtimecpu) in whole cores, providing maximum parallelism. A runtime with [`runtime.mode: sidecar`](spicepod/runtime#runtimemode) defaults to one partition instead, so concurrent application queries share its CPU budget. Override it with `runtime.query.target_partitions`, or state the entitlement itself with `runtime.cpu.cores` to size partitions and every other CPU-derived pool together.
 
 Match the override to the query shape, and check it with [`EXPLAIN`](sql/explain). A large scan benefits from more partitions. A point lookup, or any query whose working set is a few rows, often wants a **low** count: each partition reserves memory and adds a coordination step, and that overhead dominates when there is nothing to scan in parallel. There is no single numeric default that fits both shapes — read the plan (look for `RepartitionExec` fan-out) after changing it. The same low setting applies to non-partitioned [Flight SQL](../api/arrow-flight-sql#short-queries) lookups.
 
@@ -705,7 +705,7 @@ When the goal is to reduce peak memory, prefer bounding concurrency over lowerin
 | Intent                                          | Setting                                                                                     |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Reduce peak memory under burst                    | `runtime.query.max_concurrent_queries` (defaults to 4× the CPU entitlement's cores, not from memory) |
-| Reduce per-plan fan-out and its reservations      | `runtime.query.target_partitions` (defaults to the CPU entitlement's cores)                   |
+| Reduce per-plan fan-out and its reservations      | `runtime.query.target_partitions` (defaults to the CPU entitlement's cores, or `1` with `runtime.mode: sidecar`) |
 | Change how much memory a single query may reserve | `runtime.query.memory_limit`                                                                  |
 
 Lowering `max_concurrent_queries` reduces peak **memory** usage directly, by bounding how many plans hold reservations at once. The trade-off is latency: excess queries wait for admission rather than being refused, so peak end-to-end query time rises with the time spent queueing. Tune it against the workload's tolerance for wait, and watch total query duration — not just execution time — when you change it.

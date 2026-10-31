@@ -28,7 +28,7 @@ The `file_format` parameter accepts these values:
 | --------- | ------------------- | ----------------- | ------------------------------------------- |
 | `parquet` | Apache Parquet      | `.parquet`        |                                             |
 | `orc`     | Apache ORC          | `.orc`            | Columnar format. Read-only.                 |
-| `vortex`  | Vortex              | `.vortex`         | Columnar format. Not available on Windows.  |
+| `vortex`  | Vortex              | `.vortex`         | Columnar format.                            |
 | `csv`     | CSV                 | `.csv`            | Uses `csv_*` parameters.                    |
 | `tsv`     | TSV (tab-delimited) | `.tsv`            | Uses `tsv_*` parameters. Delimiter is tab.  |
 | `json`    | JSON                | `.json`           | Auto-detects format. Uses `json_format` to control parsing mode. |
@@ -128,7 +128,7 @@ Two consequences:
 
 [Vortex](https://github.com/vortex-data/vortex) is a columnar file format read everywhere Parquet is, including the S3, ABFS, GCS, file, and HTTPS connectors. Set `file_format: vortex` or use a `.vortex` file extension (auto-detection also resolves `.vortex` files when `file_format` is omitted or set to `auto`).
 
-Vortex has no format-specific parameters. It is not available on Windows builds.
+Vortex has no format-specific parameters.
 
 ## CSV
 
