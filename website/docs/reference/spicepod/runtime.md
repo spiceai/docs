@@ -77,7 +77,7 @@ Set `sidecar` when Spice runs next to an application, in the same pod or on the 
 
 A sidecar cannot also be a cluster scheduler or executor. Starting `spiced` with `--role` or `--scheduler-address` and `runtime.mode: sidecar` fails with `runtime.mode: sidecar cannot run as a cluster scheduler or executor. Remove --role and --scheduler-address, or set runtime.mode: server.`
 
-The mode is applied when `spiced` starts. A Spicepod reload that changes it logs a warning and keeps the current mode until `spiced` restarts. Changing the mode leaves acceleration files in place, so switching back to `server` and restarting is a rollback.
+The mode is applied when `spiced` starts. A Spicepod reload that changes it logs a warning and keeps the current mode until `spiced` restarts.
 
 `runtime.mode` is not available in v2.4.1 and earlier.
 
