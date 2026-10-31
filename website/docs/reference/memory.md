@@ -284,7 +284,7 @@ Both are consequences of the partition being coordinated. The practical guidance
 `runtime.query.memory_limit` bounds the query execution pool. It is not a ceiling on the process. Memory allocated outside that pool includes:
 
 - Per-dataset accelerator caches (see [What Makes Up the Baseline](#what-makes-up-the-baseline))
-- Serialization and encode buffers for query results, Arrow IPC, and Flight responses
+- Serialization and encode buffers for query results, Arrow IPC, and Flight responses. A `/v1/sql` result that is buffered before it is written is the exception: it is reserved from the query pool, as described in [How a Memory Refusal Surfaces](#how-a-memory-refusal-surfaces)
 - Embedded engine internals that manage their own memory, such as DuckDB's pool and SQLite's page cache
 - Results, search, and embedding caches
 - [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) state on Spice Cayenne datasets. The retraction index and the `min` and `max` distinct-value state share a per-dataset budget of 10% of the query pool, at least 8 MiB but never more than the pool, or 512 MiB when the pool has no limit. Each view's per-group keys and running aggregates are not counted toward that budget
@@ -340,6 +340,8 @@ When the query memory pool cannot satisfy a reservation, the query is refused ra
 | Flight and Flight SQL | gRPC status `RESOURCE_EXHAUSTED` |
 | `query_failures` metric | `err_code="ResourcesExhausted"` |
 | Runtime log | Logged at `warn` level (`Query refused, out of memory: …`), so a runtime refusing queries is visible at the default `INFO` verbosity |
+
+A `/v1/sql` response that must hold the whole result before it is written, which includes every `text/plain` response, a result with a union column, and the final result of a `BEGIN … COMMIT` body, reserves that result from the same pool. For `text/plain`, it also reserves an estimate of the rendered table. A refused reservation returns `503 Service Unavailable` with a body that starts with `The query result is too large to buffer in memory for this response.` `application/json`, `application/vnd.spiceai.sql.v1+json`, and `text/csv` responses stream and do not hold the whole result. See [HTTP SQL Response Formats](../api/overview.md#http-sql-response-formats). In v2.4.1 and earlier, buffered responses are not reserved from the pool.
 
 Scalar functions whose output size follows from their arguments (`repeat`, `lpad`, `rpad`, `array_repeat`, `array_resize`, `range`, and `generate_series`) reserve a lower bound of their output from the same pool before they run. When that reservation does not fit in the pool, the call is refused the same way. Because the reservation is a lower bound, it can be smaller than the actual output: for example, `lpad` and `rpad` reserve one byte per requested character, so a multibyte fill string produces more output than was reserved.
 

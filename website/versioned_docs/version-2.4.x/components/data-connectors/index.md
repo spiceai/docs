@@ -381,6 +381,12 @@ Document formats (Markdown, Text, PDF, Word, Excel, PowerPoint) are handled diff
 Document formats in Alpha (DOCX, XLSX, PPTX) may not parse all structure or text from the underlying documents correctly.
 :::
 
+#### Archive Consistency Checks
+
+Spice checks that each DOCX, XLSX, and PPTX file is a consistent ZIP archive before it reads any entry. A file is rejected when a local file header disagrees with its central directory entry, when two entries share a name, or when entries overlap, because different ZIP readers can see different content in such a file ([GHSA-m665-v7pm-7grj](https://github.com/zip-rs/zip2/security/advisories/GHSA-m665-v7pm-7grj)). Reading a rejected file fails with an error that starts with `Internal parsing DOCX document. Error:` (`XLSX` or `PPTX` for those formats).
+
+XLSX files are read with [calamine](https://github.com/tafia/calamine) 0.37. An XLSX file must contain the `_rels/.rels` part, which files saved by Microsoft Excel include; a file without it fails to parse. Leading and trailing spaces, tabs, and line breaks in a cell's text are removed unless the text element sets `xml:space="preserve"`.
+
 #### Document Table Schema
 
 | Column     | Type   | Description                       |

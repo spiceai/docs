@@ -222,7 +222,27 @@ DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over
 
 A `/` with a decimal operand, such as `price / 7` over a `DECIMAL` column, is never sent to DuckDB. The DuckDB dialect writes every division as `//`, so that an integer `/` stays integer division, and DuckDB evaluates both `//` and `/` over a `DECIMAL` as a `DOUBLE`, which carries about 16 significant digits. Spice would then cast that double back to the decimal result type, so the digits past the double's precision would look exact and be wrong. Spice evaluates the division itself, above the federated scan, in decimal arithmetic. A `/` whose operand type Spice cannot determine is also evaluated in Spice.
 
-Integer and floating-point `/` are still sent to DuckDB, and an integer `/` is still integer division. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+Integer and floating-point `/` are sent to DuckDB when the divisor passes the check in [Division by Zero](#division-by-zero), and an integer `/` is still integer division. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+
+## Division by Zero
+
+Spice fails an integer division or modulo by zero with a `Divide by zero` error and returns an infinity for a floating-point division by zero. DuckDB returns `NULL` for both, so a filter such as `WHERE x / 0 > 1` silently drops rows when DuckDB evaluates it. A `/` or `%` is therefore sent to DuckDB only when its divisor is an integer or floating-point literal that is finite and is not `0`. An integer divisor of `-1` is also kept in Spice. A divisor that is a column or an expression, such as `a / b` or `n / (k - 3)`, is evaluated in Spice above the federated scan, so the query returns the same rows or the same error as an unaccelerated query. `n / 2` and `n % 2` are still sent to DuckDB.
+
+## `substr` Positions
+
+DuckDB counts a negative or zero `substr` start from the end of the string, so `substr(s, -2, 4)` over `abc` returns `bc` in DuckDB and `a` in Spice. A `substr` call is sent to DuckDB only when its start is an integer literal from 1 to 4294967295 and its length, when given, is an integer literal from 0 to 4294967295. Any other `substr` call, including one whose start or length is a column, is evaluated in Spice.
+
+## `LIKE` Patterns with a Backslash
+
+Spice reads a backslash in a `LIKE` or `ILIKE` pattern as the default escape character, so `s LIKE 'a\%c'` matches the literal text `a%c`. DuckDB has no default escape character and reads the backslash literally. A `LIKE` or `ILIKE` without an `ESCAPE` clause is therefore sent to DuckDB only when its pattern is a string literal that contains no backslash. A pattern with a backslash, or a pattern read from a column, is evaluated in Spice. A `LIKE` with an explicit `ESCAPE` clause is sent to DuckDB.
+
+## Functions DuckDB Does Not Define the Same Way
+
+`to_char`, `to_unixtime`, and `cardinality` are evaluated in Spice. DuckDB has no `to_char` or `to_unixtime` function, and its `cardinality` returns the size of a map and fails on a list with `Cardinality can only operate on MAPs`, so sending them to DuckDB fails the query.
+
+`SIMILAR TO` is evaluated in Spice for every federated source, as described in [Query Federation](../../../features/query-federation/index.md#similar-to-and-federation).
+
+The rules in [Division by Zero](#division-by-zero), [`substr` Positions](#substr-positions), [`LIKE` Patterns with a Backslash](#like-patterns-with-a-backslash), and this section apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md). In v2.4.1 and earlier, these expressions are sent to DuckDB and can return the DuckDB results described above.
 
 ## Ordered Aggregates and `IGNORE NULLS`
 
