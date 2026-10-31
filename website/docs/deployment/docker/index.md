@@ -59,7 +59,7 @@ The `-models` image tags were removed in Spice v2.0 — AI/ML support is now par
 Pin to a specific version in production to avoid unexpected upgrades:
 
 ```bash
-docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.4.0 --http 0.0.0.0:8090
+docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.4.1 --http 0.0.0.0:8090
 ```
 
 ## Run with Docker Compose
@@ -97,7 +97,7 @@ For deployments that ship a Spicepod and data with the runtime, build a custom i
 ```dockerfile
 # AI features are included in the default image as of Spice v2.0.
 # See https://hub.docker.com/r/spiceai/spiceai/tags for all tags.
-FROM spiceai/spiceai:2.4.0
+FROM spiceai/spiceai:2.4.1
 
 WORKDIR /app
 

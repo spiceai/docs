@@ -49,7 +49,7 @@ The chart loads the Spicepod from a `spicepod` key in the values file. A typical
 # values.yaml
 image:
   repository: spiceai/spiceai
-  tag: '2.4.0'
+  tag: '2.4.1'
 
 spicepod:
   name: cayenne
@@ -137,7 +137,7 @@ Production pipelines should pin both the chart and the Spice runtime image to sp
 
 ```bash
 helm upgrade --install spiceai spiceai/spiceai \
-  --version 2.4.0 \
+  --version 2.4.1 \
   --values values.yaml
 ```
 

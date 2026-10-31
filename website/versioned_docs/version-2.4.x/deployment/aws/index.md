@@ -82,7 +82,7 @@ helm repo update
 
 helm upgrade --install spiceai spiceai/spiceai \
   --namespace spiceai --create-namespace \
-  --version 2.4.0 \
+  --version 2.4.1 \
   -f values.yaml
 ```
 
@@ -165,7 +165,7 @@ Create a task definition for the [`spiceai/spiceai` image](https://hub.docker.co
   "containerDefinitions": [
     {
       "name": "spiceai",
-      "image": "spiceai/spiceai:2.4.0",
+      "image": "spiceai/spiceai:2.4.1",
       "essential": true,
       "command": ["--http", "0.0.0.0:8090", "--flight", "0.0.0.0:50051"],
       "portMappings": [
