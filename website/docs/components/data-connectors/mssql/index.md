@@ -130,6 +130,10 @@ Spice follows up to **3** redirects (4 connection attempts) before reporting the
 
 See the dedicated **[Performance](./performance.md)** page for query-pushdown tuning — TopK / `ORDER BY ... LIMIT` pushdown and its NULL-ordering rules.
 
+## Deployment
+
+See the [Deployment Guide](./deployment.md) for TLS defaults, connection pool limits and timeouts, observability, and known limitations in production.
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores/). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores/#using-secrets).
