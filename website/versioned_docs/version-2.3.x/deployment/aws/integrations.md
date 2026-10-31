@@ -304,6 +304,7 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
         "s3:GetObject",
         "s3:ListBucket",
         "dynamodb:Scan",
+        "dynamodb:Query",
         "dynamodb:DescribeTable",
         "glue:GetTable",
         "glue:GetTables",
