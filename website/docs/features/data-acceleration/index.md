@@ -44,7 +44,7 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 | `duckdb`   | Complex analytical queries under 10 GB, file-based persistence | `memory`, `file`, `file_create`, or `file_update` |
 | `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `memory`, `file`, `file_create`, or `file_update` |
 | `postgres` | When a full SQL database is needed as accelerator  | External                                          |
-| `cayenne`  | Default engine (except on Windows); datasets 10 GB and above, high-performance columnar | `memory`, `file`, `file_create`, or `file_update` |
+| `cayenne`  | Default engine; datasets 10 GB and above, high-performance columnar | `memory`, `file`, `file_create`, or `file_update` |
 | `turso`    | Embedded libSQL, lightweight file-based caching    | `memory`, `file`, `file_create`, or `file_update` |
 
 ## Example

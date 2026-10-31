@@ -81,8 +81,6 @@ INFO runtime_table::accelerated::refresh_task: Loaded 4 rows (92.00 B) for datas
 
 Then run the query from step 1 against the migrated dataset and check that the row count and oldest value match what the old acceleration held. See the [Cayenne reference](./index.md) for Cayenne's own parameters.
 
-Cayenne is not available on native Windows, where `arrow` is the default engine. On Windows, run Spice in Docker or WSL to use Cayenne.
-
 ## Step 3: Delete the old acceleration data
 
 Cayenne neither reads nor removes the previous engine's data. Once every acceleration that used a file has moved, delete it as described below. In-memory (`mode: memory`) accelerations of any engine leave nothing behind.

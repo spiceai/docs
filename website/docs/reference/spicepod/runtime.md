@@ -12,7 +12,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts — a reload logs a warning and the previous value stays in effect:**
 
-`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
+`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.mode` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
@@ -60,6 +60,26 @@ API key authentication supports the following configuration parameters:
 ## `runtime.dataset_load_parallelism`
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
+
+## `runtime.mode`
+
+Selects the runtime's deployment profile: `server` (the default) or `sidecar`. Any other value fails to load with `Invalid runtime.mode '<value>'. Use 'server' (default) or 'sidecar'.`
+
+```yaml
+runtime:
+  mode: sidecar
+```
+
+Set `sidecar` when Spice runs next to an application, in the same pod or on the same host, and reads its data from an upstream Spice runtime through the [Spice.ai Data Connector](../../components/data-connectors/spiceai/index.md). In sidecar mode:
+
+- Queries on `spice.ai` datasets are planned in the sidecar, and the parts the upstream can run are sent to it as [Substrait](https://substrait.io/) plans instead of SQL text. See [Sidecar mode](../../components/data-connectors/spiceai/index.md#sidecar-mode).
+- When `runtime.query.target_partitions` is not set, queries run with one target partition, so concurrent application queries share the CPU budget. In `server` mode the default is the [CPU entitlement](#runtimecpu) in whole cores. An explicit `runtime.query.target_partitions` applies in both modes.
+
+A sidecar cannot also be a cluster scheduler or executor. Starting `spiced` with `--role` or `--scheduler-address` and `runtime.mode: sidecar` fails with `runtime.mode: sidecar cannot run as a cluster scheduler or executor. Remove --role and --scheduler-address, or set runtime.mode: server.`
+
+The mode is applied when `spiced` starts. A Spicepod reload that changes it logs a warning and keeps the current mode until `spiced` restarts. Changing the mode leaves acceleration files in place, so switching back to `server` and restarting is a rollback.
+
+`runtime.mode` is not available in v2.4.1 and earlier.
 
 ## `runtime.caching`
 
@@ -144,6 +164,8 @@ In addition to the common cache configuration parameters, `sql_results` also sup
 - **`sql`:** Uses the raw SQL string as the cache key. Provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results. Use `sql` only when results are predictable.
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
+
+A Flight SQL request that carries a Substrait plan, as a [sidecar](#runtimemode) sends, has no SQL text. With `cache_key_type: plan`, it is cached under a hash of its serialized plan, so identical plan bytes share an entry within the caller's cache namespace. With `cache_key_type: sql`, or with a client-supplied `Spice-Cache-Key` header, the request bypasses the results cache. In v2.4.1 and earlier, a Substrait request is cached under its logical plan with `plan`, and under a key derived from the plan bytes with `sql`.
 
 ### Choosing a `hashing_algorithm`
 

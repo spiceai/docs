@@ -19,19 +19,25 @@ spice [command] [--help]
 | ---------------------------------- | ---------------------------------------------------------------------- |
 | acceleration                       | Manage dataset acceleration features                                   |
 | [add](reference/add)               | Add Spicepod - adds a Spicepod to the project                          |
+| [agy](reference/coding-agents)     | Run the Antigravity CLI with the Spice runtime as its model backend |
 | catalog                            | Add or configure catalog entries in `spicepod.yaml`                    |
 | [catalogs](reference/catalogs)     | List [catalogs](../components/catalogs) loaded by the Spice runtime |
 | [chat](reference/chat)             | Chat with an LLM                                                       |
+| [claude](reference/coding-agents)  | Run Claude Code with the Spice runtime as its model backend |
+| [codex](reference/coding-agents)   | Run Codex CLI with the Spice runtime as its model backend |
 | [completions](reference/completions) | Generate shell completions for the Spice CLI                         |
 | [cloud](reference/cloud)           | Manage Spice Cloud resources                                           |
 | cluster                            | Cluster operations for the Spice runtime                               |
 | [connect](reference/connect)       | Deprecated alias for adding a Spicepod dependency                      |
+| [copilot](reference/coding-agents) | Run GitHub Copilot CLI with the Spice runtime as its model backend |
+| [cursor](reference/coding-agents)  | Run Cursor CLI with the Spice runtime as its model backend |
 | [dataset](reference/dataset)       | Add or configure dataset entries in `spicepod.yaml`                    |
 | [datasets](reference/datasets)     | Lists datasets loaded by the Spice runtime                             |
 | embedding                          | Add or configure embedding entries in `spicepod.yaml`                  |
 | extension                          | Add or configure entries under `extensions:` in `spicepod.yaml`        |
 | [feedback](reference/feedback)     | Open the Spice.ai community Slack to share feedback                    |
 | function                           | Add or configure function entries in `spicepod.yaml`                   |
+| [grok](reference/coding-agents)    | Run Grok Build with the Spice runtime as its model backend |
 | help                               | Help about any command                                                 |
 | [init](reference/init)             | Initialize Spice app - creates a new spicepod.yaml                     |
 | [install](reference/install)       | Install or reinstall the Spice.ai runtime                              |
@@ -41,6 +47,9 @@ spice [command] [--help]
 | model                              | Add or configure model entries in `spicepod.yaml`                      |
 | [models](reference/models)         | Lists models loaded by the Spice runtime                               |
 | [nsql](reference/nsql)             | Text-to-SQL REPL - translate natural language to SQL                   |
+| [opencode](reference/coding-agents) | Run OpenCode with the Spice runtime as its model backend |
+| [orca](reference/coding-agents)    | Run Orca with every coding agent it starts on the Spice runtime |
+| [pi](reference/coding-agents)      | Run pi with the Spice runtime as its model backend |
 | [pods](reference/pods)             | Lists Spicepods loaded by the Spice runtime                            |
 | [query](reference/query)           | Submit an async query or start an interactive async query REPL         |
 | [refresh](reference/refresh)       | Refresh a dataset loaded by the Spice runtime                          |

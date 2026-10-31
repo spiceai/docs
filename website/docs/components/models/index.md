@@ -113,6 +113,7 @@ A multi-token prediction (MTP) draft head proposes the next tokens, and one forw
 
 - A GGUF listed in `files` whose name starts with `mtp-` is a draft head for the model. Every other GGUF listed is a shard of the model.
 - With no `mtp-` file listed, a GGUF that carries its own NextN layer drafts for itself. GLM-5.3-Flash is an example.
+- A Hugging Face model that names a quantization instead of a file, or names no `files`, also loads the repository's draft head. See [Hugging Face `files`](huggingface/index.md#files).
 
 This Qwen3.8-Flash-Next model drafts with its separate head:
 

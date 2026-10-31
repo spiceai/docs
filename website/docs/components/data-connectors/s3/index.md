@@ -175,7 +175,7 @@ Spice refuses to register the dataset when:
 - `s3_auth` is `public`. An unauthenticated client cannot receive from SQS.
 - No SQS region can be resolved from `s3_changes_region`, the queue URL, or `s3_region`.
 - `s3_on_object_removed` is not `ignore` or `rebuild`, `s3_changes_key_prefix` is not under the `from` prefix, or `s3_changes_backfill_interval` is not a duration greater than 0.
-- The dataset has no structured file format (Parquet, CSV, JSON, TSV, ORC, or, except on Windows, Vortex) from `file_format`, `file_extension`, or the `from` path.
+- The dataset has no structured file format (Parquet, CSV, JSON, TSV, ORC, or Vortex) from `file_format`, `file_extension`, or the `from` path.
 - `from` contains a wildcard or names a single object instead of a prefix. End the prefix with `/`; keep a single object on `refresh_mode: full`.
 
 For example, an ARN in `s3_changes_queue_url` fails with:
