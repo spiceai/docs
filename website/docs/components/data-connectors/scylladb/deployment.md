@@ -44,7 +44,7 @@ The connector does not support TLS. `scylladb_ssl` is accepted but has no effect
 
 `scylladb_hosts` takes precedence over `scylladb_host` when both are set. Either accepts a comma-separated list of hostnames, and `scylladb_port` (default `9042`) applies to every host in the list.
 
-Before it creates a session, the connector resolves each host and opens a TCP connection to it on the configured port, stopping at the first host that answers. If none answers, the dataset reports `Cannot connect to the dataset <name> (scylladb) on <hosts>:<port>`, and the runtime treats the failure as transient and retries the dataset load until a host is reachable. List more than one host so that startup succeeds when one of them is down.
+Before it creates a session, the connector resolves each host and opens a TCP connection to it on the configured port, stopping at the first host that answers. Each resolved IP address is tried in turn with a fixed 30-second timeout, so a host that does not respond can delay startup by up to 30 seconds per address. `connection_timeout` does not apply to this check. If none answers, the dataset reports `Cannot connect to the dataset <name> (scylladb) on <hosts>:<port>`, and the runtime treats the failure as transient and retries the dataset load until a host is reachable. List more than one host so that startup succeeds when one of them is down.
 
 ### Session and Connection Pool
 
@@ -54,7 +54,7 @@ Each dataset creates its own driver session. The session keeps one connection pe
 
 | Setting            | Value                             | Source                                                                         |
 | ------------------ | --------------------------------- | ------------------------------------------------------------------------------ |
-| Connection timeout | `10000` ms                        | `connection_timeout` parameter (milliseconds). Applies to opening a connection. |
+| Connection timeout | `10000` ms                        | `connection_timeout` parameter (milliseconds). Applies to the driver's connections, not the startup check. |
 | Request timeout    | 30 seconds                        | Driver default. Not configurable through Spice.                                |
 | Consistency level  | `LOCAL_QUORUM`                    | Driver default. Not configurable through Spice.                                |
 

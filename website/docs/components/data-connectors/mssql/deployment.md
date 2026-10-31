@@ -26,7 +26,7 @@ When `mssql_connection_string` is set, the individual parameters are ignored, in
 
 ```yaml
 datasets:
-  - from: mssql:SalesLT.Customer
+  - from: mssql:"SalesLT"."Customer"
     name: customer
     params:
       mssql_connection_string: ${secrets:mssql_connection_string}
@@ -58,7 +58,7 @@ The connection string accepts these TLS keys:
 | -------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `Encrypt`                  | `true`, `yes`, `false`, `no`, `DANGER_PLAINTEXT` | `true` requires encryption. `false` encrypts only the login. `DANGER_PLAINTEXT` encrypts nothing. Default: `false`. |
 | `TrustServerCertificate`   | `true`, `yes`, `false`, `no`            | `true` accepts the server certificate without validation. Default: `false`.                               |
-| `TrustServerCertificateCA` | Path to a `.pem`, `.crt`, or `.der` file | Validates the server certificate against this CA certificate instead of the operating system's store. Only the first certificate in the file is used. |
+| `TrustServerCertificateCA` | Path to a `.pem`, `.crt`, or `.der` file | Validates the server certificate against this CA certificate instead of the operating system's store. A `.pem` or `.crt` file must contain exactly one certificate; a file with a certificate chain or bundle fails every connection attempt. |
 
 `TrustServerCertificate=true` and `TrustServerCertificateCA` cannot be combined. For a server with a certificate from a private CA, use `TrustServerCertificateCA` rather than disabling validation. See [Configure SQL Server Database Engine for encrypting connections](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/configure-sql-server-encryption) for the server side.
 
