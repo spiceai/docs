@@ -49,7 +49,7 @@ runtime:
 | `redacted`            | The payload is replaced with `[redacted]`.                                                    |
 | `full`                | The payload is stored in full.                                                                |
 
-In `truncated` and `full`, a tool call whose arguments define a dataset or catalog is stored without the values of the parameters it sets, whatever the tool's name, as [SQL DDL](./sql/ddl.md#who-can-define-datasets-and-catalogs) describes.
+In `truncated` and `full`, a tool call whose arguments hold a statement with `CREATE`, `ALTER`, or `ATTACH` is stored without the values of the parameters the statement sets, whatever the tool's name, as [SQL DDL](./sql/ddl.md#who-can-define-datasets-and-catalogs) describes.
 
 Values are case-sensitive; an unrecognized value fails at load. Other task types (for example `sql_query` and `acceleration_refresh`) are unaffected by this setting.
 
