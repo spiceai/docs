@@ -47,10 +47,10 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
 
     ### Runtime in Docker
 
-    From the directory that holds `spicepod.yaml`, start the runtime in Docker on its default ports:
+    From the directory that holds `spicepod.yaml`, start the runtime in Docker on its default ports, published only on this machine's loopback address:
 
     ```powershell
-    docker run -p 8090:8090 -p 50051:50051 -v "${PWD}:/app" spiceai/spiceai --http 0.0.0.0:8090 --flight 0.0.0.0:50051
+    docker run -p 127.0.0.1:8090:8090 -p 127.0.0.1:50051:50051 -v "${PWD}:/app" spiceai/spiceai --http 0.0.0.0:8090 --flight 0.0.0.0:50051
     ```
 
     The native `spice` CLI connects to a runtime in WSL or Docker on the default ports, so commands such as `spice sql` and `spice status` work from PowerShell. On native Windows, `spice run`, `spice install`, and `spice upgrade` stop with an error that points to WSL.

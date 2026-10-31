@@ -32,7 +32,7 @@ Every argument after the command name is passed to the agent unchanged, so `spic
 
 The agent must be installed and on `PATH`. When it is not, the command fails with the agent's install instructions. Cursor's public CLI, `cursor-agent`, sends every request to Cursor's servers and cannot use another model endpoint; `spice cursor` needs Cursor's local-agent build, `cursor-agent-local`.
 
-The coding agent commands run against a runtime on the same machine. They do not accept `--cloud`.
+The coding agent commands use a runtime already serving at the HTTP endpoint, on this machine or another one named with `--http-endpoint`, and start a runtime only on this machine. They do not accept `--cloud`.
 
 ## Choosing the Model
 
