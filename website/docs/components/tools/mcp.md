@@ -208,12 +208,7 @@ tools:
       API_KEY: your_api_key
 ```
 
-A stdio MCP server does not inherit the `spiced` environment, so secrets in that environment do not reach the server. The server process starts with only these variables from the `spiced` environment, when they are set, plus the variables in `env`:
-
-| Platform | Inherited variables |
-| --- | --- |
-| Linux and macOS | `HOME`, `LOGNAME`, `PATH`, `SHELL`, `TERM`, `USER` |
-| Windows | `APPDATA`, `HOMEDRIVE`, `HOMEPATH`, `LOCALAPPDATA`, `PATH`, `PATHEXT`, `PROCESSOR_ARCHITECTURE`, `SYSTEMDRIVE`, `SYSTEMROOT`, `TEMP`, `USERNAME`, `USERPROFILE` |
+A stdio MCP server does not inherit the `spiced` environment, so secrets in that environment do not reach the server. The server process starts with only these variables from the `spiced` environment, when they are set, plus the variables in `env`: `HOME`, `LOGNAME`, `PATH`, `SHELL`, `TERM`, and `USER`.
 
 This is the same set the [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) passes to stdio servers. A variable in `env` overrides an inherited variable of the same name. Pass any other variable the server needs through `env`, for example from a [secret store](../secret-stores/):
 

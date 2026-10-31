@@ -476,7 +476,7 @@ Dataset 'my_dataset' sets `acceleration.enabled: false`, so these settings in it
 
 ## `acceleration.engine`
 
-Optional. The acceleration engine to use. Defaults to `cayenne`, or to `arrow` on Windows, where Cayenne is not available. Spice v2.3 and earlier default to `arrow`. See [Default Engine](../../components/data-accelerators/index.md#default-engine). The following engines are supported:
+Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and earlier default to `arrow`. See [Default Engine](../../components/data-accelerators/index.md#default-engine). The following engines are supported:
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).

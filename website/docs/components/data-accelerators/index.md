@@ -25,9 +25,9 @@ For the complete reference specification, see [datasets](../reference/spicepod/d
 
 ## Default Engine
 
-An acceleration that sets no `engine` uses [Spice Cayenne][cayenne]. With no `mode`, the acceleration is in `mode: memory`: Cayenne holds the data in RAM and reloads it from the source on restart. On Windows, where Cayenne is not available, the default engine is `arrow`. Spice v2.3 and earlier use `arrow` as the default on every platform.
+An acceleration that sets no `engine` uses [Spice Cayenne][cayenne]. With no `mode`, the acceleration is in `mode: memory`: Cayenne holds the data in RAM and reloads it from the source on restart. Spice v2.3 and earlier use `arrow` as the default.
 
-Some configurations load on Arrow but not on Cayenne. On Linux and macOS, with no `engine`, each of these fails to load until the acceleration sets `engine: arrow` or the configuration changes:
+Some configurations load on Arrow but not on Cayenne. With no `engine`, each of these fails to load until the acceleration sets `engine: arrow` or the configuration changes:
 
 - [`partition_by`](../features/data-acceleration/partitioning) in `mode: memory`, the default mode. Cayenne partitions only in a file mode, such as `mode: file`.
 - A column of a type that Cayenne does not store, such as `Interval` or `Duration`. Set [`unsupported_type_action`](./cayenne/index.md#unsupported-types) to convert or skip it.

@@ -133,7 +133,7 @@ Different acceleration engines have distinct memory characteristics and tuning o
 
 ### Arrow (In-Memory)
 
-The Arrow accelerator, the default on Windows, stores all data in memory uncompressed. Datasets must fit entirely in available RAM.
+The Arrow accelerator stores all data in memory uncompressed. Datasets must fit entirely in available RAM.
 
 - Data is stored uncompressed in Apache Arrow format
 - No configuration options for memory limits
@@ -354,7 +354,7 @@ Concurrency is the multiplier on the working set: each executing plan holds its 
 | Setting                                | Default                                     | Effect on memory                                          |
 | -------------------------------------- | ------------------------------------------- | ---------------------------------------------------------- |
 | `runtime.query.max_concurrent_queries` | 4 × the CPU entitlement's cores             | Caps how many plans execute at once; excess queries wait   |
-| `runtime.query.target_partitions`      | The CPU entitlement's cores                 | Caps per-plan fan-out and its per-partition reservations   |
+| `runtime.query.target_partitions`      | The CPU entitlement's cores, or `1` with `runtime.mode: sidecar` | Caps per-plan fan-out and its per-partition reservations   |
 
 Because the defaults follow CPU, a pod that is CPU-rich and memory-poor admits far more concurrent work than its memory can support. A pod sized for 8 cores admits 32 concurrent queries by default; one running [`runtime.cpu.cores: all`](./spicepod/runtime#runtimecpucores) on a large node admits proportionally more. Neither default consults `runtime.query.memory_limit`.
 

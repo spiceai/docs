@@ -16,7 +16,7 @@ Installation options for Spice.ai OSS
 **Prerequisites:**
 
 - macOS 14+ (Apple Silicon), or Linux (x86_64 or aarch64) with glibc 2.39+, such as Ubuntu 24.04+ or Debian 13+. See [System Requirements](./reference/system_requirements.md).
-- Windows: use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu 24.04 (`wsl --install -d Ubuntu-24.04`), then follow the Linux steps. The Spice runtime does not run natively on Windows.
+- Windows: use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu 24.04 (`wsl --install -d Ubuntu-24.04`), then follow the Linux steps, or run the runtime in Docker. The Spice runtime does not run natively on Windows.
 - `curl`, used by the install script. Minimal Linux images and containers often don't include it. On Ubuntu or Debian, install it with `sudo apt-get install -y curl`.
 
 For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
@@ -37,13 +37,23 @@ For deployment options, such as to Kubernetes, see [`Deployment`](./deployment).
 
   </TabItem>
   <TabItem value="windows" label="Windows" default>
-    To run the Spice runtime locally on Windows, use WSL 2 and follow the **macOS, Linux, and WSL** tab from the WSL terminal. The PowerShell script below installs only the native `spice` CLI, for example to use with Spice Cloud.
+    To run the Spice runtime locally on Windows, use WSL 2 and follow the **macOS, Linux, and WSL** tab from the WSL terminal, or run the runtime in Docker. The PowerShell script below installs only the native `spice` CLI.
 
     ### PowerShell Install Script
 
     ```bash
     iex ((New-Object System.Net.WebClient).DownloadString("https://install.spiceai.org/Install.ps1"))
     ```
+
+    ### Runtime in Docker
+
+    From the directory that holds `spicepod.yaml`, start the runtime in Docker on its default ports, published only on this machine's loopback address:
+
+    ```powershell
+    docker run -p 127.0.0.1:8090:8090 -p 127.0.0.1:50051:50051 -v "${PWD}:/app" spiceai/spiceai --http 0.0.0.0:8090 --flight 0.0.0.0:50051
+    ```
+
+    The native `spice` CLI connects to a runtime in WSL or Docker on the default ports, so commands such as `spice sql` and `spice status` work from PowerShell. On native Windows, `spice run`, `spice install`, and `spice upgrade` stop with an error that points to WSL.
 
   </TabItem>
 </Tabs>
@@ -52,7 +62,7 @@ On macOS, Linux, and WSL, the install script does not use `sudo` to install the 
 
 ## Direct Download
 
-Binaries for Linux, Windows, and macOS are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases).
+Binaries for Linux and macOS, and the `spice` CLI for Windows, are available for download from GitHub at [github.com/spiceai/spiceai/releases](https://github.com/spiceai/spiceai/releases). No release includes a native Windows runtime.
 
 **Verify the installation:**
 
