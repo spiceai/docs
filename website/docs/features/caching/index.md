@@ -356,6 +356,10 @@ When `stale_while_revalidate_ttl` is set to a non-zero value:
 
 If a revalidation fails or its result is discarded, the previous result keeps being served until `item_ttl + stale_while_revalidate_ttl`, then becomes a miss. `results_cache_swr_revalidations` reports the failure.
 
+At most a quarter of the query admission limit, and at least one, background revalidations run at once: a quarter of [`runtime.query.max_concurrent_queries`](../../reference/spicepod/runtime#runtimequerymax_concurrent_queries), or, when it is unset or `0`, a quarter of the default the runtime sizes from its CPU entitlement. A stale hit that arrives while that many revalidations are running is still served from the cache, with `STALE`, but starts no revalidation; the entry stays stale, a later stale hit revalidates it, and `results_cache_stale_swr_count` counts the skip. A revalidation that has not finished 5 minutes after the stale hit that started it is cancelled, which frees its slot, and is reported as `results_cache_swr_revalidations{outcome="timed_out"}`.
+
+In v2.4.1 and earlier, a burst of stale hits on many different queries started one revalidation per query, with no limit and no deadline, and client queries that arrived after the burst waited behind them.
+
 #### Example Configuration
 
 ```yaml
@@ -429,9 +433,13 @@ The following `Cache-Control` directives are supported:
 | Directive                                                                                                  | Description                                                                                                                                                                                                                                        |
 | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`no-cache`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#no-cache)             | Skips the cache for the current request but caches the results for future requests.                                                                                                                                                                |
-| [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh)           | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` requires the cached entry to be fresh for at least 60 more seconds.                                                                  |
+| [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh)           | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` serves a cached SQL result only while its age is less than `item_ttl` minus 60 seconds. A `min-fresh` request is never served a stale entry and never starts a background revalidation; when no entry qualifies, the query runs. |
 | [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale)           | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness accepted. For example, `max-stale=30` accepts responses stale for up to 30 seconds. It can only narrow what the cache serves: an entry older than `item_ttl + stale_while_revalidate_ttl` is never served, so with `stale_while_revalidate_ttl` unset, `max-stale` cannot return an entry past `item_ttl`. A stale entry served this way returns `STALE` and starts a background revalidation. |
-| [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. If no cached response is available, returns an error instead of fetching fresh data.                                                                                                                                |
+| [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. On a SQL query whose result is not cached, the query is not run: the HTTP API returns `504 Gateway Timeout`, as [RFC 9111 §5.2.1.7](https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.7) specifies, and Arrow Flight returns `FAILED_PRECONDITION`. |
+
+When a request sets more than one directive, only one applies, in this order of precedence: `no-cache`, `only-if-cached`, `min-fresh`, then `max-stale`.
+
+In v2.4.1 and earlier, the SQL results cache ignored `min-fresh` and `only-if-cached`: a `min-fresh` request could be served an entry that expired sooner than it asked for, or a stale one within the `stale_while_revalidate_ttl` window, and an `only-if-cached` request that missed ran the query against the source.
 
 #### HTTP Example
 
@@ -606,7 +614,7 @@ Cache metrics can be monitored using the [Prometheus-compatible Metrics Endpoint
 | `*_cache_size_bytes`     | Gauge   | Current cache size in bytes.                               |
 | `*_cache_evictions`      | Counter | Total number of entries removed from the cache, split by a `reason` label. |
 | `*_cache_hit_ratio`      | Gauge   | Current cache hit ratio (hits / total requests).           |
-| `*_cache_stale_swr_count` | Counter | Stale-while-revalidate background refreshes skipped because a revalidation was already in flight. |
+| `*_cache_stale_swr_count` | Counter | Stale-while-revalidate background refreshes skipped because a revalidation was already in flight or the concurrent revalidation limit was reached. |
 | `*_cache_swr_background_query_count` | Counter | Background queries triggered to revalidate a stale entry. |
 
 `*_cache_evictions` carries a `reason` label with one of three values:
@@ -635,7 +643,7 @@ The SQL results cache additionally emits three counters covering [table invalida
 
 Earlier releases also exported `results_cache_invalidation_stale_hits`, the `mark_stale` value of `mode`, and the `no_window`, `window_expired`, and `fresh_required` values of `reason`. They were removed when refreshes stopped invalidating SQL results; update dashboards and alerts that read them.
 
-`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, or `put_failed`. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
+`outcome` on `results_cache_swr_revalidations` is `stored`, `query_failed`, `collect_failed`, `invalidated_mid_flight`, `transient_errors`, `unboundable`, `encode_failed`, `put_failed`, or `timed_out`. `timed_out` means the revalidation did not finish before its 5-minute deadline and was cancelled. `unboundable` means the revalidated result rested on memory its producer owns, so an entry over it could not have been bounded by `max_size`.
 
 :::note
 These three counters are published at zero for the search-results and embeddings caches as well, but only the SQL results cache ever increments them.

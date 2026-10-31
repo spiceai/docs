@@ -310,12 +310,13 @@ FROM rerank(
 | Parameter         | Type              | Required | Description |
 | ----------------- | ----------------- | -------- | ----------- |
 | `input`           | Table or UDTF     | Yes      | Input rows to rerank. Can be a search UDTF call (`vector_search`, `text_search`, `rrf`) or a table name. |
-| `model`           | String            | No       | Name of a registered reranker, chat model, or decision model, looked up in that order. Omit it only when exactly one such model is registered, in which case that one is used. With more than one registered, the query fails and `model` chooses between them. With none registered, the query fails whether or not `model` is given — no name can resolve until a reranker, chat model, or decision model is added to the Spicepod. |
+| `model`           | String            | No       | Name of a registered reranker, chat model, or decision model. A reranker is used as is; any other model reranks through the path `via` selects (see [Model Resolution](../../features/search/rerank.md#model-resolution)). Omit it only when exactly one such model is registered, in which case that one is used. With more than one registered, the query fails and `model` chooses between them. With none registered, the query fails whether or not `model` is given — no name can resolve until a reranker, chat model, or decision model is added to the Spicepod. |
 | `document`        | String            | Yes      | Column containing the text to send to the reranker for scoring. |
 | `query`           | String            | No       | Query string for relevance scoring. Auto-extracted from nested search UDTFs when omitted; required for bare-table inputs. |
 | `limit`           | Integer           | No       | Maximum number of rows returned. It caps the **output** only and never shrinks the candidate pool, so every candidate is still scored by the reranker — narrow the inner search's own `limit` to reduce reranker calls. |
-| `strategy`        | String            | No       | Reranking strategy: `'listwise'` or `'pointwise'`. The default is `'listwise'` for a chat model and `'pointwise'` for a decision model. Ignored by dedicated rerankers. |
-| `prompt_template` | String            | No       | Custom prompt template for LLM-as-reranker. Use `{query}` and `{document}` placeholders. Only applies when the model resolves to a chat model. |
+| `strategy`        | String            | No       | Reranking strategy: `'listwise'` or `'pointwise'`. The default is `'listwise'` on the chat path and `'pointwise'` on the decisions path. Ignored by dedicated rerankers. |
+| `prompt_template` | String            | No       | Custom prompt template for LLM-as-reranker. Use `{query}` and `{document}` placeholders. Selects the chat path, so it implies `via => 'chat'`, and fails the query with `via => 'decisions'` or a model that has no chat completions. |
+| `via`             | String            | No       | `'chat'` or `'decisions'`. Forces the chat (LLM-as-reranker) or decisions (one relevance question per candidate) path. When omitted, a model with a native decisions API reranks via decisions and any other model via chat. Not accepted for dedicated rerankers. |
 
 #### Candidate Pool
 
