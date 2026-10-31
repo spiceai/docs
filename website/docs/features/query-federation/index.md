@@ -253,6 +253,12 @@ Step 7 runs the same join against copies of both datasets materialized locally w
 
 :::
 
+## `SIMILAR TO` and Federation
+
+A `SIMILAR TO` or `NOT SIMILAR TO` predicate is never sent to a federated source. The SQL Spice generates for a source writes `SIMILAR TO` as `LIKE` with the same pattern, and `LIKE` reads regular-expression syntax such as `[0-9]+` as literal characters, so `s SIMILAR TO 'cust_[0-9]+'` matched no rows at the source. Spice evaluates the predicate itself, above the federated scan, for every source, and the rest of the query is still federated. In v2.4.1 and earlier, the predicate is sent to the source as `LIKE`.
+
+Run [`EXPLAIN`](../../reference/sql/explain.md) to see which parts of a query run in Spice and which SQL is sent to the source. Some connectors keep other expressions in Spice for the same reason, such as the [DuckDB connector](../../components/data-connectors/duckdb/index.md#division-by-zero).
+
 ## Related Topics
 
 - [Distributed Query](distributed-query) - Scale queries across multiple nodes
