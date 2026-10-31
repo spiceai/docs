@@ -165,7 +165,7 @@ The following data connectors support file format configuration:
 
 A federated file dataset, one read from these connectors without [acceleration](../../features/data-acceleration/index.md), lists its files again each time a query scans it. Each query reads the files as they are when it runs: a file added after an earlier query is read, and a file replaced in place is read at its new size and version. Per-file metadata that Spice caches, such as Parquet footers and file statistics, stays in use for files that did not change.
 
-Listing again adds one directory listing to each scan, which on an object store is one `LIST` request. An accelerated dataset avoids that cost on the query path: it serves queries from the acceleration and reads the source files when it refreshes.
+Listing again adds a directory listing to each scan. On an object store, a listing is one `LIST` request per page of results, and S3 returns at most 1,000 keys per page, so a dataset with many files adds several requests to each scan. An accelerated dataset avoids that cost on the query path: it serves queries from the acceleration and reads the source files when it refreshes.
 
 In v2.4.1 and earlier, a federated file dataset answers from the file list its first query read, for as long as the runtime runs. A file added later is not read, so counts and aggregates miss its rows, and a file replaced in place can fail to read with errors such as `Requested range was invalid`, or return the old rows. Restart the runtime to read the current files.
 
@@ -424,7 +424,7 @@ Failed to parse DOCX document: archive entry 'word/document.xml' decompresses to
 
 Spice checks that each DOCX, XLSX, and PPTX file is a consistent ZIP archive before it reads any entry. A file is rejected when a local file header disagrees with its central directory entry, when two entries share a name, or when entries overlap, because different ZIP readers can see different content in such a file ([GHSA-m665-v7pm-7grj](https://github.com/zip-rs/zip2/security/advisories/GHSA-m665-v7pm-7grj)). Reading a rejected file fails with an error that starts with `Internal parsing DOCX document. Error:` (`XLSX` or `PPTX` for those formats).
 
-XLSX files are read with [calamine](https://github.com/tafia/calamine) 0.37. An XLSX file must contain the `_rels/.rels` part, which files saved by Microsoft Excel include; a file without it fails to parse. Leading and trailing spaces, tabs, and line breaks in a cell's text are removed unless the text element sets `xml:space="preserve"`.
+XLSX files are read with [calamine](https://github.com/tafia/calamine) 0.37. An XLSX file must contain the `_rels/.rels` part, which files saved by Microsoft Excel include; a file without it fails to parse. Leading and trailing spaces, tabs, and line breaks are removed from each text element of a cell unless that element sets `xml:space="preserve"`. A rich-text cell stores each formatted run in its own text element, so a space at the edge of a run is lost: runs `Hello ` and `world` read as `Helloworld`.
 
 #### Document Table Schema
 
