@@ -32,7 +32,7 @@ datasets:
       mssql_connection_string: ${secrets:mssql_connection_string}
 ```
 
-Windows and Kerberos authentication are not supported. An `Integrated Security` key in the connection string is ignored, and the login uses the `User ID` and `Password` keys as SQL Server authentication.
+The default build does not support Windows or Kerberos authentication: an `Integrated Security` key in the connection string is ignored, and the login uses the `User ID` and `Password` keys as SQL Server authentication. A `spiced` binary built with the opt-in `mssql-kerberos-unix` Cargo feature (not part of the default build) accepts `Integrated Security=true` (or `SSPI`) in `mssql_connection_string` and authenticates with Kerberos through GSSAPI. The individual parameters always use SQL Server authentication.
 
 ## TLS
 
@@ -107,7 +107,7 @@ The connector writes these log lines, which are the main signals for connection 
 
 ## Known Limitations
 
-- Only SQL Server authentication is supported. Windows, Kerberos, and Microsoft Entra ID authentication are not available.
+- The default build supports only SQL Server authentication. Windows and Microsoft Entra ID authentication are not available, and Kerberos requires a build with the opt-in `mssql-kerberos-unix` feature.
 - Pool size, lifetimes, and timeouts are fixed and cannot be changed per dataset.
 - The `MultiSubnetFailover` connection string key is ignored. When an availability group listener resolves to several addresses, the connector tries them one at a time, so an unreachable address listed first can stall the connection attempt until it times out ([spiceai/spiceai#12605](https://github.com/spiceai/spiceai/issues/12605)). See Microsoft's [listener connectivity guidance](https://learn.microsoft.com/en-us/sql/database-engine/availability-groups/windows/listeners-client-connectivity-application-failover) for how `MultiSubnetFailover` is meant to behave.
 - A custom CA certificate can only be configured through `mssql_connection_string`.
