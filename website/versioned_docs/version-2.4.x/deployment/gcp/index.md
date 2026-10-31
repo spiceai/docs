@@ -104,7 +104,7 @@ helm repo update
 
 helm upgrade --install spiceai spiceai/spiceai \
   --namespace spiceai --create-namespace \
-  --version 2.4.0 \
+  --version 2.4.1 \
   -f values.yaml
 ```
 
@@ -170,7 +170,7 @@ Cloud Run pulls the [Spice.ai container image](https://hub.docker.com/r/spiceai/
 gcloud run deploy spiceai \
   --project $PROJECT \
   --region $REGION \
-  --image spiceai/spiceai:2.4.0 \
+  --image spiceai/spiceai:2.4.1 \
   --port 8090 \
   --service-account spiceai-runtime@${PROJECT}.iam.gserviceaccount.com \
   --min-instances 1 --max-instances 5 \
