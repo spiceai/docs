@@ -15,7 +15,7 @@ Production operating guide for the [Microsoft SQL Server data connector](./index
 
 ## Authentication and Secrets
 
-The connector supports SQL Server authentication (a SQL login and password) only. A dataset supplies credentials in one of two ways:
+In the default build, the connector supports SQL Server authentication (a SQL login and password) only; Kerberos authentication requires an opt-in build, described below. A dataset supplies credentials in one of two ways:
 
 - `mssql_connection_string`, an [ADO.NET connection string](https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/connection-strings).
 - The individual parameters `mssql_host`, `mssql_username`, and `mssql_password`, with optional `mssql_port` (default `1433`) and `mssql_database`.
