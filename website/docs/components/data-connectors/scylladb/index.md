@@ -170,6 +170,10 @@ Query results are streamed using the scylla driver's paging mechanism in batches
 
 See the dedicated **[Performance](./performance.md)** page — partition/clustering-key filters, enabling acceleration, datacenter locality, and connection-timeout tuning.
 
+## Deployment
+
+See the [Deployment Guide](./deployment.md) for authentication, TLS, timeouts and consistency, datacenter routing, observability, and known limitations in production.
+
 ## Examples
 
 ### Basic Federated Query
