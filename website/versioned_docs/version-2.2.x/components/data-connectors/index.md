@@ -329,6 +329,10 @@ Document formats (Markdown, Text, PDF, Word) are handled differently from struct
 Document formats in Alpha (DOCX) may not parse all structure or text from the underlying documents correctly.
 :::
 
+#### Archive Consistency Checks
+
+Starting in v2.2.3, Spice checks that each DOCX file is a consistent ZIP archive before it reads any entry. A file is rejected when a local file header disagrees with its central directory entry, when two entries share a name, or when entries overlap, because different ZIP readers can see different content in such a file ([GHSA-m665-v7pm-7grj](https://github.com/zip-rs/zip2/security/advisories/GHSA-m665-v7pm-7grj)). Reading a rejected file fails with an error that starts with `Internal parsing DOCX document. Error:`.
+
 #### Document Table Schema
 
 | Column     | Type   | Description                       |

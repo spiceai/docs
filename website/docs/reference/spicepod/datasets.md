@@ -101,6 +101,10 @@ Where:
 
 - `<path>`: The path to the dataset within the source.
 
+[`GET /v1/datasets`](../../api/HTTP/get-datasets) and [`GET /v1/catalogs`](../../api/HTTP/get-catalogs) remove the credentials of a URL from `from`, in JSON and in CSV. When the URL at the start of `from`, or right after its connector prefix, carries user info, such as `https://user:password@host/file.csv` or `iceberg:https://user:password@host/v1/...`, the response omits the `user:password@` part. The values of query parameters whose names identify a credential, such as `token`, `api_key`, `sig`, `password`, or `X-Amz-Signature`, are replaced with `***`. The `error_message` that `GET /v1/datasets?status=true` returns gets the same redaction for every URL it contains, because connectors often build the error from the source URL. A `from` without credentials, such as `postgres:public.orders` or `s3://bucket/key`, is returned unchanged, and so is the part before `@` in `abfs`, `abfss`, `wasb`, `wasbs`, and `file` URLs, which names a container or a file. In v2.4.1 and earlier, both endpoints return `from` as configured and `GET /v1/datasets` returns `error_message` as the connector wrote it, including any credentials.
+
+Credentials outside a URL are returned as written: the password in a keyword-form PostgreSQL connection string, such as `ducklake:postgres:dbname=mydb password=...`, appears in `GET /v1/catalogs` unchanged (see [DuckLake `from`](../../components/catalogs/ducklake.md#from)). The redaction applies to these API responses only. Pass credentials as connector parameters that reference a [secret store](../../components/secret-stores/index.md) rather than in the `from` URL.
+
 :::info[Identifier Case Sensitivity]
 Unquoted identifiers in the `<path>` are normalized to lowercase. To reference a table or schema with mixed-case or uppercase characters, wrap each case-sensitive part in double quotes:
 
