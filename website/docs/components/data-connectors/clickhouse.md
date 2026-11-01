@@ -109,6 +109,8 @@ The table below shows the ClickHouse data types supported, along with the type m
 
 `DateTime64(P)` maps to the coarsest Arrow timestamp unit that holds its precision exactly. Timestamps have no Arrow timezone: values are UTC instants, including for columns declared with a timezone such as `DateTime('UTC')` or `DateTime64(3, 'Asia/Tokyo')`. Arrow nanosecond timestamps end at 2262-04-11, so reading a `DateTime64(7)` or `DateTime64(8)` value after that date returns an error that names the value rather than a truncated timestamp.
 
+A `Decimal` value is read from the driver's unscaled integer and scale, then widened to the column's scale. A value that cannot be widened exactly returns an error rather than a rounded value. The driver decodes only `Decimal` values that fit in 64 bits, so a column with a precision above 18, such as `Decimal(38, 10)`, does not read correctly yet ([spiceai/spiceai#15545](https://github.com/spiceai/spiceai/issues/15545)). In v2.4.1 and earlier, a negative value with no integer digits, such as `-0.05`, failed with `Failed to parse decimal string as BigInteger`, and an acceleration of the table did not load.
+
 A named `Tuple` element keeps its name as the `Struct` field name. An unnamed element is named by its 1-based position (`1`, `2`, and so on), matching how ClickHouse addresses tuple elements.
 
 `LowCardinality` is supported as a top-level column type, including `LowCardinality(Nullable(T))`. A `LowCardinality` type nested inside an `Array`, `Map`, or `Tuple`, such as `Array(LowCardinality(String))`, is not supported and returns an `Unsupported Clickhouse type` error. `SimpleAggregateFunction` columns are not supported.

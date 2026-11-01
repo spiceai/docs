@@ -323,6 +323,8 @@ For BigQuery, authentication typically uses Google Cloud Application Default Cre
 
 For Trino, credentials are embedded in the connection URI (`trino://user:pass@host/catalog`).
 
+When the connection cannot be set up, the error names the driver but not the connection URI, for example `Failed to create ADBC database (driver='<driver>'): <message>`. Drivers can echo parts of the URI in their own messages, so before the driver's message is logged or returned in a dataset or catalog's status (`GET /v1/datasets?status=true`), Spice replaces each configured credential in it with `***`: the whole URI, `adbc_password`, the password or token in the URI's user info, and the values of credential-like query and `adbc_driver_options` keys, each as written and percent-decoded. In v2.4.1 and earlier, these errors included the full `adbc_uri`.
+
 For drivers that accept `adbc_username` and `adbc_password` (e.g., Redshift, Snowflake), these can be set through environment variables:
 
 ```bash
