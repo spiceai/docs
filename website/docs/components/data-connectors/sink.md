@@ -48,6 +48,16 @@ Both parameters accept only `all`, in any letter case. Any other value fails the
 
 ### `acceleration`
 
-Enable acceleration for a `sink` dataset: the connector stores nothing, so without an acceleration, data written to the dataset is lost. Use `mode: file` to keep the data across restarts. A dataset with `otlp_logs: all` must use the `cayenne` engine.
+Enable acceleration for a `sink` dataset, except one with `otlp_logs: all`, which gets a default acceleration (below): the connector stores nothing, so without an acceleration, data written to the dataset is lost. Use `mode: file` to keep the data across restarts. A dataset with `otlp_logs: all` must use the `cayenne` engine.
 
 When `acceleration.refresh_mode` is not set, it is `disabled`, because there is no source to refresh from.
+
+A dataset with `otlp_logs: all` is the exception: Spice fills in its settings so that it needs only `from`, `name`, and the parameter. It sets `access: read_write` and, unless they are set, `time_column: timestamp` with `time_format: timestamptz`. With no `acceleration` block, it uses Cayenne with `mode: file` and `refresh_mode: append`; with a block, an unset `engine` is `cayenne` and an unset `refresh_mode` is `append`. See [Logs](../../features/data-ingestion/index.md#logs).
+
+```yaml
+datasets:
+  - from: sink:otel_logs
+    name: otel_logs
+    params:
+      otlp_logs: all
+```
