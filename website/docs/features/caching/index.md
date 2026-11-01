@@ -155,6 +155,8 @@ The runtime therefore copies each result off the producer's memory before storin
 
 Entries written with `encoding: zstd` are exempt — they keep the serialized bytes and drop the arrays, so they own everything they hold.
 
+While a cacheable SQL result streams to the client, the runtime keeps a copy of its batches to store when the stream ends. That copy is charged to the query memory pool, [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit). When the pool cannot hold it, the copy is dropped and the result is not cached; the query still returns every row. Under memory pressure, large results therefore go uncached more often, and they compete with joins and sorts for the same pool. In v2.4.1 and earlier, the copy was not counted against the limit, so concurrent cacheable queries with large results could go over `memory_limit`.
+
 When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
 
 ## Warming the Cache After a Restart
@@ -436,6 +438,8 @@ The following `Cache-Control` directives are supported:
 | [`min-fresh`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#min-fresh)           | Specifies the minimum time (in seconds) that a cached response must remain fresh. For example, `min-fresh=60` serves a cached SQL result only while its age is less than `item_ttl` minus 60 seconds. A `min-fresh` request is never served a stale entry and never starts a background revalidation; when no entry qualifies, the query runs. |
 | [`max-stale`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#max-stale)           | Indicates the client will accept a stale response. An optional value in seconds specifies the maximum staleness accepted. For example, `max-stale=30` accepts responses stale for up to 30 seconds. It can only narrow what the cache serves: an entry older than `item_ttl + stale_while_revalidate_ttl` is never served, so with `stale_while_revalidate_ttl` unset, `max-stale` cannot return an entry past `item_ttl`. A stale entry served this way returns `STALE` and starts a background revalidation. |
 | [`only-if-cached`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#only-if-cached) | Returns only cached responses. On a SQL query whose result is not cached, the query is not run: the HTTP API returns `504 Gateway Timeout`, as [RFC 9111 §5.2.1.7](https://www.rfc-editor.org/rfc/rfc9111#section-5.2.1.7) specifies, and Arrow Flight returns `FAILED_PRECONDITION`. |
+
+A `no-cache` request stores its result under the key a plain request with the same headers reads: the logical plan by default, the SQL text with `cache_key_type: sql`, or the request's `Spice-Cache-Key`. The next plain request for the same query is served that result. In v2.4.1 and earlier, a `no-cache` request stored its result under the SQL text key, so with the default `cache_key_type: plan` later plain requests kept being served the older entry.
 
 When a request sets more than one directive, only one applies, in this order of precedence: `no-cache`, `only-if-cached`, `min-fresh`, then `max-stale`.
 

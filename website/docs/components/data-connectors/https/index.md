@@ -435,6 +435,8 @@ Refused to connect to internal.example.com: the HTTPS data connector does not fo
 
 The check covers the hosts that a redirect introduces. The host in `from` and a configured proxy are resolved without it.
 
+A structured HTTP file dataset, such as `csv` or `parquet`, applies the same rule. The host in `from` is read whatever address it resolves to, and so is a redirect that stays on that host. A redirect to a different host that is a private, loopback, or link-local address, or resolves to one, fails the load with the error above. To read through such a redirect on purpose, set the `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` environment variable to `1`, `true`, `yes`, or `on`. It turns the check off for every HTTP file dataset in the runtime, and also turns off the internal-host checks for [URL tables](../../../features/query-federation/url-tables.md) and the [Iceberg connector](../iceberg.md). In v2.4.1 and earlier, an HTTP file dataset followed a redirect to any host.
+
 ### Special Metadata Fields
 
 The HTTP connector supports special metadata fields that provide fine-grained control over HTTP requests. These fields can be included in your dataset schema to dynamically construct request URLs and payloads.

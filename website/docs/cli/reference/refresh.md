@@ -18,8 +18,10 @@ spice refresh [dataset] [flags]
 #### Flags
 
 - `--tls-root-certificate-file`   The path to the root certificate file used to verify the Spice.ai runtime server certificate
-- `--refresh-sql`  SQL used to refresh the dataset, see [Refresh SQL docs](../../features/data-acceleration/data-refresh#refresh-sql).
-- `--refresh-mode`  Refresh mode to use, see [Refresh Modes docs](../../features/data-acceleration/data-refresh#refresh-modes).
+- `--refresh-sql`  SQL used to refresh the dataset, see [Refresh SQL docs](../../features/data-acceleration/data-refresh#refresh-sql). When the dataset has a `time_column`, the SQL must select it.
+
+The runtime rejects an invalid `--refresh-mode` or `--refresh-sql` before it starts the refresh, as described in [Refresh On-Demand](../../features/data-acceleration/data-refresh#refresh-on-demand).
+- `--refresh-mode`  Refresh mode to use for this refresh, `full` or `append`. See [Refresh Modes docs](../../features/data-acceleration/data-refresh#refresh-modes).
 - `--refresh-jitter-max`  Maximum [jitter](../../features/data-acceleration/data-refresh#refresh-jitter) applied to the refresh, as a [duration](../../reference/duration) (e.g. `1m`).
 - `-o`, `--output <format>` Output format: `table` (default) or `json`.
 - `-h`, `--help`   Print this help message

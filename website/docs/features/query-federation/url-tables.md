@@ -47,7 +47,7 @@ The quoted URL is the one from the query. The same check applies to every redire
 
 When the runtime uses a proxy from the `HTTP_PROXY`, `HTTPS_PROXY`, or `ALL_PROXY` environment variables, the proxy's own host is checked like any other host, so an HTTP URL table sent through a proxy on a private address is refused. Spice cannot see the address a proxy resolves the destination to, so for requests sent through a proxy only the URL and redirect checks apply; configure the proxy to refuse internal destinations.
 
-`SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` is not a proxy-specific exception. It turns off the internal-host checks for every URL table in the runtime, and the [Iceberg connector](../../components/data-connectors/iceberg.md) also reads it for catalog-supplied storage endpoints. Set it only where network egress controls already keep the runtime from reaching internal hosts.
+`SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` is not a proxy-specific exception. It turns off the internal-host checks for every URL table in the runtime. The [Iceberg connector](../../components/data-connectors/iceberg.md) also reads it for catalog-supplied storage endpoints, and the [HTTP(S) connector](../../components/data-connectors/https/index.md#ssrf-protection) reads it for redirects from structured file datasets. Set it only where network egress controls already keep the runtime from reaching internal hosts.
 
 To query an internal HTTP object store on purpose, set `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` to `1`, `true`, `yes`, or `on` in the runtime's environment; the check is then skipped entirely.
 

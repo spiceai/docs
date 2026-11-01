@@ -286,7 +286,7 @@ Both are consequences of the partition being coordinated. The practical guidance
 - Per-dataset accelerator caches (see [What Makes Up the Baseline](#what-makes-up-the-baseline))
 - Serialization and encode buffers for query results, Arrow IPC, and Flight responses, apart from two that the pool tracks. A streamed `/v1/sql` response chunk and an encoded Flight message are charged to the query pool while they wait to be sent, but that charge never refuses a query: when the pool is full, it waits briefly and then goes over the limit. A `/v1/sql` result that is buffered before it is written is reserved from the query pool and is refused when it does not fit, as described in [How a Memory Refusal Surfaces](#how-a-memory-refusal-surfaces)
 - Embedded engine internals that manage their own memory, such as DuckDB's pool and SQLite's page cache
-- Results, search, and embedding caches
+- Results, search, and embedding caches. The copy of a cacheable SQL result that the results cache keeps while the result streams is the exception: it is charged to the query pool, and a result whose copy does not fit is returned but not cached ([Results That Cannot Be Cached](../features/caching/index.md#results-that-cannot-be-cached))
 - [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) state on Spice Cayenne datasets. The retraction index and the `min` and `max` distinct-value state share a per-dataset budget of 10% of the query pool, at least 8 MiB but never more than the pool, or 512 MiB when the pool has no limit. Each view's per-group keys and running aggregates are not counted toward that budget
 - Allocator retention — pages the process has freed but not returned to the operating system
 
