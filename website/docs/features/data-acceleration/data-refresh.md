@@ -635,6 +635,19 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 On-demand refresh always initiates a new refresh, terminating any in-progress refresh for the dataset.
 :::
 
+A request can override the refresh for that one run with `refresh_sql`, `refresh_mode`, and `refresh_jitter_max` in its JSON body, which `spice refresh --refresh-sql` and `--refresh-mode` send. Send the body with `Content-Type: application/json`; a body without it is not read, and the refresh runs with the dataset's configuration. The runtime checks the overrides before it queues the refresh and returns `400 Bad Request`, leaving the acceleration unchanged, when:
+
+- `refresh_mode` is `changes`, `caching`, `snapshot`, or `disabled`. The message contains `refresh_mode '<mode>' is not supported for an on-demand refresh. Valid modes are 'full' or 'append'.` A value that is not a refresh mode at all is refused with `422 Unprocessable Entity`.
+- `refresh_sql` does not parse, or the dataset has a [`time_column`](../../reference/spicepod/datasets#time_column) and `refresh_sql` does not select it. The message contains `Invalid refresh_sql:`.
+
+```bash
+curl -i -XPOST 127.0.0.1:8090/v1/datasets/eth_recent_blocks/acceleration/refresh \
+  -H 'Content-Type: application/json' \
+  -d '{"refresh_sql": "SELECT * FROM eth_recent_blocks WHERE number > 100", "refresh_mode": "full"}'
+```
+
+In v2.4.1 and earlier, these overrides returned `201 Created`. A `refresh_mode` override that cannot run on demand then failed in the refresh worker, and an override `refresh_sql` that left out the `time_column` on an `append` dataset loaded its rows with a `NULL` time, and the next append refresh loaded them again.
+
 ## Refresh Schedules
 
 |                             |                  |

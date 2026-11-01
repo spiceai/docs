@@ -156,6 +156,8 @@ The metrics store does not default any other setting. The `sink` connector disca
 
 Every data point of an export is written to the metrics store before per-metric datasets are considered, so a metric without its own dataset is not rejected. When a per-metric dataset also exists for a metric, it receives that metric too.
 
+Resource and scope attributes are copied onto every stored data point, so an export can expand well past its size on the wire. The metrics store writes an export in batches of at most 256 MiB of string data. An export with a single data point that expands past 256 MiB, or whose data points together expand past 512 MiB, is rejected with gRPC `INVALID_ARGUMENT` (HTTP `400`) before anything is written, and per-metric datasets do not receive it either. The message asks the exporter to send its data points in smaller exports, for example `The OpenTelemetry metrics export expands to more than 536870912 string bytes, with resource and scope attributes repeated on every data point; send its data points in smaller exports`.
+
 When the write to the metrics store fails, the export falls back to per-metric datasets for that request and then fails with gRPC `UNAVAILABLE` (HTTP `503`) and the message `Failed to write to the OpenTelemetry metrics store; retry the export`. Exporters retry on that status, and the primary key keeps a retried batch from being stored twice.
 
 #### Metrics store schema
@@ -342,8 +344,10 @@ service:
 | Every record stored | `OK` | 200 |
 | No dataset has `otlp_logs: all` | `UNIMPLEMENTED` | 501 |
 | The logs dataset is still loading (for example during startup), or a write failed | `UNAVAILABLE` | 503 — exporters retry |
-| Malformed body, or every record rejected (below) | `INVALID_ARGUMENT` | 400 |
+| Malformed body, every record rejected (below), or an export that expands past 512 MiB of string data | `INVALID_ARGUMENT` | 400 |
 | API key without write access | `PERMISSION_DENIED` | 403 |
+
+Resource and scope attributes are stored on every record, so an export can expand well past its size on the wire. An export whose records together expand past 512 MiB of string data is rejected with `INVALID_ARGUMENT` (HTTP `400`), and the message asks the exporter to send its records in smaller exports: `The OpenTelemetry logs export expands to more than 536870912 string bytes, with resource and scope attributes repeated on every record; send its records in smaller exports`.
 
 An export is acknowledged only after its records are written. Delivery is at least once, as the OTLP specification describes: when an exporter retries an export whose acknowledgement was lost, its records are stored again.
 
