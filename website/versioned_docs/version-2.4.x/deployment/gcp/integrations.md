@@ -138,19 +138,19 @@ snapshots:
   location: gs://my-bucket/spiceai/snapshots
 ```
 
-When no explicit credentials are supplied, Spice reads `GOOGLE_APPLICATION_CREDENTIALS` and the Workload Identity-federated token, in that order.
+When no explicit credentials are supplied, Spice reads Cloud Storage credentials in the order described in [Authentication](#authentication).
 
 ## Authentication
 
 Vertex AI models and embeddings do not search for credentials. They require exactly one of `google_service_account_path`, `google_service_account_key`, or `google_application_default_credentials`, and `google_application_default_credentials` reads only the service account file that the `GOOGLE_APPLICATION_CREDENTIALS` environment variable names. Attached service accounts and Workload Identity do not authenticate them.
 
-Cloud Storage (`gs://`) access follows the standard [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials) chain. When credentials are not explicitly configured, Spice attempts the following in order:
+Cloud Storage (`gs://`) access reads [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). When credentials are not explicitly configured, Spice attempts the following in order:
 
-1. **`GOOGLE_APPLICATION_CREDENTIALS`** — path to a service account JSON key file.
-2. **Attached service account** — Compute Engine, Cloud Run, or GKE node default service account.
-3. **GKE Workload Identity** — federated tokens for pods bound to a Google service account via the Kubernetes ServiceAccount. See [Workload Identity for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity).
-4. **`gcloud` CLI** — cached credentials from `gcloud auth application-default login`.
-5. **Workload Identity Federation** — federated identity for workloads running outside GCP (other clouds, on-premises, GitHub Actions). See [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation).
+1. **`GOOGLE_APPLICATION_CREDENTIALS`** — path to a service account JSON key file, or to user credentials written by `gcloud`.
+2. **`gcloud` CLI** — cached credentials from `gcloud auth application-default login`, read from `~/.config/gcloud/application_default_credentials.json`.
+3. **Metadata server** — the attached service account on Compute Engine, Cloud Run, or GKE, or a GKE pod's Google service account through [Workload Identity for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity).
+
+A credentials file in either of the first two places must be a service account key (`"type": "service_account"`) or `gcloud` user credentials (`"type": "authorized_user"`). Spice does not support [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation) credential configuration files (`"type": "external_account"`) for `gs://`, and a file of any other type fails with `Unable to decode service account file` instead of falling through to the next source.
 
 For a deployment-side overview of these mechanisms, see the [Authentication](../gcp#authentication) section of the GCP deployment guide.
 

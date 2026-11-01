@@ -56,7 +56,7 @@ Step-by-step instructions for each target environment.
 | [Kubernetes](deployment/kubernetes)                       | Self-hosted production deployments. Covers Helm, Argo CD, and Flux.        |
 | [Docker](deployment/docker)                               | Local development, single-host deployments, and container-based pipelines. |
 | [Spice Cloud](deployment/cloud)                           | Fully managed deployments without operating infrastructure.                |
-| [AWS](deployment/aws)                                     | Deployments on AWS using the published CloudFormation template.            |
+| [AWS](deployment/aws)                                     | Deployments on AWS with EKS and Helm, or on EC2 with your own templates.   |
 | [Azure](deployment/azure)                                 | Deployments on Azure using ARM/Bicep templates.                            |
 | [GCP](deployment/gcp)                                     | Deployments on Google Cloud using GKE, Cloud Run, or Compute Engine.       |
 | [CI/CD](deployment/ci-cd)                                 | Automating any of the above through pipelines or GitOps.                   |
