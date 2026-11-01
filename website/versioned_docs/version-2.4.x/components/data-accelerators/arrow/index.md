@@ -26,6 +26,25 @@ datasets:
       engine: arrow
 ```
 
+### Parameters
+
+Set under a dataset's `acceleration.params`:
+
+| Parameter            | Description                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `arrow_sort_columns` | Optional. Comma-separated list of columns to sort the data by when it is inserted, for example `timestamp,user_id`. |
+
+```yaml
+datasets:
+  - from: spice.ai:path.to.my_dataset
+    name: my_dataset
+    acceleration:
+      enabled: true
+      engine: arrow
+      params:
+        arrow_sort_columns: timestamp,user_id
+```
+
 ## Hash Index
 
 :::warning[Experimental]
