@@ -314,7 +314,7 @@ spec:
 
         - name: spiceai
           image: spiceai/spiceai:1.11.5
-          args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051']
+          args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051', '/spicepod']
           volumeMounts:
             - name: spicepod
               mountPath: /spicepod

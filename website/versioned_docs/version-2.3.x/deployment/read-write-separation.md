@@ -93,7 +93,7 @@ Cluster Spicepod responsibilities:
 
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
-- Accelerate to file-mode engines (DuckDB or SQLite) so the materialization can be exported as a snapshot.
+- Accelerate to file-mode engines (Cayenne, DuckDB, SQLite, or Turso) so the materialization can be exported as a snapshot.
 - Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh.
 
 ```yaml
@@ -325,7 +325,7 @@ spec:
 
         - name: spiceai
           image: spiceai/spiceai:2.3.4
-          args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051']
+          args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051', '/spicepod']
           volumeMounts:
             - name: spicepod
               mountPath: /spicepod
