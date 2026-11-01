@@ -155,9 +155,9 @@ The runtime therefore copies each result off the producer's memory before storin
 
 Entries written with `encoding: zstd` are exempt — they keep the serialized bytes and drop the arrays, so they own everything they hold.
 
-While a cacheable SQL result streams to the client, the runtime keeps a copy of its batches to store when the stream ends. That copy is charged to the query memory pool, [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit). When the pool cannot hold it, the copy is dropped and the result is not cached; the query still returns every row. Under memory pressure, large results therefore go uncached more often, and they compete with joins and sorts for the same pool. In v2.4.1 and earlier, the copy was not counted against the limit, so concurrent cacheable queries with large results could go over `memory_limit`.
-
 When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
+
+While a cacheable SQL result streams to the client, the runtime keeps a copy of its batches to store when the stream ends. That copy is charged to the query memory pool, [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit). When the pool cannot hold it, the copy is dropped and the result is not cached; the query still returns every row. Under memory pressure, large results therefore go uncached more often, and they compete with joins and sorts for the same pool. In v2.4.1 and earlier, the copy was not counted against the limit, so concurrent cacheable queries with large results could go over `memory_limit`. A copy dropped this way is not reported as `unboundable`; the runtime logs it at `DEBUG` level.
 
 ## Warming the Cache After a Restart
 
