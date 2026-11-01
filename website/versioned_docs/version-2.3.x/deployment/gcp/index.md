@@ -218,14 +218,15 @@ For detailed guidance, refer to the [Compute Engine documentation](https://cloud
 
 ## Authentication
 
-Most GCP services that Spice connects to accept explicit credentials through component parameters (for example, `iceberg_gcs_credentials` on the [Iceberg connector](../components/data-connectors/iceberg)). When explicit credentials are not provided, Spice follows the standard [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials) chain:
+Most GCP services that Spice connects to accept explicit credentials through component parameters (for example, `iceberg_gcs_credentials` on the [Iceberg connector](../components/data-connectors/iceberg)). When explicit credentials are not provided, Cloud Storage (`gs://`) access reads [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials) in this order:
 
 1. **`GOOGLE_APPLICATION_CREDENTIALS`** — path to a service account JSON key file. Common in local development; not recommended for production.
-2. **Attached service account** — the credential of the runtime environment:
+2. **`gcloud` CLI credentials** — cached credentials from `gcloud auth application-default login`. Common during development.
+3. **Attached service account** — the credential of the runtime environment, read from the metadata server:
    - Compute Engine, Cloud Run, GKE node default service account.
    - GKE pods configured with [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) — federated tokens scoped to a namespaced Kubernetes ServiceAccount, with no static keys on the node.
-3. **`gcloud` CLI credentials** — cached credentials from `gcloud auth application-default login`. Common during development.
-4. **Workload Identity Federation** — federated identity for workloads running outside GCP (other clouds, on-premises, GitHub Actions). See [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation).
+
+Spice does not support [Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation) credential configuration files (`"type": "external_account"`) for `gs://`, so a workload running outside GCP needs a service account key or another explicit credential. Iceberg tables on Cloud Storage are read through a separate storage client; see [Cloud Storage authentication](./integrations.md#authentication).
 
 For services with explicit parameters (Cloud Storage HMAC, BigQuery service account JSON), prefer named credentials or Workload Identity over `GOOGLE_APPLICATION_CREDENTIALS` files in production.
 
