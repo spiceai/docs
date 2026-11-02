@@ -74,7 +74,7 @@ Supported Data Connectors include:
 | `cdc`                              | [Debezium push ingest][cdc] (no Kafka) | Alpha            | JSON + Avro HTTP             |
 | `elasticsearch`                    | Elasticsearch (BM25 + kNN + RRF) (Spice.ai Enterprise) | Alpha   |                              |
 | `gcs`, `gs`                        | [Google Cloud Storage][gcs]           | Alpha             | Parquet, CSV, JSON, ORC      |
-| `hf`                               | [Hugging Face][huggingface] datasets  | Alpha             | Parquet, CSV, TSV, JSON, ORC |
+| `hf`                               | [Hugging Face][huggingface] datasets  | Alpha             | Parquet, CSV, TSV, JSON, JSONL, ORC |
 | `ftp`, `sftp`                      | FTP/SFTP                              | Alpha             | Parquet, CSV, ORC            |
 | `imap`                             | IMAP                                  | Alpha             | IMAP Emails                  |
 | `scylladb`                         | ScyllaDB (Spice.ai Enterprise)        | Alpha             |                              |

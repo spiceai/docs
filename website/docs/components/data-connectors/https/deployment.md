@@ -59,7 +59,7 @@ The HTTP connector participates in the shared HTTP rate control system. Concurre
 | `rate_control_jitter_max`       | Maximum random delay before requests when rate control is active. Defaults to `10ms`.  |
 | `rate_control_acquire_timeout`  | Maximum time a request waits for rate-control capacity before it fails. Defaults to `client_timeout`. `0` waits without a bound. |
 | `rate_control_failure_threshold` | Upstream error rate above which adaptive rate control admits fewer requests. Defaults to `10%`. |
-| `rate_control_window`           | Reaction and recovery window of adaptive rate control. Defaults to `10s`.             |
+| `rate_control_window`           | Reaction and recovery window of adaptive rate control. Defaults to `10s`. With [cluster rate control](../../../reference/spicepod/runtime.md#limits-across-instances), the default is `runtime.source_rate_control.refresh_interval`, and a shorter window is raised to it. |
 
 The runtime equivalents (`http_max_concurrent_requests`, `http_requests_per_second_limit`, `http_requests_per_minute_limit`, `http_rate_control_jitter_min`, `http_rate_control_jitter_max`, `http_rate_control_acquire_timeout`, `http_rate_control_failure_threshold`, `http_rate_control_window`) set defaults that apply to every HTTP-based connector unless overridden per dataset. Datasets that share an origin must use the same values, or the later dataset fails to load.
 

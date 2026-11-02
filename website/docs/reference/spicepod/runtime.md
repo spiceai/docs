@@ -209,7 +209,7 @@ HTTP-based connectors (HTTP/HTTPS, GraphQL, Databricks) support the following ra
 | `http_rate_control_jitter_max`    | Default maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a rate limit is configured. Can be overridden per-dataset. |
 | `http_rate_control_acquire_timeout`   | Default maximum time a request waits for rate-control capacity (a concurrency slot and the per-second and per-minute quota) before it fails, as a duration such as `30s`. Defaults to the component's client timeout. `0` waits without a bound. Can be overridden per-dataset with `rate_control_acquire_timeout`. |
 | `http_rate_control_failure_threshold` | Default upstream error rate above which [adaptive rate control](#adaptive-rate-control) admits fewer requests, as a percentage (`25%`) or a fraction (`0.25`) above 0 and below 1. Defaults to `10%`. Can be overridden per-dataset with `rate_control_failure_threshold`. |
-| `http_rate_control_window`            | Default reaction and recovery window of [adaptive rate control](#adaptive-rate-control), as a duration such as `10s`. Defaults to `10s`. Can be overridden per-dataset with `rate_control_window`.                                |
+| `http_rate_control_window`            | Default reaction and recovery window of [adaptive rate control](#adaptive-rate-control), as a duration such as `10s`. Defaults to `10s`, or to `runtime.source_rate_control.refresh_interval` with [cluster rate control](#limits-across-instances). Can be overridden per-dataset with `rate_control_window`.                                |
 
 ```yaml
 runtime:
