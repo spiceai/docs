@@ -143,9 +143,9 @@ The GraphQL connector supports shared HTTP rate control to limit concurrency and
 | `rate_control_jitter_max`   | Maximum random delay added before HTTP requests when rate control is active. Accepts durations such as `10ms` or `0ms`. Defaults to `10ms` when a request-rate limit is configured.          |
 | `rate_control_acquire_timeout` | Maximum time a request waits for rate-control capacity before it fails, as a duration such as `30s`. Overrides `runtime.params.http_rate_control_acquire_timeout`. Defaults to `30s`, the connector's request timeout. `0` waits without a bound. |
 | `rate_control_failure_threshold` | Upstream error rate above which [adaptive rate control](../../reference/spicepod/runtime#adaptive-rate-control) admits fewer requests than the configured limits, as a percentage (`25%`) or a fraction (`0.25`). Overrides `runtime.params.http_rate_control_failure_threshold`. Default: `10%`. |
-| `rate_control_window`       | Reaction and recovery window of adaptive rate control, as a duration. A shorter window reacts and recovers faster. Overrides `runtime.params.http_rate_control_window`. Default: `10s`. |
+| `rate_control_window`       | Reaction and recovery window of adaptive rate control, as a duration. A shorter window reacts and recovers faster. Overrides `runtime.params.http_rate_control_window`. Default: `10s`. With [cluster rate control](../../../reference/spicepod/runtime.md#limits-across-instances), the default is `runtime.source_rate_control.refresh_interval`, and a shorter window is raised to it. |
 
-Multiple datasets targeting the same GraphQL endpoint share the same rate controller, and must resolve to the same values for these parameters; a dataset whose values differ fails to load. See [HTTP Rate Control](../../reference/spicepod/runtime#http-rate-control) for adaptive throttling, bounded waits, and limits across instances.
+Multiple datasets targeting the same origin (`scheme://host:port`) share the same rate controller, even when their endpoint paths differ, and must resolve to the same values for these parameters; a dataset whose values differ fails to load. See [HTTP Rate Control](../../reference/spicepod/runtime#http-rate-control) for adaptive throttling, bounded waits, and limits across instances.
 
 ## Pagination
 
