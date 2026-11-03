@@ -373,7 +373,7 @@ A scan checks only the registered columns it reads: a query such as `SELECT SUM(
 
 JSON and NDJSON datasets are checked by reading the object keys of every record in the scanned files. A record can omit a nullable key, so a registered key that no current record carries fails an acceleration refresh only when the records also carry a key the dataset did not register, which is how a renamed key appears. Without such a key, the refresh logs a `WARN` and loads `NULL` for that column. A JSON source with no records is not treated as a change, so a full refresh of an empty file clears the accelerated table.
 
-v2.4.x and earlier check only Parquet and ORC datasets.
+v2.4.1 and earlier do not check for missing columns on any file dataset. The check is new in v2.5.0.
 
 :::tip[Recommendation]
 Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
