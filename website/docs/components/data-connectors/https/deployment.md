@@ -85,7 +85,7 @@ Rate control is adaptive. While the origin's error rate, counting `408`, `429`, 
 
 ### Retry Behavior
 
-HTTP-level retries follow the shared `resilient_http` policy: 408, 429, and 5xx responses plus transient network errors are retried. A request is retried at most `max_retries` times after the first attempt, so `max_retries: 2` sends at most three requests. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+For a dynamic JSON API endpoint, `5xx` and `429` responses and transient network errors are retried. A `408` is not retried, but adaptive rate control counts it as a failure. A request is retried at most `max_retries` times after the first attempt, so `max_retries: 2` sends at most three requests. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
 
 | Parameter              | Default     | Description                                                                                                  |
 | ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
