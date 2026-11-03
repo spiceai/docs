@@ -63,7 +63,7 @@ Multi-entry mappings (`- year: "…", month: "…"` on one list item) are reject
 
 An acceleration with no `engine` uses Cayenne on Linux and macOS, so `partition_by` with no `engine` needs a file mode, such as `mode: file`. Set `engine: arrow` to partition in memory. See [Default Engine](../../components/data-accelerators/index.md#default-engine).
 
-`duckdb`, `sqlite`, `postgres`, and `turso` accelerators do **not** support `partition_by`; configuring it on those engines is rejected at load time. Use `arrow` or `cayenne` for partitioned acceleration.
+`duckdb`, `sqlite`, and `postgres` accelerators do **not** support `partition_by`; configuring it on those engines is rejected at load time. Use `arrow` or `cayenne` for partitioned acceleration.
 
 ## Partition transforms
 

@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / duckdb / sqlite / postgres / turso
+      engine: cayenne # / arrow / duckdb / sqlite / postgres
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / duckdb / sqlite / postgres / turso
+      engine: cayenne # / arrow / duckdb / sqlite / postgres
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -270,7 +270,7 @@ The following values are supported:
 - `fail` - Set the dataset to an error status with an actionable message when the projected source schema diverges from the registered schema. Self-heals if the source reverts.
 - `append_new_columns` - Adopt new nullable source columns in place; type changes and relaxed/tightened nullability are treated as `block` (the dataset keeps serving on the old schema) and a warning is logged.
 - `sync_all_columns` - Adopt the full set of lossless, widening changes in place: new nullable columns, widened column types (for example `Int32`→`Int64`, an increase in decimal precision, or `Utf8`→`LargeUtf8`), and relaxed nullability. Non-widening changes (column removals, narrowing type changes) remain `block`-equivalent and are warned.
-- `drop_and_recreate` - Everything `sync_all_columns` does (adopt lossless widening changes in place), and additionally **recreate** the accelerated table for changes that cannot be applied in place — column removals, narrowing or otherwise incompatible type changes, and new non-nullable columns. Recreation is **destructive**: the accelerated data is dropped and rebuilt from the source, so it is only performed with `refresh_mode: full` (a full refresh re-fetches every row). With `refresh_mode: append` or `changes`, an incompatible change is rejected and the existing table is preserved (recreating would drop rows that cannot be re-fetched). Supported on the `duckdb`, `sqlite`, `turso`, and `cayenne` engines.
+- `drop_and_recreate` - Everything `sync_all_columns` does (adopt lossless widening changes in place), and additionally **recreate** the accelerated table for changes that cannot be applied in place — column removals, narrowing or otherwise incompatible type changes, and new non-nullable columns. Recreation is **destructive**: the accelerated data is dropped and rebuilt from the source, so it is only performed with `refresh_mode: full` (a full refresh re-fetches every row). With `refresh_mode: append` or `changes`, an incompatible change is rejected and the existing table is preserved (recreating would drop rows that cannot be re-fetched). Supported on the `duckdb`, `sqlite`, and `cayenne` engines.
 
 ```yaml
 datasets:
@@ -285,7 +285,7 @@ datasets:
 
 :::note
 
-In-place evolution is supported by `duckdb`, `sqlite`, `turso`, and non-partitioned Spice Cayenne
+In-place evolution is supported by `duckdb`, `sqlite`, and non-partitioned Spice Cayenne
 (`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
 while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
 see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
@@ -483,20 +483,19 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 - [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
 - [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
-- [`turso`](../../components/data-accelerators/turso) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
-- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
-- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
+- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
 
 ## `acceleration.storage_profile`
 
-Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (`duckdb`, `sqlite`, `turso`, and Spice Cayenne); memory-mode accelerators ignore this setting.
+Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (`duckdb`, `sqlite`, and Spice Cayenne); memory-mode accelerators ignore this setting.
 
 Supported values:
 
@@ -523,7 +522,7 @@ For the per-engine adjustments each profile applies, and for guidance on choosin
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `duckdb`, `sqlite`, `cayenne`, or `turso`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `duckdb`, `sqlite`, or `cayenne`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -612,7 +611,7 @@ Optional. How to refresh the dataset. The following values are supported:
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
-- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, Cayenne, or Turso). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
+- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, or Cayenne). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
 
 ## `acceleration.write_mode`
 

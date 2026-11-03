@@ -113,7 +113,7 @@ This query can be issued through any Spice SQL interface, including the [HTTP AP
 
 ## Persisting Task History
 
-Task history is stored in-memory and subject to the configured `retention_period`. To persist task history beyond the retention window, set up a [worker](./spicepod/workers) with a cron schedule that periodically writes records to an external dataset.
+Task history is stored in memory, in a Spice Cayenne table with `mode: memory`, and subject to the configured `retention_period`. Rows arrive only as Spice writes them, so the table is never refreshed, and the acceleration refresh metrics (`dataset_acceleration_last_refresh_unix_time_ms` and `dataset_acceleration_refresh_duration_ms`) report no series for `runtime.task_history` or `runtime.metrics`. To persist task history beyond the retention window, set up a [worker](./spicepod/workers) with a cron schedule that periodically writes records to an external dataset.
 
 For example, to back up task history to an Iceberg table every 10 minutes:
 

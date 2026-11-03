@@ -194,7 +194,7 @@ Skipping is neither silent nor passive:
 - **A skipped row evicts whatever its primary key already holds.** Within a write, the last row for a repeated key decides that key, so a key whose deciding row is skipped is removed from the index rather than left answering at the vector its previous text produced. The same applies to a row whose search text is `NULL` or empty.
 - A row whose primary key is `NULL` is skipped too, with its own warning, but evicts nothing — there is no key with which to address an earlier entry.
 
-This criterion is applied by the [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) engines, and by the in-memory warm index written through to alongside them. The [`duckdb`](../../components/vectors/duckdb) engine's write path applies no such criterion and stores the vector as it arrives; it screens the **query** vector instead, failing a search whose query embedding has a non-finite component with `DuckDB vector query contains a non-finite value.`
+This criterion is applied by the [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) engines, and by the in-memory warm index written through to alongside them.
 
 ## Chunks a Shortened Row Leaves Behind
 
@@ -207,7 +207,6 @@ Which engine holds the entries decides whether they are removed:
 | The in-memory warm index, written through to alongside a vector engine | Removed by the same write. |
 | [`elasticsearch`](../../components/vectors/elasticsearch) | Removed by the same write when every primary-key column is a string, boolean, or integer column. Spice deletes the rest of each rewritten row's chunks with a `_delete_by_query` on the key. A key with another column type, such as a float, date, or timestamp, has no exact `term` form, so its superseded entries are **kept**. |
 | [`s3_vectors`](../../components/vectors/s3_vectors) | **Kept.** The store can only be addressed by a complete key, and the chunk ids a shorter text no longer produces are not known to it. |
-| [`duckdb`](../../components/vectors/duckdb) | Not applicable — the engine refuses a chunked column at load. |
 
 The warm index is added alongside the engine for an accelerated dataset whose engine distance metric it can also compute — cosine, Euclidean/L2, or dot product — and Spice logs when it is left out. Where an engine keeps superseded entries and the warm index is present, a chunked column is written through both, so the warm index stops returning the superseded chunks while the engine's own store still holds them — and where the warm index is not present, nothing removes them at all. Spice reports an index that keeps them once, on its first write to it — whether or not a row has been shortened yet — naming the index and the column:
 

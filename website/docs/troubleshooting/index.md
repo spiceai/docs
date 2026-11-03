@@ -153,13 +153,8 @@ Example `--verbose` output:
 
 ```console
 2025-02-07T00:24:46.590576Z DEBUG runtime::secrets: Found secret replacement: Store name: secrets, Key: OPENAI_KEY, Span: 0..21
-2025-02-07T00:24:46.592381Z DEBUG runtime::accelerated_table::refresh: Starting scheduled refresh
-2025-02-07T00:24:46.592664Z DEBUG runtime::accelerated_table::refresh_task: Loading data for dataset runtime.task_history
 2025-02-07T00:24:46.592844Z DEBUG runtime::accelerated_table: [retention] Evicting data for runtime.task_history where start_time < 2025-02-06T16:24:46+00:00...
 2025-02-07T00:24:46.592859Z DEBUG runtime::accelerated_table: [retention] Expr BinaryExpr(BinaryExpr { left: Cast(Cast { expr: Column(Column { relation: None, name: "start_time" }), data_type: Timestamp(Nanosecond, None) }), op: Lt, right: Literal(TimestampNanosecond(1738859086592808104, None)) })
-2025-02-07T00:24:46.595460Z DEBUG runtime::accelerated_table::refresh_task: Loaded 0 rows for dataset runtime.task_history in 2ms.
-2025-02-07T00:24:46.595591Z DEBUG runtime::accelerated_table::refresh_task_runner: Refresh task successfully completed for dataset runtime.task_history
-2025-02-07T00:24:46.595623Z DEBUG runtime::accelerated_table::refresh: Received refresh task completion callback: Ok(())
 2025-02-07T00:24:46.599033Z DEBUG runtime::model::wrapper: Ignoring unknown default key: api_key
 2025-02-07T00:24:46.599526Z DEBUG runtime::embeddings::table: Column 'content' does not have needed embeddings in base table. Will augment with model xl_embed.
 2025-02-07T00:24:46.601038Z DEBUG runtime::accelerated_table: [retention] Evicted 0 records for runtime.task_history

@@ -9,7 +9,7 @@ pagination_next: null
 
 Stream every `INSERT`, `UPDATE`, and `DELETE` from a MySQL table directly into a Spice-accelerated dataset by subscribing to the source's binary log (binlog) — the MySQL analog of [PostgreSQL Logical Replication](./postgres-replication.md).
 
-This is the recommended way to keep a Spice accelerator ([DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres), [Cayenne](../../components/data-accelerators/cayenne), [Turso](../../components/data-accelerators/turso), Arrow) continuously in sync with a MySQL source. No Kafka, no Debezium, no external CDC infrastructure — one `spicepod.yml` entry gives you a locally materialized, continuously updated copy of a MySQL table.
+This is the recommended way to keep a Spice accelerator ([DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres), [Cayenne](../../components/data-accelerators/cayenne), Arrow) continuously in sync with a MySQL source. No Kafka, no Debezium, no external CDC infrastructure — one `spicepod.yml` entry gives you a locally materialized, continuously updated copy of a MySQL table.
 
 ## How it works
 
@@ -58,9 +58,9 @@ datasets:
         id: upsert
 ```
 
-`primary_key` is **required** (except on the append-only `arrow` engine): UPDATE events apply as upserts keyed on the primary key and DELETE events are routed by it. On `duckdb`, `sqlite`, `postgres`, and `turso`, `on_conflict: upsert` on that key is also required; `cayenne` keeps one row per primary key without it. The connector fails fast at startup with an actionable message if a required setting is missing.
+`primary_key` is **required** (except on the append-only `arrow` engine): UPDATE events apply as upserts keyed on the primary key and DELETE events are routed by it. On `duckdb`, `sqlite`, and `postgres`, `on_conflict: upsert` on that key is also required; `cayenne` keeps one row per primary key without it. The connector fails fast at startup with an actionable message if a required setting is missing.
 
-All upsert-capable accelerator engines are supported — `duckdb`, `sqlite`, `cayenne`, `postgres`, and `turso` — and each persists the binlog resume position in its `spice_sys_mysql_binlog` sidecar when file-backed. The `arrow` engine works append-only (UPDATEs insert new rows).
+All upsert-capable accelerator engines are supported — `duckdb`, `sqlite`, `cayenne`, and `postgres` — and each persists the binlog resume position in its `spice_sys_mysql_binlog` sidecar when file-backed. The `arrow` engine works append-only (UPDATEs insert new rows).
 
 ## Prerequisites
 

@@ -40,6 +40,19 @@ dbc install redshift
 
 See the [`dbc` documentation](https://docs.columnar.tech/dbc/) for other installation methods (pip, Homebrew, Windows MSI) and platform support.
 
+### DuckDB
+
+The `duckdb` driver is the DuckDB library itself (`libduckdb`), which exports its ADBC entry point as `duckdb_adbc_init` rather than `AdbcDriverInit`. With `adbc_driver: duckdb`, Spice loads that entry point, passes `adbc_uri` to DuckDB as the database file path, and federates queries with the DuckDB SQL dialect and the same function rules as the [DuckDB data connector](./duckdb/index.md). The database opens read-write in the host's time zone, and `adbc_driver_options` keys keep the `adbc.` prefix. A setup error shows the database file path, while a password or token in `adbc_uri`, such as a MotherDuck `motherduck_token`, stays masked.
+
+```yaml
+datasets:
+  - from: adbc:main.orders
+    name: orders
+    params:
+      adbc_driver: duckdb
+      adbc_uri: /data/sales.duckdb
+```
+
 Spice includes built-in SQL dialect support for BigQuery, translating federated queries into BigQuery-compatible SQL automatically. That dialect also rewrites the Spice [JSON extraction functions](../../reference/sql/json) — `json_get_str`, `json_get_int`, `json_get_float`, `json_get_bool`, `json_length`, `json_object_keys` and `json_contains`, plus `json_as_text` and `json_get(...) IS NULL` on a `STRING` document — into native BigQuery SQL, so a predicate over a JSON column filters at the source instead of streaming the column to Spice. See [Federation and pushdown](../../reference/sql/json#federation-and-pushdown) for the functions that stay local, the ones whose translation depends on how the source declares the column, and why.
 
 `ILIKE` and `NOT ILIKE` are the exception: GoogleSQL has no such operator, so Spice keeps both local for `bigquery` datasets and catalogs and evaluates them after the rows arrive. Ordinary `LIKE`, comparisons and the JSON rewrites above still push down, and a query that mixes them sends the supported parts to BigQuery. An `ILIKE` anywhere in the predicate — including nested inside an `OR` — also holds any `LIMIT` local, so the filter runs before rows are discarded.
@@ -323,7 +336,7 @@ For BigQuery, authentication typically uses Google Cloud Application Default Cre
 
 For Trino, credentials are embedded in the connection URI (`trino://user:pass@host/catalog`).
 
-When the connection cannot be set up, the error names the driver but not the connection URI, for example `Failed to create ADBC database (driver='<driver>'): <message>`. Drivers can echo parts of the URI in their own messages, so in that error, which Spice logs and, for a dataset, returns in its status (`GET /v1/datasets?status=true`), Spice replaces each configured credential in it with `***`: the whole URI, `adbc_password`, the password or token in the URI's user info, and the values of query and `adbc_driver_options` keys whose names contain `password`, `passwd`, `pwd`, `secret`, `token`, or `credential`, each as written and percent-decoded. A value of a key whose name contains only `key` or `auth`, such as `api_key`, is replaced only when it is at least four bytes long. A credential shorter than four bytes is replaced only where it is not part of a longer word, so a short credential can remain in the message. The scrubbing applies to that error only, not to messages that the driver or its connection pool log on their own. In v2.4.1 and earlier, these errors included the full `adbc_uri`.
+When the connection cannot be set up, the error names the driver but not the connection URI, for example `Failed to create ADBC database (driver='<driver>'): <message>`. Drivers can echo parts of the URI in their own messages, so in that error, which Spice logs and, for a dataset, returns in its status (`GET /v1/datasets?status=true`), Spice replaces each configured credential in it with `***`: the whole URI (except with the `duckdb` driver, whose URI is the database file path and stays readable), `adbc_password`, the password or token in the URI's user info, and the values of query and `adbc_driver_options` keys whose names contain `password`, `passwd`, `pwd`, `secret`, `token`, or `credential`, each as written and percent-decoded. A value of a key whose name contains only `key` or `auth`, such as `api_key`, is replaced only when it is at least four bytes long. A credential shorter than four bytes is replaced only where it is not part of a longer word, so a short credential can remain in the message. The scrubbing applies to that error only, not to messages that the driver or its connection pool log on their own. In v2.4.1 and earlier, these errors included the full `adbc_uri`.
 
 For drivers that accept `adbc_username` and `adbc_password` (e.g., Redshift, Snowflake), these can be set through environment variables:
 

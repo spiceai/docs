@@ -25,7 +25,7 @@ Spice runtime components are the building blocks for configuring data access, ac
 
 **[Tools](./components/tools)** define callable functions that LLMs can invoke during inference, including MCP (Model Context Protocol) integrations for connecting to external services.
 
-**[Vector Engines](./components/vectors)** index dataset embedding columns and serve nearest-neighbour search backed by DuckDB, Elasticsearch, or Amazon S3 Vectors.
+**[Vector Engines](./components/vectors)** index dataset embedding columns and serve nearest-neighbour search backed by Elasticsearch or Amazon S3 Vectors. A [Spice Cayenne](./components/data-accelerators/cayenne) acceleration indexes embedding columns for vector search without a vector engine.
 
 **[Secret Stores](./components/secret-stores)** manage credentials and sensitive configuration values using environment variables, files, or external secret managers like AWS Secrets Manager and Azure Key Vault.
 

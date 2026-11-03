@@ -82,7 +82,7 @@ Because instances are evicted, preempted, and replaced during rollouts, clients 
 
 ## Storage
 
-File-mode accelerations (Cayenne, DuckDB, SQLite, Turso) and query spill run at the per-I/O latency of the volume beneath them, and the Kubernetes defaults — the node's ephemeral root disk for a plain `emptyDir`, and a network block volume for the default StorageClass — are the slow choices.
+File-mode accelerations (Cayenne, DuckDB, SQLite) and query spill run at the per-I/O latency of the volume beneath them, and the Kubernetes defaults — the node's ephemeral root disk for a plain `emptyDir`, and a network block volume for the default StorageClass — are the slow choices.
 
 | Data                                              | Recommendation                                                                                                                                                       |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

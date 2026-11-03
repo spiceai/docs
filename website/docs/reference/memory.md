@@ -54,7 +54,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 
 The multiples are working-set figures. Add them to the baseline rather than using them as the total, and treat the 8 GB row as a floor that applies regardless of how small the data is.
 
-Memory requirements can be reduced by using file-based acceleration with [DuckDB](../components/data-accelerators/duckdb), [SQLite](../components/data-accelerators/sqlite), [Turso](../components/data-accelerators/turso), or [Spice Cayenne](../components/data-accelerators/cayenne), which store data on disk and support spilling.
+Memory requirements can be reduced by using file-based acceleration with [DuckDB](../components/data-accelerators/duckdb), [SQLite](../components/data-accelerators/sqlite), or [Spice Cayenne](../components/data-accelerators/cayenne), which store data on disk and support spilling.
 
 :::tip[Datasets 10 GB or larger]
 
@@ -76,7 +76,9 @@ The baseline is the sum of a fixed process cost and a per-dataset cost. The per-
 | Task history                  | Runtime (enabled by default)                | No byte cap — bounded by time instead; scales with task rate × `retention_period` (8h) |
 | Metastore and protocol buffers | Runtime                                    | Bounded, but reached only under sustained traffic          |
 
-The last two rows are the ones that make a short measurement misleading. **Task history is an in-memory accelerated table**, so its footprint is a product of how many tasks the deployment completes and how long records are kept, rather than a fixed allocation — a high-throughput deployment accumulates far more than a quiet one at the same configuration. Setting `captured_plan` or `captured_output` increases the size of every record substantially.
+The last two rows are the ones that make a short measurement misleading. **Task history is an in-memory Spice Cayenne table** (`mode: memory`, so nothing is written to disk), so its footprint is a product of how many tasks the deployment completes and how long records are kept, rather than a fixed allocation — a high-throughput deployment accumulates far more than a quiet one at the same configuration. Setting `captured_plan` or `captured_output` increases the size of every record substantially.
+
+The internal tables, `runtime.task_history` and `runtime.metrics`, are charged to a memory pool of their own: a tenth of total memory, at most 1 GiB. That pool is separate from the query memory pool, so a busy runtime's task history does not use up `runtime.query.memory_limit` and fail user queries with `ResourcesExhausted`. The pool keeps the internal tables out of the query budget, but it does not cap them. Task history's primary-key index (on `span_id`) grows outside the pool, and `runtime.task_history.retention_period` bounds task history's size. `runtime.metrics` has no primary key, and Spice deletes its rows after 30 minutes; that period has no setting.
 
 ```yaml
 runtime:

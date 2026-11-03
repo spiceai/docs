@@ -159,7 +159,7 @@ For complete rerank syntax and parameters, see [Search SQL Reference](../referen
 
 ## Where indexes are built
 
-Build full-text and vector indexes on the central acceleration tier, and let application sidecars answer repeats from the [search results cache](./caching) (`runtime.caching.search_results`). The in-memory full-text index is rebuilt on every start; a file-backed one is a separate directory and is not part of an [acceleration snapshot](./data-acceleration/snapshots#best-practices). A DuckDB HNSW index lives in the DuckDB file, so it travels with that file's snapshot. See [Cluster-Sidecar](../deployment/architectures/cluster-sidecar).
+Build full-text and vector indexes on the central acceleration tier, and let application sidecars answer repeats from the [search results cache](./caching) (`runtime.caching.search_results`). The in-memory full-text index is rebuilt on every start; a file-backed one is a separate directory and is not part of an [acceleration snapshot](./data-acceleration/snapshots#best-practices). See [Cluster-Sidecar](../deployment/architectures/cluster-sidecar).
 
 ## Dataset Readiness
 
