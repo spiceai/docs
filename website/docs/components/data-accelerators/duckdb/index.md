@@ -100,7 +100,7 @@ datasets:
 
 A full refresh streams into a fresh staging database file while the live file keeps serving queries, then:
 
-1. copies every other object sharing the file into the staging file — other datasets' tables, views, and indexes, the `spice_sys_*` metadata tables (dataset checkpoints, CDC offsets), and HNSW indexes,
+1. copies every other object sharing the file into the staging file — other datasets' tables, views, and indexes, and the `spice_sys_*` metadata tables (dataset checkpoints, CDC offsets),
 2. checkpoints and cleanly closes the staging file, so it is compact and WAL-free, and
 3. atomically renames it over the configured path and repoints the shared connection pool at it.
 
