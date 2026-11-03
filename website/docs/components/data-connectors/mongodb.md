@@ -327,7 +327,7 @@ File-accelerated datasets persist resume tokens and resume from the last committ
 
 - MongoDB 4.0+ with Change Streams enabled. MongoDB requires a replica set or sharded cluster for Change Streams.
 - The MongoDB user must have `changeStream` privileges.
-- The accelerator must support upsert behavior. Use `duckdb`, `sqlite`, `postgres`, `turso`, or `cayenne`.
+- The accelerator must support upsert behavior. Use `duckdb`, `sqlite`, `postgres`, or `cayenne`.
 - `acceleration.primary_key: _id` is required. Delete events only include the document key, so Spice needs `_id` to route deletes.
 - On engines other than `cayenne`, `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows. Cayenne keeps one row per `_id` without it.
 

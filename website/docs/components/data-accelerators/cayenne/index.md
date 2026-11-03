@@ -559,7 +559,7 @@ datasets:
 
 ### Secondary indexes
 
-Segment statistics prune a *selective* query well, but they are not a row address: when a query pins an exact key the table is not clustered on, most files remain candidates and the scan opens them. A dataset's [`indexes`](../../features/data-acceleration/indexes) — the same acceleration field DuckDB, SQLite, Turso and PostgreSQL accept — gives a Cayenne table one secondary index per entry, in both `mode: file` and `mode: memory`:
+Segment statistics prune a *selective* query well, but they are not a row address: when a query pins an exact key the table is not clustered on, most files remain candidates and the scan opens them. A dataset's [`indexes`](../../features/data-acceleration/indexes) — the same acceleration field DuckDB, SQLite, and PostgreSQL accept — gives a Cayenne table one secondary index per entry, in both `mode: file` and `mode: memory`:
 
 ```yaml
 datasets:

@@ -30,20 +30,20 @@ Supported Vector engines:
 | -------------------------------- | ----------------------------------- |
 | [`s3_vectors`][s3vectors]        | AWS S3 vectors                      |
 | [`elasticsearch`][elasticsearch] | Elasticsearch (Spice.ai Enterprise) |
-| [`duckdb`][duckdb]               | DuckDB VSS (HNSW) extension (deprecated) |
 
 ## Choosing an engine
 
 The engines differ in where the index lives:
 
 - **External engines**, for high-QPS serving where the index lives outside the Spice process and survives a restart of it. [S3 Vectors](./vectors/s3_vectors#handling-filters) stores vectors in S3 and pushes predicates on columns marked `metadata.vectors: filterable` into the index query. [Elasticsearch](./vectors/elasticsearch) keeps the kNN index in the cluster (and can combine it with full-text in that cluster).
-- **In-process HNSW** ([DuckDB VSS](./vectors/duckdb)) when the dataset is already DuckDB-accelerated and modest in size. The DuckDB vector engine is deprecated in v2.4 and will be removed in v2.5; a Cayenne acceleration indexes embedding columns for `vector_search` without a `vectors` block. The index lives in the DuckDB file. A full refresh rebuilds it. Plan memory for the graph and a cold start that reopens or rebuilds it.
+- **No vector engine**, when the dataset or view is accelerated with [Spice Cayenne](../data-accelerators/cayenne/index.md). Cayenne indexes embedding columns for `vector_search` itself, without a `vectors` block. Its index is exact: it scores every candidate row, so query time grows with the rows searched.
+
+The DuckDB vector engine (`vectors.engine: duckdb`) is removed in v2.5. See [Migrating the DuckDB vector engine](../data-accelerators/cayenne/migration.md#migrating-the-duckdb-vector-engine).
 
 Add vector search only when semantic retrieval is required. Hybrid retrieval ([`rrf`](../reference/sql/search#reciprocal-rank-fusion-rrf) over `vector_search` and `text_search`) is for queries that need both semantic and literal matches. Otherwise stay on SQL, regex, or [full-text search](../features/search/full-text). See [Where indexes are built](../features/search#where-indexes-are-built).
 
 [s3vectors]: /docs/components/vectors/s3_vectors.md
 [elasticsearch]: /docs/components/vectors/elasticsearch.md
-[duckdb]: /docs/components/vectors/duckdb.md
 
 :::warning[Limitations]
 

@@ -50,7 +50,7 @@ Choose the appropriate [Data Accelerator](../components/data-accelerators) based
 | Point lookups, small-medium datasets     | `arrow` with hash index    | Set `engine: arrow` and a `primary_key` to auto-enable the hash index (experimental, v1.11.0-rc.2+) |
 | Point lookups with explicit indexes      | `duckdb` or `sqlite`       | Configure indexes                                                     |
 
-Every file-mode engine — Cayenne, DuckDB, SQLite, and Turso — is only as fast as the storage its files sit on. Decide where those files and the query spill directory live before tuning anything else; see [Storage](#storage).
+Every file-mode engine — Cayenne, DuckDB, and SQLite — is only as fast as the storage its files sit on. Decide where those files and the query spill directory live before tuning anything else; see [Storage](#storage).
 
 ## Storage
 
@@ -67,7 +67,7 @@ Each engine has a different I/O profile, and none of them is friendly to high-la
 | Spice Cayenne (Vortex data files)  | Random reads of individual segments — Vortex is built for random access, so a selective query issues many small reads rather than one sequential scan. Compaction rewrites files in the background. | Read latency, IOPS, write bandwidth   |
 | Cayenne metastore (SQLite)         | Many small synchronous writes with `fsync` on every commit; read on every plan.                                                                                        | Write latency                         |
 | DuckDB (`mode: file`)              | Buffer-managed block reads and writes; checkpoints and index serialization; its own spill files for sorts, joins, and aggregates.                                      | Latency and throughput                |
-| SQLite and Turso (`mode: file`)    | Page-cache misses become synchronous reads; WAL writes with `fsync`; a single writer per file.                                                                          | Latency, locking semantics            |
+| SQLite (`mode: file`)              | Page-cache misses become synchronous reads; WAL writes with `fsync`; a single writer per file.                                                                          | Latency, locking semantics            |
 | DataFusion spill (all engines)     | Large sequential writes and reads of Arrow IPC batches while a sort, aggregate, or sort-merge join runs beyond `runtime.query.memory_limit`.                             | Throughput, free space                |
 | Snapshots                          | Whole-file copies to and from object storage on bootstrap and after refreshes.                                                                                        | Throughput                            |
 
@@ -89,7 +89,7 @@ Put every locally stored artifact on one local NVMe/SSD file system, in separate
 
 ```text
 /nvme/spice/
-├── data/        # acceleration files: duckdb_file, sqlite_file, turso_file, cayenne_file_path
+├── data/        # acceleration files: duckdb_file, sqlite_file, cayenne_file_path
 ├── metadata/    # Cayenne metastore (cayenne_metadata_dir)
 └── tmp/         # runtime.query.temp_directory — query, compaction, and DuckDB spill
 ```
@@ -146,7 +146,6 @@ Each engine applies its own adjustments to the resolved profile:
 | Cayenne | Target file size pinned at 256 MB; the tuner treats the medium as the slow tier — it flushes larger inline batches to amortize metastore commits, classifies the table as I/O-bound at half the latency, drains memory buffers earlier, and withholds write shards sooner; compaction output is written with `O_DIRECT`, preallocation, and a final `fsync`, bypassing the page cache; the aggregate encode concurrency across tables is capped from the volume's write bandwidth (the instance's EBS baseline on EC2, otherwise the measured throughput) | Target file size 64 MB; no slow-tier bias           | Engine defaults; no bias  |
 | DuckDB  | Connection pool floor of 4 (instead of 10); `checkpoint_threshold` raised to 256 MiB so each checkpoint amortizes more I/O                                                                          | `checkpoint_threshold` raised to 1 GiB              | Engine defaults           |
 | SQLite  | `busy_timeout` 15 s (instead of 5 s); page cache ~200 MB (instead of ~20 MB); 256 MiB of memory-mapped I/O                                                                                          | Engine defaults                                      | Engine defaults           |
-| Turso   | Page cache ~200 MB                                                                                                                                                                                  | Engine defaults                                      | Engine defaults           |
 
 Within the network-attached tier, Cayenne also measures the medium rather than treating every volume alike. At registration it writes an 8 MiB probe file to the data directory and to the metastore directory, syncs it, and records the sequential write throughput, once per distinct volume. A volume that measures at or below roughly 125 MiB/s (a baseline `gp3` volume) receives the full slow-tier bias; one that measures at or above roughly 1 GiB/s (local NVMe, or a heavily provisioned `io2` volume) receives none, with a linear scale in between. On AWS EC2 it also queries the instance metadata service once to learn whether the instance is a burstable T-family type and what its baseline EBS bandwidth is, and caps the process-wide encode concurrency so parallel writers cannot oversubscribe the instance's EBS pipe. See [Storage](../components/data-accelerators/cayenne/performance#storage) in the Cayenne performance guide.
 
@@ -180,7 +179,7 @@ Plan for the loss rather than trying to prevent it:
 | Cayenne data files                     | 0.25–0.5× raw data size (Vortex with `btrblocks`), plus room for a compaction pass to hold the old and new copies of a file set at once |
 | Cayenne metastore                      | ~10 MB per 1,000 files, plus its WAL                                                                                                        |
 | DuckDB file                            | Roughly the compressed data size, plus the previous copy of the data on every `refresh_mode: full` until [`on_full_refresh`](../components/data-accelerators/duckdb#bounding-acceleration-file-growth) reclaims it |
-| SQLite / Turso file                    | 1.2–1.5× raw data size (row-oriented, little compression)                                                                                   |
+| SQLite file                            | 1.2–1.5× raw data size (row-oriented, little compression)                                                                                   |
 | Query spill (`runtime.query.temp_directory`) | 2–4× the largest join or sort input that can exceed memory; DataFusion stops spilling at 100 GB in total, see [Spill-to-Disk](#spill-to-disk-and-the-temporary-directory) |
 | DuckDB spill                           | DuckDB caps its own temporary files at 90% of the volume's free space; budget for the largest out-of-core sort or join                      |
 | Headroom                               | Keep at least 20% free. Cayenne warns at startup when a data or metastore volume has under 10% or under 2 GiB free, because a full volume fails CDC ingestion. |
@@ -198,7 +197,7 @@ Amazon EBS, Azure Managed Disks, and GCP Persistent Disk and Hyperdisk are block
 - **Per-instance limits.** Each [EBS-optimized instance type](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html) has a baseline and a maximum EBS bandwidth, and many smaller sizes can sustain the maximum for only 30 minutes at least once every 24 hours before dropping to the baseline. A large provisioned volume behind a small instance is throttled by the instance, not the volume. The same applies to Azure VM-level disk throughput caps.
 - **Shared pipe.** Every volume attached to an instance shares that instance's EBS bandwidth. Spill, data, and the root volume compete for it.
 
-**What Spice does on the `ebs` profile** is summarized in [How Spice adapts to the storage medium](#how-spice-adapts-to-the-storage-medium): fewer pooled connections and larger checkpoints for DuckDB, larger page caches and longer lock waits for SQLite and Turso, and for Cayenne a slow-tier tuning bias, an `O_DIRECT` compaction writer that keeps rewritten files out of the page cache, and an encode-concurrency cap derived from the instance's EBS bandwidth.
+**What Spice does on the `ebs` profile** is summarized in [How Spice adapts to the storage medium](#how-spice-adapts-to-the-storage-medium): fewer pooled connections and larger checkpoints for DuckDB, larger page caches and longer lock waits for SQLite, and for Cayenne a slow-tier tuning bias, an `O_DIRECT` compaction writer that keeps rewritten files out of the page cache, and an encode-concurrency cap derived from the instance's EBS bandwidth.
 
 **Guidance:**
 
@@ -207,7 +206,7 @@ Amazon EBS, Azure Managed Disks, and GCP Persistent Disk and Hyperdisk are block
 - **Keep spill off the root volume.** Set `runtime.query.temp_directory` to a directory on the data volume or on a dedicated volume. When Cayenne is active and the setting is unset, the runtime logs a reminder at startup.
 - **Prefer local NVMe for spill even when data is on EBS.** Many EBS-backed instance families also carry instance store (the `d`-suffixed types); a spill that runs at NVMe speed holds memory reservations for a fraction of the time, and spill has no durability requirement.
 - **Set `storage_profile: ebs` explicitly** on GCP Persistent Disk and Hyperdisk, on Ceph, SAN, and other network block devices that auto-detection resolves to `local_ssd`, and on any platform where detection returns `unknown` but the storage is network-attached.
-- **Do not share a volume between Spice instances.** DuckDB, SQLite, Turso, and the Cayenne metastore each allow one writer per file. Multi-attach `io2` volumes provide no file-system coordination and will corrupt these files.
+- **Do not share a volume between Spice instances.** DuckDB, SQLite, and the Cayenne metastore each support one writer per file. Multi-attach `io2` volumes provide no file-system coordination and will corrupt these files.
 - **Monitor the volume and the instance.** On AWS, watch `VolumeQueueLength`, `VolumeReadOps`/`VolumeWriteOps` against the provisioned IOPS, `BurstBalance` on `gp2`, and the instance-level `EBSIOBalance%` and `EBSByteBalance%` — see [Amazon EBS CloudWatch metrics](https://docs.aws.amazon.com/ebs/latest/userguide/using_cloudwatch_ebs.html). A queue length that grows while IOPS plateau is a saturated volume; a balance that trends to zero is an instance about to be throttled to its baseline.
 
 On Azure, prefer [Premium SSD v2 or Ultra Disk](https://learn.microsoft.com/azure/virtual-machines/disks-types) with explicit IOPS and throughput; on GCP prefer [Hyperdisk Balanced or Extreme](https://cloud.google.com/compute/docs/disks/hyperdisks) over `pd-ssd`. The platform-specific StorageClass recommendations are in the [AWS](../deployment/aws#4-storage-and-ingress), [Azure](../deployment/azure), [GCP](../deployment/gcp), and [Helm](../deployment/kubernetes/helm#storage-class-recommendations) deployment guides.
@@ -217,7 +216,7 @@ On Azure, prefer [Premium SSD v2 or Ultra Disk](https://learn.microsoft.com/azur
 Network file systems — on-premises NAS appliances exported over NFS or SMB, Amazon EFS, Azure Files, Google Cloud Filestore, and similar — are **not recommended** for acceleration files or for the spill directory, and the limitation is not only speed:
 
 - **Latency and protocol overhead.** Every uncached read, every write, and every metadata operation (open, stat, rename, lock) is a network round trip through a file-sharing protocol. Vortex's random-access reads, SQLite's per-commit `fsync`, and DuckDB's checkpoints all issue these operations in volume. Throughput on managed offerings is also metered per file system or per share, and shared with every other client.
-- **Locking semantics.** SQLite's documentation is explicit that lock implementations on network file systems are unreliable: *"This is especially true of network filesystems and NFS in particular. If SQLite is used on a filesystem where the locking primitives contain bugs, and if two or more threads or processes try to access the same database at the same time, then database corruption might result."* ([How To Corrupt An SQLite Database File](https://www.sqlite.org/howtocorrupt.html), section 2.1). This applies to the SQLite and Turso accelerators and to the Cayenne metastore, which is a SQLite database.
+- **Locking semantics.** SQLite's documentation is explicit that lock implementations on network file systems are unreliable: *"This is especially true of network filesystems and NFS in particular. If SQLite is used on a filesystem where the locking primitives contain bugs, and if two or more threads or processes try to access the same database at the same time, then database corruption might result."* ([How To Corrupt An SQLite Database File](https://www.sqlite.org/howtocorrupt.html), section 2.1). This applies to the SQLite accelerator and to the Cayenne metastore, which is a SQLite database.
 - **DuckDB's own guidance.** DuckDB recommends avoiding its native database format in read-write mode on network-attached storage, noting that it *"can result in slow and unpredictable performance, as well as spurious errors caused by the underlying file system"* — see [DuckDB's environment guide](https://duckdb.org/docs/stable/guides/performance/environment). The same page notes that network-backed cloud block disks such as EBS are fine for read-write use; the distinction is block device versus shared file system.
 - **What Spice does.** Auto-detection classifies `nfs`, `nfs4`, `cifs`, `smbfs`, and `smb3` mounts as the network-attached (`ebs`) tier, so the adjustments above apply, including Cayenne's `O_DIRECT` compaction writer. Those adjustments amortize the latency; they do not remove it, and they cannot make a file-sharing protocol's locks trustworthy.
 
@@ -225,7 +224,7 @@ If a network file system is unavoidable — a regulated environment that provide
 
 - Run exactly **one Spice instance per exported directory**, with no other NFS/SMB clients touching the files.
 - Keep the **Cayenne metastore on local disk** (`cayenne_metadata_dir` on a local volume) even when data files are on the share, and keep **spill local** (`runtime.query.temp_directory`).
-- Prefer **Cayenne** over DuckDB, SQLite, or Turso for data on the share: its data files are immutable once written, so the share sees whole-file writes and renames rather than in-place page updates.
+- Prefer **Cayenne** over DuckDB or SQLite for data on the share: its data files are immutable once written, so the share sees whole-file writes and renames rather than in-place page updates.
 - Set `storage_profile: ebs` explicitly if the share is mounted through a user-space client that does not appear in `/proc/self/mountinfo` with one of the file-system types above.
 - Mount NFS with `hard`, a generous `timeo`, and `nconnect` where the client supports it; mount SMB with the 3.1.1 dialect and the largest `rsize`/`wsize` the server allows.
 - Expect refresh and compaction to run several times slower than on local storage, and load-test the cold-cache case rather than the warm one.
@@ -512,14 +511,14 @@ Zone-maps and Cayenne segment statistics skip any row group or segment whose rec
 - On DuckDB, an accelerated view with `ORDER BY` and `duckdb_preserve_insertion_order: true` (above), or `on_refresh_sort_columns` on a table. `on_refresh_sort_columns` rewrites the table and drops `primary_key`, `indexes`, and `on_conflict`. Use it on a table that does not need those constraints.
 - On Cayenne, [`sort_columns`](../components/data-accelerators/cayenne/performance#sorted-data-and-segment-pruning) (or `partition_by` on the selective key). `sort_columns` is compatible with a primary key; `on_refresh_sort_columns` is not.
 
-## SQLite and Turso
+## SQLite
 
-[SQLite](../components/data-accelerators/sqlite) and [Turso](../components/data-accelerators/turso) are row-oriented engines suited to small and medium datasets with simple queries and point lookups. Their performance characteristics are dominated by two things:
+[SQLite](../components/data-accelerators/sqlite) is a row-oriented engine suited to small and medium datasets with simple queries and point lookups. Its performance characteristics are dominated by two things:
 
-- **Storage latency.** Both serve page-cache misses with synchronous reads and commit with `fsync`, and both are the engines most exposed to the [locking problems of network file systems](#network-file-systems-nas-nfs-smb-efs-azure-files). Keep their files on local NVMe/SSD. On the `ebs` profile the runtime raises SQLite's page cache to ~200 MB and enables 256 MiB of memory-mapped I/O, and raises Turso's page cache to ~200 MB, to absorb per-I/O latency.
-- **A single writer per file.** Refreshes serialize on the file's write lock. Many datasets with short refresh intervals in one file contend; give write-heavy datasets their own file, raise `busy_timeout` (SQLite; 5 s by default, 15 s on `ebs`) if `database is locked` appears, or move the workload to DuckDB or Cayenne.
+- **Storage latency.** SQLite serves page-cache misses with synchronous reads and commits with `fsync`, and is the engine most exposed to the [locking problems of network file systems](#network-file-systems-nas-nfs-smb-efs-azure-files). Keep its files on local NVMe/SSD. On the `ebs` profile the runtime raises SQLite's page cache to ~200 MB and enables 256 MiB of memory-mapped I/O to absorb per-I/O latency.
+- **A single writer per file.** Refreshes serialize on the file's write lock. Many datasets with short refresh intervals in one file contend; give write-heavy datasets their own file, raise `busy_timeout` (5 s by default, 15 s on `ebs`) if `database is locked` appears, or move the workload to DuckDB or Cayenne.
 
-Neither engine spills intermediate results to disk; SQLite keeps temporary tables and indices in memory (`temp_store = memory`). Queries that join or aggregate beyond RAM belong on DuckDB or Cayenne, where DataFusion and DuckDB spill.
+SQLite does not spill intermediate results to disk; it keeps temporary tables and indices in memory (`temp_store = memory`). Queries that join or aggregate beyond RAM belong on DuckDB or Cayenne, where DataFusion and DuckDB spill.
 
 ## DataFusion Query Engine
 
@@ -725,7 +724,7 @@ When a sort, aggregation, or sort-merge join cannot reserve more memory from the
 | DuckDB accelerator instances                                | Yes — passed through as DuckDB's `temp_directory`; without it DuckDB uses a `.tmp` directory beside the database file |
 | Cluster-mode executors                                      | Yes — the default local working directory for shuffle data                                                           |
 | Cayenne in-memory CDC tier under memory pressure            | No — checkpoints to the table's **data** directory, which is why that volume needs free space too                     |
-| SQLite and Turso                                            | No — they do not spill; temporary tables are held in memory                                                          |
+| SQLite                                                      | No — it does not spill; temporary tables are held in memory                                                          |
 
 **The default is the operating system's temporary directory** (`$TMPDIR`, otherwise `/tmp`). On most hosts that is the root volume: on a cloud instance a small network-attached disk, in a container the writable layer. Both are the wrong place — slow, small, and shared with logs and images — and a spill that fails for lack of space does not fall back to memory; the query fails with a `ResourcesExhausted` error, indistinguishable at first glance from an ordinary out-of-memory refusal. When Cayenne acceleration is active and the setting is unset, the runtime logs this at startup:
 
@@ -1007,7 +1006,7 @@ See [Observability](../features/observability) for metric configuration.
 Use this checklist when optimizing Spice deployments:
 
 - [ ] Select appropriate accelerator based on dataset size and query patterns
-- [ ] Place acceleration files (`duckdb_file`, `sqlite_file`, `turso_file`, `cayenne_file_path`, `cayenne_metadata_dir`) on local NVMe/SSD, not the root volume, a network file system, or a RAM-backed mount
+- [ ] Place acceleration files (`duckdb_file`, `sqlite_file`, `cayenne_file_path`, `cayenne_metadata_dir`) on local NVMe/SSD, not the root volume, a network file system, or a RAM-backed mount
 - [ ] Set `runtime.query.temp_directory` to a directory on local NVMe/SSD with 2–4× the largest spillable input free
 - [ ] Set `storage_profile` explicitly where auto-detection cannot see the device (GCP Persistent Disk, SAN, non-Linux hosts)
 - [ ] On network block storage, prefer a sub-millisecond tier (`io2` Block Express, Premium SSD v2, Hyperdisk Extreme), provision IOPS and throughput, and choose an instance whose EBS bandwidth sustains them; plan for instance-store data loss with snapshots or re-materialization

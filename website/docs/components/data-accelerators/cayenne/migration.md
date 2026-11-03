@@ -10,7 +10,7 @@ tags:
   - cayenne
 ---
 
-Every acceleration engine other than Cayenne (`arrow`, `duckdb`, `sqlite`, `turso`, and `postgres`) is deprecated in Spice v2.4 and will be removed in v2.5. This guide explains how to move an acceleration to Cayenne, how to tell whether an acceleration is safe to rebuild, and which files and snapshots to delete afterwards.
+Every acceleration engine other than Cayenne (`arrow`, `duckdb`, `sqlite`, `turso`, and `postgres`) is deprecated in Spice v2.4 and will be removed in v2.5, and `turso` is already removed. This guide explains how to move an acceleration to Cayenne, how to tell whether an acceleration is safe to rebuild, and which files and snapshots to delete afterwards.
 
 ## What Spice reports
 
@@ -20,7 +20,13 @@ In v2.4, a Spicepod that uses a deprecated engine logs one warning at startup, n
 WARN runtime::init::dataset: Acceleration engines other than `cayenne` are deprecated and will be removed in v2.5, so these accelerations must move to `cayenne` before upgrading: `duckdb` (dataset 'orders', view 'daily'), `sqlite` (dataset 'customers'). Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
 ```
 
-In v2.5, a dataset or view that still names a removed engine fails to load, and the other components load normally. Spice never switches such an acceleration to Cayenne on its own, because a silent rebuild would discard any data the source does not have.
+In v2.5, a dataset or view that still names a removed engine fails to load, and the other components load normally. Spice never switches such an acceleration to Cayenne on its own, because a silent rebuild would discard any data the source does not have. For a dataset that sets `engine: turso`, the error reads:
+
+```text
+ERROR runtime::init::dataset: Failed to load dataset 'orders': the acceleration engine `turso` is no longer supported as of v2.5 and cannot be used. Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
+```
+
+A view reports `Failed to load view '<name>': …` with the same cause. Because a v2.5 runtime cannot open an acceleration file of a removed engine, check [Step 1](#step-1-check-whether-the-acceleration-can-be-rebuilt) and move any data the source does not have while the runtime is still on v2.4.
 
 ## Step 1: Check whether the acceleration can be rebuilt
 
@@ -129,7 +135,15 @@ Back up the directory the error names, then list what it holds before you delete
 
 ## Migrating the DuckDB vector engine
 
-The [DuckDB vector engine](../../vectors/duckdb) (`vectors.engine: duckdb`) is deprecated in v2.4 and will be removed in v2.5 along with the DuckDB accelerator it depends on. A Cayenne acceleration does not need a vector engine: Cayenne indexes every embedding column itself, so `vector_search` and `/v1/search` work on a Cayenne dataset or view as soon as its embeddings are configured.
+The [DuckDB vector engine](../../vectors/duckdb) (`vectors.engine: duckdb`) is deprecated in v2.4 and removed in v2.5. A dataset or view that selects it, through `vectors.engine: duckdb` or a column's `embeddings[].engine: duckdb`, fails to load:
+
+```text
+Failed to load dataset 'products': the vector engine `duckdb` is no longer supported as of v2.5 and cannot be used. Remove the `vectors` block and use `acceleration.engine: cayenne`, which indexes embedding columns for `vector_search` itself. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration#migrating-the-duckdb-vector-engine
+```
+
+A `vectors` block with `enabled: false` selects no engine, so its `engine` value is ignored. HNSW parameters (`duckdb_hnsw_*`) under `acceleration.params` of a DuckDB acceleration no longer enable a vector engine: Spice logs that it ignores each one, and `vector_search` answers by exact search.
+
+A Cayenne acceleration does not need a vector engine: Cayenne indexes every embedding column itself, so `vector_search` and `/v1/search` work on a Cayenne dataset or view as soon as its embeddings are configured.
 
 To migrate, set `acceleration.engine: cayenne` and remove the `vectors` block entirely. Removing only `engine` is not enough, because an enabled `vectors` block with no `engine` is an error. The `duckdb_*` parameters under `vectors.params` (`duckdb_distance_metric` and the HNSW settings) have no Cayenne equivalent and go with the block. For example:
 

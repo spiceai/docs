@@ -16,6 +16,16 @@ Connect to a [DuckLake](https://ducklake.select/) catalog for federated SQL quer
 
 For connecting to individual DuckLake tables, see the [DuckLake Data Connector documentation](../data-connectors/ducklake).
 
+## Requirements
+
+The DuckLake catalog connector reads and writes DuckLake tables through the DuckDB library installed on the host (`libduckdb`), which Spice loads over [ADBC](https://arrow.apache.org/adbc/). DuckDB 1.5.0 or later is required. Spice's Docker images include `libduckdb` 2.0.0, so this requirement applies only to a `spiced` binary installed outside them.
+
+To install it, download the DuckDB C/C++ shared library from the [DuckDB installation page](https://duckdb.org/install/) and place `libduckdb.so` (Linux) or `libduckdb.dylib` (macOS) on the system library path, or register a `duckdb` [ADBC driver manifest](https://arrow.apache.org/adbc/current/format/driver_manifests.html). Spice checks the library's version each time it opens a catalog. When the library is missing or older than 1.5.0, that catalog fails to load, and the rest of the Spicepod loads normally:
+
+```text
+Failed to load the installed DuckDB library: version v1.4.4 is older than the minimum supported version 1.5.0. Install DuckDB 1.5.0 or later. For details, visit: https://spiceai.org/docs/components/data-connectors/ducklake
+```
+
 ## Configuration
 
 ```yaml

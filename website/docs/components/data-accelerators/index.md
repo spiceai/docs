@@ -44,15 +44,13 @@ Some configurations load on Arrow but not on Cayenne. With no `engine`, each of 
 | `duckdb`   | Embedded [DuckDB][duckdb]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
 | `postgres` | Attached [PostgreSQL][postgres] (Spice.ai Enterprise) | Deprecated | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
-| `turso`    | Embedded [Turso][turso]         | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
 
-Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. See [Migrating to Spice Cayenne](./cayenne/migration.md).
+Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. The `turso` engine is already removed: a dataset or view that sets `acceleration.engine: turso` fails to load. See [Migrating to Spice Cayenne](./cayenne/migration.md).
 
 [cayenne]: ./cayenne/index.md
 [duckdb]: ./duckdb/index.md
 [postgres]: data-accelerators/postgres
 [sqlite]: ./sqlite/index.md
-[turso]: ./turso.md
 
 ## Choosing an Accelerator
 
@@ -65,7 +63,6 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Datasets 10 GB and above (up to 1+ TB)              | `cayenne`               | Needs 1/3 to 1/2 the memory of `duckdb`; Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
-| Async operations, concurrent workloads              | `turso`                 | Native async support, modern connection pooling         |
 | External database integration                       | `postgres`              | Use existing PostgreSQL infrastructure                  |
 
 ### Spice Cayenne vs DuckDB
@@ -121,7 +118,7 @@ Data Accelerators may not support all possible Apache Arrow data types. For comp
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](data-accelerators/duckdb), [`sqlite`](data-accelerators/sqlite), and [`turso`](data-accelerators/turso) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](data-accelerators/duckdb) and [`sqlite`](data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 :::
 
@@ -144,4 +141,4 @@ import DocCardList from '@theme/DocCardList';
 - [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
 - [Managing Memory Usage](../reference/memory) - Memory configuration reference
 - [Data Refresh](../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, Turso, PostgreSQL, and Spice Cayenne
+- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, PostgreSQL, and Spice Cayenne

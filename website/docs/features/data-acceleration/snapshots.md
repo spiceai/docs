@@ -31,7 +31,7 @@ datasets:
 
 ## Overview
 
-Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB, SQLite, Cayenne, or Turso) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
+Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB, SQLite, or Cayenne) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
 
 ## How it works
 
@@ -46,7 +46,7 @@ Snapshots are organized with Hive-style partitioning so they are easy to retain 
 s3://some_bucket/some_folder/snapshots/month=2025-09/day=2025-09-19/dataset=my_dataset/my_dataset_20250919T134522Z_01996238f1157a59ae4d69b4f18b22a4.duckdb
 ```
 
-The timestamp is recorded in UTC using ISO 8601 without punctuation. The UUIDv7 after the timestamp gives each snapshot its own object name, so two snapshots written in the same second do not overwrite each other. The file extension names the acceleration engine that wrote the snapshot: `.duckdb`, `.sqlite`, `.cayenne`, or `.turso`. The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
+The timestamp is recorded in UTC using ISO 8601 without punctuation. The UUIDv7 after the timestamp gives each snapshot its own object name, so two snapshots written in the same second do not overwrite each other. The file extension names the acceleration engine that wrote the snapshot: `.duckdb`, `.sqlite`, or `.cayenne`. Snapshots that a v2.4 or earlier runtime wrote with the removed `turso` engine end in `.turso`. The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
 
 :::warning Dedicated files only
 Every accelerated dataset must write to its own file (for example, `/nvme/my_dataset.db`). Sharing a single file across multiple datasets is not supported.
@@ -54,7 +54,7 @@ Every accelerated dataset must write to its own file (for example, `/nvme/my_dat
 
 ## What each snapshot contains
 
-Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — DuckDB, SQLite, Cayenne, or Turso — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
+Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — DuckDB, SQLite, or Cayenne — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
 
 A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times the number of snapshots kept. The [28-day retention period](#snapshot-retention) applies to the entries in `metadata.json`; dropped files stay at least 24 more hours, until a later publish deletes them, so budget for about 29 days of snapshot files, plus the current and newest snapshot when they are older. DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
 
@@ -454,7 +454,15 @@ datasets:
       s3_auth: iam_role
 ```
 
-The dataset name selects the entry in `metadata.json`, so it must match the name of the dataset that publishes the snapshots. Spice reads `metadata.json`, detects the engine that created the dataset's current snapshot (Cayenne, DuckDB, SQLite, or Turso), restores that snapshot into the same engine, and serves queries from it. It then checks for newer snapshots and swaps each one in, as the [`snapshot` refresh mode](./refresh-modes/snapshot) does.
+The dataset name selects the entry in `metadata.json`, so it must match the name of the dataset that publishes the snapshots. Spice reads `metadata.json`, detects the engine that created the dataset's current snapshot (Cayenne, DuckDB, or SQLite), restores that snapshot into the same engine, and serves queries from it. It then checks for newer snapshots and swaps each one in, as the [`snapshot` refresh mode](./refresh-modes/snapshot) does.
+
+Snapshots created with the removed `turso` engine cannot be restored. The dataset fails to load with an error that names the snapshot location and the engine:
+
+```text
+Failed to load dataset 'orders' from its snapshots, so it cannot be queried: the snapshots at 's3://my-bucket/snapshots/' were created with the 'turso' engine, and the acceleration engine `turso` is no longer supported as of v2.5 and cannot be used. Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
+```
+
+Move the publishing dataset to Cayenne, as [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md) describes, so it publishes Cayenne snapshots that the reader can load.
 
 A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceleration.snapshots` setting, and no top-level `snapshots` section. The snapshot location comes from the dataset's own `from` and `s3_*` params, not from `runtime.state`. To read snapshots that a writer [stores under `runtime.state`](#store-snapshots-under-runtimestate), set `from` to that location's `snapshots/` folder, such as `s3://my-bucket/spice/snapshots/`. An optional `acceleration` block can set `refresh_check_interval` (default `1m`) and engine params.
 
@@ -462,7 +470,7 @@ A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceler
 
 The dataset reports Ready only after the current process has restored a snapshot. A local copy left from an earlier run is never served as current. Until the first snapshot is published, the dataset reports an error status and Spice logs a warning such as `Dataset 'some_table' has no snapshot to load yet, so it cannot be queried until one is published`. Spice keeps checking, with a backoff capped at `refresh_check_interval`. A query that reaches the dataset before a snapshot loads returns an error, not an empty result.
 
-Spice keeps the local copy under `.spice/data/`. DuckDB, SQLite, and Turso copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout: a data directory per dataset and one shared catalog, both under `.spice/data/` by default. Each parameter moves its own part. `cayenne_file_path` moves the data directory, and when it is a local path the catalog follows it to `{cayenne_file_path}/metadata`. `cayenne_metadata_dir` moves the catalog alone, and the data directory keeps its default. Setting both lets a reader keep its copy on a chosen volume, in the same layout as the writer:
+Spice keeps the local copy under `.spice/data/`. DuckDB and SQLite copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout: a data directory per dataset and one shared catalog, both under `.spice/data/` by default. Each parameter moves its own part. `cayenne_file_path` moves the data directory, and when it is a local path the catalog follows it to `{cayenne_file_path}/metadata`. `cayenne_metadata_dir` moves the catalog alone, and the data directory keeps its default. Setting both lets a reader keep its copy on a chosen volume, in the same layout as the writer:
 
 ```yaml
 datasets:
@@ -495,7 +503,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 - `access` must be `read` (the default).
 - `embeddings`, `vectors`, and `full_text_search` are not supported. Configure them on the dataset that publishes the snapshots.
 - In the `acceleration` block, Spice rejects `enabled: false`, any `refresh_mode` other than `snapshot`, `mode: file_create` or `mode: file_update`, `snapshots: enabled` or `snapshots: create_only`, `refresh_sql`, the `retention_*` settings, `on_zero_results: use_source`, and an `engine` other than the one that created the snapshots.
-- Engine path params (`duckdb_file`, `duckdb_data_dir`, `sqlite_file`, `turso_file`, and `cayenne_s3_zone_ids`) are rejected, because Spice chooses where the local copy lives. `cayenne_file_path` and `cayenne_metadata_dir` are accepted when the snapshots were created by Cayenne, and rejected by name when another engine created them.
+- Engine path params (`duckdb_file`, `duckdb_data_dir`, `sqlite_file`, and `cayenne_s3_zone_ids`) are rejected, because Spice chooses where the local copy lives. `cayenne_file_path` and `cayenne_metadata_dir` are accepted when the snapshots were created by Cayenne, and rejected by name when another engine created them.
 
 ### HTTP API behavior
 
@@ -510,7 +518,7 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 - **Tune trigger thresholds for stream datasets:** For high-throughput streaming datasets, balance snapshot frequency against I/O overhead by adjusting `snapshots_trigger_threshold`.
 - **Let Spice expire snapshots:** Spice keeps [28 days of snapshots](#snapshot-retention) and deletes older files itself. An expiration rule for current objects on the snapshot location is not needed. When one is required, set its expiration longer than 28 days. Such a rule can still delete the file of a current or newest snapshot older than its expiration. On a bucket with versioning enabled, a Spice delete leaves a noncurrent version, so add a noncurrent-version expiration rule to reclaim that storage. A replication destination keeps deleted files unless the replication carries deletes or the destination has its own lifecycle rule.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
-- **Search indexes are not all inside the accelerator file.** A DuckDB HNSW index lives in the DuckDB file, so it is part of that dataset's snapshot. A built-in full-text index does not: the default in-memory Tantivy index is rebuilt on every start, and `index_store: file` writes a separate directory (`.spice/data/fts/...` unless `index_directory` is set) that acceleration snapshots do not upload. When that directory is missing at startup, as after a snapshot bootstrap, Spice rebuilds the index from the restored acceleration before the dataset can be queried (see [Index Storage](../search/full-text#index-storage)). To avoid that rebuild, keep the directory on the same durable volume as the acceleration file, or build the index once on a central tier and serve sidecars from the [search results cache](../caching). See [Where indexes are built](../search#where-indexes-are-built).
+- **Search indexes are not all inside the accelerator file.** A built-in full-text index is not: the default in-memory Tantivy index is rebuilt on every start, and `index_store: file` writes a separate directory (`.spice/data/fts/...` unless `index_directory` is set) that acceleration snapshots do not upload. When that directory is missing at startup, as after a snapshot bootstrap, Spice rebuilds the index from the restored acceleration before the dataset can be queried (see [Index Storage](../search/full-text#index-storage)). To avoid that rebuild, keep the directory on the same durable volume as the acceleration file, or build the index once on a central tier and serve sidecars from the [search results cache](../caching). See [Where indexes are built](../search#where-indexes-are-built).
 
 For the full reference, see [`snapshots` in the Spicepod specification](../../reference/spicepod#snapshots) and [`acceleration.snapshots`](../../reference/spicepod/datasets#accelerationsnapshots).
 

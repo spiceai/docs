@@ -122,14 +122,13 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 - [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
 - [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
-- [`turso`](../../components/data-accelerators/turso) - Accelerated by an embedded Turso (libSQL) database (Beta).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
-- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb`, `sqlite`, and `turso` acceleration engines.
+- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
 
 ## `acceleration.snapshots`
 
