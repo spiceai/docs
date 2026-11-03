@@ -65,7 +65,7 @@ models:
 2. The file in the `AZURE_FEDERATED_TOKEN_FILE` environment variable.
 3. The GitHub Actions job that Spice runs in, which needs `permissions: id-token: write` (see [OpenID Connect in GitHub Actions](https://docs.github.com/en/actions/concepts/security/openid-connect)). Spice requests a new token from GitHub for every exchange, for the audience in `azure_federated_token_audience`, which defaults to `api://AzureADTokenExchange`, the audience Microsoft Entra ID recommends for a federated credential.
 
-Spice reads a token file again for every exchange, so the platform can rotate the token in place. The audience of a token in a file is set where the token is issued, such as the `audience` of a Kubernetes projected volume, so a model that sets `azure_federated_token_audience` while its token comes from a file fails to load with a configuration error.
+Spice reads a token file again for every exchange, so the platform can rotate the token in place. The audience of a token in a file is set where the token is issued, such as the `audience` of a Kubernetes projected volume, so a model that sets `azure_federated_token_audience` while its token comes from `azure_federated_token_file` or `AZURE_FEDERATED_TOKEN_FILE` fails to load with a configuration error that names both.
 
 Spice exchanges the token with the Microsoft Entra ID authority of the cloud that `endpoint` belongs to, for a token scoped to Azure OpenAI in that cloud:
 
@@ -75,11 +75,17 @@ Spice exchanges the token with the Microsoft Entra ID authority of the cloud tha
 | Ends in `.azure.cn` | `https://login.chinacloudapi.cn`    | `https://cognitiveservices.azure.cn/.default`  |
 | Any other host      | `https://login.microsoftonline.com` | `https://cognitiveservices.azure.com/.default` |
 
-When the `AZURE_AUTHORITY_HOST` environment variable is set, it replaces the authority. When the model loads, Spice logs one `info` line that names where each part of the model's identity came from.
+When the `AZURE_AUTHORITY_HOST` environment variable is set, it replaces the authority, and the scope still follows `endpoint`.
+
+After the first exchange succeeds, Spice logs one `info` line that names where each part of the model's identity came from, because part of it can come from the environment, which the Spicepod does not show. Each source is a parameter (`azure_tenant_id`, `azure_client_id`, `azure_federated_token_file`), an environment variable (`AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_FEDERATED_TOKEN_FILE`), or, for the token, `this GitHub Actions job`. The line names the sources, not the IDs:
+
+```text
+Authenticated model 'gpt' (azure) as a Microsoft Entra workload identity, with the tenant from `AZURE_TENANT_ID`, the client from `AZURE_CLIENT_ID` and the identity token from `AZURE_FEDERATED_TOKEN_FILE`.
+```
 
 Spice exchanges again one minute before the access token expires, or, for a token that lasts less than four minutes, after three quarters of its lifetime. When an exchange after the first one fails, Spice keeps using the current access token and retries, waiting at most 15 seconds between attempts, and logs a warning that names the model.
 
-A model that sets `azure_api_key` or `azure_entra_token` together with `azure_tenant_id`, `azure_client_id`, `azure_federated_token_file`, or `azure_federated_token_audience` fails to load with an error that names both. A model that has only one of the tenant and the client ID fails with an error that names the missing parameter, and a tenant that is neither a GUID nor a domain name fails with an error that names `azure_tenant_id`. A model with no identity token source fails with an error that names `azure_federated_token_file`. When Microsoft Entra ID refuses the first exchange, the model fails to load with Entra's reason, such as an `AADSTS700213` error for a token whose subject matches no federated credential.
+A model that sets `azure_api_key` or `azure_entra_token` together with `azure_tenant_id`, `azure_client_id`, `azure_federated_token_file`, or `azure_federated_token_audience` fails to load with an error that names both. A model that has only one of the tenant and the client ID fails with an error that names the missing parameter, and a tenant that is neither a GUID nor a domain name fails with an error that names `azure_tenant_id`. A model that sets a federation parameter but has no identity token source fails with an error that names `azure_federated_token_file`. The errors for a model that sets no federation parameter are under [Troubleshooting](#troubleshooting). When Microsoft Entra ID refuses the first exchange, the model fails to load with Entra's reason, such as an `AADSTS700213` error for a token whose subject matches no federated credential.
 
 ### AKS Workload Identity
 
@@ -93,9 +99,9 @@ models:
       endpoint: https://my-resource.openai.azure.com
 ```
 
-Without the label, the workload identity webhook does not set the variables, and the model fails to load for lack of a credential. [Configure workload identity for Azure access](../../deployment/azure/index.md#2-configure-workload-identity-for-azure-access) shows the Helm values that add the label and the annotation.
+Without the label, the workload identity webhook does not set the variables or mount the token, and the model fails to load (see [Troubleshooting](#troubleshooting)). [Configure workload identity for Azure access](../../deployment/azure/index.md#2-configure-workload-identity-for-azure-access) shows the Helm values that add the label and the annotation.
 
-The environment supplies a workload identity only when it has all three parts: a tenant, a client ID, and an identity token, from `AZURE_FEDERATED_TOKEN_FILE` or the GitHub Actions job. Otherwise the model has no credential and fails to load with an error that lists `azure_api_key`, `azure_entra_token`, and workload identity federation. A model that sets `azure_api_key` or `azure_entra_token` never uses the environment's workload identity.
+The environment supplies a workload identity when it has a tenant, a client ID, and an identity token, from `AZURE_FEDERATED_TOKEN_FILE` or the GitHub Actions job. A model that sets `azure_api_key` or `azure_entra_token` never uses the environment's workload identity.
 
 ### Kubernetes Outside AKS
 
@@ -144,7 +150,7 @@ jobs:
       - run: ~/.spice/bin/spice run &
 ```
 
-Spice requests a new OIDC token from the job for every exchange, so the model keeps its access for as long as the job runs.
+Spice requests a new OIDC token from the job for every exchange, so the model keeps its access for as long as the job runs. The load log line ends with `the identity token from this GitHub Actions job`.
 
 ### Create the Identity in Azure
 
@@ -186,6 +192,24 @@ The issuer and subject of the federated credential depend on where Spice runs:
 | Pod on another Kubernetes cluster                                     | The cluster's service account issuer                                                                                            | `system:serviceaccount:<namespace>:<service-account>` |
 
 The subject must match the token's `sub` claim exactly. GitHub lists the subject of each kind of job in [OpenID Connect in Azure](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure). For an app registration, add the federated credential with `az ad app federated-credential create`, and use the application (client) ID as `azure_client_id`. A new federated credential can take a few seconds to take effect.
+
+### Troubleshooting
+
+When the model loads, the `info` line above shows which parameter or environment variable supplied each part of the identity. When loading fails, the error names the cause:
+
+- **The environment has a tenant and client ID but no identity token.** A model that sets no key and no federation parameter, in an environment with `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` but without `AZURE_FEDERATED_TOKEN_FILE` and outside a GitHub Actions job with `permissions: id-token: write`, fails to load with the following cause. This happens, for example, on AKS when the pod sets those variables itself but lacks the `azure.workload.identity/use: "true"` label, so the webhook does not mount the token.
+
+  ```text
+  Found `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` but no workload identity token: `AZURE_FEDERATED_TOKEN_FILE` is not set, and this is not a GitHub Actions job with `permissions: id-token: write`. On AKS, label the pod `azure.workload.identity/use: "true"` so the workload identity webhook mounts the token; elsewhere, set `azure_federated_token_file` or `azure_api_key`. See: https://spiceai.org/docs/components/models/azure
+  ```
+
+- **The model has no credential.** A model with no key, no federation parameter, and no `AZURE_TENANT_ID` or `AZURE_CLIENT_ID` in the environment fails to load with:
+
+  ```text
+  Azure model 'gpt' requires `azure_api_key`, `azure_entra_token`, or a Microsoft Entra workload identity: `azure_tenant_id` and `azure_client_id`, or on AKS a pod labeled `azure.workload.identity/use: "true"`. See https://spiceai.org/docs/components/models/azure for details.
+  ```
+
+- **Microsoft Entra ID refuses the exchange.** The error quotes Entra's reason. `AADSTS700213` means that no federated credential of the identity matches the token: compare the credential's issuer, subject, and audience with the token's (see [Create the Identity in Azure](#create-the-identity-in-azure)).
 
 Refer to the [Azure OpenAI Service models](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models) for more details on available models and configurations.
 

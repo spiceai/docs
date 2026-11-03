@@ -39,7 +39,7 @@ embeddings:
 
 ## Workload Identity Federation
 
-An Azure OpenAI embedding model can authenticate with Microsoft Entra workload identity federation, with the same parameters, identity token sources, environment variables, and errors as an [Azure OpenAI model](../models/azure.md#workload-identity-federation). On AKS with workload identity, in a pod with the `azure.workload.identity/use: "true"` label, the embedding model needs only its `endpoint`.
+An Azure OpenAI embedding model can authenticate with Microsoft Entra workload identity federation, with the same parameters, identity token sources, environment variables, and errors as an [Azure OpenAI model](../models/azure.md#workload-identity-federation). See [Troubleshooting](../models/azure.md#troubleshooting) for the load errors. On AKS with workload identity, in a pod with the `azure.workload.identity/use: "true"` label, the embedding model needs only its `endpoint`.
 
 ```yaml
 embeddings:
@@ -53,7 +53,19 @@ embeddings:
       azure_client_id: ${ secrets:AZURE_CLIENT_ID }
 ```
 
-Unlike a model, an embedding model also loads `azure_api_key` and `azure_entra_token` from a secret store when the Spicepod does not set them, such as `AZURE_API_KEY` from the default [`env` secret store](../secret-stores/env/index.md). An embedding model with `azure_api_key` or `azure_entra_token`, whether the Spicepod sets it or Spice loads it from a secret store, never uses the environment's workload identity. A key loaded from a secret store does not conflict with federation parameters that the Spicepod sets, which take precedence over it. A key that the Spicepod sets together with a federation parameter is a configuration error.
+In a pod where AKS sets `AZURE_FEDERATED_TOKEN_FILE`, this embedding model logs the following line when it loads. The log line and the errors name the embedding model rather than a model:
+
+```text
+Authenticated embedding 'embeddings-model' (azure) as a Microsoft Entra workload identity, with the tenant from `azure_tenant_id`, the client from `azure_client_id` and the identity token from `AZURE_FEDERATED_TOKEN_FILE`.
+```
+
+An embedding model with no credential fails to load with:
+
+```text
+Azure embedding model 'embeddings-model' requires `azure_api_key`, `azure_entra_token`, or a Microsoft Entra workload identity: `azure_tenant_id` and `azure_client_id`, or on AKS a pod labeled `azure.workload.identity/use: "true"`. See https://spiceai.org/docs/components/embeddings/azure for details.
+```
+
+Unlike a model, an embedding model also loads `azure_api_key` and `azure_entra_token` from a secret store when the Spicepod does not set them, such as `AZURE_API_KEY` from the default [`env` secret store](../secret-stores/env/index.md). An embedding model with `azure_api_key` or `azure_entra_token`, whether the Spicepod sets it or Spice loads it from a secret store, never uses the environment's workload identity. A key loaded from a secret store does not conflict with federation parameters that the Spicepod sets: those parameters take precedence over the key, and any federation parameter the Spicepod does not set comes from its `AZURE_*` environment variable, as for a model. A key that the Spicepod sets together with a federation parameter is a configuration error.
 
 Refer to the [Azure OpenAI Service models](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models) for more details on available models and configurations.
 
