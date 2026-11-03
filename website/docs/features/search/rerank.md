@@ -22,16 +22,16 @@ This two-stage pattern (retrieve then rerank) is standard in modern search and R
 
 ### Reranker Models
 
-Define dedicated reranker models in the `rerankers:` section of the spicepod. Supported providers:
+Define dedicated reranker models in the `rerankers:` section of the Spicepod. Each provider has its own page with its parameters and behavior:
 
-| Provider prefix | Description |
-| --------------- | ----------- |
-| `cohere:`       | Cohere Rerank API (e.g., `cohere:rerank-v3.5`) |
-| `voyage:`       | Voyage Rerank API (e.g., `voyage:rerank-2`) |
-| `jina:`         | Jina Rerank API (e.g., `jina:jina-reranker-v2-base-multilingual`) |
-| `http://` / `https://` | Any HTTP endpoint implementing the standard rerank API schema |
-| `huggingface:` (or `hf:`) | A cross-encoder reranker downloaded from Hugging Face and run locally, in-process (e.g. `huggingface:huggingface.co/BAAI/bge-reranker-base`) |
-| `file:`         | A cross-encoder reranker loaded locally from a directory of model artifacts (e.g. `file:/models/bge-reranker-base`) |
+| Provider                                                      | `from` format                                      | Runs              |
+| ------------------------------------------------------------- | -------------------------------------------------- | ----------------- |
+| [Cohere](../../components/rerankers/cohere.md)                   | `cohere:<model_id>`                                | Hosted API        |
+| [Voyage AI](../../components/rerankers/voyage.md)                | `voyage:<model_id>`                                | Hosted API        |
+| [Jina AI](../../components/rerankers/jina.md)                    | `jina:<model_id>`                                  | Hosted API        |
+| [HTTP](../../components/rerankers/http.md)                       | `http://<url>` or `https://<url>`                  | Any HTTP endpoint with a Cohere-compatible schema |
+| [Hugging Face](../../components/rerankers/huggingface.md)        | `huggingface:huggingface.co/<org>/<model>[:<rev>]` | Local, in-process |
+| [File](../../components/rerankers/file.md)                       | `file:<path>`                                      | Local, in-process |
 
 ```yaml
 rerankers:
@@ -40,47 +40,17 @@ rerankers:
     params:
       api_key: ${secrets:COHERE_API_KEY}
 
-  - from: voyage:rerank-2
-    name: voyage_rr
-    params:
-      api_key: ${secrets:VOYAGE_API_KEY}
-
-  - from: jina:jina-reranker-v2-base-multilingual
-    name: jina_rr
-    params:
-      api_key: ${secrets:JINA_API_KEY}
-
   - from: https://rerank.internal/v1/rerank
     name: byo_rr
     params:
       api_key: ${secrets:INTERNAL_RR_KEY}  # optional
-```
 
-### Local Rerankers
-
-The `huggingface:` and `file:` prefixes run a cross-encoder reranker in-process instead of calling a hosted API. `file:` uses local artifacts only. `huggingface:` downloads model artifacts from the Hugging Face Hub, then runs scoring locally. Both are included in the default `spiced` build.
-
-```yaml
-rerankers:
-  # Downloaded from the Hugging Face Hub. Pin a revision with a trailing `:<rev>`.
+  # Runs locally. Downloaded from the Hugging Face Hub at startup.
   - from: huggingface:huggingface.co/BAAI/bge-reranker-base
     name: local_rr
-    params:
-      hf_token: ${secrets:HF_TOKEN} # needed for private or gated repositories
-
-  # Loaded from a directory holding config.json, tokenizer.json, and the weights.
-  - from: file:/models/gte-reranker-modernbert-base
-    name: dir_rr
 ```
 
-Both accept the same two tuning parameters:
-
-| Parameter         | Description                                                                                                                                                                | Default |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `max_seq_length`  | Maximum sequence length for the `(query, document)` pair. When unset, the model's own configured maximum applies.                                                            | -       |
-| `truncate`        | How to handle a pair longer than the maximum sequence length: `none` rejects the request with an input-validation error, `end` discards the end of the pair, `start` discards the start. Matched case-insensitively. | `none`  |
-
-`huggingface:` rerankers additionally accept `hf_token` (also spelled `api_key`) for private or gated repositories, and `hf_endpoint` to download through a mirror or proxy of the Hub. They use the same [token, endpoint, cache and offline settings](../../components/models/huggingface#hugging-face-hub) as other Hugging Face models.
+For the reranker fields, startup behavior, and metrics, see [Reranker Models](../../components/rerankers/index.md).
 
 ### LLM-as-Reranker
 
