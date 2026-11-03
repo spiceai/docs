@@ -27,7 +27,7 @@ For sources with a native CDC path, prefer the dedicated connector — [PostgreS
 └────────────────┘                       └───────────┘                        └───────────────────┘                   └───────────────┘
 ```
 
-On startup, Spice subscribes to the configured Debezium-managed Kafka topic using either a uniquely generated consumer group or one specified via `kafka_consumer_group_id`. With a persistent acceleration engine (`mode: file`), data is fetched starting from the **offsets stored with the accelerated rows**, so restarts resume without reprocessing historical events. Spice commits those offsets to the consumer group when it is assigned partitions; in v2.4.1 and earlier, a restart resumed from the group's committed offsets instead.
+On startup, Spice subscribes to the configured Debezium-managed Kafka topic using either a uniquely generated consumer group or one specified via `kafka_consumer_group_id`. With a persistent acceleration engine (`mode: file`), data is fetched starting after the **offsets stored with the accelerated rows**, so restarts resume without reprocessing historical events. Spice commits those offsets to the consumer group when it is assigned partitions; in v2.4.1 and earlier, a restart resumed from the group's committed offsets instead.
 
 ## Prerequisites
 
