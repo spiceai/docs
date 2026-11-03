@@ -99,6 +99,8 @@ models:
 
 Spice exchanges again one minute before the access token expires, or, for a token that lasts less than four minutes, after three quarters of its lifetime. When an exchange after the first one fails, Spice keeps using the current access token and retries, waiting at most 15 seconds between attempts.
 
+By default, Anthropic accepts an identity token that carries a `jti` claim only once, and refuses it again with the reason `jti_reused` in its authentication history ([token lifetime and refresh](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation)). A token requested from GitHub Actions is new for every exchange. A token in `anthropic_identity_token_file` must be rotated before each exchange: Spice reads the file again but does not change its contents, so a token that is not rotated well within the access token's lifetime fails the next exchange, and a runtime restarted on a token it already exchanged fails to load the model. Kubernetes projected service account tokens rotate on their own; set their expiry so they rotate more often than the access token expires.
+
 A model that sets a federation parameter and `anthropic_api_key` or `anthropic_auth_token` fails to load with an error that names both, and a model that sets only some of the required parameters fails with an error that names the missing one. When Anthropic refuses the first exchange, the model fails to load with a message that points to Anthropic's authentication history, where Anthropic records the reason.
 
 See [Anthropic Model Names](https://platform.claude.com/docs/en/about-claude/models/overview) for a list of supported model names.
