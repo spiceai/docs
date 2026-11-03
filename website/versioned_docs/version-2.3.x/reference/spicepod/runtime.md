@@ -673,7 +673,7 @@ The build side of a hash join is held in memory and cannot spill, so a very larg
 
 :::warning
 
-In v2.3, `prefer_hash_join: false` also plans a sort-merge join for a null-aware anti join, which comes from a `NOT IN` subquery over a nullable column. A sort-merge join does not implement null-aware semantics, so such a query can return rows it should not when the subquery returns a `NULL` ([apache/datafusion#22810](https://github.com/apache/datafusion/pull/22810)). Keep the default `true` for workloads with such queries, or upgrade to v2.4, which plans a hash join for them.
+In v2.3, a `NOT IN` subquery over a nullable column, a null-aware anti join, can be planned as a sort-merge join. A sort-merge join does not implement null-aware semantics, so such a query can return rows it should not when the subquery returns a `NULL` ([apache/datafusion#22810](https://github.com/apache/datafusion/pull/22810)). This happens with `prefer_hash_join: false`, and also when [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) rewrites an oversized hash join as a sort-merge join to stay within memory, so keeping the default `true` does not avoid it in every case. Upgrade to v2.4 for workloads with such queries: v2.4 keeps a hash join for null-aware anti joins on both paths.
 
 :::
 
