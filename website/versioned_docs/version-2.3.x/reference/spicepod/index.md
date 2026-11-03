@@ -336,11 +336,13 @@ functions:
 
 ## `management`
 
-Optional. Connects a self-hosted runtime to the [Spice Cloud Platform](../monitoring/spice-cloud), which receives the runtime's task history. `api_key` is required.
+Optional. Connects a self-hosted runtime to the [Spice Cloud Platform](../monitoring/spice-cloud), which receives the runtime's task history. `api_key` and `params.region` are required: without a region, the connection fails and the runtime runs on without exporting task history.
 
 **Example**
 
 ```yaml
 management:
   api_key: ${secrets:SPICEAI_API_KEY}
+  params:
+    region: us-east-1 # The Spice Cloud region of the target app
 ```
