@@ -68,7 +68,7 @@ For burst or low-utilization workloads, attach [virtual nodes](https://learn.mic
 
 #### 2. Configure workload identity for Azure access
 
-The ABFS connector and the `azure_keyvault` secret store can authenticate with an Azure identity instead of a static secret. Use [workload identity](https://learn.microsoft.com/azure/aks/workload-identity-overview) so pods receive scoped, federated tokens without static secrets:
+The ABFS connector, the `azure_keyvault` secret store, and Azure OpenAI models and embeddings can authenticate with an Azure identity instead of a static secret. Use [workload identity](https://learn.microsoft.com/azure/aks/workload-identity-overview) so pods receive scoped, federated tokens without static secrets:
 
 ```bash
 # 1. Create a user-assigned managed identity
@@ -76,7 +76,8 @@ az identity create --resource-group $RG --name spiceai-identity
 CLIENT_ID=$(az identity show -g $RG -n spiceai-identity --query clientId -o tsv)
 PRINCIPAL_ID=$(az identity show -g $RG -n spiceai-identity --query principalId -o tsv)
 
-# 2. Grant the identity access to Azure resources the Spicepod needs
+# 2. Grant the identity access to Azure resources the Spicepod needs, such as
+#    "Cognitive Services OpenAI User" on an Azure OpenAI resource
 az role assignment create \
   --assignee-object-id $PRINCIPAL_ID --assignee-principal-type ServicePrincipal \
   --role "Storage Blob Data Reader" \
@@ -93,7 +94,7 @@ az identity federated-credential create \
   --audiences api://AzureADTokenExchange
 ```
 
-Reference the identity from the Helm release. Workload identity then injects `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_FEDERATED_TOKEN_FILE` into the pod. The ABFS connector reads them automatically, and the `azure_keyvault` secret store uses them when `auth_method` is `workload_identity` (see [Authentication](#authentication)):
+Reference the identity from the Helm release. Workload identity then injects `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_FEDERATED_TOKEN_FILE` into the pod. The ABFS connector reads them automatically, an Azure OpenAI model or embedding model reads them when it sets no `azure_api_key` or `azure_entra_token`, and the `azure_keyvault` secret store uses them when `auth_method` is `workload_identity` (see [Authentication](#authentication)):
 
 ```yaml
 # values.yaml
@@ -329,7 +330,9 @@ The ABFS connector does not use certificate credentials (`AZURE_CLIENT_CERTIFICA
 
 **Azure Key Vault.** The [`azure_keyvault`](../components/secret-stores/azure-keyvault) secret store chooses its credential with the `auth_method` parameter. The default, `default`, uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. The store uses a managed identity or workload identity only when `auth_method` is `managed_identity` or `workload_identity`.
 
-**Azure SQL and Azure OpenAI.** The [MSSQL connector](../components/data-connectors/mssql) authenticates with a SQL Server login, and [Azure OpenAI models](../components/models/azure) authenticate with `azure_api_key` or `azure_entra_token`. Neither reads an Azure identity from the environment.
+**Azure OpenAI.** [Azure OpenAI models](../components/models/azure) and embedding models authenticate with `azure_api_key`, `azure_entra_token`, or [workload identity federation](../components/models/azure#workload-identity-federation). A model that sets none of them uses the workload identity in `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_FEDERATED_TOKEN_FILE`, which AKS workload identity injects. A model with `azure_api_key` or `azure_entra_token` never uses the environment's workload identity. Azure OpenAI models do not use a managed identity through the Azure Instance Metadata Service.
+
+**Azure SQL.** The [MSSQL connector](../components/data-connectors/mssql) authenticates with a SQL Server login, and does not read an Azure identity from the environment.
 
 :::note[Role assignments]
 Regardless of the credential source, the principal must have the appropriate Azure role assignments (for example, `Storage Blob Data Reader` on a storage account, or `Key Vault Secrets User` on a key vault). When a Spicepod connects to multiple Azure services, the principal must have permissions across all of them.

@@ -122,7 +122,7 @@ models:
       azure_api_key: ${ secrets:SPICE_AZURE_API_KEY }
 ```
 
-For Microsoft Entra ID authentication instead of an API key, set `azure_entra_token` in place of `azure_api_key`.
+To authenticate without an API key, use [workload identity federation](../../components/models/azure#workload-identity-federation). On AKS with workload identity, a model that sets no `azure_api_key` or `azure_entra_token` uses the pod's identity and needs only `endpoint`.
 
 ## Secret Stores
 
@@ -184,7 +184,7 @@ Spice does not use the Azure Identity [`DefaultAzureCredential`](https://learn.m
 | Azure Blob Storage / ADLS Gen2 | Explicit `abfs_*` authentication parameters must name at most one method, and client credentials need all three of `abfs_client_id`, `abfs_client_secret`, and `abfs_tenant_id`, or the dataset fails to load. `abfs_*` parameters then override `AZURE_*` environment variables, and the first complete credential wins: bearer token, account key, workload identity (`AZURE_FEDERATED_TOKEN_FILE`), service principal secret, SAS token, Azure CLI (only with `abfs_use_cli: true`), then managed identity. Certificate and username/password credentials are not used. |
 | Azure Key Vault                | Chosen by `auth_method`. `default` uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. Managed and workload identity require `auth_method: managed_identity` or `auth_method: workload_identity`.                                                                       |
 | Azure SQL Database             | A SQL Server login in `mssql_connection_string`, or `mssql_username` and `mssql_password`. Microsoft Entra ID authentication is not supported.                                                                                                                                                                                    |
-| Azure OpenAI                   | `azure_api_key` or `azure_entra_token`.                                                                                                                                                                                                                                                                                           |
+| Azure OpenAI                   | `azure_api_key`, `azure_entra_token`, or workload identity federation with `azure_tenant_id` and `azure_client_id`. A model that sets none of them uses `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_FEDERATED_TOKEN_FILE` from the environment. |
 
 For the order in detail, see the [Authentication](../azure#authentication) section of the Azure deployment guide.
 
