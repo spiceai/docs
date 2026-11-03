@@ -446,6 +446,10 @@ relational:
   label: 'Results Caching'
   permalink: '/results-caching-feature'
   description: 'Query results caching configuration.'
+rerankers:
+  label: 'Rerankers'
+  permalink: '/rerankers'
+  description: 'Reranker models that reorder search results by relevance.'
 results-caching:
   label: 'Results Caching'
   permalink: '/results-caching'
