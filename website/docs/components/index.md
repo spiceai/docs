@@ -2,7 +2,7 @@
 title: 'Spice.ai Runtime Components'
 sidebar_label: 'Components'
 sidebar_position: 5
-description: 'Configure Spice.ai runtime components including data connectors, data accelerators, catalog connectors, model providers, embedding models, and secret stores.'
+description: 'Configure Spice.ai runtime components including data connectors, data accelerators, catalog connectors, model providers, embedding models, rerankers, and secret stores.'
 keywords: [spice.ai, components, data connectors, data accelerators, catalog connectors, model providers, embeddings, secret stores]
 image: /img/og/spiceai.png
 pagination_prev: null
@@ -20,6 +20,8 @@ Spice runtime components are the building blocks for configuring data access, ac
 **[Models](./components/models)** configure LLM providers for AI inference through an OpenAI-compatible API. Connect to hosted models (OpenAI, Anthropic, xAI) or serve models locally with CUDA/Metal acceleration.
 
 **[Embeddings](./components/embeddings)** generate vector representations of text for semantic search and RAG workflows, using built-in models or external providers.
+
+**[Rerankers](./components/rerankers)** reorder search results by relevance, with hosted reranker APIs (Cohere, Voyage AI, Jina AI), a custom HTTP endpoint, or a cross-encoder model that runs locally.
 
 **[Tools](./components/tools)** define callable functions that LLMs can invoke during inference, including MCP (Model Context Protocol) integrations for connecting to external services.
 

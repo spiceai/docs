@@ -222,6 +222,18 @@ embeddings:
     from: huggingface:huggingface.co/BAAI/bge-small-en-v1.5
 ```
 
+## `rerankers`
+
+A Spicepod can contain one or more [rerankers](spicepod/rerankers), which the `rerank()` SQL function uses to reorder search results.
+
+```yaml
+rerankers:
+  - name: cohere_rr
+    from: cohere:rerank-v3.5
+    params:
+      api_key: ${secrets:COHERE_API_KEY}
+```
+
 ## `dependencies`
 
 A list of dependent Spicepods.
