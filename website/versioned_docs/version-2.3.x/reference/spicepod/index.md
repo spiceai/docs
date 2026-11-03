@@ -116,6 +116,20 @@ datasets:
       refresh_check_interval: 1h
 ```
 
+## `catalogs`
+
+A Spicepod can contain one or more [catalogs](spicepod/catalogs), each of which connects to an external data catalog and exposes its schemas and tables without a dataset entry per table.
+
+**Example**
+
+```yaml
+catalogs:
+  - from: spice.ai
+    name: spiceai
+    include:
+      - 'tpch.*' # Include only the "tpch" tables.
+```
+
 ## `snapshots` {#snapshots}
 
 Optional. Configure managed acceleration snapshots that Spice can use to bootstrap file-based accelerations. When enabled, datasets that opt in with [`acceleration.snapshots`](spicepod/datasets#accelerationsnapshots) will download database files from the snapshot location if the local file is missing, and will optionally write new snapshots after each refresh. DuckDB, SQLite, Cayenne, and Turso accelerations running in `mode: file` are supported, and each dataset must write to its own file path.
@@ -266,3 +280,64 @@ workers:
 ```
 
 For a complete specification of worker configuration, see the [Workers Reference](spicepod/workers).
+
+## `rerankers`
+
+A Spicepod can contain one or more reranker models, which reorder search results by relevance. See [Reranking](../features/search/rerank) for the supported providers and how to use a reranker in a query.
+
+**Example**
+
+```yaml
+rerankers:
+  - from: cohere:rerank-v3.5
+    name: cohere_rr
+    params:
+      api_key: ${secrets:COHERE_API_KEY}
+```
+
+## `tools`
+
+A Spicepod can contain one or more [tools](spicepod/tools) that the runtime or a language model can call, such as tools served by an MCP server.
+
+**Example**
+
+```yaml
+tools:
+  - name: my_mcp_tool
+    from: mcp:http://localhost:8090/v1/mcp
+    description: 'An MCP tool.'
+```
+
+## `functions`
+
+A Spicepod can contain one or more [functions](spicepod/functions), user-defined scalar or table functions that Spice registers in its SQL engine. The `functions` section is used only when [`runtime.functions.enabled`](spicepod/runtime#runtimefunctions) is `true`.
+
+**Example**
+
+```yaml
+runtime:
+  functions:
+    enabled: true
+
+functions:
+  - name: double_it
+    from: sql
+    description: Double a 64-bit integer.
+    volatility: immutable
+    signature:
+      args:
+        - { name: x, type: int64 }
+      returns: int64
+    body: 'x * 2'
+```
+
+## `management`
+
+Optional. Connects a self-hosted runtime to the [Spice Cloud Platform](../monitoring/spice-cloud), which receives the runtime's task history. `api_key` is required.
+
+**Example**
+
+```yaml
+management:
+  api_key: ${secrets:SPICEAI_API_KEY}
+```
