@@ -822,7 +822,7 @@ runtime:
     prefer_hash_join: false # default: true (prefer hash joins)
 ```
 
-The build side of a hash join is held in memory and cannot spill, so a very large join can exhaust the query memory pool ([`runtime.query.memory_limit`](#runtimequerymemory_limit)). Set `prefer_hash_join: false` so the planner uses sort-merge joins, which spill to disk, for workloads whose joins exceed the memory pool. When the parameter is set, the runtime logs `Applied runtime.query.prefer_hash_join` at startup.
+The build side of a hash join is held in memory and cannot spill, so a very large join can exhaust the query memory pool ([`runtime.query.memory_limit`](#runtimequerymemory_limit)). Setting `prefer_hash_join: false` asks the planner to use sort-merge joins, which can spill to disk. It is a preference, not a guarantee: DataFusion still plans a hash join where a sort-merge join does not apply, such as a query planned with a single target partition or a null-aware anti join from a `NOT IN` subquery over nullable columns. Check the plan with `EXPLAIN` for `SortMergeJoinExec` before relying on a join to spill. When the parameter is set, the runtime logs `Applied runtime.query.prefer_hash_join` at startup.
 
 ## `runtime.query.eager_aggregation`
 

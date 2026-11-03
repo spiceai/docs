@@ -124,8 +124,11 @@ A Spicepod can contain one or more [catalogs](spicepod/catalogs), each of which 
 
 ```yaml
 catalogs:
-  - from: spice.ai
-    name: spiceai
+  - from: spice.ai:demo-org/tpch # The `tpch` app of the `demo-org` organization
+    name: marketplace
+    params:
+      spiceai_api_key: ${secrets:SPICEAI_API_KEY}
+      spiceai_region: us-east-1
     include:
       - 'tpch.*' # Include only the "tpch" tables.
 ```
