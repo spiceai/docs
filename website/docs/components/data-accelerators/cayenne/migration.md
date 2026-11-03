@@ -145,7 +145,15 @@ A `vectors` block with `enabled: false` selects no engine, so its `engine` value
 
 A Cayenne acceleration does not need a vector engine: Cayenne indexes every embedding column itself, so `vector_search` and `/v1/search` work on a Cayenne dataset or view as soon as its embeddings are configured.
 
-To migrate, set `acceleration.engine: cayenne` and remove the `vectors` block entirely. Removing only `engine` is not enough, because an enabled `vectors` block with no `engine` is an error. The `duckdb_*` parameters under `vectors.params` (`duckdb_distance_metric` and the HNSW settings) have no Cayenne equivalent and go with the block. For example:
+To migrate, set `acceleration.engine: cayenne` and remove the `vectors` block entirely. Removing only `engine` is not enough, because an enabled `vectors` block with no `engine` is an error. Also remove `engine: duckdb` from every column's `embeddings` entry: a column-level override still selects the DuckDB vector engine without a `vectors` block, so the dataset or view keeps failing to load. Delete the `engine` line in each such entry:
+
+```yaml
+    columns:
+      - name: description
+        embeddings:
+          - from: local_embedding_model
+            engine: duckdb # delete this line
+``` The `duckdb_*` parameters under `vectors.params` (`duckdb_distance_metric` and the HNSW settings) have no Cayenne equivalent and go with the block. For example:
 
 ```yaml
 datasets:
