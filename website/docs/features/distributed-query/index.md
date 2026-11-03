@@ -43,6 +43,8 @@ Internal cluster services are isolated on port 50052. A node in cluster mode req
 
 Distributed query cluster mode uses mutual TLS (mTLS) for secure communication between schedulers and executors. Internal cluster communication includes highly privileged RPC calls like fetching Spicepod configuration and expanding secrets. mTLS ensures only authenticated nodes can join the cluster and access sensitive data.
 
+An executor resolves the [secret references](../../components/secret-stores/index.md#using-secrets) in its Spicepod through the scheduler, so a secret only has to be available to the scheduler. `${ secrets:<key> }` resolves through the stores the Spicepod lists, in their precedence order, and a reference to a named store from the Spicepod's `secrets:` section, such as `${ aws:PG_PASS }`, resolves from that store alone. An executor can read only the keys the Spicepod references. In v2.4.1 and earlier, a reference to a named store resolved to an empty string on executors, which logged an "undefined store" error, so a dataset whose credentials came from a named store failed to read data on executors.
+
 ### Certificate Requirements
 
 Each node in the cluster requires:

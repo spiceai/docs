@@ -50,6 +50,11 @@ The following parameters are specific to Anthropic models:
 | `anthropic_api_key`      | The Anthropic API key.                                                                                                           | -                              |
 | `anthropic_auth_token`   | The Anthropic Auth Token.                                                                                                        | -                              |
 | `anthropic_workspace_id` | The Anthropic workspace ID, sent as the `anthropic-workspace-id` header. Required when the API key is not scoped to a workspace. | -                              |
+| `anthropic_federation_rule_id` | The Anthropic federation rule (`fdrl_...`) that accepts the workload's identity token. With `anthropic_organization_id` and `anthropic_service_account_id`, the model authenticates with [workload identity federation](#workload-identity-federation) instead of `anthropic_api_key`. | - |
+| `anthropic_organization_id` | The Anthropic organization ID (a UUID). Required for workload identity federation. | - |
+| `anthropic_service_account_id` | The Anthropic service account (`svac_...`) that the federated access token acts as. Required for workload identity federation. | - |
+| `anthropic_identity_token_audience` | The audience the workload's identity token is issued for. | `https://api.anthropic.com` |
+| `anthropic_identity_token_file` | A file that holds the workload's identity token, such as a Kubernetes projected service account token. Spice reads it again for every exchange. When unset, Spice requests the token from GitHub Actions. | - |
 | `anthropic_usage_tier`   | Anthropic usage tier (1-4). Used for rate limit defaults.                                                                        | -                              |
 | `endpoint`               | The Anthropic API base endpoint.                                                                                                 | `https://api.anthropic.com/v1` |
 
@@ -73,5 +78,27 @@ models:
       anthropic_api_key: ${ secrets:SPICE_ANTHROPIC_API_KEY }
       anthropic_workspace_id: wrkspc_...
 ```
+
+## Workload Identity Federation
+
+An Anthropic model can authenticate with [workload identity federation](https://platform.claude.com/docs/en/build-with-claude/workload-identity-federation) instead of an API key or auth token, for chat and for the [Messages API](../../features/large-language-models/messages.md). Spice exchanges the identity token that the platform gives the workload for a short-lived Anthropic access token ([RFC 7523](https://datatracker.ietf.org/doc/html/rfc7523)), and exchanges again before each access token expires, so no Anthropic API key is stored with Spice.
+
+```yaml
+models:
+  - from: anthropic:claude-haiku-4-5
+    name: claude
+    params:
+      anthropic_federation_rule_id: ${ secrets:ANTHROPIC_FEDERATION_RULE_ID }
+      anthropic_organization_id: ${ secrets:ANTHROPIC_ORGANIZATION_ID }
+      anthropic_service_account_id: ${ secrets:ANTHROPIC_SERVICE_ACCOUNT_ID }
+      anthropic_workspace_id: ${ secrets:ANTHROPIC_WORKSPACE_ID }
+      anthropic_identity_token_file: /var/run/secrets/tokens/anthropic
+```
+
+`anthropic_federation_rule_id`, `anthropic_organization_id`, and `anthropic_service_account_id` are all required, and `anthropic_identity_token_audience` defaults to `https://api.anthropic.com`. The identity token comes from `anthropic_identity_token_file`, read again for every exchange, or, when that parameter is unset, from the GitHub Actions job Spice runs in, which needs `permissions: id-token: write` (see [OpenID Connect in GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect)).
+
+Spice exchanges again one minute before the access token expires, or, for a token that lasts less than four minutes, after three quarters of its lifetime. When an exchange after the first one fails, Spice keeps using the current access token and retries, waiting at most 15 seconds between attempts.
+
+A model that sets a federation parameter and `anthropic_api_key` or `anthropic_auth_token` fails to load with an error that names both, and a model that sets only some of the required parameters fails with an error that names the missing one. When Anthropic refuses the first exchange, the model fails to load with a message that points to Anthropic's authentication history, where Anthropic records the reason.
 
 See [Anthropic Model Names](https://platform.claude.com/docs/en/about-claude/models/overview) for a list of supported model names.

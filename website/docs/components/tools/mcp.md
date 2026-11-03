@@ -102,6 +102,19 @@ MCP server 'github' sent a response larger than the 16 MiB limit, so the request
 
 To stay under the limit, make the tool return a smaller result, for example by paginating it.
 
+## Timeouts
+
+Spice bounds each request to an MCP server, so a server that stops answering does not hold up the runtime. The limits are fixed and have no setting:
+
+| Request                                       | Timeout    |
+| --------------------------------------------- | ---------- |
+| Connecting to a Streamable HTTP server        | 30 seconds |
+| The initialization handshake                  | 2 minutes  |
+| `tools/list` and `ping`                       | 60 seconds |
+| `tools/call`                                  | 10 minutes |
+
+A `tools/call` that times out fails the call in Spice, but Spice does not cancel it on the server, which can keep running it. Errors from the HTTP client do not include the server URL.
+
 ## Using MCP Tools with Models
 
 Once configured, MCP tools can be assigned to models via the `tools` parameter. For example:

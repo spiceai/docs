@@ -139,7 +139,14 @@ ai_decide(input, questions[, model => 'name'][, on_error => 'fail' | 'null'])
 - **model** (optional): The name of a model in the Spicepod. When omitted, Spice uses the only model that can answer or, when there are several, the only decision model among them. Otherwise the query fails and lists the models to choose from.
 - **on_error** (optional): `'fail'` (the default) stops the query when the model cannot answer a row, after retrying rate limits and transient failures, up to 3 attempts in all. Each attempt can itself make a corrective call to a chat model whose reply was malformed, so one row can take up to 6 completion calls. A failure that does not change on retry is not retried: a request the provider rejects as invalid (such as a prompt too long for the model), unauthenticated, or not permitted, a model the provider does not find, and a reply cut off at the output token limit. `'null'` returns NULL for that row. When the model declines one question of an `ai_decide` call, or of calls that share a request, `'null'` sets only that question's answer to NULL and keeps the other answers.
 
-Every argument except `input` must be a constant. Constants are checked when the query is planned, before any model call.
+Every argument except `input` must have one value for the whole query. `condition`, `labels`, and the `instructions` and `levels` of `ai_score` take either a literal or a scalar subquery that does not refer to the outer query; every other argument must be a literal. A `labels` subquery can return one row per label, which Spice collects into a sorted list. A `levels` subquery must return one list itself, lowest first, such as `(SELECT array_agg(level ORDER BY rank) FROM levels)`. Literals are checked when the query is planned, before any model is called; a subquery's value is computed once when the query runs and checked by the same rules. An invalid value fails the query with the function's usage, and so does a column or a subquery that refers to the outer query, because its value can change from row to row. A call whose argument is a subquery runs on its own and does not share a request with other calls.
+
+For example, to classify tickets into the teams listed in another table:
+
+```sql
+SELECT id, ai_classify(body, (SELECT DISTINCT team_name FROM teams)) AS team
+FROM tickets;
+```
 
 ### `ai_if`
 

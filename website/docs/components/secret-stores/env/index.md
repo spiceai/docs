@@ -65,6 +65,8 @@ MY_PG_USER=postgres
 MY_PG_PASSWORD=postgres
 ```
 
+A line that cannot be parsed is skipped, and Spice logs a warning that names the file and the line number only, such as `.env: line 3 is malformed and was skipped`. The warning does not include any part of the line, because any part of it can be a secret. In v2.4.1 and earlier, the warning included the line's text.
+
 ### Parameters
 
 | Parameter Name | Description                                                                                                      |

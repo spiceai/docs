@@ -58,4 +58,23 @@ models:
 
 [mcp]: tools/mcp
 
+
+### Result Size Limit
+
+The `sql` tool fails when its result, written as JSON, is larger than 16 MiB, and the sampling tools (`sample_distinct_columns`, `random_sample`, `top_n_sample`) fail when the rows they collect take more than 16 MiB of memory. The limit is fixed and has no setting. The error tells the model how to ask for less, for example:
+
+```text
+The result is larger than 16 MiB, the size limit for this request. Add a LIMIT clause, select fewer columns, or aggregate the rows.
+```
+
+Tools served by an MCP server have the same [16 MiB limit](./mcp.md#tool-result-size-limit). In v2.4.1 and earlier, the `sql` and sampling tools returned results of any size.
+
+### Loading and Reloading Tools
+
+Spice loads the tools in the Spicepod concurrently at startup. It waits up to 2 minutes for each tool, then loads models and workers while a tool that has not loaded keeps retrying in the background. A tool that has not loaded keeps `/v1/ready` reporting not ready, like any component that failed to load. When such a tool loads later, Spice reloads the models that use it, so they offer the tool from then on.
+
+With the pods watcher enabled (`spice run`, or `spiced --pods-watcher-enabled`), changes to `tools:` in the Spicepod take effect without a restart. A removed tool can no longer be called and its MCP server is stopped, a changed tool loads again with its new settings, and an added tool loads as it would at startup. Spice then reloads every model that can use a changed tool: a model whose `tools` parameter names the tool (or `catalog:tool`), or that uses `auto`, `all`, or `search_registry`, alone or in a list such as `auto, my_tool`. Changes to `workers:` also take effect without a restart: a removed worker stops running on its schedule, including a run in progress.
+
+In v2.4.1 and earlier, changes to `tools:` and `workers:` took effect only after a restart, a model did not receive a tool that loaded after the model, and an MCP server that never answered kept models, workers, and built-in tools from loading.
+
 For details on `auto`, `all`, and `search_registry` tool modes, see [Language Model Tools](../features/large-language-models/tools#tool-modes).
