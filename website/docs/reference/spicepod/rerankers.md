@@ -37,7 +37,7 @@ Required. The source of the reranker. The prefix selects the provider:
 - [`huggingface:huggingface.co/<org>/<model>[:<revision>]`](../../components/rerankers/huggingface.md) (or `hf:`) - A local cross-encoder downloaded from the Hugging Face Hub
 - [`file:<path>`](../../components/rerankers/file.md) - A local cross-encoder loaded from a directory
 
-A `from` value with a different prefix fails to load.
+A `from` value with a different prefix fails to load. A chat model or a decision model from the `models:` section can also rerank, with no entry in `rerankers:`. See [LLM and Decision Model Rerankers](../../components/rerankers/llm.md).
 
 ### `name`
 

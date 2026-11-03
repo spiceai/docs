@@ -37,7 +37,7 @@ Rerankers are available in Spice v2.0 and later. The `huggingface` and `file` pr
 
 ## Chat and Decision Models as Rerankers
 
-A reranker is not the only model that `rerank()` can use. A [chat model](../models/index.md) or a [decision model](../../features/large-language-models/decisions.md) that is defined in the `models:` section can also rerank, with no entry in `rerankers:`. For how Spice selects the path for these models, see [Model Resolution](../../features/search/rerank.md#model-resolution).
+A reranker is not the only model that `rerank()` can use. A [chat model](../models/index.md) or a [decision model](../../features/large-language-models/decisions.md) that is defined in the `models:` section can also rerank, with no entry in `rerankers:`. See [LLM and Decision Model Rerankers](./llm.md).
 
 | Model type     | Configured in | Score                                                          |
 | -------------- | ------------- | -------------------------------------------------------------- |

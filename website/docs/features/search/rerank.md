@@ -52,9 +52,9 @@ rerankers:
 
 For the reranker fields, startup behavior, and metrics, see [Reranker Models](../../components/rerankers/index.md).
 
-### LLM-as-Reranker
+### LLM-as-Reranker and Decision Models
 
-Any registered chat model can also be used as a reranker without additional configuration. When a model name resolves to a chat model instead of a dedicated reranker, Spice wraps it in an LLM-based reranking adapter. A model with a native decisions API, such as OpenAI `gpt-6-luna`, reranks as a [decision model](#decision-models-as-rerankers) instead, unless the call sets `via => 'chat'` or a `prompt_template`.
+A chat model or a [decision model](../large-language-models/decisions.md) from the `models:` section can also rerank, with no entry in `rerankers:`. A chat model scores candidates from a prompt, listwise (all candidates in one prompt, the default) or pointwise (one prompt for each candidate). A decision model returns the probability that each document is relevant.
 
 ```yaml
 models:
@@ -67,61 +67,11 @@ SELECT * FROM rerank(
   vector_search(kb, 'onboarding checklist', limit => 40),
   document => 'content',
   model    => 'gpt_mini',       -- resolves to the registered chat model
-  strategy => 'pointwise',      -- or 'listwise' (default)
   limit    => 10
 );
 ```
 
-The `strategy` parameter controls how the LLM scores documents:
-- **`listwise`** (default): sends all candidates in a single prompt and asks the LLM to rank them.
-- **`pointwise`**: sends each candidate individually and asks the LLM to score it.
-
-### Decision Models as Rerankers
-
-A [decision model](../large-language-models/decisions.md), such as [TypeSafe Jev](../../components/models/typesafe.md), can also be used as a reranker without additional configuration. Spice asks the model whether each document is relevant to the query and uses the returned probability, a value between 0 and 1, as the document's `rerank_score`.
-
-```yaml
-models:
-  - from: typesafe:jev
-    name: jev
-    params:
-      typesafe_api_key: ${secrets:TYPESAFE_API_KEY}
-```
-
-```sql
-SELECT * FROM rerank(
-  vector_search(kb, 'onboarding checklist', limit => 40),
-  document => 'content',
-  model    => 'jev',            -- resolves to the registered decision model
-  strategy => 'listwise',       -- or 'pointwise' (default)
-  limit    => 10
-);
-```
-
-For decision models, the `strategy` parameter controls how many requests are sent:
-
-- **`pointwise`** (default): sends one request per candidate. Requests run concurrently, subject to the model's own rate limits, and each score is independent of the other candidates.
-- **`listwise`**: sends all candidates in a single request, with one relevance question per candidate.
-
-The question is fixed, so `prompt_template` does not apply to decision models. If the model fails for any candidate, or returns an answer that is not a probability between 0 and 1, the whole `rerank()` query fails.
-
-OpenAI `gpt-6-luna` and its dated snapshots serve both chat and decisions, and rerank through the Decisions API by default, scored the same way. A chat model without a native decisions API, such as `gpt-4o-mini`, can also rerank this way with `via => 'decisions'`, through its chat adapter.
-
-### Model Resolution
-
-A dedicated reranker named by `model` is always used as is. Any other model reranks through one of two paths, which the optional `via` argument selects:
-
-| `via`         | `prompt_template` | Path |
-| ------------- | ----------------- | ---- |
-| Not set       | Not set           | Decisions when the model has a native decisions API (TypeSafe models, OpenAI `gpt-6-luna`), otherwise chat. When the model has no handler for that path, the other path is used. |
-| Not set       | Set               | Chat, with the template. |
-| `'chat'`      | Optional          | Chat. |
-| `'decisions'` | Not set           | Decisions. A chat model answers through its chat adapter. |
-| `'decisions'` | Set               | The query fails: the decisions path asks a fixed question. |
-
-`via` and `prompt_template` apply only to chat and decision models; setting either for a dedicated reranker fails the query. A model that has no chat completions, such as TypeSafe Jev, cannot use `via => 'chat'` or `prompt_template`, and the query fails with an error that says to remove them. On the chat path, `strategy` defaults to `listwise`; on the decisions path, to `pointwise`. Dedicated rerankers ignore `strategy`.
-
-In v2.4.1 and earlier, the `model` name was looked up in this order: dedicated rerankers, then chat models, then decision models, and `via` did not exist. OpenAI `gpt-6-luna` therefore reranked through chat completions with the listwise strategy, and its `rerank_score` was a relative score from one prompt. It now reranks through the Decisions API with the pointwise strategy, one request per candidate, and its `rerank_score` is the probability that the document is relevant. Add `via => 'chat'` to keep the earlier behavior. A `prompt_template` passed to a decision model with no chat completions was ignored in v2.4.1 and earlier, and now fails the query.
+For strategies, prompt templates, the `via` argument, and how Spice selects the path for a model, see [LLM and Decision Model Rerankers](../../components/rerankers/llm.md).
 
 ## SQL Usage
 
@@ -176,7 +126,7 @@ SELECT * FROM rerank(
   document        => 'content',
   model           => 'gpt_mini',
   strategy        => 'pointwise',
-  prompt_template => 'Rate 0-1: is this useful for a new hire?\nQuery: {query}\nDoc: {document}',
+  prompt_template => 'Is this document useful for a new hire? Query: {query} Document: {document} Return only a JSON object of the form {"score": <number from 0 to 1>}.',
   limit           => 10
 );
 ```
