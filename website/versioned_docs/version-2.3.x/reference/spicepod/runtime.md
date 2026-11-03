@@ -671,6 +671,12 @@ runtime:
 
 The build side of a hash join is held in memory and cannot spill, so a very large join can exhaust the query memory pool ([`runtime.query.memory_limit`](#runtimequerymemory_limit)). Setting `prefer_hash_join: false` asks the planner to use sort-merge joins, which can spill to disk. It is a preference, not a guarantee: DataFusion still plans a hash join where a sort-merge join does not apply, such as a query planned with a single target partition. Check the plan with `EXPLAIN` for `SortMergeJoinExec` before relying on a join to spill. When the parameter is set, the runtime logs `Applied runtime.query.prefer_hash_join` at startup.
 
+:::warning
+
+v2.3 uses a DataFusion version without the null-aware check that [apache/datafusion#22810](https://github.com/apache/datafusion/pull/22810) added to sort-merge join planning, and the v2.3 Spice Cayenne rewrite of oversized hash joins has no such check either. So a `NOT IN` subquery over a nullable column can be planned as a sort-merge join, the case that upstream fix addresses because it returns wrong rows when the subquery returns a `NULL`. This applies with `prefer_hash_join: false`, and also with the default when [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) rewrites an oversized join. For workloads with such queries, upgrade to v2.4, which checks for null-aware anti joins on both paths.
+
+:::
+
 ## `runtime.query.eager_aggregation`
 
 Enables the cost-based eager-aggregation optimizer, which pushes a partial aggregation below a join when a statistics-based cost model predicts a large reduction in rows, then aggregates again above the join. It sets DataFusion's `datafusion.optimizer.enable_eager_aggregation` option. Spice enables it by default (`true`), although DataFusion's own default is `false`.
