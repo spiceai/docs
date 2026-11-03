@@ -194,7 +194,7 @@ Skipping is neither silent nor passive:
 - **A skipped row evicts whatever its primary key already holds.** Within a write, the last row for a repeated key decides that key, so a key whose deciding row is skipped is removed from the index rather than left answering at the vector its previous text produced. The same applies to a row whose search text is `NULL` or empty.
 - A row whose primary key is `NULL` is skipped too, with its own warning, but evicts nothing — there is no key with which to address an earlier entry.
 
-This criterion is applied by the [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) engines, and by the in-memory warm index written through to alongside them. The [`duckdb`](../../components/vectors/duckdb) engine's write path applies no such criterion and stores the vector as it arrives; it screens the **query** vector instead, failing a search whose query embedding has a non-finite component with `DuckDB vector query contains a non-finite value.`
+This criterion is applied by the [`elasticsearch`](../../components/vectors/elasticsearch) and [`s3_vectors`](../../components/vectors/s3_vectors) engines, and by the in-memory warm index written through to alongside them.
 
 ## Chunks a Shortened Row Leaves Behind
 
