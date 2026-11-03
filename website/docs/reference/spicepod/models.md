@@ -7,6 +7,8 @@ pagination_next: null
 
 The `models` section of a Spicepod defines large language models (LLMs) for use with Spice. Models can be loaded from Hugging Face, OpenAI, local files, or other supported providers.
 
+A chat model or a decision model in this section can also rerank search results with the `rerank()` SQL function. Dedicated reranker models are defined in the [`rerankers`](./rerankers.md) section. See [LLM and Decision Model Rerankers](../../components/rerankers/llm.md).
+
 | Field         | Description                                                              |
 | ------------- | ------------------------------------------------------------------------ |
 | `name`        | Unique, readable name for the model within the Spicepod.                 |
