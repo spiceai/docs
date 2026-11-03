@@ -231,10 +231,10 @@ Timed out after 30s waiting for rate-control capacity for origin 'https://api.ex
 
 #### Components that share an origin
 
-Every dataset and catalog that targets the same origin (`scheme://host:port`) shares one rate controller, so the limits apply to all of their requests together. They must resolve to the same `max_concurrent_requests`, `requests_per_second_limit`, `requests_per_minute_limit`, `rate_control_jitter_min`, `rate_control_jitter_max`, `rate_control_acquire_timeout`, `rate_control_failure_threshold`, and `rate_control_window` values. A component whose values differ from the first one registered for that origin fails to load:
+Every dataset and catalog that targets the same origin (`scheme://host:port`) shares one rate controller, so the limits apply to all of their requests together. They must resolve to the same `max_concurrent_requests`, `requests_per_second_limit`, `requests_per_minute_limit`, `rate_control_jitter_min`, `rate_control_jitter_max`, `rate_control_acquire_timeout`, `rate_control_failure_threshold`, and `rate_control_window` values. A component whose values differ from the first one registered for that origin fails to load, with an error that names each differing parameter:
 
 ```text
-Multiple HTTP-based components target http://api.example.com:80 with different rate-control settings. Use the same max_concurrent_requests, requests_per_second_limit, requests_per_minute_limit, rate_control_jitter_min, rate_control_jitter_max, rate_control_acquire_timeout, rate_control_failure_threshold and rate_control_window values for components sharing an origin.
+Components that target origin 'https://api.example.com:443' share one rate controller and must resolve to the same rate-control settings, but this one differs from those already targeting it: `rate_control_window` is 20s here and 10s there. Set `rate_control_window` to matching values on every component that targets this origin. See: https://spiceai.org/docs/components/data-connectors/https/deployment#rate-control
 ```
 
 #### Limits across instances

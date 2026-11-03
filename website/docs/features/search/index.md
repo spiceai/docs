@@ -130,7 +130,7 @@ For complete RRF syntax and parameters, see [Search SQL Reference](../reference/
 
 ### Reranking
 
-Reranking reorders search results using a dedicated reranker model (Cohere, Voyage, Jina, or a custom HTTP endpoint), any registered chat model as an LLM-as-reranker, or a [decision model](../large-language-models/decisions.md) such as TypeSafe Jev. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
+Reranking reorders search results using a dedicated reranker model (Cohere, Voyage AI, Jina AI, a custom HTTP endpoint, or a local Hugging Face cross-encoder), any registered chat model as an LLM-as-reranker, or a [decision model](../large-language-models/decisions.md) such as TypeSafe Jev. This two-stage retrieve-then-rerank pattern improves relevance beyond initial retrieval scores.
 
 **Requirements:**
 
@@ -139,6 +139,7 @@ Reranking reorders search results using a dedicated reranker model (Cohere, Voya
 **Getting Started:**
 
 - [Reranking Docs](search/rerank)
+- [Reranker Models](../../components/rerankers/index.md)
 
 **Example SQL Rerank:**
 

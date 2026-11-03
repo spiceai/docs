@@ -344,7 +344,7 @@ SELECT * FROM rerank(
     document        => 'content',
     model           => 'gpt_mini',
     strategy        => 'pointwise',
-    prompt_template => 'Rate 0-1: is this useful for a new hire?\nQuery: {query}\nDoc: {document}',
+    prompt_template => 'Is this document useful for a new hire? Query: {query} Document: {document} Return only a JSON object of the form {"score": <number from 0 to 1>}.',
     limit           => 10
 );
 ```

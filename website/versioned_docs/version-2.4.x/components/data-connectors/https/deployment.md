@@ -85,7 +85,7 @@ Rate control is adaptive. While the origin's error rate, counting `408`, `429`, 
 
 ### Retry Behavior
 
-HTTP-level retries follow the shared `resilient_http` policy: 408, 429, and 5xx responses plus transient network errors are retried. A request is retried at most `max_retries` times after the first attempt, so `max_retries: 2` sends at most three requests. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
+For a dynamic JSON API endpoint, `5xx` and `429` responses and transient network errors are retried. A `408` is not retried, but adaptive rate control counts it as a failure. A request is retried at most `max_retries` times after the first attempt, so `max_retries: 2` sends at most three requests. The connector respects `Retry-After`, `retry-after-ms`, and `x-retry-after-ms` headers.
 
 | Parameter              | Default     | Description                                                                                                  |
 | ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
@@ -202,7 +202,7 @@ HTTP requests participate in [task history](../../../reference/task_history) thr
 | Refresh blocked / queue building up              | `max_concurrent_requests` set too low for the workload.     | Raise the dataset-level limit or move heavy datasets to their own origin.                                 |
 | `Timed out after ... waiting for rate-control capacity` | Requests queue for capacity longer than `rate_control_acquire_timeout` (default `client_timeout`). | Raise the limit, lower request concurrency, or raise `rate_control_acquire_timeout`; `0` waits without a bound. |
 | Fewer requests than the configured limits reach the origin | The origin is failing above `rate_control_failure_threshold`, so adaptive rate control throttles it. | Check `dataset_http_rate_control_adaptive_admission_ratio` and the origin's health; raise `rate_control_failure_threshold` to tolerate more errors. |
-| `Multiple HTTP-based components target ... with different rate-control settings` | Datasets sharing an origin resolve to different rate-control values. | Use the same values on every dataset and catalog that targets the origin. |
+| `Components that target origin '...' share one rate controller and must resolve to the same rate-control settings` | Datasets sharing an origin resolve to different rate-control values. | Use the same values on every dataset and catalog that targets the origin. |
 | OAuth2 token refresh fails                       | `auth_token_url` not HTTPS, or wrong client credentials.    | Verify the token endpoint URL; check `http_auth_client_id`/`secret` and required scopes.                  |
 | Request rejected: "OR across HTTP filter columns" | `WHERE request_path = '...' OR request_query = '...'`.    | Split into separate refreshes or `UNION ALL`.                                                             |
 | Many partitions created from cross-product       | Multiple `IN`-list filters multiplied into many requests.   | Set `max_request_partitions` to cap; tighten filters.                                                     |

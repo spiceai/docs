@@ -50,7 +50,7 @@ Supported connection string formats:
 | AWS S3     | `ducklake:s3://bucket/path/metadata.ducklake`                                |
 | PostgreSQL | `ducklake:postgres:dbname=mydb host=localhost user=postgres`                 |
 
-The connection string can also be provided via the `ducklake_connection_string` parameter. Put no password in `from`: `GET /v1/catalogs`, `SHOW CREATE CATALOG`, and task history show `from` as written. Set a connection string that holds a password in `ducklake_connection_string`, with the password as a secret, as in [PostgreSQL metadata backend](#postgresql-metadata-backend).
+The connection string can also be provided via the `ducklake_connection_string` parameter. Put no password in `from`: `GET /v1/catalogs`, `SHOW CREATE CATALOG`, and task history show `from` as written. Set a connection string that holds a password in `ducklake_connection_string`, with the password as a secret in single quotes, as in [PostgreSQL metadata backend](#postgresql-metadata-backend). In a key-value string, a space ends an unquoted value and a `\` escapes the next character, so in the stored secret put a `\` before each `\` and `'`. In a URI, percent-encode the password instead. Spice gives DuckDB the password of a PostgreSQL or MySQL metadata database, in key-value form or, for PostgreSQL, as a URI, also one with no `postgres:` prefix, in a DuckDB secret rather than in the connection string it attaches, so the errors DuckDB raises when it cannot connect, which a query's caller and task history read, leave it out; they can name the metadata database's host, port, user, and database. Spice reads the prefix in any case, as DuckDB does, and refuses a PostgreSQL or MySQL connection string it cannot read, such as a URI with a `%` not followed by two hex digits or with a `%00`, saying why.
 
 ## `name`
 
@@ -163,7 +163,7 @@ catalogs:
   - from: ducklake
     name: my_lakehouse
     params:
-      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password=${secrets:PASSWORD}"
+      ducklake_connection_string: "postgres:dbname=ducklake_catalog host=localhost user=postgres password='${secrets:PASSWORD}'"
 ```
 
 ### Read-write with DDL support
