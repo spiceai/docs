@@ -306,20 +306,6 @@ workers:
 
 For a complete specification of worker configuration, see the [Workers Reference](spicepod/workers).
 
-## `rerankers`
-
-A Spicepod can contain one or more reranker models, which reorder search results by relevance. See [Reranking](../features/search/rerank) for the supported providers and how to use a reranker in a query.
-
-**Example**
-
-```yaml
-rerankers:
-  - from: cohere:rerank-v3.5
-    name: cohere_rr
-    params:
-      api_key: ${secrets:COHERE_API_KEY}
-```
-
 ## `tools`
 
 A Spicepod can contain one or more [tools](spicepod/tools) that the runtime or a language model can call, such as tools served by an MCP server.
