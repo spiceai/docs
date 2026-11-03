@@ -156,18 +156,18 @@ Reciprocal Rank Fusion (RRF) combines results from multiple search queries to im
 `rrf` is variadic and takes two or more search UDTF calls as arguments. Named parameters provide advanced control over ranking, recency, and fusion behavior.
 
 :::info
-The `rrf` function automatically adds a `fused_score` column to the result set, which contains the combined relevance score from all input search queries. Results are sorted by `fused_score DESC` by default when no explicit `ORDER BY` clause is specified.
+The `rrf` function automatically adds a `_fused_score` column to the result set, which contains the combined relevance score from all input search queries. Results are sorted by `_fused_score DESC` by default when no explicit `ORDER BY` clause is specified.
 :::
 
 ```sql
-SELECT id, content, fused_score
+SELECT id, content, _fused_score
 FROM rrf(
     vector_search(table, 'search query', rank_weight => 20),
     text_search(table, 'search terms', column),
     join_key => 'id',    -- explicit join key for performance
     k => 60.0            -- smoothing parameter
 )
-ORDER BY fused_score DESC
+ORDER BY _fused_score DESC
 LIMIT 10;
 ```
 
@@ -194,7 +194,7 @@ Note that `rank_weight` is specified as the last argument to either a `text_sear
 
 `WHERE` predicates on base table columns (e.g., `review_date`, `product_category`) are pushed down into each nested search subquery as **pre-filters** — they are applied before ranking and fusion, so each subquery only considers matching rows. This means the fused results reflect the top-K _within the filtered set_, not a post-filtered slice of unfiltered rankings.
 
-Predicates on computed columns like `fused_score` are applied as post-filters after fusion.
+Predicates on computed columns like `_fused_score` are applied as post-filters after fusion.
 
 ```sql
 -- review_date and product_category are pushed into each vector_search before ranking
@@ -215,14 +215,14 @@ LIMIT 10;
 
 ```sql
 -- Combine vector and text search for enhanced relevance
-SELECT id, title, content, fused_score
+SELECT id, title, content, _fused_score
 FROM rrf(
     vector_search(documents, 'machine learning algorithms'),
     text_search(documents, 'neural networks deep learning', content),
     join_key => 'id'  -- explicit join key for performance
 )
-WHERE fused_score > 0.01
-ORDER BY fused_score DESC
+WHERE _fused_score > 0.01
+ORDER BY _fused_score DESC
 LIMIT 5;
 ```
 
@@ -230,12 +230,12 @@ LIMIT 5;
 
 ```sql
 -- Boost semantic search over exact text matching
-SELECT fused_score, title, content
+SELECT _fused_score, title, content
 FROM rrf(
     text_search(posts, 'artificial intelligence', rank_weight => 50.0),
     vector_search(posts, 'AI machine learning', rank_weight => 200.0)
 )
-ORDER BY fused_score DESC
+ORDER BY _fused_score DESC
 LIMIT 10;
 ```
 
@@ -243,7 +243,7 @@ LIMIT 10;
 
 ```sql
 -- Exponential decay favoring recent content
-SELECT fused_score, title, created_at
+SELECT _fused_score, title, created_at
 FROM rrf(
     text_search(news, 'breaking news'),
     vector_search(news, 'latest updates'),
@@ -252,7 +252,7 @@ FROM rrf(
     decay_constant => 0.05,
     decay_scale_secs => 3600  -- 1 hour scale
 )
-ORDER BY fused_score DESC
+ORDER BY _fused_score DESC
 LIMIT 10;
 ```
 
@@ -260,7 +260,7 @@ LIMIT 10;
 
 ```sql
 -- Linear decay over 24 hours
-SELECT fused_score, content
+SELECT _fused_score, content
 FROM rrf(
     text_search(posts, 'trending'),
     vector_search(posts, 'viral popular'),
@@ -268,7 +268,7 @@ FROM rrf(
     recency_decay => 'linear',
     decay_window_secs => 86400
 )
-ORDER BY fused_score DESC;
+ORDER BY _fused_score DESC;
 ```
 
 **How RRF works:**
