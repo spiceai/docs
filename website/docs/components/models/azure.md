@@ -75,7 +75,11 @@ Spice exchanges the token with the Microsoft Entra ID authority of the cloud tha
 | Ends in `.azure.cn` | `https://login.chinacloudapi.cn`    | `https://cognitiveservices.azure.cn/.default`  |
 | Any other host      | `https://login.microsoftonline.com` | `https://cognitiveservices.azure.com/.default` |
 
-When the `AZURE_AUTHORITY_HOST` environment variable is set, it replaces the authority, and the scope still follows `endpoint`.
+When the `AZURE_AUTHORITY_HOST` environment variable is set, it replaces the authority, and the scope still follows `endpoint`. Because Spice sends the identity token to the authority, `AZURE_AUTHORITY_HOST` must be an `https://` URL: a value without a scheme, such as `login.microsoftonline.us`, gets `https://`, and any other scheme fails the model with:
+
+```text
+`AZURE_AUTHORITY_HOST` is not usable: The Microsoft Entra authority must be an https:// URL, such as https://login.microsoftonline.us, because the workload identity token is sent to it. See: https://spiceai.org/docs/components/models/azure
+```
 
 After the first exchange succeeds, Spice logs one `info` line that names where each part of the model's identity came from, because part of it can come from the environment, which the Spicepod does not show. Each source is a parameter (`azure_tenant_id`, `azure_client_id`, `azure_federated_token_file`), an environment variable (`AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_FEDERATED_TOKEN_FILE`), or, for the token, `this GitHub Actions job`. The line names the sources, not the IDs:
 
