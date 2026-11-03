@@ -68,10 +68,17 @@ FROM tickets;
 
 ### Arguments
 
-Every argument except `input` must be a constant. Constants are checked when the query is planned, before any model is called, and an invalid one fails the query with the function's usage.
+Every argument except `input` must have one value for the whole query. `condition`, `labels`, and the `instructions` and `levels` of `ai_score` take either a literal or a scalar subquery that does not refer to the outer query; every other argument must be a literal. A `labels` subquery can return one row per label, which Spice collects into a sorted list. A `levels` subquery must return one list itself, lowest first, such as `(SELECT array_agg(level ORDER BY rank) FROM levels)`. Literals are checked when the query is planned, before any model is called; a subquery's value is computed once when the query runs and checked by the same rules. An invalid value fails the query with the function's usage, and so does a column or a subquery that refers to the outer query, because its value can change from row to row. A call whose argument is a subquery runs on its own and does not share a request with other calls.
+
+For example, to classify tickets into the teams listed in another table:
+
+```sql
+SELECT id, ai_classify(body, (SELECT DISTINCT team_name FROM teams)) AS team
+FROM tickets;
+```
 
 - **`input`**: The text to decide about. A struct, map, or list is sent as JSON, for example `named_struct('subject', subject, 'body', body)`. Other types are sent as text, except binary data, which is refused: cast it to text first, for example with `encode(col, 'hex')`. A NULL `input` returns NULL without a model call.
-- **`condition`**, **`instructions`**: Constant text. `ai_classify` takes optional `instructions => '...'`.
+- **`condition`**, **`instructions`**: Text. `ai_classify` takes optional `instructions => '...'`, which must be a literal.
 - **`labels`**: A list of 2 to 255 labels, such as `['billing', 'technical']`, or a JSON object of label to description, such as `'{"billing": "Payments and refunds", "technical": null}'`. Labels cannot be empty or repeated. Include a fallback label such as `'other'` when no label may fit.
 - **`levels`**: A list of 2 to 10 level descriptions, lowest first.
 - **`questions`**: A JSON object of question ID to question, described in [Ask several questions with `ai_decide`](#ask-several-questions-with-ai_decide).

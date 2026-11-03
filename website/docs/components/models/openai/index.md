@@ -14,7 +14,7 @@ models:
   - from: openai:gpt-4o-mini
     name: openai_model
     params:
-      openai_api_key: ${ secrets:OPENAI_API_KEY } # Required for official OpenAI models
+      openai_api_key: ${ secrets:OPENAI_API_KEY } # Required for official OpenAI models, unless the model uses workload identity federation
       tools: auto # Optional. Connect the model to datasets via SQL query/vector search tools
       system_prompt: 'You are a helpful assistant.' # Optional.
 
@@ -72,6 +72,10 @@ The model name. This will be used as the model ID within Spice and Spice's endpo
 | `openai_api_key`          | The OpenAI API key.                                                                                                                                                                                                                                                                          | -                           |
 | `openai_org_id`           | The OpenAI organization ID.                                                                                                                                                                                                                                                                  | -                           |
 | `openai_project_id`       | The OpenAI project ID.                                                                                                                                                                                                                                                                       | -                           |
+| `openai_identity_provider_id` | The OpenAI workload identity provider (`idp_...`) that verifies the workload's identity token. With `openai_service_account_id` and `openai_identity_token_audience`, the model authenticates with [workload identity federation](#workload-identity-federation) instead of `openai_api_key`. | - |
+| `openai_service_account_id` | The OpenAI service account (`user-...`) that the workload identity provider's mapping resolves the workload to. Required for workload identity federation. | - |
+| `openai_identity_token_audience` | The audience the workload's identity token is issued for. It must match the workload identity provider's Audience. Required for workload identity federation. | - |
+| `openai_identity_token_file` | A file that holds the workload's identity token, such as a Kubernetes projected service account token. Spice reads it again for every exchange. When unset, Spice requests the token from GitHub Actions. | - |
 | `openai_temperature`      | Set the default temperature to use on chat completions.                                                                                                                                                                                                                                      | -                           |
 | `openai_response_format`  | An object specifying the format that the model must output, see [structured outputs].                                                                                                                                                                                                        | -                           |
 | `openai_reasoning_effort` | For reasoning models, like `o1`, this parameter specifies the reasoning effort used for the model.                                                                                                                                                                                           | -                           |
@@ -89,6 +93,27 @@ See [Large Language Models](../../features/large-language-models) for additional
 - [Tools](../../features/large-language-models/tools)
 - [Memory](../../features/large-language-models/memory)
 - [Parameter overrides](../../features/large-language-models/parameter_overrides)
+
+## Workload Identity Federation
+
+An OpenAI model can authenticate with [workload identity federation](https://platform.openai.com/docs/guides/workload-identity-federation) instead of an API key. Spice exchanges the identity token that the platform gives the workload for a short-lived OpenAI access token ([RFC 8693](https://datatracker.ietf.org/doc/html/rfc8693)), and exchanges again before each access token expires, so no OpenAI API key is stored with Spice. The same parameters apply to [OpenAI embedding models](../../embeddings/openai/index.md).
+
+```yaml
+models:
+  - from: openai:gpt-4o-mini
+    name: gpt
+    params:
+      openai_identity_provider_id: ${ secrets:OPENAI_IDENTITY_PROVIDER_ID }
+      openai_service_account_id: ${ secrets:OPENAI_SERVICE_ACCOUNT_ID }
+      openai_identity_token_audience: https://api.openai.com
+      openai_identity_token_file: /var/run/secrets/tokens/openai
+```
+
+`openai_identity_provider_id`, `openai_service_account_id`, and `openai_identity_token_audience` are all required. The identity token comes from `openai_identity_token_file`, read again for every exchange, or, when that parameter is unset, from the GitHub Actions job Spice runs in, which needs `permissions: id-token: write` (see [OpenID Connect in GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect)).
+
+Spice exchanges again one minute before the access token expires, or, for a token that lasts less than four minutes, after three quarters of its lifetime. When an exchange after the first one fails, Spice keeps using the current access token and retries, waiting at most 15 seconds between attempts.
+
+A model that sets a federation parameter and `openai_api_key` in the Spicepod fails to load with an error that names both, and a model that sets only some of the required parameters fails with an error that names the missing one. An `openai_api_key` loaded automatically from a secret store does not conflict with federation. When OpenAI refuses the first exchange, the model fails to load with OpenAI's reason.
 
 ## Supported OpenAI Compatible Providers
 

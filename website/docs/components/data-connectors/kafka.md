@@ -48,6 +48,8 @@ While Spice waits for the messages it infers the schema from, a transient broker
 
 The Kafka connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, so Spice can track consumption progress.
 
+With a persistent acceleration, Spice stores the offset of the last message it processed in each partition with the accelerated rows and, after a restart, resumes from those stored offsets rather than from the consumer group's committed offsets. When the group assigns it partitions, Spice starts fetching each one at the message after its stored offset (the stored offset plus one) and commits that position to the group, so the group's committed offsets match the acceleration. In v2.4.1 and earlier, a restart resumed from the group's committed offsets instead. Spice commits those asynchronously after it stores the rows, so when a commit was lost, for example around a broker restart, the restart read again and appended messages the acceleration already held.
+
 **Default behavior:** When no `kafka_consumer_group_id` is specified, Spice automatically generates a unique consumer group ID and stores it in the acceleration metadata. On subsequent restarts, Spice retrieves and reuses this stored consumer group ID to maintain offset tracking and resume consumption from where it left off.
 
 **Custom consumer group:** If you specify a custom `kafka_consumer_group_id`, Spice stores this ID in the acceleration metadata. The same consumer group must be used on subsequent restarts. If no acceleration data exists and a custom consumer group is provided, Spice will reset its position to the oldest available offset and begin consuming from the start of the topic.
