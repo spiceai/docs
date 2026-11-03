@@ -9,7 +9,7 @@ tags:
   - data-accelerators
 ---
 
-> **Deprecated in v2.4**: The `turso` acceleration engine was deprecated in v2.4 and removed in v2.5. See the [v2.4 docs](https://spiceai.org/docs/v2.4/components/data-accelerators/turso) for documentation of this feature.
+> **Deprecated in v2.4**: The `turso` acceleration engine was deprecated in v2.4 and removed in v2.5. See the [v2.4 docs](https://github.com/spiceai/docs/blob/trunk/website/versioned_docs/version-2.4.x/components/data-accelerators/turso.md) for documentation of this feature.
 
 A dataset or view that sets `acceleration.engine: turso` fails to load, and the other components in the Spicepod load normally:
 

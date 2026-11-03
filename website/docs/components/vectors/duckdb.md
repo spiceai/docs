@@ -6,7 +6,7 @@ sidebar_position: 3
 pagination_next: null
 ---
 
-> **Deprecated in v2.4**: The DuckDB vector engine (`vectors.engine: duckdb`) was deprecated in v2.4 and removed in v2.5. See the [v2.4 docs](https://spiceai.org/docs/v2.4/components/vectors/duckdb) for documentation of this feature.
+> **Deprecated in v2.4**: The DuckDB vector engine (`vectors.engine: duckdb`) was deprecated in v2.4 and removed in v2.5. See the [v2.4 docs](https://github.com/spiceai/docs/blob/trunk/website/versioned_docs/version-2.4.x/components/vectors/duckdb.md) for documentation of this feature.
 
 A dataset or view that selects the DuckDB vector engine, through `vectors.engine: duckdb` or a column's `embeddings[].engine: duckdb`, fails to load, and the other components in the Spicepod load normally:
 
