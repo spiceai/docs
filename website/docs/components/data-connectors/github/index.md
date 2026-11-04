@@ -69,6 +69,82 @@ If the app is installed on a GitHub user:
 - The URL of the page will be of the form `https://github.com/settings/installations/<INSTALLATION_ID>`
 
 
+#### GitHub App Private Key in Azure Key Vault or AWS KMS
+
+Instead of `github_private_key`, a GitHub App's private key can live in a key service that signs with it and never reveals it. Spice has the key service sign the App's JWTs, and reaches it with the workload's own cloud identity, so no GitHub secret is stored anywhere.
+
+| Parameter Name           | Description                                                                                                                                                                                                                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `github_private_key_kms` | The key that holds the App's private key: an Azure Key Vault key URL, `https://<vault>.vault.azure.net/keys/<name>` (optionally `/<version>`; Managed HSM, Azure Government and Azure China hosts too), or an AWS KMS key or alias ARN, `arn:aws:kms:<region>:<account>:alias/<name>`. Use with `github_client_id` and `github_installation_id`. |
+
+```yaml
+datasets:
+  - from: github:github.com/<owner>/<repo>/issues
+    name: issues
+    params:
+      github_client_id: ${secrets:GITHUB_CLIENT_ID}
+      github_installation_id: ${secrets:GITHUB_INSTALLATION_ID}
+      github_private_key_kms: arn:aws:kms:us-east-1:111122223333:alias/github-app
+```
+
+**Setting up the key**
+
+Import the App's private key (the `.pem` GitHub downloaded) as a non-exportable RSA signing key, let the workload sign with it, then delete the `.pem`.
+
+*Azure Key Vault:*
+
+```bash
+az keyvault key import --vault-name <vault> --name github-app --pem-file app.private-key.pem --ops sign verify
+# Let the workload's identity sign with it:
+az role assignment create --role "Key Vault Crypto User" --assignee <identity-object-id> \
+  --scope "$(az keyvault key show --vault-name <vault> --name github-app --query key.kid -o tsv | sed 's|/[^/]*$||')"
+```
+
+*AWS KMS* (OpenSSL 3; the steps of AWS's [importing key material](https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys-encrypt-key-material.html) guide):
+
+```bash
+KEY_ID=$(aws kms create-key --origin EXTERNAL --key-spec RSA_2048 --key-usage SIGN_VERIFY \
+  --query KeyMetadata.KeyId --output text)
+aws kms create-alias --alias-name alias/github-app --target-key-id "$KEY_ID"
+
+# The wrapping public key and import token, from one call: each call issues a new pair.
+aws kms get-parameters-for-import --key-id "$KEY_ID" \
+  --wrapping-algorithm RSA_AES_KEY_WRAP_SHA_256 --wrapping-key-spec RSA_4096 \
+  --query '[PublicKey,ImportToken]' --output text > import-parameters.txt
+cut -f1 import-parameters.txt | base64 -d > wrapping-key.der
+cut -f2 import-parameters.txt | base64 -d > import-token.bin
+
+# The App's key as PKCS#8 DER, wrapped with a one-time AES key, which is wrapped with the public key.
+openssl pkcs8 -topk8 -nocrypt -in app.private-key.pem -outform der -out key.der
+openssl rand -out aes-key.bin 32
+openssl enc -id-aes256-wrap-pad -K "$(xxd -p < aes-key.bin | tr -d '\n')" -iv A65959A6 \
+  -in key.der -out key-material-wrapped.bin
+openssl pkeyutl -encrypt -in aes-key.bin -out aes-key-wrapped.bin -inkey wrapping-key.der \
+  -keyform DER -pubin -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 \
+  -pkeyopt rsa_mgf1_md:sha256
+cat aes-key-wrapped.bin key-material-wrapped.bin > encrypted-key-material.bin
+
+aws kms import-key-material --key-id "$KEY_ID" --encrypted-key-material fileb://encrypted-key-material.bin \
+  --import-token fileb://import-token.bin --expiration-model KEY_MATERIAL_DOES_NOT_EXPIRE
+rm key.der aes-key.bin import-parameters.txt
+```
+
+Then allow `kms:Sign` on the key to the workload's IAM role, in the key policy or an IAM policy.
+
+**How Spice reaches the key service**
+
+- **Azure Key Vault**, with no configuration, in the order the Azure SDKs' default credential uses:
+  1. A workload identity: `AZURE_TENANT_ID` and `AZURE_CLIENT_ID`, with the identity token from `AZURE_FEDERATED_TOKEN_FILE` or, in a GitHub Actions job with `permissions: id-token: write`, the job's OIDC token (audience `api://AzureADTokenExchange`). On AKS, label the pod `azure.workload.identity/use: "true"` and the workload identity webhook sets all three.
+  2. A managed identity, on an Azure VM, App Service, Container Apps or Functions; a user-assigned one when `AZURE_CLIENT_ID` names it.
+  3. The Azure CLI's signed-in account (`az login`), for local development.
+
+  `AZURE_AUTHORITY_HOST` replaces the Microsoft Entra authority.
+- **AWS KMS**: the standard AWS credential chain: environment variables, a profile, a web identity token (EKS IRSA, or a role assumed with `aws-actions/configure-aws-credentials` in GitHub Actions), EKS Pod Identity, an ECS task role, or an EC2 instance profile. The key's ARN names its region.
+
+A versionless Key Vault key URL or a KMS alias ARN picks up a rotated key at the next signature, about hourly. GitHub accepts several private keys per App, so add the new key to the App before rotating and remove the old one after.
+
+`github_private_key_kms` cannot be set together with `github_private_key` or `github_token`.
+
 :::note[Limitations]
 
 With GitHub App Installation authentication, the connector's functionality depends on the permissions and scope of the GitHub App. Ensure that the app is installed on the repositories and configured with content, commits, issues and pull permissions to allow the corresponding datasets to work.
@@ -80,7 +156,7 @@ With GitHub App Installation authentication, the connector's functionality depen
 | Parameter Name                | Description                                                                                                                                                                                                                                                                                                           |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `github_query_mode`           | Optional. Specifies whether the connector should use the GitHub [search API](https://docs.github.com/en/graphql/reference/queries#search) for improved filter performance. Defaults to `auto`, possible values of `auto` or `search`.                                                                                 |
-| `github_endpoint`             | Optional. Base URL of the GitHub API. Defaults to `https://api.github.com`. Override to target a GitHub Enterprise Server instance (e.g., `https://github.example.com/api/v3`).                                                                                                                                       |
+| `github_endpoint`             | Optional. Base URL of the GitHub API. Defaults to `https://api.github.com`. Override to target a GitHub Enterprise Server instance (e.g., `https://github.example.com/api/v3`). GitHub App installation tokens are requested from it too.                                                                         |
 | `github_include_comments`     | Optional. Pull-request connector only. Specifies the types of comments to fetch: `all`, `review`, `discussion`, or `none`. Defaults to `none`. See [Comments Example](#comments-example).                                                                                                                             |
 | `github_max_comments_fetched` | Optional. Pull-request connector only. Maximum number of comments to fetch per review thread (when `github_include_comments` is set to `review` or `all`) or per pull-request discussion (when set to `discussion` or `all`). Defaults to `25`, and is capped at `75` to protect against GitHub secondary rate limits. |
 | `github_include_commits`      | Optional. Files connector only. Whether to fetch commit metadata (adds the `created_at` and `updated_at` timestamp columns) for each file. Set to `true` to enable. Defaults to `false`.                                                                                                                                                    |
