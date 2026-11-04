@@ -95,7 +95,7 @@ The high-water mark is the stored value that sorts last as text, read as an inst
 
 :::warning[Known limitation]
 
-De-duplication compares the re-read rows with the rows currently stored. On an acceleration with a `primary_key`, when the source holds two versions of a key at the same instant, a refresh can store one version and the next refresh, with no source change, swap the other back in. DuckDB and SQLite accelerations show this. A Cayenne acceleration whose `primary_key` does not include `time_column` orders versions by time instead, as described in [Combining with Upserts](#combining-with-upserts). Tracked in [spiceai/spiceai#15542](https://github.com/spiceai/spiceai/issues/15542).
+De-duplication compares the re-read rows with the rows currently stored. On a DuckDB or SQLite acceleration with a `primary_key` and [`on_conflict` set to `upsert`](../constraints.md#handling-conflicts), when the source holds two versions of a key at the same instant, a refresh can store one version and the next refresh, with no source change, swap the other back in. A Cayenne acceleration whose `primary_key` does not include `time_column` orders versions by time instead, as described in [Combining with Upserts](#combining-with-upserts). Tracked in [spiceai/spiceai#15542](https://github.com/spiceai/spiceai/issues/15542).
 
 :::
 
