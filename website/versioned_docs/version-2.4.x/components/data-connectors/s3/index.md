@@ -161,8 +161,9 @@ Spice accepts direct S3-to-SQS notifications, S3 notifications wrapped by Amazon
 ### AWS setup
 
 1. Create one SQS queue per dataset. A notification for a key outside the dataset's bucket and prefix is left on the queue, where it reappears after each visibility timeout until the queue's retention period expires. To feed several datasets from one bucket, fan out with SNS to one queue per dataset, or filter the bucket notification by the dataset prefix.
-2. Configure the bucket's event notifications to send `s3:ObjectCreated:*` to the queue. Add `s3:ObjectRemoved:*` only when `s3_on_object_removed: rebuild` is set.
-3. Grant the credentials Spice uses `s3:GetObject` and `s3:ListBucket` on the prefix, and `sqs:ReceiveMessage` and `sqs:DeleteMessage` on the queue.
+2. Add a queue access policy that allows the `s3.amazonaws.com` service principal to call `sqs:SendMessage` for the bucket. Without it, S3 cannot deliver notifications to the queue. See [Granting permissions to publish event notification messages to a destination](https://docs.aws.amazon.com/AmazonS3/latest/userguide/grant-destinations-permissions-to-s3.html).
+3. Configure the bucket's event notifications to send `s3:ObjectCreated:*` to the queue. Add `s3:ObjectRemoved:*` only when `s3_on_object_removed: rebuild` is set.
+4. Grant the credentials Spice uses `s3:GetObject` and `s3:ListBucket` on the prefix, and `sqs:ReceiveMessage` and `sqs:DeleteMessage` on the queue.
 
 The SQS client uses the same credentials as the S3 connector (`s3_auth`, `s3_key`, `s3_secret`, `s3_session_token`, or the IAM role chain).
 
@@ -175,7 +176,7 @@ Spice refuses to register the dataset when:
 - `s3_auth` is `public`. An unauthenticated client cannot receive from SQS.
 - No SQS region can be resolved from `s3_changes_region`, the queue URL, or `s3_region`.
 - `s3_on_object_removed` is not `ignore` or `rebuild`, `s3_changes_key_prefix` is not under the `from` prefix, or `s3_changes_backfill_interval` is not a duration greater than 0.
-- The dataset has no structured file format (Parquet, CSV, JSON, TSV, ORC, or, except on Windows, Vortex) from `file_format`, `file_extension`, or the `from` path.
+- The dataset has no structured file format (Parquet, CSV, JSON, JSONL, NDJSON, LDJSON, TSV, ORC, or, except on Windows, Vortex) from `file_format`, `file_extension`, or the `from` path.
 - `from` contains a wildcard or names a single object instead of a prefix. End the prefix with `/`; keep a single object on `refresh_mode: full`.
 
 For example, an ARN in `s3_changes_queue_url` fails with:
@@ -187,7 +188,7 @@ Failed to register dataset events (s3): `s3_changes_queue_url` must be an SQS qu
 ### Limitations
 
 - A removed object's rows are never deleted individually. `s3_on_object_removed: rebuild` replaces the whole acceleration from the prefix.
-- Overwriting an object in place under a key Spice has already applied does not reload it. Write changed data to a new key, or use `s3_on_object_removed: rebuild`.
+- Overwriting an object in place under a key Spice has already applied does not reload it. S3 sends `s3:ObjectCreated:*` for an overwrite, and `s3_on_object_removed: rebuild` acts only on `s3:ObjectRemoved:*`. Write changed data to a new key, or restart Spice to replace the acceleration from a listing of the prefix.
 - The set of applied keys is held in memory. A restart replaces the acceleration from one listing of the prefix.
 - An object key with a `.` or `..` path segment is skipped by both the queue and the listing.
 - One queue cannot be shared across datasets.
