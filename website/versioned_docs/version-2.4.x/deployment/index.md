@@ -41,7 +41,7 @@ Architecture refers to where Spice runs in relation to the application and data 
 - [Overview](deployment/architectures) — when to choose each architecture.
 - [Sidecar](deployment/architectures/sidecar) — Spice runs alongside the application for the lowest latency.
 - [Microservice](deployment/architectures/microservice) — single or multiple replicas behind a load balancer.
-- [Tiered](deployment/architectures/tiered) — separate read and write tiers for mixed workloads.
+- [Tiered](deployment/architectures/tiered) — sidecars for performance-critical tasks, plus a shared microservice for batch or less time-sensitive workloads.
 - [Cluster-Sidecar](deployment/architectures/cluster-sidecar) — combine local and remote Spice instances.
 - [Hosted](deployment/architectures/hosted) — managed on the Spice Cloud Platform.
 - [Sharded](deployment/architectures/sharded) — partition data across multiple Spice instances.
