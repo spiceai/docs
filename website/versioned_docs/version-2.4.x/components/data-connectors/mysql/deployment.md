@@ -46,12 +46,41 @@ For production, use `required` (the default). To verify against a specific CA ra
 
 The connector uses a per-dataset connection pool with the following defaults:
 
-| Parameter                   | Default | Description                                    |
-| --------------------------- | ------- | ---------------------------------------------- |
-| `mysql_pool_min`            | `1`     | Minimum idle connections held by the pool.     |
-| `mysql_pool_max`            | `5`     | Maximum connections the pool will open.        |
+| Parameter                       | Default | Description                                                  |
+| ------------------------------- | ------- | ------------------------------------------------------------ |
+| `mysql_pool_min`                | `1`     | Minimum idle connections held by the pool.                   |
+| `mysql_pool_max`                | `5`     | Maximum connections the pool will open.                      |
+| `mysql_connection_max_lifetime` | `5m`    | How long a connection is used before it is closed and replaced. |
 
-A value that is not a whole number logs a warning, such as `Invalid pool_max value: ten, using default of 5`, and Spice checks the pair with that default in its place. A `mysql_pool_min` greater than `mysql_pool_max` fails the dataset at load with `Invalid connection pool configuration: pool_min (10) cannot be greater than pool_max (5)`. This includes `mysql_pool_min: 10` with `mysql_pool_max: ten`, and a `mysql_pool_max` of `0` while `mysql_pool_min` is at its default of `1`. When the check passes, the dataset loads, but the pool replaces the value that is not a whole number with the underlying `mysql_async` default, `10` for `mysql_pool_min` or `100` for `mysql_pool_max`, not the `1` and `5` above. If the minimum is then greater than the maximum, as with `mysql_pool_min: ten` and `mysql_pool_max: 5`, both bounds become `10` and `100`. Because a typo in either value can widen the pool, check the log for this warning when tuning them. Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients.
+A dataset with `refresh_mode: changes` uses its pool only for schema checks at startup, so its pool defaults to a minimum of `0` and a maximum of `2` for any bound that is not set.
+
+A pool keeps an idle connection above `mysql_pool_min` open for 30 seconds after its last use, and checks for idle connections to close every 10 seconds. This stops queries that follow each other closely from opening a new connection on every other query: the MySQL client resets a connection when it returns to the pool, and a query that starts during the reset opens another connection. A `mysql_connection_string` that sets `inactive_connection_ttl` or `ttl_check_interval` keeps its own value, which must be a whole number of seconds. A `refresh_mode: changes` pool closes each idle connection above its minimum once it is returned. In v2.4.0 and earlier, idle connections above the minimum were closed as soon as they were returned.
+
+Each setting resolves in the same order whether the server is given as individual parameters or as `mysql_connection_string`: the Spicepod parameter, then the connection string's query setting (`pool_min`, `pool_max`, or `abs_conn_ttl` in seconds, with `abs_conn_ttl_jitter`), then the default. A setting given in both places with different values fails the dataset with an error that names both. When a minimum is set above the default maximum and no maximum is set, the maximum is raised to the minimum.
+
+Invalid values fail the dataset at load with an error that names the parameter: a pool size that is not a whole number, a `mysql_pool_max` of `0`, a `mysql_pool_min` greater than `mysql_pool_max`, and a lifetime outside `1s` to `365d` (other than `0s`). Size the pool to match the concurrent query and refresh load for the dataset; the upper bound should respect the MySQL server's `max_connections` budget shared across all Spice datasets and external clients.
+
+:::note
+
+In v2.4.0 and earlier, a pool size that was not a whole number logged a warning and fell back to the `mysql_async` default for that bound, `10` for the minimum or `100` for the maximum, and both bounds became `10` and `100` when that left the minimum above the maximum. A `mysql_connection_string` ignored `mysql_pool_min` and `mysql_pool_max` and used its own `pool_min` and `pool_max` settings or the same `10` and `100` defaults, and connections had no maximum lifetime. Datasets that relied on any of these now use the values above, or fail at load until the value is corrected.
+
+:::
+
+#### Connection Lifetime
+
+`mysql_connection_max_lifetime` sets how long a pooled connection is used before it is closed and replaced, as a duration such as `10m`. `0s` keeps connections open indefinitely. When the lifetime comes from `mysql_connection_max_lifetime` or the default, each connection's lifetime is extended by a random amount, so connections opened together are not replaced together: up to a fifth of the lifetime, or up to `abs_conn_ttl_jitter` seconds when the connection string sets it. A lifetime set only by the connection string's `abs_conn_ttl` uses its `abs_conn_ttl_jitter` as given, and with no `abs_conn_ttl_jitter` it adds none. A connection is not closed while a query is using it.
+
+Replacing a connection resolves the host again. With a load-balanced hostname, such as an [Amazon Aurora reader endpoint](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Reader), this spreads a long-running Spice instance across the servers behind it instead of keeping every connection on the servers it first reached. The [MySQL catalog](../../catalogs/mysql) accepts the same parameter.
+
+#### Connection Log
+
+Each pool logs the server its new connections reach, as the server reports itself, including the instance name on Aurora MySQL:
+
+```text
+MySQL dataset 'orders' opened connection 1234 to 'reader.example.internal:3306', which reached server 'ip-10-0-1-23:3306' (Aurora instance 'orders-reader-2').
+```
+
+The line is logged at `INFO` the first time in 10 minutes that a pool reaches a server, and at `DEBUG` otherwise, so a pool that opens a connection per query does not log a line per query.
 
 ### Retry Behavior
 
