@@ -187,7 +187,7 @@ Failed to register dataset events (s3): `s3_changes_queue_url` must be an SQS qu
 ### Limitations
 
 - A removed object's rows are never deleted individually. `s3_on_object_removed: rebuild` replaces the whole acceleration from the prefix.
-- Overwriting an object in place under a key Spice has already applied does not reload it. Write changed data to a new key, or use `s3_on_object_removed: rebuild`.
+- Overwriting an object in place under a key Spice has already applied does not reload it. S3 sends `s3:ObjectCreated:*` for an overwrite, and `s3_on_object_removed: rebuild` acts only on `s3:ObjectRemoved:*`. Write changed data to a new key, or restart Spice to replace the acceleration from a listing of the prefix.
 - The set of applied keys is held in memory. A restart replaces the acceleration from one listing of the prefix.
 - An object key with a `.` or `..` path segment is skipped by both the queue and the listing.
 - One queue cannot be shared across datasets.
