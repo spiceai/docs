@@ -484,6 +484,8 @@ FROM products;
 
 Spice includes table-valued functions for decomposing JSON structures into relational rows. Each function is available as both a UDTF (in the `FROM` clause with literal input) and a scalar UDF returning a list of structs (for per-row use with `UNNEST`).
 
+Each function bounds the work one document can cause. A document larger than `max_bytes` produces no rows. A walk stops, and returns the rows emitted so far, when it reaches `max_rows` rows, or when the rows of one document reach 32 times `max_bytes` of output (256 MiB with the default `max_bytes`). Neither cap is an error. The scalar UDF form fails the query when one input batch would produce more than 10,000,000 rows or more than 1 GiB of output. Split such input across smaller queries, or use the UDTF form, where `max_rows` bounds each document.
+
 ### `flatten_json`
 
 Walks an arbitrary JSON value and emits one row per reachable leaf.
@@ -553,7 +555,7 @@ Handles `properties` recursion, `items.properties` (arrays of objects), `additio
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `max_depth` | UInt | `32` | Maximum recursion depth. |
+| `max_depth` | UInt | `32` | Maximum recursion depth. At most `128`; a larger value fails the query. |
 | `max_rows` | UInt | `100000` | Per-document row cap. |
 | `max_bytes` | UInt | `8388608` | Input size limit (bytes). |
 | `path_style` | Utf8 | `"dot"` | `"dot"` or `"json-pointer"`. |

@@ -4256,7 +4256,9 @@ truncate(width, value)
 
 #### Return Type
 
-Returns the same type as `value`. For numbers, the result is the largest multiple of `width` that is less than or equal to `value`. For strings/binary, the result is the first `width` characters/bytes.
+Returns the same type as `value`. For numbers, the result is the largest multiple of `width` that is less than or equal to `value`. For strings/binary, the result is the first `width` characters/bytes. A string is cut by characters, not bytes, so multi-byte UTF-8 text is never split inside a character.
+
+A numeric result that does not fit the type of `value` fails the query instead of wrapping around. For example, `truncate(10, CAST(-128 AS TINYINT))` would be `-130`, which does not fit `Int8`, and fails with an error that ends `which does not fit the value's type`. A decimal result must also fit the declared precision of `value`: for a `DECIMAL(3, 0)` value of `-999`, `truncate(10, …)` would be `-1000` and fails.
 
 #### Example
 

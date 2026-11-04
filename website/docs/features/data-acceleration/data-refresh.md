@@ -413,6 +413,8 @@ In this example, `refresh_data_window` is converted into an effective Refresh SQ
 
 This parameter relies on the `time_column` dataset parameter specifying a column that is a timestamp type. Optionally, the `time_format` can be specified to instruct the Spice runtime on how to interpret timestamps in the `time_column`.
 
+When `refresh_data_window` is not set and [`retention_period`](#time-based-retention) is, Spice uses the retention period as the refresh window, so a refresh does not load rows that retention would delete. That window also loads rows whose `time_column` is `NULL`, because retention never deletes them: the effective filter is `column_time > (now() - <retention_period>) OR column_time IS NULL`. An explicit `refresh_data_window` does not load `NULL`-time rows. In v2.4.1 and earlier, the window taken from `retention_period` also left out `NULL`-time rows, so they were not loaded even though retention would have kept them.
+
 _Example with `refresh_sql`:_
 
 ```yaml

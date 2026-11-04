@@ -17,7 +17,7 @@ Use `append` when:
 
 ## Configuration
 
-`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) for the one case where that comparison is inclusive instead.
+`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) and [ISO 8601 String Time Columns](#iso-8601-string-time-columns) for the two cases where that comparison is inclusive instead.
 
 ```yaml
 datasets:
@@ -86,6 +86,12 @@ The trade-off is that each refresh re-reads the boundary day from the source rat
 A floating-point `time_column` configured as `unix_seconds`, `unix_millis`, or `unix_nanos`, such as `1700000000.25` seconds, is read as Unix time, the same as an integer column. The high-water mark is the accelerated maximum rounded down to a whole unit, so each refresh reads only rows after that unit and may read again rows from the unit that holds the maximum. A maximum that is negative, `NaN`, or infinite fails the refresh with an error that names the value.
 
 In v2.4.1 and earlier, the maximum of a floating-point time column was converted to a timestamp as nanoseconds, so a value such as `1.7e9` seconds became a mark about 1.7 seconds after 1970, and every append refresh read the whole source table.
+
+## ISO 8601 String Time Columns
+
+A string `time_column` configured as [`time_format: iso8601`](../../../reference/spicepod/datasets#time_format) is compared with the high-water mark as an instant, not as text, so values written with a `T` or a space separator, or with different UTC offsets, are ordered by the time they represent. The comparison is inclusive: each refresh reads the source rows at the high-water mark's instant again, so a row that reaches the source later with the same instant as the newest loaded row is appended. Spice's exact-row de-duplication drops the rows at that instant that were already loaded.
+
+In v2.4.1 and earlier, the high-water mark was compared with the column as text and was exclusive.
 
 ## Partition Pruning with `time_partition_column`
 
