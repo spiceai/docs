@@ -217,7 +217,7 @@ Spice does not re-partition existing acceleration data. An Arrow acceleration li
 A file-mode Cayenne dataset with `refresh_mode: full` and `write_mode: write_through` (the default), from a source other than `sink`, is rebuilt with the new `partition_by` on the next start. Every full refresh rewrites every row from the source, so dropping the stored rows loses nothing a reload does not bring back. The runtime drops the acceleration, reloads it from the source as on a first start, and logs the change:
 
 ```text
-INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`partition_by`: none -> ['bucket(2, id)']), so it is dropped and reloaded from the source with the new settings.
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`partition_by`: none -> ['bucket(2, id)']), so it is dropped and reloaded from the source.
 ```
 
 The rebuild happens only after the source answers a read on the schema the dataset registered with. Stored rows cannot be read under another partitioning, so while the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset fails to load with an error that says to restore the previous `partition_by` or to restart once the source can be read. See [Changing settings on an existing acceleration](../../components/data-accelerators/cayenne/index.md#changing-settings-on-an-existing-acceleration) for the other Cayenne settings that are applied on restart.
