@@ -21,11 +21,7 @@ export const HeroPlayground = () => {
 
           <Paragraph className='mb-6 md:text-center'>
             Spice gives each app and agent fast, sandboxed access to only the data it needs through a
-            single SQL endpoint for query, acceleration, search, and LLM inference.
-          </Paragraph>
-
-          <Paragraph className='mb-6 md:text-center'>
-            Built in Rust.
+            single SQL endpoint for query, acceleration, search, and LLM inference. Built in Rust.
           </Paragraph>
 
           <div className='mb-14 grid grid-cols-2 items-center justify-center gap-3 md:flex'>
