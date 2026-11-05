@@ -93,7 +93,7 @@ Spice integrates with [Amazon Bedrock](https://aws.amazon.com/bedrock/) for larg
 
 | Provider           | Supported Models                                                         | Documentation                                     |
 | ------------------ | ------------------------------------------------------------------------ | ------------------------------------------------- |
-| **Amazon Bedrock** | Amazon Nova (Micro, Lite, Pro, Premier), cross-region inference profiles | [Bedrock Models](../../components/models/bedrock) |
+| **Amazon Bedrock** | Models that support the Bedrock Converse API, including Amazon Nova, Anthropic Claude, Meta Llama, Mistral, Cohere Command, AI21 Jamba, and DeepSeek, and cross-region inference profiles | [Bedrock Models](../../components/models/bedrock) |
 
 ### Example: Amazon Nova
 
@@ -238,7 +238,7 @@ datasets:
 
 ### Supported AWS Regions
 
-S3 Express One Zone is available in select regions. Spice automatically derives the region from zone IDs:
+S3 Express One Zone is available in select regions. Spice derives the region from the prefix of each zone ID. The table lists some of the prefixes it recognizes:
 
 | Zone ID Prefix | Region         |
 | -------------- | -------------- |

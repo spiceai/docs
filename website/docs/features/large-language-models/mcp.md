@@ -323,7 +323,7 @@ See the [mcp-server cookbook](https://github.com/spiceai/cookbook/tree/trunk/mcp
 
 ### A tool is missing from the catalog
 
-A failing MCP server does not stop the runtime. Spice logs a warning, retries the connection in the background, and reports healthy — the tool is simply absent from `tools/list`. Verify the runtime log at startup:
+A failing MCP server does not stop the runtime. Spice logs a warning and retries the connection in the background. The tool is absent from `tools/list`, the built-in tools and the other tools stay available, and `/v1/ready` reports not ready until the tool loads. A tool whose configuration is invalid, such as an `mcp_args` value that cannot be parsed, is not retried. Verify the runtime log at startup:
 
 ```bash
 grep "Unable to load tool" "<log>"

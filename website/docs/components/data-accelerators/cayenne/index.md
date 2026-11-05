@@ -219,7 +219,7 @@ INFO Applied the changed acceleration settings of dataset 'trips' to its existin
 A rebuild drops the table and loads it from the source as on a first start, and the runtime logs which setting caused it:
 
 ```text
-INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`primary_key`: none -> ['id']), so it is dropped and reloaded from the source with the new settings.
+INFO The existing acceleration of dataset 'trips' was built with settings it cannot adopt in place (`primary_key`: none -> ['id']), so it is dropped and reloaded from the source.
 ```
 
 A rebuild happens only after the source answers a read on the schema the dataset registered with. While the source is unreachable, or while `on_schema_change: block` holds back a change to its schema, the dataset keeps serving its existing acceleration with the recorded settings and logs a warning. Restart once the source can be read to rebuild. A changed `partition_by`, or `cayenne_pk_conflict_detection` changed from `none` to `auto`, cannot be served from the stored rows, so in that case the dataset fails to load with an error that names both fixes: revert the setting, or restart once the source can be read.
@@ -229,6 +229,30 @@ When the data location changes, the rebuild deletes the local directory the old 
 In any other refresh mode or write mode, the acceleration can hold rows a reload does not bring back, such as an append window, a change stream that resumes from a recorded position, or writes that exist only in the acceleration. A layout-only change is still applied in place and needs no rebuild. When a change to `primary_key` or the data location is among the changed settings, Cayenne keeps every recorded setting, including layout settings changed in the same restart, and logs a warning that names the changed settings. To apply those settings, restart once with `mode: file_create`, and with `write_mode: write_through` if the dataset uses `write_mode: write_back`, then set both back. Rows that exist only in the acceleration are lost.
 
 In earlier releases, including v2.4.0-rc.1, a changed `primary_key` or `cayenne_sort_columns` on a `mode: file` Cayenne table was not applied: the table kept its recorded settings and logged a warning that the existing acceleration was not recreated. Now a changed sort order is applied in place, and a `refresh_mode: full` dataset whose `primary_key` changes is rebuilt from the source on the next start.
+
+### Data files that no longer match the metastore
+
+When a `mode: file` table opens, Cayenne checks the data files on disk against the files the metastore records for each live snapshot: the current snapshot and every snapshot kept for CDC-staged rows and checkpoints. A file is damaged when it is missing or its size differs from the recorded size, and a snapshot is damaged when its directory is missing. What happens next depends on whether a reload from the source brings back every row, the same rule as for [changed settings](#changing-settings-on-an-existing-acceleration):
+
+| Damage | `refresh_mode: full`, `write_mode: write_through`, from a source other than `sink` | Any other refresh mode, write mode, or a `sink` source |
+| --- | --- | --- |
+| A snapshot directory is missing, or a file's size differs | Dropped and reloaded from the source | Fails to load |
+| Files are missing, and the remaining files have their recorded sizes | Dropped and reloaded from the source | Keeps serving, with a warning |
+
+A reload logs a warning that names the dataset and the damaged files, then the rebuild message:
+
+```text
+WARN Dataset 'trips': the acceleration's data files do not match the Cayenne metastore (1 of the 2 data files the metastore records in '<snapshot directory>' are missing: b.vortex). Dropping it and reloading it from the source.
+INFO The existing acceleration of dataset 'trips' does not match its Cayenne metastore (1 of the 2 data files the metastore records in '<snapshot directory>' are missing: b.vortex), so it is dropped and reloaded from the source.
+```
+
+The reload needs a readable source. While the source cannot be read, the dataset fails to load, and it is reloaded once the source can be read.
+
+The partitions of a table with `partition_by` are checked as tables that are not reloaded, whatever the refresh mode, and follow the right-hand column of the table above.
+
+In any other refresh mode or write mode, or with a `sink` source, the acceleration can hold rows a reload does not bring back, so Cayenne does not reload it. When the stored rows cannot be read, the dataset fails to load, and the error says to restore the files, or to reload from the source by restarting once with `mode: file_create` and then setting the mode back. A dataset with `write_mode: write_back` also needs `write_mode: write_through` for that restart, then both set back. Rows that exist only in the acceleration are lost by that reload. When files are only missing, the dataset keeps serving the remaining files and logs a warning, and queries do not return the rows the missing files held.
+
+The check reads file metadata only. It skips tables stored in S3 Express One Zone, memory-mode tables, and snapshots for which the metastore records no files, such as an empty table. In v2.4.1 and earlier, a `mode: file` table opened without this check: it reported `Ready` and served the rows of the files that remained.
 
 ## Performance Tuning
 
@@ -818,7 +842,7 @@ The zone ID is automatically extracted from the bucket name to configure the cor
 
 ### Supported AWS Regions
 
-S3 Express One Zone is available in select regions. Spice automatically derives the region from zone IDs:
+S3 Express One Zone is available in select regions. Spice derives the region from the prefix of each zone ID and recognizes these prefixes:
 
 | Zone ID Prefix | Region         |
 | -------------- | -------------- |
@@ -830,17 +854,30 @@ S3 Express One Zone is available in select regions. Spice automatically derives 
 | `euw2`         | eu-west-2      |
 | `euw3`         | eu-west-3      |
 | `euc1`         | eu-central-1   |
+| `euc2`         | eu-central-2   |
 | `eun1`         | eu-north-1     |
 | `eus1`         | eu-south-1     |
+| `eus2`         | eu-south-2     |
 | `apne1`        | ap-northeast-1 |
 | `apne2`        | ap-northeast-2 |
+| `apne3`        | ap-northeast-3 |
 | `apse1`        | ap-southeast-1 |
 | `apse2`        | ap-southeast-2 |
+| `apse3`        | ap-southeast-3 |
+| `apse4`        | ap-southeast-4 |
+| `apse5`        | ap-southeast-5 |
 | `aps1`         | ap-south-1     |
+| `aps2`         | ap-south-2     |
+| `ape1`         | ap-east-1      |
 | `sae1`         | sa-east-1      |
 | `cac1`         | ca-central-1   |
+| `caw1`         | ca-west-1      |
 | `afs1`         | af-south-1     |
 | `mes1`         | me-south-1     |
+| `mec1`         | me-central-1   |
+| `ilc1`         | il-central-1   |
+
+A `cayenne_s3_region` value takes precedence over the derived region. For a zone ID whose prefix is not listed, set `cayenne_s3_region`; otherwise Spice reports an error that asks for it.
 
 See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
 
