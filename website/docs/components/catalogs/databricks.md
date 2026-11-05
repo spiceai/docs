@@ -123,12 +123,15 @@ catalogs:
     include:
       - '*.my_table_name'
     params:
+      mode: sql_warehouse
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal application id
       databricks_oidc_token_filepath: /var/run/secrets/tokens/databricks
+    dataset_params:
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
 ```
 
-Federation authenticates requests to Databricks. In `delta_lake` mode, reading table data from object storage still needs the [object store parameters](#delta-lake-object-store-parameters) under `dataset_params`.
+Federation authenticates requests to Databricks, not reads from object storage. For `delta_lake` mode, see the [object store parameters](#delta-lake-object-store-parameters).
 
 ### Pinning the authentication mode
 
