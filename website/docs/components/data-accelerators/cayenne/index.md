@@ -248,7 +248,9 @@ INFO The existing acceleration of dataset 'trips' does not match its Cayenne met
 
 The reload needs a readable source. While the source cannot be read, the dataset fails to load, and it is reloaded once the source can be read.
 
-In any other refresh mode or write mode, the acceleration can hold rows a reload does not bring back, so Cayenne does not reload it. When the stored rows cannot be read, the dataset fails to load, and the error says to restore the files, or to reload from the source by restarting once with `mode: file_create` and then setting the mode back. Rows that exist only in the acceleration are lost by that reload. When files are only missing, the dataset keeps serving the remaining files and logs a warning, and queries do not return the rows the missing files held.
+The partitions of a table with `partition_by` are checked as tables that are not reloaded, whatever the refresh mode, and follow the right-hand column of the table above.
+
+In any other refresh mode or write mode, the acceleration can hold rows a reload does not bring back, so Cayenne does not reload it. When the stored rows cannot be read, the dataset fails to load, and the error says to restore the files, or to reload from the source by restarting once with `mode: file_create` and then setting the mode back. A dataset with `write_mode: write_back` also needs `write_mode: write_through` for that restart, then both set back. Rows that exist only in the acceleration are lost by that reload. When files are only missing, the dataset keeps serving the remaining files and logs a warning, and queries do not return the rows the missing files held.
 
 The check reads file metadata only. It skips tables stored in S3 Express One Zone, memory-mode tables, and snapshots for which the metastore records no files, such as an empty table. In v2.4.1 and earlier, a `mode: file` table opened without this check: it reported `Ready` and served the rows of the files that remained.
 
