@@ -4,7 +4,7 @@ import { Title } from '../../atoms/title/title'
 export const Testimonial = () => {
   return (
     <section className='my-20 rounded-lg border border-alpha-150 bg-neutral p-8 md:p-16 xl:p-20'>
-      <Paragraph variant='extralarge' className='max-w-4xl'>
+      <Paragraph variant='extralarge' className='max-w-4xl text-alpha-900'>
         “Spice opened the door to take these critical control-plane datasets and move them next to
         our services in the runtime path.”
       </Paragraph>

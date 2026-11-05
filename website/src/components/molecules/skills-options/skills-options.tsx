@@ -58,6 +58,9 @@ export const SkillsOptions = () => {
     }
 
     setTabPosition()
+    window.addEventListener('resize', setTabPosition)
+
+    return () => window.removeEventListener('resize', setTabPosition)
   }, [activeTabIndex])
 
   const activeTab = allTabs[activeTabIndex]
@@ -87,6 +90,7 @@ export const SkillsOptions = () => {
                 isActive && 'bg-alpha-100 md:bg-transparent md:hover:bg-transparent'
               )}
               onClick={() => setActiveTabIndex(index)}
+              aria-pressed={isActive}
               aria-label={`Go to ${tab.name} tab`}
             >
               <span>{tab.name}</span>
@@ -97,11 +101,15 @@ export const SkillsOptions = () => {
 
       <button
         onClick={() => {
-          navigator.clipboard.writeText(activeTab.copy)
-          setCopied(true)
-          setTimeout(() => {
-            setCopied(false)
-          }, 2300)
+          navigator.clipboard
+            .writeText(activeTab.copy)
+            .then(() => {
+              setCopied(true)
+              setTimeout(() => {
+                setCopied(false)
+              }, 2300)
+            })
+            .catch(() => {})
         }}
         className='group relative mt-6 w-full rounded-lg border border-alpha-150 bg-neutral p-4 shadow-box transition-shadow hover:shadow-code md:w-11/12 md:p-10'
       >
