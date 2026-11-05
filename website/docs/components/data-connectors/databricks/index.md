@@ -75,8 +75,10 @@ Use the [secret replacement syntax](../secret-stores/) to reference a secret, e.
 | `client_timeout`              | Optional. Specifies timeout for HTTP operations. In `delta_lake` mode, applies to object store operations. In `sql_warehouse` mode, applies per-HTTP-call (statement submit, status poll, chunk fetch) — not total query duration. Default: `30s`. E.g. `client_timeout: 2m` |
 | `connect_timeout`             | Optional. Timeout for establishing TCP/TLS connections. Applies in `sql_warehouse` mode. Default: `10s`. E.g. `connect_timeout: 15s`                                                                                                                   |
 | `databricks_token`            | The Databricks API token to authenticate with the Unity Catalog API. Can't be used with `databricks_client_id` and `databricks_client_secret`.                                                                                                                                                                                                       |
-| `databricks_client_id`        | The Databricks OAuth client ID. Used with `databricks_client_secret` for service-principal (M2M) auth, or alone for interactive User-to-Machine (U2M) auth. Can't be used with `databricks_token`.                                                                                                                                                   |
+| `databricks_client_id`        | The Databricks OAuth client ID. Used with `databricks_client_secret` for service-principal (M2M) auth, alone for interactive User-to-Machine (U2M) auth, or with `databricks_oidc_token_filepath` or `databricks_token_audience` for workload identity federation. Can't be used with `databricks_token`.                                                                                                                                                   |
 | `databricks_client_secret`    | The Databricks Service Principal Client Secret. Required for M2M auth; omit for U2M auth. Can't be used with `databricks_token`.                                                                                                                                                                                                                     |
+| `databricks_oidc_token_filepath` | A file that holds the workload's identity token, read again for every exchange, such as a Kubernetes projected service account token. With `databricks_client_id`, the connector authenticates with [workload identity federation](#workload-identity-federation). Can't be used with `databricks_token_audience`. |
+| `databricks_token_audience` | The audience of the identity token Spice requests from a GitHub Actions job, such as the Databricks account ID. With `databricks_client_id`, the connector authenticates with [workload identity federation](#workload-identity-federation). Can't be used with `databricks_oidc_token_filepath`. |
 | `databricks_auth_mode`        | Optional. Pins the authentication flow instead of inferring it from the credentials that are set. One of `auto`, `token`, `m2m`, `u2m` (case-insensitive). Defaults to `auto`. See [Pinning the authentication mode](#pinning-the-authentication-mode).                                                                                              |
 
 #### SQL Warehouse tuning
@@ -163,9 +165,47 @@ datasets:
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # OAuth app client id
 ```
 
+### Workload identity federation
+
+The connector can authenticate as a service principal with the identity token its platform gives it, so no Databricks token or client secret is stored. Spice exchanges the identity token for a short-lived Databricks OAuth token ([RFC 8693](https://datatracker.ietf.org/doc/html/rfc8693)), and exchanges again before each OAuth token expires.
+
+An account admin must first create a [service principal federation policy](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-federation-policy) that trusts the issuer, subject, and audience of the platform's identity token. Use an exact subject, such as `repo:my-org/my-repo:environment:prod`. Set `databricks_client_id` to the service principal's application ID.
+
+On Kubernetes, or on any platform that writes the identity token to a file, set `databricks_oidc_token_filepath`. Spice reads the file again for every exchange, so the platform can rotate the token. The token's audience is set where the token is issued, and the federation policy must list it.
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      mode: sql_warehouse
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal application id
+      databricks_oidc_token_filepath: /var/run/secrets/tokens/databricks
+```
+
+In a GitHub Actions job, set `databricks_token_audience`, such as to the Databricks account ID, and give the job `permissions: id-token: write`. Spice requests the identity token from GitHub for that audience.
+
+```yaml
+datasets:
+  - from: databricks:spiceai.datasets.my_awesome_table
+    name: my_awesome_table
+    params:
+      mode: sql_warehouse
+      databricks_endpoint: dbc-a1b2345c-d6e7.cloud.databricks.com
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal application id
+      databricks_token_audience: ${secrets:DATABRICKS_ACCOUNT_ID}
+```
+
+The OAuth token's lifetime follows the identity token's, so it can be as short as five minutes. Spice exchanges again one minute before the OAuth token expires, or, for a token that lasts less than four minutes, after three quarters of its lifetime. When an exchange after the first one fails, Spice keeps using the current OAuth token and retries, waiting at most 15 seconds between attempts.
+
+A component that sets both `databricks_oidc_token_filepath` and `databricks_token_audience` fails to load, as does one that sets either with `databricks_token` or `databricks_client_secret` in the Spicepod, or without `databricks_client_id`. A token or client secret auto-loaded from a secret store does not conflict with federation. Federation applies only when `databricks_auth_mode` is `auto`, the default.
+
 ### Pinning the authentication mode
 
-By default (`databricks_auth_mode: auto`) the connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, and `databricks_client_id` together with `databricks_client_secret` selects M2M.
+By default (`databricks_auth_mode: auto`) the connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, `databricks_client_id` together with `databricks_client_secret` selects M2M, and `databricks_client_id` together with `databricks_oidc_token_filepath` or `databricks_token_audience` selects [workload identity federation](#workload-identity-federation).
 
 Credentials do not only come from the Spicepod. `databricks_token`, `databricks_client_secret`, and the other secret parameters are auto-loaded from the [secret stores](../secret-stores/) and the environment (e.g. `DATABRICKS_CLIENT_SECRET`, `SPICE_DATABRICKS_CLIENT_SECRET`) when the Spicepod omits them — so an ambient client secret on the host is enough to switch a U2M dataset to machine-to-machine, which then fails with a service principal `401`.
 
