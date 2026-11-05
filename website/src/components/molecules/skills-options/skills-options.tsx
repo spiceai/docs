@@ -50,6 +50,8 @@ export const SkillsOptions = () => {
   const [tabUnderlineLeft, setTabUnderlineLeft] = useState(0)
   const [copied, setCopied] = useState(false)
   const snippetId = useId()
+  const activeTabIndexRef = useRef(activeTabIndex)
+  activeTabIndexRef.current = activeTabIndex
 
   useEffect(() => {
     const setTabPosition = () => {
@@ -105,9 +107,11 @@ export const SkillsOptions = () => {
 
       <button
         onClick={() => {
+          const copyIndex = activeTabIndex
           navigator.clipboard
             .writeText(activeTab.copy)
             .then(() => {
+              if (activeTabIndexRef.current !== copyIndex) return
               setCopied(true)
               setTimeout(() => {
                 setCopied(false)
