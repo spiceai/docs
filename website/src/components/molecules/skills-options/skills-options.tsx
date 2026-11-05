@@ -89,7 +89,10 @@ export const SkillsOptions = () => {
                 'relative flex items-center justify-center gap-2 md:active:bg-alpha-50',
                 isActive && 'bg-alpha-100 md:bg-transparent md:hover:bg-transparent'
               )}
-              onClick={() => setActiveTabIndex(index)}
+              onClick={() => {
+                setActiveTabIndex(index)
+                setCopied(false)
+              }}
               aria-pressed={isActive}
               aria-label={`Go to ${tab.name} tab`}
             >
@@ -124,7 +127,7 @@ export const SkillsOptions = () => {
         </div>
 
         <div
-          aria-hidden={!copied}
+          aria-hidden={true}
           className={clsx(
             'absolute -bottom-7 right-0 flex items-center gap-1 font-semibold opacity-0 transition-opacity md:bottom-5 md:right-3 md:translate-y-1/2',
             copied && 'opacity-100'
@@ -134,6 +137,10 @@ export const SkillsOptions = () => {
           <Paragraph>Copied!</Paragraph>
         </div>
       </button>
+
+      <span className='sr-only' role='status' aria-live='polite'>
+        {copied ? 'Copied!' : ''}
+      </span>
     </div>
   )
 }
