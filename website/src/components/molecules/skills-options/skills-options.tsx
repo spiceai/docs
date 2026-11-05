@@ -124,6 +124,7 @@ export const SkillsOptions = () => {
         </div>
 
         <div
+          aria-hidden={!copied}
           className={clsx(
             'absolute -bottom-7 right-0 flex items-center gap-1 font-semibold opacity-0 transition-opacity md:bottom-5 md:right-3 md:translate-y-1/2',
             copied && 'opacity-100'
