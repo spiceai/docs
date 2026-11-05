@@ -22,9 +22,8 @@ export const Cta = ({ className }: { className?: string }) => {
       >
         <Logo variant='white' />
         <Title as='h2' variant='medium' className='my-14 max-w-4xl text-neutral'>
-          Secure, highly-available access to data.{' '}
-          <span className='text-primary'>Ridiculously easy setup.</span> Super fast
-          data-grounded AI.
+          A standard, portable lakehouse for every agent, app, and team.{' '}
+          <span className='text-primary'>Get up and running in under a minute.</span>
         </Title>
 
         <div className='flex items-center gap-6'>
