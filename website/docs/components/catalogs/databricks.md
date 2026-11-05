@@ -119,13 +119,16 @@ The catalog can authenticate as a service principal with the identity token its 
 ```yaml
 catalogs:
   - from: databricks:my_uc_catalog
-    name: uc
+    name: uc_catalog
+    include:
+      - '*.my_table_name'
     params:
-      mode: delta_lake
       databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
       databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal application id
       databricks_oidc_token_filepath: /var/run/secrets/tokens/databricks
 ```
+
+Federation authenticates requests to Databricks. In `delta_lake` mode, reading table data from object storage still needs the [object store parameters](#delta-lake-object-store-parameters) under `dataset_params`.
 
 ### Pinning the authentication mode
 

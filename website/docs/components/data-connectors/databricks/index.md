@@ -203,6 +203,8 @@ The OAuth token's lifetime follows the identity token's, so it can be as short a
 
 A component that sets both `databricks_oidc_token_filepath` and `databricks_token_audience` fails to load, as does one that sets either with `databricks_token` or `databricks_client_secret` in the Spicepod, or without `databricks_client_id`. A token or client secret auto-loaded from a secret store does not conflict with federation. Federation applies only when `databricks_auth_mode` is `auto`, the default.
 
+Federation authenticates requests to Databricks. In `delta_lake` mode, reading table data from object storage still needs the [object store parameters](#delta-lake-object-store-parameters).
+
 ### Pinning the authentication mode
 
 By default (`databricks_auth_mode: auto`) the connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, `databricks_client_id` together with `databricks_client_secret` selects M2M, and `databricks_client_id` together with `databricks_oidc_token_filepath` or `databricks_token_audience` selects [workload identity federation](#workload-identity-federation).
