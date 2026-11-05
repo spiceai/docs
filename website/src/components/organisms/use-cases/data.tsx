@@ -25,7 +25,7 @@ export const dataUseCases: UseCaseData[] = [
     description:
       'Replicate changes from operational databases to an isolated analytics replica via high-throughput CDC, so agents run large analytical queries against near real-time data.',
     buttonText: 'Real-time analytics',
-    buttonLink: 'https://docs.spiceai.org/docs/use-cases/data/database-cdn'
+    buttonLink: 'https://spiceai.org/docs/features/cdc'
   },
   {
     title: 'Per-tenant agent standardization',
