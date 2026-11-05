@@ -842,7 +842,7 @@ The zone ID is automatically extracted from the bucket name to configure the cor
 
 ### Supported AWS Regions
 
-S3 Express One Zone is available in select regions. Spice automatically derives the region from zone IDs:
+S3 Express One Zone is available in select regions. Spice derives the region from the prefix of each zone ID and recognizes these prefixes:
 
 | Zone ID Prefix | Region         |
 | -------------- | -------------- |
@@ -854,17 +854,30 @@ S3 Express One Zone is available in select regions. Spice automatically derives 
 | `euw2`         | eu-west-2      |
 | `euw3`         | eu-west-3      |
 | `euc1`         | eu-central-1   |
+| `euc2`         | eu-central-2   |
 | `eun1`         | eu-north-1     |
 | `eus1`         | eu-south-1     |
+| `eus2`         | eu-south-2     |
 | `apne1`        | ap-northeast-1 |
 | `apne2`        | ap-northeast-2 |
+| `apne3`        | ap-northeast-3 |
 | `apse1`        | ap-southeast-1 |
 | `apse2`        | ap-southeast-2 |
+| `apse3`        | ap-southeast-3 |
+| `apse4`        | ap-southeast-4 |
+| `apse5`        | ap-southeast-5 |
 | `aps1`         | ap-south-1     |
+| `aps2`         | ap-south-2     |
+| `ape1`         | ap-east-1      |
 | `sae1`         | sa-east-1      |
 | `cac1`         | ca-central-1   |
+| `caw1`         | ca-west-1      |
 | `afs1`         | af-south-1     |
 | `mes1`         | me-south-1     |
+| `mec1`         | me-central-1   |
+| `ilc1`         | il-central-1   |
+
+A `cayenne_s3_region` value takes precedence over the derived region. For a zone ID whose prefix is not listed, set `cayenne_s3_region`; otherwise Spice reports an error that asks for it.
 
 See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
 
