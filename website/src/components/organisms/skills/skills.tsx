@@ -23,7 +23,7 @@ export const Skills = () => {
         target='_blank'
         rel='noopener noreferrer'
         variant='primary'
-        className='ml-6 mt-6 md:mt-14'
+        className='ml-6 mt-6 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:mt-14'
       >
         Skills on GitHub
       </Button>

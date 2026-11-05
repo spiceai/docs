@@ -86,7 +86,7 @@ export const SkillsOptions = () => {
                 tabsRef.current[index] = el
               }}
               className={clsx(
-                'relative flex items-center justify-center gap-2 md:active:bg-alpha-50',
+                'relative flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:active:bg-alpha-50',
                 isActive && 'bg-alpha-100 md:bg-transparent md:hover:bg-transparent'
               )}
               onClick={() => {
