@@ -69,8 +69,8 @@ export const Features = () => {
           />
           <Feature
             icon={<InferenceIcon />}
-            title='Embedded AI inference'
-            description='OpenAI-compatible inference for local and hosted models, embedded in the runtime with memory, evals, and observability.'
+            title='AI gateway and SQL functions'
+            description='An OpenAI-compatible gateway to local and hosted models, with AI SQL functions, MCP tools, memory, evals, and observability built into the runtime.'
             docsLink='https://docs.spiceai.org/docs/features/large-language-models'
           />
         </div>
