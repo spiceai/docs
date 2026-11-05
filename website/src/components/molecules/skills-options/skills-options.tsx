@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { Button } from '../../atoms/button/button'
 import { Paragraph } from '../../atoms/paragraph/paragraph'
@@ -49,6 +49,7 @@ export const SkillsOptions = () => {
   const [tabUnderlineWidth, setTabUnderlineWidth] = useState(0)
   const [tabUnderlineLeft, setTabUnderlineLeft] = useState(0)
   const [copied, setCopied] = useState(false)
+  const snippetId = useId()
 
   useEffect(() => {
     const setTabPosition = () => {
@@ -115,10 +116,11 @@ export const SkillsOptions = () => {
             .catch(() => {})
         }}
         aria-label={`Copy the ${activeTab.name} snippet to the clipboard`}
+        aria-describedby={snippetId}
         className='group relative mt-6 w-full rounded-lg border border-alpha-150 bg-neutral p-4 shadow-box transition-shadow hover:shadow-code md:w-11/12 md:p-10'
       >
         <div className='flex items-start gap-4 overflow-x-auto text-left'>
-          <code className='whitespace-pre-wrap break-words bg-transparent text-base md:w-11/12 md:text-lg'>
+          <code id={snippetId} className='whitespace-pre-wrap break-words bg-transparent text-base md:w-11/12 md:text-lg'>
             {activeTab.display}
           </code>
 
