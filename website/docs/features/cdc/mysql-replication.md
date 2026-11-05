@@ -125,6 +125,10 @@ The connector picks its resume identity from the source. When the source reports
 
 A GTID cursor survives a source failover: a promoted replica inherits the same global GTIDs, so the persisted set still resolves against the new primary. File + offset positions do not — binlog coordinates are per-server.
 
+On a GTID source, Spice tracks the GTIDs delivered to each dataset and sends a transaction to every dataset whose set does not hold its GTID, so a failover does not depend on how the two servers' binlog file names and offsets compare. In v2.4.1 and earlier, the shared binlog connection compared binlog positions instead: after a failover, transactions on the new primary whose position sorted below the old primary's were skipped and recorded as applied, and the dataset stayed `Ready` with the rows from before the failover. To recover an acceleration that failed over on v2.4.1 or earlier, start it once with `mysql_replication_initial_snapshot: always` to take a new snapshot, then set the parameter back.
+
+A resume compares the dataset's columns with the checkpoint: their names, types, nullability, and metadata. Schema-level metadata is ignored, including the source's row and size estimates (`spice.inferred_row_count`, `spice.inferred_table_bytes`), which change after `ANALYZE TABLE`. In v2.4.1 and earlier, a restart after those estimates changed failed with `layout/schema drift`, or took a new snapshot under `mysql_replication_invalid_checkpoint_behavior: restart`.
+
 ## When the source is reset or rebuilt
 
 On a GTID resume, Spice requires the persisted GTID set to be a **subset of the source's current `@@gtid_executed`**. A `RESET MASTER`, a rebuilt server with a fresh `server_uuid`, a different source, or a diverged history reports an executed set that no longer contains the checkpoint — resuming from it would silently serve pre-reset data.

@@ -32,7 +32,9 @@ Secrets should be sourced from a [secret store](../../secret-stores/) when not u
 
 ### Streams and Checkpointing
 
-The DynamoDB connector supports CDC via DynamoDB Streams with an accelerated dataset as the sink. Stream state is persisted as a checkpoint alongside the accelerator, allowing resumption after a restart.
+The DynamoDB connector supports CDC via DynamoDB Streams with an accelerated dataset as the sink. Stream state is persisted as a checkpoint alongside the accelerator, so a restart resumes from where reading stopped.
+
+The checkpoint records every shard the connector reads, including a shard that is waiting for a new shard iterator, for example after its iterator expired and the request for a new one failed. A restart reads only the shards in the checkpoint and their child shards. In v2.4.1 and earlier, a checkpoint saved while a shard waited for an iterator left that shard out, so after a restart the connector never read it again, and the dataset reported `Ready` without the changes from that shard.
 
 | Parameter                      | Default  | Description                                                                                                              |
 | ------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------ |
