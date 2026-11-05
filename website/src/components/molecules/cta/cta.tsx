@@ -58,34 +58,32 @@ export const Cta = ({ className }: { className?: string }) => {
         </div>
         <div className='flex flex-col justify-between gap-6 bg-alpha-800 px-8 py-16 md:p-14 lg:w-5/12 xl:p-20'>
           <Paragraph variant='extralarge'>
-            “We have been looking for a way to accelerate queries from our
-            Databricks workspaces. Spice was the perfect solution, as it was
-            super simple to setup and it was easy to define and query
-            accelerated datasets without a lot of overhead.”
+            “Spice opened the door to take these critical control-plane datasets
+            and move them next to our services in the runtime path.”
           </Paragraph>
 
           <div className='flex items-start justify-between gap-6'>
             <div className='flex flex-col gap-2'>
               <Title as='h5' variant='small' className='font-bold text-neutral'>
-                Andy Blyler
+                Peter Janovsky
               </Title>
               <Paragraph className='text-neutral'>
-                Chief Data Officer at Barracuda
+                Software Architect at Twilio
               </Paragraph>
               <img
-                src='img/barracuda.png'
-                alt='Barracuda'
-                width={180}
-                height={44}
-                className='relative right-1.5 mt-2 h-auto w-40'
+                src='img/twilio.svg'
+                alt='Twilio'
+                width={118}
+                height={40}
+                className='relative right-1.5 mt-2 h-auto w-32 brightness-0 invert'
               />
             </div>
             <img
-              src='img/andy.png'
-              alt='Andy'
+              src='img/peter-janovsky.png'
+              alt='Peter Janovsky'
               width={70}
               height={70}
-              className='h-16 w-16 rounded-full'
+              className='h-16 w-16 rounded-full object-cover'
             />
           </div>
         </div>

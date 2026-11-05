@@ -13,7 +13,7 @@ export const Install = () => {
         Install the Spice CLI
       </Title>
       <Paragraph variant='large' className='max-w-3xl'>
-        Try querying accelerated Parquet files from S3, on your laptop, in under 60 seconds.
+        Serve agents fast, accelerated data from object storage, on your laptop, in under 60 seconds.
       </Paragraph>
 
       <InstallOptions />
