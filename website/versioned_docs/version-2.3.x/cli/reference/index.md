@@ -60,7 +60,7 @@ spice [command] [--help]
 | [version](reference/version)       | Spice CLI version                                                      |
 | view                               | Add or configure view entries in `spicepod.yaml`                       |
 | worker                             | Add or configure worker entries in `spicepod.yaml`                     |
-| workers                            | Lists workers loaded by the Spice runtime                              |
+| [workers](reference/workers)       | Lists workers loaded by the Spice runtime                              |
 
 ### Spicepod manifest editors
 
