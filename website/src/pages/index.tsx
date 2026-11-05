@@ -43,10 +43,13 @@ export default function LandingPage() {
         <Container>
           <Install />
           <Skills />
-          <Articles data={articles} />
         </Container>
 
         <Cta />
+
+        <Container>
+          <Articles data={articles} />
+        </Container>
       </div>
     </Layout>
   )

@@ -45,35 +45,31 @@ export const Features = () => {
         operate, from one deployment to thousands.
       </Title>
 
-      <div className='flex flex-col gap-6 md:flex-row'>
-        <div className='flex w-full flex-col gap-6 md:w-1/2'>
-          <Feature
-            icon={<FederationIcon />}
-            title='SQL federation and acceleration'
-            description='One SQL endpoint federates across databases, warehouses, data lakes, and APIs, with materialized, auto-refreshed datasets that accelerate the hot path.'
-            docsLink='https://docs.spiceai.org/docs/features/query-federation'
-          />
-          <Feature
-            icon={<SearchIcon />}
-            title='Hybrid search'
-            description='Vector, keyword, and full-text search in SQL with vector_search and text_search, fused into ranked results that ground agents in data.'
-            docsLink='https://docs.spiceai.org/docs/features/search'
-          />
-        </div>
-        <div className='flex w-full flex-col gap-6 md:w-1/2 md:pt-20'>
-          <Feature
-            icon={<AnalyticsIcon />}
-            title='Analytical query on operational data'
-            description='Maintain an isolated replica of operational databases, kept current through high-throughput CDC, so agents run large analytical queries on near real-time data.'
-            docsLink='https://docs.spiceai.org/docs/use-cases/data/database-cdn'
-          />
-          <Feature
-            icon={<InferenceIcon />}
-            title='AI gateway and SQL functions'
-            description='An OpenAI-compatible gateway to local and hosted models, with AI SQL functions, MCP tools, memory, evals, and observability built into the runtime.'
-            docsLink='https://docs.spiceai.org/docs/features/large-language-models'
-          />
-        </div>
+      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+        <Feature
+          icon={<FederationIcon />}
+          title='SQL federation and acceleration'
+          description='One SQL endpoint federates across databases, warehouses, data lakes, and APIs, with materialized, auto-refreshed datasets that accelerate the hot path.'
+          docsLink='https://docs.spiceai.org/docs/features/query-federation'
+        />
+        <Feature
+          icon={<SearchIcon />}
+          title='Hybrid search'
+          description='Vector, keyword, and full-text search in SQL with vector_search and text_search, fused into ranked results that ground agents in data.'
+          docsLink='https://docs.spiceai.org/docs/features/search'
+        />
+        <Feature
+          icon={<AnalyticsIcon />}
+          title='Analytical query on operational data'
+          description='Maintain an isolated replica of operational databases, kept current through high-throughput CDC, so agents run large analytical queries on near real-time data.'
+          docsLink='https://docs.spiceai.org/docs/use-cases/data/database-cdn'
+        />
+        <Feature
+          icon={<InferenceIcon />}
+          title='AI gateway and SQL functions'
+          description='An OpenAI-compatible gateway to local and hosted models, with AI SQL functions, MCP tools, memory, evals, and observability built into the runtime.'
+          docsLink='https://docs.spiceai.org/docs/features/large-language-models'
+        />
       </div>
     </section>
   )
