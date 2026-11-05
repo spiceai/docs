@@ -114,6 +114,7 @@ export const SkillsOptions = () => {
             })
             .catch(() => {})
         }}
+        aria-label={`Copy the ${activeTab.name} snippet to the clipboard`}
         className='group relative mt-6 w-full rounded-lg border border-alpha-150 bg-neutral p-4 shadow-box transition-shadow hover:shadow-code md:w-11/12 md:p-10'
       >
         <div className='flex items-start gap-4 overflow-x-auto text-left'>
