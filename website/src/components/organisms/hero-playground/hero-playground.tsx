@@ -15,17 +15,17 @@ export const HeroPlayground = () => {
             variant={'large'}
             className='mx-auto mb-6 mt-7 md:mt-0 md:text-center xl:max-w-[1020px]'
           >
-            The open-source <span className='text-primary'>data lakehouse</span>
-            <br /> for agents.
+            The portable <span className='text-primary'>data lakehouse</span>
+            <br /> for every agent.
           </Title>
 
           <Paragraph className='mb-6 md:text-center'>
-            Serve your data to agents with a single SQL endpoint that federates, accelerates,
-            searches, and reasons.
+            Spice gives each app and agent fast, sandboxed access to only the data it needs through a
+            single SQL endpoint for query, acceleration, search, and LLM inference.
           </Paragraph>
 
           <Paragraph className='mb-6 md:text-center'>
-            Written in Rust and Apache 2.0 licensed.
+            Built in Rust.
           </Paragraph>
 
           <div className='mb-14 grid grid-cols-2 items-center justify-center gap-3 md:flex'>
