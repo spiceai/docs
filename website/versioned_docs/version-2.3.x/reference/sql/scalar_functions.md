@@ -3700,6 +3700,8 @@ inner_product(vector1, vector2)
 
 Both arguments must be `FixedSizeList<Float32, N>` with the same `N`, the type of an embedding column. Other list types fail with `inner_product requires both arguments to be FixedSizeList<Float32, N> with matching N`; cast them with `arrow_cast`, as in the example. A vector that is `NULL` or contains a `NULL` element returns `NULL`, and so does a product that is not finite.
 
+These results describe Spice's own evaluation. When Spice pushes a query down to DuckDB, `inner_product` runs as DuckDB's [`array_inner_product`](https://duckdb.org/docs/stable/sql/functions/array#array_inner_productarray1-array2), and a product that is not finite still returns `NULL`. A vector that contains a `NULL` element fails the query in DuckDB with `array_inner_product: left argument can not contain NULL values` (or `right argument`), instead of returning `NULL`.
+
 #### Example
 
 ```sql
