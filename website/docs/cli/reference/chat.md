@@ -30,7 +30,7 @@ spice chat [flags] [<message>]
 ## Flags
 
 - `--model`, `-m` Target model for the chat request. When omitted, the CLI uses the single ready model or prompts for a choice if several models are ready.
-- `--temperature <float>` Model temperature used for chat request.
+- `--temperature <float>` Model temperature used for chat request. The value must be a finite number greater than or equal to `0`. A negative or non-finite value is rejected before any request is sent, with `temperature must be greater than or equal to 0, got <value>` or `temperature must be a finite number, got <value>`.
 - `--endpoint <endpoint>` Specifies the remote Spice instance HTTP endpoint (e.g., `http://localhost:8090`).
 - `--headers <KEY:VALUE>` Custom HTTP headers in format `Key:Value` (can be specified multiple times).
 - `--output <format>`, `-o` Output format: `table` (default) or `json`.
