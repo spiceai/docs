@@ -410,7 +410,8 @@ PDF and Office files are compressed, so a small file can expand to many gigabyte
 
 | Format             | Limit                                                                               |
 | ------------------ | ----------------------------------------------------------------------------------- |
-| DOCX, XLSX, PPTX   | 64 MiB per decompressed archive entry, and 256 MiB for all entries of one file      |
+| DOCX, XLSX         | 64 MiB per decompressed archive entry, and 256 MiB for all entries of one file      |
+| PPTX               | 64 MiB per decompressed slide (`ppt/slides/slideN.xml`), and 256 MiB for all slides of one file. Other entries, such as embedded media, are not read |
 | DOCX, XLSX, PPTX   | 64 MiB of extracted text per file                                                   |
 | PDF                | 256 MiB for all compressed streams of one file, after decompression                 |
 
