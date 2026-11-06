@@ -176,6 +176,22 @@ gpt-oss models write their replies in OpenAI's [Harmony format](https://cookbook
 
 A GGUF whose chat template writes Harmony loads only when its vocabulary holds each Harmony marker (`<|start|>`, `<|channel|>`, `<|message|>`, `<|end|>`, `<|return|>`, `<|call|>`, and `<|constrain|>`) as a single token. Otherwise it is refused at load with the `is not supported by this Spice release` message above. In v2.4.1 and earlier, every gpt-oss GGUF was refused with that message.
 
+## Message Content Parts for Local Models
+
+A chat message's `content` can be a string or an array of parts, such as `[{"type": "text", "text": "..."}]`. A model served locally from the [`file`][file] or [`huggingface`][hf] provider, on llama.cpp or mistral.rs, renders text parts the way [llama-server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) does, for every role. When a model loads, Spice checks whether its chat template reads `content` as a string, as an array of text parts, or both, and fits each message to it:
+
+- A template that reads both receives each message as sent.
+- A template that reads only strings receives the text of the parts joined with newlines.
+- A template that reads only parts receives a string as one text part.
+
+A local model receives only text: neither engine passes images, audio, or files to the model, including a model loaded with a multimodal `model_type`. A user message that contains an `image_url`, `input_audio`, or `file` part is refused with HTTP 400, and the error names the model and the part:
+
+```text
+Model '<name>' reads only text, so it cannot take the `image_url` part of a user message. Send the message's content as text, or use a model that accepts image input.
+```
+
+In v2.4.1 and earlier, a user message's text parts reached the chat template as a single value that held only the last part, and a chat template that reads typed parts, such as Qwen3.5's, failed the request with `Unexpected item type in content`. A system, developer, tool, or assistant message's parts were rendered into the prompt as JSON text.
+
 ## Model Provider Prefix
 
 The model provider prefix identifies the source or provider of a model in Spice configuration files. This prefix is specified before the model identifier in the `from` field of a model definition, and is used in specifying model [default parameter overrides](#example-setting-default-parameter-overrides). It helps the runtime determine how to load and interact with the model.
