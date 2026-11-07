@@ -119,6 +119,8 @@ helm upgrade --install spiceai spiceai/spiceai \
   -f values.yaml
 ```
 
+Chart 2.4.1 deploys Spice v2.4.1. Azure OpenAI models and embeddings authenticate with workload identity from v2.5.0, so use chart 2.5.0 or later for them. The ABFS connector and the `azure_keyvault` secret store use workload identity in v2.4.1 too.
+
 For declarative GitOps, swap this command for an Argo CD `Application` or a Flux `HelmRelease` pointing at the same chart. See the [Argo CD](https://spiceai.org/docs/deployment/kubernetes/argocd) or [Flux](https://spiceai.org/docs/deployment/kubernetes/flux) guides for full manifests.
 
 #### 4. Storage and ingress

@@ -46,6 +46,8 @@ models:
 
 An Azure OpenAI model can authenticate with [Microsoft Entra workload identity federation](https://learn.microsoft.com/entra/workload-id/workload-identity-federation) instead of an API key or an Entra token. Spice exchanges the identity token that the platform gives the workload, such as a GitHub Actions OIDC token or a Kubernetes service account token, for a Microsoft Entra access token, and exchanges again before each access token expires, so no Azure OpenAI API key or Entra token is stored with Spice. The same parameters apply to `/v1/chat/completions`, `/v1/responses`, and [Azure OpenAI embedding models](../embeddings/azure.md).
 
+Workload identity federation for Azure OpenAI models is new in v2.5.0. v2.4.1 and earlier do not have these parameters.
+
 ```yaml
 models:
   - from: azure:gpt-4o-mini
@@ -153,6 +155,8 @@ jobs:
       - run: curl https://install.spiceai.org | /bin/bash
       - run: ~/.spice/bin/spice run &
 ```
+
+`install.spiceai.org` installs the latest Spice release, which must be v2.5.0 or later for this job.
 
 Spice requests a new OIDC token from the job for every exchange, so the model keeps its access for as long as the job runs. The load log line ends with `the identity token from this GitHub Actions job`.
 
