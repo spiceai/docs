@@ -136,7 +136,7 @@ Then allow `kms:Sign` on the key to the workload's IAM role, in the key policy o
 **How Spice reaches the key service**
 
 - **Azure Key Vault**, with no configuration, in the order the Azure SDKs' default credential uses:
-  1. A workload identity: `AZURE_TENANT_ID` and `AZURE_CLIENT_ID`, with the identity token from `AZURE_FEDERATED_TOKEN_FILE` or, in a GitHub Actions job with `permissions: id-token: write`, the job's OIDC token (audience `api://AzureADTokenExchange`). On AKS, label the pod `azure.workload.identity/use: "true"` and the workload identity webhook sets all three.
+  1. A workload identity: `AZURE_TENANT_ID` and `AZURE_CLIENT_ID`, with the identity token from `AZURE_FEDERATED_TOKEN_FILE` or, in a GitHub Actions job with `permissions: id-token: write`, the job's OIDC token (audience `api://AzureADTokenExchange`). On AKS, enable workload identity, federate the managed identity with the pod's service account, annotate that service account with `azure.workload.identity/client-id`, and label the pod `azure.workload.identity/use: "true"`. The workload identity webhook then sets all three ([Azure deployment](../../../deployment/azure/index.md#2-configure-workload-identity-for-azure-access) has the steps).
   2. A managed identity, on an Azure VM, App Service, Container Apps or Functions; a user-assigned one when `AZURE_CLIENT_ID` names it.
   3. The Azure CLI's signed-in account (`az login`), for local development.
 
