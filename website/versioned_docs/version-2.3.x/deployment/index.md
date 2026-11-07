@@ -41,7 +41,7 @@ Architecture refers to where Spice runs in relation to the application and data 
 - [Overview](deployment/architectures) — when to choose each architecture.
 - [Sidecar](deployment/architectures/sidecar) — Spice runs alongside the application for the lowest latency.
 - [Microservice](deployment/architectures/microservice) — single or multiple replicas behind a load balancer.
-- [Tiered](deployment/architectures/tiered) — separate read and write tiers for mixed workloads.
+- [Tiered](deployment/architectures/tiered) — sidecars for performance-critical tasks, plus a shared microservice for batch or less time-sensitive workloads.
 - [Cluster-Sidecar](deployment/architectures/cluster-sidecar) — combine local and remote Spice instances.
 - [Hosted](deployment/architectures/hosted) — managed on the Spice Cloud Platform.
 - [Sharded](deployment/architectures/sharded) — partition data across multiple Spice instances.
@@ -57,7 +57,7 @@ Step-by-step instructions for each target environment.
 | [Docker](deployment/docker)                               | Local development, single-host deployments, and container-based pipelines. |
 | [Spice Cloud](deployment/cloud)                           | Fully managed deployments without operating infrastructure.                |
 | [AWS](deployment/aws)                                     | Deployments on AWS with EKS and Helm, or on EC2 with your own templates.   |
-| [Azure](deployment/azure)                                 | Deployments on Azure using ARM/Bicep templates.                            |
+| [Azure](deployment/azure)                                 | Deployments on Azure using AKS, Container Apps, Container Instances, or virtual machines. |
 | [GCP](deployment/gcp)                                     | Deployments on Google Cloud using GKE, Cloud Run, or Compute Engine.       |
 | [CI/CD](deployment/ci-cd)                                 | Automating any of the above through pipelines or GitOps.                   |
 | [Read/Write Separation](deployment/read-write-separation) | Production pattern that splits ingest from reads using shared snapshots.   |

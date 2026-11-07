@@ -53,7 +53,7 @@ models:
 | `aws_access_key_id`     | AWS access key ID. If not provided, credentials load from environment variables or IAM roles.     | -           |
 | `aws_secret_access_key` | AWS secret access key. If not provided, credentials load from environment variables or IAM roles. | -           |
 | `aws_session_token`     | AWS session token for temporary credentials.                                                      | -           |
-| `aws_iam_role_source`   | IAM role credential source. `auto` uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. | `auto`      |
+| `aws_iam_role_source`   | IAM role credential source. `auto` uses the default AWS credential chain, `metadata` uses only web identity (EKS IRSA), container (ECS, EKS Pod Identity), and EC2 instance metadata credentials, `env` uses only environment variables. An access key pair takes precedence over every source; see [Authentication](#authentication). | `auto`      |
 
 #### Guardrails
 
@@ -159,7 +159,9 @@ models:
 
 ## Authentication
 
-If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
+An access key pair, `aws_access_key_id` with `aws_secret_access_key`, takes precedence over every other credential source and over `aws_iam_role_source`. Spice loads `aws_access_key_id`, `aws_secret_access_key`, and `aws_session_token` from the Spicepod's secret stores when the Spicepod does not set them: the default [`env` secret store](../secret-stores/env/index.md) reads them from the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables. A key pair found this way is used even when `aws_iam_role_source` is `metadata`.
+
+Without a key pair, Spice resolves credentials from the sources that `aws_iam_role_source` selects. With `auto`, the default, it tries the following sources in order.
 
 1. **Environment Variables**:
    - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
@@ -203,13 +205,105 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    - Automatically uses the task's IAM role
    - Retrieved from the ECS credential provider endpoint
    - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
+   - Also used by [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html), which sets `AWS_CONTAINER_CREDENTIALS_FULL_URI` and `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE`.
 
 5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
    - Used when running on EC2 instances.
    - Automatically uses the instance's IAM role.
    - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
 
-The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
+The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned. With `aws_iam_role_source: metadata`, it tries only sources 3 to 5, and with `env`, only source 1.
+
+## Workload Identity
+
+A Bedrock model or [embedding model](../embeddings/bedrock.md) needs no long-lived AWS access key on a platform that gives the workload an AWS identity. On Amazon EKS and with an OIDC token file, the AWS credential chain obtains temporary credentials for an IAM role from that identity, and requests new ones before they expire. In GitHub Actions, the job assumes the role before Spice starts. No Bedrock parameter configures this: leave `aws_access_key_id` and `aws_secret_access_key` unset, and keep `aws_iam_role_source` at `auto` or set it to `metadata`.
+
+| Platform | What provides the identity | Credential source |
+| --- | --- | --- |
+| Amazon EKS with [IAM roles for service accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) (IRSA) | EKS sets `AWS_ROLE_ARN` and `AWS_WEB_IDENTITY_TOKEN_FILE` in the pod. | Web identity token |
+| Amazon EKS with [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html) | EKS sets `AWS_CONTAINER_CREDENTIALS_FULL_URI` and `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE` in the pod. | Container credentials |
+| Any platform with an OIDC token in a file, such as Kubernetes outside EKS | `AWS_ROLE_ARN` and `AWS_WEB_IDENTITY_TOKEN_FILE`, set in Spice's environment. | Web identity token |
+| GitHub Actions | [`aws-actions/configure-aws-credentials`](https://github.com/aws-actions/configure-aws-credentials) with `role-to-assume` exports the role's temporary credentials as `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN`. | Access key pair, from the `env` secret store |
+
+On these platforms, the Spicepod needs no credential parameters:
+
+```yaml
+models:
+  - from: bedrock:us.amazon.nova-lite-v1:0
+    name: nova
+    params:
+      aws_region: us-east-1
+```
+
+With a web identity token, the AWS SDK calls AWS STS `AssumeRoleWithWebIdentity` and reads the token file again each time it requests credentials, so the platform can rotate the token in place. When the platform also sets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, Spice uses that key pair instead, as described in [Authentication](#authentication). A model sends a request to Bedrock when it loads, so a role that cannot be assumed, or that lacks Bedrock permissions, fails the model at startup with AWS's error.
+
+### Amazon EKS
+
+Associate the IAM role with the Spice service account through IRSA or EKS Pod Identity, as described in [Configure IRSA for AWS access](../../deployment/aws/index.md#2-configure-irsa-for-aws-access). Spice runs with the role's permissions, which must include the [Bedrock permissions](#required-iam-permissions).
+
+### OIDC Token File
+
+On a platform outside EKS that issues the workload an OIDC token in a file, such as a Kubernetes projected service account token, set the role and the token file in Spice's environment:
+
+```yaml
+# Container environment
+env:
+  - name: AWS_ROLE_ARN
+    value: arn:aws:iam::123456789012:role/spice-bedrock
+  - name: AWS_WEB_IDENTITY_TOKEN_FILE
+    value: /var/run/secrets/tokens/aws-token
+```
+
+`AWS_ROLE_SESSION_NAME` optionally names the role session. The AWS account needs an [IAM OIDC identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) for the token's issuer, and the role's trust policy must match the token's `aud` and `sub` claims, in the same form as the GitHub Actions trust policy below.
+
+### GitHub Actions
+
+In GitHub Actions, assume the role with `aws-actions/configure-aws-credentials` in a job with `permissions: id-token: write`, and start Spice in a later step of the same job:
+
+```yaml
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/spice-bedrock
+          aws-region: us-east-1
+      - run: curl https://install.spiceai.org | /bin/bash
+      - run: ~/.spice/bin/spice run &
+```
+
+The action exports the role's temporary credentials as environment variables, which the default `env` secret store loads into the model. They last for the role session, one hour by default (`role-duration-seconds`), and Spice does not renew them, so a job that uses Spice for longer needs a longer session.
+
+The role trusts the job's OIDC token through the IAM OIDC identity provider for `token.actions.githubusercontent.com`, with the audience `sts.amazonaws.com` ([OpenID Connect in AWS](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws)). This trust policy accepts jobs in the `prod` environment of one repository:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:my-org/my-repo:environment:prod"
+        }
+      }
+    }
+  ]
+}
+```
+
+The `sub` condition must match the token's subject exactly; GitHub lists the subject of each kind of job in [OpenID Connect](https://docs.github.com/en/actions/concepts/security/openid-connect).
 
 :::note[IAM Permissions]
 Regardless of the credential source, the IAM role or user must have appropriate bedrock permissions (e.g., `bedrock:InvokeModel`) to access the model. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
@@ -236,6 +330,24 @@ The IAM role or user needs permissions to invoke Bedrock models:
 | --------------------------------------- | --------------------------------------------- |
 | `bedrock:InvokeModel`                   | Required. Invoke model for text generation.   |
 | `bedrock:InvokeModelWithResponseStream` | Required. Invoke model with streaming output. |
+
+A cross-region inference profile ID, such as `us.amazon.nova-lite-v1:0`, needs these permissions on the inference profile and on the foundation model in each Region the profile routes requests to ([inference profile prerequisites](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-prereq.html)):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      "Resource": [
+        "arn:aws:bedrock:us-east-1:123456789012:inference-profile/us.amazon.nova-lite-v1:0",
+        "arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0"
+      ]
+    }
+  ]
+}
+```
 
 ## Related Resources
 

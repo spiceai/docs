@@ -22,6 +22,8 @@ Integer `+`, `-`, and `*` fail when the result does not fit the operands' intege
 
 The check applies when Spice evaluates the expression itself, as it does for file datasets and Arrow or Cayenne acceleration. An expression that is pushed down to a data source, or to an accelerator that runs its own SQL engine such as DuckDB, follows that engine's overflow behavior. v2.4.x and earlier wrap the result around on overflow. The [`sum`](./aggregate_functions.md#sum) aggregate has the same check.
 
+`UPDATE` and `DELETE` statements follow the same split on these write paths, which render the statement as SQL for another engine: the [PostgreSQL](../../components/data-connectors/postgres/index.md) connector with `access: read_write`, including writes an accelerated dataset sends to it with [`write_mode`](../spicepod/datasets.md#accelerationwrite_mode) `write_through`, and writes to the DuckDB, SQLite, and PostgreSQL accelerators. On them, integer `+`, `-`, and `*` in an `UPDATE`'s `SET` assignments and in an `UPDATE` or `DELETE` `WHERE` clause are sent as the plain operators, and that engine applies its own overflow rules. A write to a Cayenne acceleration is evaluated by Spice and keeps the check.
+
 ### `+` {#op_plus}
 
 Addition

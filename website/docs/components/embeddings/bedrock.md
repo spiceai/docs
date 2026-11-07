@@ -18,7 +18,7 @@ To use an embedding model deployed to [AWS Bedrock service](https://aws.amazon.c
 | `aws_access_key_id`          | Optional. AWS access key ID for authentication. If not provided, credentials will be loaded from environment variables or IAM roles     |
 | `aws_secret_access_key`      | Optional. AWS secret access key for authentication. If not provided, credentials will be loaded from environment variables or IAM roles |
 | `aws_session_token`          | Optional. AWS session token for authentication                                                                                          |
-| `aws_iam_role_source`        | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only instance/container metadata (IMDS, ECS, EKS/IRSA), `env` uses only environment variables. |
+| `aws_iam_role_source`        | Optional. IAM role credential source. `auto` (default) uses the default AWS credential chain, `metadata` uses only web identity (EKS IRSA), container (ECS, EKS Pod Identity), and EC2 instance metadata credentials, `env` uses only environment variables. An access key pair takes precedence over every source; see [Authentication](#authentication). |
 | `max_concurrent_invocations` | Optional. The maximum number of concurrent API invocations. Defaults to `40`                                                            |
 | `requests_per_min_limit`     | Optional. The maximum number of requests made per minute. Defaults to `1500`                                                            |
 
@@ -88,7 +88,9 @@ embeddings:
 
 ### Authentication
 
-If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order.
+An access key pair, `aws_access_key_id` with `aws_secret_access_key`, takes precedence over every other credential source and over `aws_iam_role_source`. Spice loads `aws_access_key_id`, `aws_secret_access_key`, and `aws_session_token` from the Spicepod's secret stores when the Spicepod does not set them: the default [`env` secret store](../secret-stores/env/index.md) reads them from the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables. A key pair found this way is used even when `aws_iam_role_source` is `metadata`.
+
+Without a key pair, Spice resolves credentials from the sources that `aws_iam_role_source` selects. With `auto`, the default, it tries the following sources in order.
 
 1. **Environment Variables**:
    - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
@@ -132,13 +134,18 @@ If AWS credentials are not explicitly provided in the configuration, the connect
    - Automatically uses the task's IAM role
    - Retrieved from the ECS credential provider endpoint
    - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
+   - Also used by [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html), which sets `AWS_CONTAINER_CREDENTIALS_FULL_URI` and `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE`.
 
 5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
    - Used when running on EC2 instances.
    - Automatically uses the instance's IAM role.
    - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
 
-The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned.
+The connector will try each source in order until valid credentials are found. If no valid credentials are found, an authentication error will be returned. With `aws_iam_role_source: metadata`, it tries only sources 3 to 5, and with `env`, only source 1.
+
+### Workload Identity
+
+Bedrock embedding models resolve credentials the same way as Bedrock models, so they need no long-lived access key on Amazon EKS with IRSA or EKS Pod Identity, with an OIDC token file and `AWS_ROLE_ARN`, or in GitHub Actions with `aws-actions/configure-aws-credentials`. See [Workload Identity](../models/bedrock.md#workload-identity) for each platform and the IAM trust policy.
 
 :::note[IAM Permissions]
 Regardless of the credential source, the IAM role or user must have appropriate bedrock permissions (e.g., `bedrock:InvokeModel`) to access the model. If the Spicepod connects to multiple different AWS services, the permissions should cover all of them.
@@ -146,7 +153,7 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ## Required IAM Permissions
 
-The IAM role or user needs the following permissions to access DynamoDB tables:
+The IAM role or user needs the following permissions to invoke Bedrock embedding models:
 
 ```json
 {

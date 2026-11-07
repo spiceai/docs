@@ -69,6 +69,7 @@ Math functions in Spice.ai SQL help perform numeric calculations, transformation
 - [pow](#pow-and-power)
 - [power](#pow-and-power)
 - [radians](#radians)
+- [rand](#random)
 - [random](#random)
 - [round](#round)
 - [rint](#rint)
@@ -498,7 +499,7 @@ radians(numeric_expression)
 
 ### `random`
 
-Returns a random floating-point value in the range [0, 1). The random seed is unique for each row.
+Returns a random floating-point value in the range [0, 1). The random seed is unique for each row. `rand` is an alias for `random`.
 
 ```sql
 random()
@@ -3871,6 +3872,50 @@ l2_squared_distance(vector1, vector2)
 +------+
 ```
 
+### `inner_product`
+
+Returns the inner (dot) product of two vectors as a `Float64`: the sum of the products of their elements. `dot_product` is an alias for `inner_product`.
+
+```sql
+inner_product(vector1, vector2)
+```
+
+Both arguments must be `FixedSizeList<Float32, N>` with the same `N`, the type of an embedding column. Other list types fail with `inner_product requires both arguments to be FixedSizeList<Float32, N> with matching N`; cast them with `arrow_cast`, as in the example. A vector that is `NULL` or contains a `NULL` element returns `NULL`, and so does a product that is not finite.
+
+These results describe Spice's own evaluation. When Spice pushes a query down to DuckDB, `inner_product` runs as DuckDB's [`array_inner_product`](https://duckdb.org/docs/stable/sql/functions/array#array_inner_productarray1-array2), and a product that is not finite still returns `NULL`. A vector that contains a `NULL` element fails the query in DuckDB with `array_inner_product: left argument can not contain NULL values` (or `right argument`), instead of returning `NULL`.
+
+#### Example
+
+```sql
+> SELECT inner_product(arrow_cast([1.0, 2.0, 3.0], 'FixedSizeList(3, Float32)'), arrow_cast([4.0, 5.0, 6.0], 'FixedSizeList(3, Float32)')) AS ip;
++------+
+| ip   |
++------+
+| 32.0 |
++------+
+```
+
+### `l2_norm`
+
+Returns the Euclidean (L2) norm of a vector, the square root of the sum of its squared elements, as a `Float32`.
+
+```sql
+l2_norm(vector)
+```
+
+The argument must be a `FixedSizeList<Float32, N>`. Other list types fail with `l2_norm requires a FixedSizeList<Float32, N> argument`; cast them with `arrow_cast`, as in the example. A vector that is `NULL` or contains a `NULL` element returns `NULL`, and so does a norm that is not finite.
+
+#### Example
+
+```sql
+> SELECT l2_norm(arrow_cast([3.0, 4.0], 'FixedSizeList(2, Float32)')) AS norm;
++------+
+| norm |
++------+
+| 5.0  |
++------+
+```
+
 ## Hashing Functions
 
 Hashing functions compute cryptographic hashes and checksums for data integrity, fingerprinting, and security applications. Binary digest output is returned as a `Binary` (bytes) array; use `encode(..., 'hex')` to render as hex.
@@ -4097,6 +4142,7 @@ Additional scalar functions include type casting, type inspection, and version r
 - [embed](#ai-and-embed)
 - [bucket](#bucket)
 - [truncate](#truncate)
+- [assert](#assert)
 
 ### `arrow_cast`
 
@@ -4268,6 +4314,28 @@ FROM events;
 
 -- String: keep the first 2 characters (e.g., country prefix)
 SELECT truncate(2, 'United Kingdom');  -- returns 'Un'
+```
+
+### `assert`
+
+Returns `true` when its Boolean argument is `true`, and otherwise fails the statement. A `false` or `NULL` argument fails with `assertion failed: gate expression was false or NULL`. Use it as a precondition gate, such as in a [Cayenne transaction](../../components/data-accelerators/cayenne/index.md#transactions), where a failed gate rolls back every staged write.
+
+```sql
+assert(boolean_expression)
+```
+
+#### Example
+
+```sql
+> SELECT assert(1 < 2) AS ok;
++------+
+| ok   |
++------+
+| true |
++------+
+
+> SELECT assert(1 > 2) AS ok;
+Execution error: assertion failed: gate expression was false or NULL
 ```
 
 ---

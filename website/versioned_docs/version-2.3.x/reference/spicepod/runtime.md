@@ -659,6 +659,43 @@ runtime:
 
 Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, the [Managing Memory Usage documentation](../memory), and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb#temporary-directory).
 
+## `runtime.query.prefer_hash_join`
+
+Controls whether the query planner prefers hash joins over sort-merge joins. It sets DataFusion's [`datafusion.optimizer.prefer_hash_join`](https://datafusion.apache.org/user-guide/configs.html) option, which defaults to `true`; when the parameter is unset, that default applies.
+
+```yaml
+runtime:
+  query:
+    prefer_hash_join: false # default: true (prefer hash joins)
+```
+
+The build side of a hash join is held in memory and cannot spill, so a very large join can exhaust the query memory pool ([`runtime.query.memory_limit`](#runtimequerymemory_limit)). Setting `prefer_hash_join: false` asks the planner to use sort-merge joins, which can spill to disk. It is a preference, not a guarantee: DataFusion still plans a hash join where a sort-merge join does not apply, such as a query planned with a single target partition. Check the plan with `EXPLAIN` for `SortMergeJoinExec` before relying on a join to spill. When the parameter is set, the runtime logs `Applied runtime.query.prefer_hash_join` at startup.
+
+:::warning
+
+v2.3 uses a DataFusion version without the null-aware check that [apache/datafusion#22810](https://github.com/apache/datafusion/pull/22810) added to sort-merge join planning, and the v2.3 Spice Cayenne rewrite of oversized hash joins has no such check either. So a `NOT IN` subquery over a nullable column can be planned as a sort-merge join, the case that upstream fix addresses because it returns wrong rows when the subquery returns a `NULL`. This applies with `prefer_hash_join: false`, and also with the default when [Spice Cayenne](../../components/data-accelerators/cayenne/index.md) rewrites an oversized join. For workloads with such queries, upgrade to v2.4, which checks for null-aware anti joins on both paths.
+
+:::
+
+## `runtime.query.eager_aggregation`
+
+Enables the cost-based eager-aggregation optimizer, which pushes a partial aggregation below a join when a statistics-based cost model predicts a large reduction in rows, then aggregates again above the join. It sets DataFusion's `datafusion.optimizer.enable_eager_aggregation` option. Spice enables it by default (`true`), although DataFusion's own default is `false`.
+
+```yaml
+runtime:
+  query:
+    eager_aggregation: true # default: true
+    eager_aggregation_min_reduction_factor: 4 # default: 4
+    eager_aggregation_max_pushed_groups: 0 # default: 0 (no cap)
+```
+
+Two parameters tune the cost model's decision. When either is unset, DataFusion's default applies:
+
+- `eager_aggregation_min_reduction_factor`: the smallest predicted row-reduction factor for which the optimizer pushes an aggregation below a join. Sets `datafusion.optimizer.eager_aggregation_min_reduction_factor`. Defaults to `4`. A value of `0` is ignored with a warning, because the factor must be greater than 0.
+- `eager_aggregation_max_pushed_groups`: the most groups a pushed aggregation may introduce. Sets `datafusion.optimizer.eager_aggregation_max_pushed_groups`. Defaults to `0`, which means no cap.
+
+Set `eager_aggregation: false` to turn the optimizer off.
+
 ## `runtime.output_level`
 
 Controls verbosity in addition to the existing [CLI and environment variable support.](https://spiceai.org/docs/cli/tracing).

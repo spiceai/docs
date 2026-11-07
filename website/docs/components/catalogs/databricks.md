@@ -61,6 +61,8 @@ The following parameters are supported for configuring the connection to the Dat
 | `mode`                | The execution mode for querying against Databricks. `spark_connect` uses Spark Connect to query against Databricks requires a Spark cluster to be available. `delta_lake` queries directly from Delta Tables and requires the object store credentials to be provided. Default is `spark_connect`. |
 | `databricks_endpoint` | The Databricks workspace endpoint, e.g. `dbc-a12cd3e4-56f7.cloud.databricks.com`                                                                                                                                                                                                                   |
 | `databricks_token`    | The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:my_databricks_token}`.                                                                                                           |
+| `databricks_oidc_token_filepath` | A file that holds the workload's identity token, read again for every exchange, such as a Kubernetes projected service account token. With `databricks_client_id`, the catalog authenticates with [workload identity federation](#workload-identity-federation). Can't be used with `databricks_token_audience`. |
+| `databricks_token_audience` | The audience of the identity token Spice requests from a GitHub Actions job, such as the Databricks account ID. With `databricks_client_id`, the catalog authenticates with [workload identity federation](#workload-identity-federation). Can't be used with `databricks_oidc_token_filepath`. |
 | `databricks_use_ssl`  | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                            |
 | `databricks_auth_mode` | Optional. Pins the authentication flow instead of inferring it from the credentials that are set. One of `auto`, `token`, `m2m`, `u2m` (case-insensitive). Defaults to `auto`. See [Pinning the authentication mode](#pinning-the-authentication-mode).                                            |
 
@@ -110,9 +112,30 @@ catalogs:
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET} # service principal client secret
 ```
 
+### Workload identity federation
+
+The catalog can authenticate as a service principal with the identity token its platform gives it, so no Databricks token or client secret is stored. Set `databricks_client_id` to the service principal's application ID, and set either `databricks_oidc_token_filepath` or, in a GitHub Actions job, `databricks_token_audience`. See [workload identity federation](../data-connectors/databricks#workload-identity-federation) for the federation policy the service principal needs and how Spice renews the token.
+
+```yaml
+catalogs:
+  - from: databricks:my_uc_catalog
+    name: uc_catalog
+    include:
+      - '*.my_table_name'
+    params:
+      mode: sql_warehouse
+      databricks_endpoint: dbc-a12cd3e4-56f7.cloud.databricks.com
+      databricks_client_id: ${secrets:DATABRICKS_CLIENT_ID} # service principal application id
+      databricks_oidc_token_filepath: /var/run/secrets/tokens/databricks
+    dataset_params:
+      databricks_sql_warehouse_id: 2b4e24cff378fb24
+```
+
+Federation authenticates requests to Databricks, not reads from object storage. For `delta_lake` mode, see the [object store parameters](#delta-lake-object-store-parameters).
+
 ### Pinning the authentication mode
 
-By default (`databricks_auth_mode: auto`) the catalog connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, and `databricks_client_id` together with `databricks_client_secret` selects M2M.
+By default (`databricks_auth_mode: auto`) the catalog connector infers the flow from whichever credentials resolve: a `databricks_token` alone selects personal access token, `databricks_client_id` alone selects U2M, `databricks_client_id` together with `databricks_client_secret` selects M2M, and `databricks_client_id` together with `databricks_oidc_token_filepath` or `databricks_token_audience` selects [workload identity federation](#workload-identity-federation).
 
 Credentials do not only come from the Spicepod. `databricks_token`, `databricks_client_secret`, and the other secret parameters are auto-loaded from the [secret stores](../secret-stores) and the environment (e.g. `DATABRICKS_CLIENT_SECRET`, `SPICE_DATABRICKS_CLIENT_SECRET`) when the Spicepod omits them — so an ambient client secret on the host is enough to switch a U2M catalog to machine-to-machine, which then fails with a service principal `401`.
 

@@ -17,7 +17,7 @@ Use `append` when:
 
 ## Configuration
 
-`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) for the one case where that comparison is inclusive instead.
+`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) and [ISO 8601 String Time Columns](#iso-8601-string-time-columns) for the two cases where that comparison is inclusive instead.
 
 ```yaml
 datasets:
@@ -86,6 +86,22 @@ The trade-off is that each refresh re-reads the boundary day from the source rat
 A floating-point `time_column` configured as `unix_seconds`, `unix_millis`, or `unix_nanos`, such as `1700000000.25` seconds, is read as Unix time, the same as an integer column. The high-water mark is the accelerated maximum rounded down to a whole unit, so each refresh reads only rows after that unit and may read again rows from the unit that holds the maximum. A maximum that is negative, `NaN`, or infinite fails the refresh with an error that names the value.
 
 In v2.4.1 and earlier, the maximum of a floating-point time column was converted to a timestamp as nanoseconds, so a value such as `1.7e9` seconds became a mark about 1.7 seconds after 1970, and every append refresh read the whole source table.
+
+## ISO 8601 String Time Columns
+
+A string `time_column` configured as [`time_format: iso8601`](../../../reference/spicepod/datasets#time_format) is compared with the high-water mark as an instant, not as text, so values written with a `T` or a space separator, or with different UTC offsets, are ordered by the time they represent. The comparison is inclusive: each refresh reads the source rows at the high-water mark's instant again, so a row that reaches the source later with the same instant as the newest loaded row is appended. Spice's exact-row de-duplication drops the rows at that instant that were already loaded.
+
+The high-water mark is the stored value that sorts last as text, read as an instant. When the stored values mix UTC offsets, that value can be earlier than the newest instant, and the refresh then reads the rows between the two again. De-duplication drops the ones already loaded.
+
+:::warning[Known limitation]
+
+De-duplication compares the re-read rows with the rows currently stored. On a DuckDB or SQLite acceleration with a `primary_key` and [`on_conflict` set to `upsert`](../constraints.md#handling-conflicts), when the source holds two versions of a key at the same instant, a refresh can store one version and the next refresh, with no source change, swap the other back in. A Cayenne acceleration whose `primary_key` does not include `time_column` orders versions by time instead, as described in [Combining with Upserts](#combining-with-upserts). Tracked in [spiceai/spiceai#15542](https://github.com/spiceai/spiceai/issues/15542).
+
+:::
+
+The high-water mark is read back as [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339) with a UTC offset, or as `YYYY-MM-DDTHH:MM:SS` with optional fractional seconds and no offset. A value without an offset that uses a space instead of `T`, such as `2026-01-01 00:00:00`, cannot be read back. The first load succeeds, and each later append refresh fails with an error that begins `Failed to parse ISO8601 timestamp`. Write such values with a `T`, or with a UTC offset.
+
+In v2.4.1 and earlier, the high-water mark was compared with the column as text and was exclusive.
 
 ## Partition Pruning with `time_partition_column`
 
