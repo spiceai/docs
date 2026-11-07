@@ -327,7 +327,7 @@ After validation, the connector starts from the `AZURE_*` environment variables,
 
 The ABFS connector does not use certificate credentials (`AZURE_CLIENT_CERTIFICATE_PATH`), a username and password, the Azure Developer CLI, or Azure PowerShell.
 
-**Azure Key Vault.** The [`azure_keyvault`](../components/secret-stores/azure-keyvault) secret store chooses its credential with the `auth_method` parameter. The default, `default`, uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. The store uses a managed identity or workload identity only when `auth_method` is `managed_identity` or `workload_identity`.
+**Azure Key Vault.** The [`azure_keyvault`](../components/secret-stores/azure-keyvault) secret store chooses its credential with the `auth_method` parameter. The default, `default`, uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. The store uses a managed identity or workload identity only when `auth_method` is `managed_identity` or `workload_identity`. With `managed_identity`, set the store's `client_id` parameter to the client ID of a user-assigned identity; without `client_id`, the store uses the system-assigned identity.
 
 **Azure SQL and Azure OpenAI.** The [MSSQL connector](../components/data-connectors/mssql) authenticates with a SQL Server login, and [Azure OpenAI models](../components/models/azure) authenticate with `azure_api_key` or `azure_entra_token`. Neither reads an Azure identity from the environment.
 
