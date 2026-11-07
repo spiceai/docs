@@ -78,6 +78,8 @@ curl -X POST http://localhost:8090/v1/search \
 
 For detailed API documentation, see [Search API Reference](../../api/HTTP/post-search).
 
+`limit` applies to each dataset in `datasets`: matches from all datasets are merged by score, and at most `limit` are kept from each one, so a request over two datasets with `"limit": 2` returns up to 4 matches. Spice v2.4.1 and earlier apply `limit` to the merged total, so one dataset can fill every result.
+
 The optional `keywords` field narrows the candidates to rows whose searched column contains every keyword, matched case-insensitively with `ILIKE '%keyword%'`. A request accepts at most 512 keywords, a fixed limit that cannot be configured. A longer list is rejected with HTTP `400` before any search runs. For a list of 513 keywords, the message reads:
 
 ```text
