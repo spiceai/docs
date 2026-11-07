@@ -532,6 +532,14 @@ Failed to register dataset 'user_events' (mysql): `on_zero_results: use_source` 
 
 To resolve it, remove `on_zero_results: use_source`, or use a `retention_sql` or `retention_period` policy that can be evaluated as a filter on the source columns.
 
+A `retention_sql` predicate that compares a string column with a value of another type also fails to load with `use_source`. For example, `DELETE FROM t WHERE status > 5` on a `Utf8` `status` column plans only because SQL type coercion casts `status` to `Int64`, and that cast fails on every row whose value is not a number, such as `'active'`. The error names the column and both types:
+
+```text
+the retention predicate does not type-check against the source schema: `status` is Utf8 but is compared with a Int64 value, so it is implicitly cast to Int64, and that cast fails at execution on any row whose value does not convert. Compare against a value of the column's type (for example a quoted string), or write the conversion explicitly with TRY_CAST
+```
+
+Only a cast that coercion adds is refused. A predicate that compares with a value of the column's own type, such as `status = 'archived'`, loads, and so does one that writes the conversion itself with `TRY_CAST` or `CAST`. `TRY_CAST` returns `NULL` for a value it cannot convert, so the predicate is not true for that row and retention keeps it, while an explicit `CAST` still fails on a value it cannot convert. Without `use_source`, the dataset still loads, and the runtime logs a warning at load time that begins ``Dataset t: `retention_sql` will fail when retention runs on rows it cannot convert``. Spice v2.4.1 and earlier load such a dataset with `use_source` too, and its fallback queries fail with a cast error.
+
 Spice v2.4.0-rc.1 and earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
 
 ## Refresh on Startup

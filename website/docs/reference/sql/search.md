@@ -285,7 +285,7 @@ ORDER BY _fused_score DESC;
 - **Recency boosting**: When `time_column` is specified, scores are multiplied by a decay factor
   - **Exponential decay**: `e^(-decay_constant * age_in_units)` where age is in `decay_scale_secs`
   - **Linear decay**: `max(0, 1 - (age_in_units / decay_window_secs))`
-- **Auto-join**: When no `join_key` is specified, `rrf` infers the primary key from the underlying tables; if none is available, rows are joined by an auto-generated row identifier
+- **Auto-join**: When no `join_key` is specified, `rrf` infers the primary key from the underlying tables; if none is available, rows are joined by an auto-generated row identifier. The identifier hashes the row's columns but not the search outputs `_score`, `_value`, and `_match` or embedding columns, which differ between subqueries for the same row, so a row that several chunked `vector_search` or `text_search` subqueries return is fused once and its scores are summed. Spice v2.4.1 and earlier include `_value` and `_match` in the hash, so such a row can appear more than once in the `rrf` result.
 
 ---
 
