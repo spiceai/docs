@@ -135,7 +135,7 @@ By default, the Helm release installs a minimal Spice.ai setup with an empty Spi
 :::
 
 Create a `values.yaml` file and override the default values as needed.
-The full list of configurable parameters and their defaults are specified in the [values.yaml file](https://github.com/spiceai/spiceai/blob/trunk/deploy/chart/values.yaml) in the `spiceai/spiceai` repository.
+The full list of configurable parameters and their defaults are specified in the [values.yaml file](https://github.com/spiceai/spiceai/blob/v2.3.4/deploy/chart/values.yaml) in the `spiceai/spiceai` repository.
 The [Common Parameters](#common-parameters) section below lists the most commonly used configurable parameters and their descriptions.
 
 ### Spicepod
