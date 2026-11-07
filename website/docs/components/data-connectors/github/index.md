@@ -97,7 +97,7 @@ Import the App's private key (the `.pem` GitHub downloaded) as a non-exportable 
 az keyvault key import --vault-name <vault> --name github-app --pem-file app.private-key.pem --ops sign verify
 # Let the workload's identity sign with it:
 az role assignment create --role "Key Vault Crypto User" --assignee <identity-object-id> \
-  --scope "$(az keyvault key show --vault-name <vault> --name github-app --query key.kid -o tsv | sed 's|/[^/]*$||')"
+  --scope "$(az keyvault show --name <vault> --query id -o tsv)/keys/github-app"
 ```
 
 *AWS KMS* (OpenSSL 3; the steps of AWS's [importing key material](https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys-encrypt-key-material.html) guide):
