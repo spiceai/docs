@@ -278,7 +278,7 @@ Run Spice.ai as a single container without provisioning a cluster using [Azure C
 az container create \
   --resource-group my-rg \
   --name spiceai \
-  --image spiceai/spiceai:2.4.1 \
+  --image spiceai/spiceai:latest \
   --cpu 2 --memory 4 \
   --ports 8090 50051 \
   --ip-address public \
