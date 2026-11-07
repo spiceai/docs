@@ -103,6 +103,8 @@ az role assignment create --role "Key Vault Crypto User" --assignee <identity-ob
 *AWS KMS* (OpenSSL 3; the steps of AWS's [importing key material](https://docs.aws.amazon.com/kms/latest/developerguide/importing-keys-encrypt-key-material.html) guide):
 
 ```bash
+# Keep every file below readable only by this account.
+umask 077
 KEY_ID=$(aws kms create-key --origin EXTERNAL --key-spec RSA_2048 --key-usage SIGN_VERIFY \
   --query KeyMetadata.KeyId --output text)
 aws kms create-alias --alias-name alias/github-app --target-key-id "$KEY_ID"
