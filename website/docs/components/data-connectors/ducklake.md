@@ -22,7 +22,7 @@ datasets:
 
 ## Requirements
 
-The DuckLake connector reads and writes DuckLake tables through the DuckDB library installed on the host (`libduckdb`), which Spice loads over [ADBC](https://arrow.apache.org/adbc/). DuckDB 1.5.2 or later is required. DuckDB 1.4 cannot stage DuckLake writes and reaches end of community support on November 17, 2026, and DuckDB 1.5.0 and 1.5.1 return wrong results for some DuckLake reads, so neither is supported. Spice's Docker images include `libduckdb` 2.0.0, so this requirement applies only to a `spiced` binary installed outside them.
+The DuckLake connector reads and writes DuckLake tables through the DuckDB library installed on the host (`libduckdb`), which Spice loads over [ADBC](https://arrow.apache.org/adbc/). DuckDB 1.5.2 or later is required. DuckDB 1.4 cannot stage DuckLake writes, and its community support ends soon (see the [DuckDB release calendar](https://duckdb.org/release_calendar)). DuckDB 1.5.0 and 1.5.1 return wrong results for some DuckLake reads. Neither is supported. Spice's Docker images include `libduckdb` 2.0.0, so this requirement applies only to a `spiced` binary installed outside them.
 
 To install it, download the DuckDB C/C++ shared library from the [DuckDB installation page](https://duckdb.org/install/) and place `libduckdb.so` (Linux) or `libduckdb.dylib` (macOS) on the system library path, or register a `duckdb` [ADBC driver manifest](https://arrow.apache.org/adbc/current/format/driver_manifests.html). Spice checks the library's version each time it opens a dataset. When the library is missing or older than 1.5.2, that dataset fails to load, and the rest of the Spicepod loads normally:
 
