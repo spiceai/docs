@@ -571,7 +571,7 @@ Optional. Has no effect: snapshot compaction applied only to the `duckdb` accele
 
 Supported values:
 
-- `enabled` – Compact the database before creating each snapshot.
+- `enabled` – Accepted, but compacts nothing; Spice logs the warning above.
 - `disabled` (default) – Upload snapshots without compaction.
 
 ## `acceleration.snapshots_creation_policy`
