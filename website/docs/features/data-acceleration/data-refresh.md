@@ -157,6 +157,8 @@ datasets:
       refresh_check_interval: 30s  # Poll interval; defaults to 1m
       snapshots: enabled
       snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 **Requirements:**

@@ -116,6 +116,8 @@ datasets:
       refresh_check_interval: 5m
       snapshots: enabled # write a new snapshot after every refresh
       snapshots_trigger: refresh_complete
+      params:
+        cayenne_file_path: /data/
 
   - from: postgres:public.customers
     name: customers
@@ -131,6 +133,8 @@ datasets:
       snapshots: enabled
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 10m
+      params:
+        cayenne_file_path: /data/
 ```
 
 Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), and the publishing instance keeps each dataset's snapshots of the last 28 days. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention), and [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
@@ -166,6 +170,8 @@ datasets:
       refresh_mode: snapshot # reload from the snapshot store; never query the source
       refresh_check_interval: 1m # poll the snapshot store every minute
       snapshots: bootstrap_only # download only; never write back
+      params:
+        cayenne_file_path: /local/
 
   - from: postgres:public.customers
     name: customers
@@ -176,6 +182,8 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 1m
       snapshots: bootstrap_only
+      params:
+        cayenne_file_path: /local/
 ```
 
 Two settings make the read tier read-only. `snapshots: bootstrap_only` means read instances **read** snapshots but never **write** them, so multiple replicas don't race to upload. `refresh_mode: snapshot` makes every steady-state refresh a snapshot reload — the federated source is never queried, so a read instance stays functional with no source credentials at all. `refresh_mode: snapshot` also rejects `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` against the accelerated table.

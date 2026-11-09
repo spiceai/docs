@@ -25,6 +25,8 @@ datasets:
       mode: file
       snapshots: enabled
       snapshots_trigger: refresh_complete
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 ## Overview
@@ -279,6 +281,8 @@ datasets:
       mode: file
       snapshots: enabled
       # snapshots_trigger defaults to refresh_complete
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 Example with time-based trigger:
@@ -294,6 +298,8 @@ datasets:
       snapshots: enabled
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 30m
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 #### Caching datasets
@@ -329,6 +335,8 @@ datasets:
       snapshots: enabled
       # snapshots_trigger defaults to time_interval
       # snapshots_trigger_threshold defaults to 10m
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 Example with batch-based trigger:
@@ -345,6 +353,8 @@ datasets:
       snapshots: enabled
       snapshots_trigger: stream_batches
       snapshots_trigger_threshold: 300
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 ### Snapshot compaction and expiry reset
@@ -378,6 +388,8 @@ datasets:
       mode: file
       snapshots: enabled
       snapshots_trigger: refresh_complete
+      params:
+        cayenne_file_path: /nvme/
 
   # Stream dataset with time-interval snapshots
   - from: debezium:cdc_source
@@ -390,6 +402,8 @@ datasets:
       snapshots: enabled
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 5m
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 :::info Readiness with append refreshes

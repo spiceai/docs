@@ -31,6 +31,8 @@ datasets:
       refresh_check_interval: 30s # Poll interval; defaults to 1m
       snapshots: enabled
       snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
+      params:
+        cayenne_file_path: /nvme/
 ```
 
 This reader sets [`acceleration.snapshots_location`](../snapshots#override-the-snapshot-location-per-dataset) to the folder the writer publishes to, so it needs only read access to the snapshots. It could instead set [`runtime.state`](../../../reference/spicepod/runtime#runtimestate) to the writer's state location, whose `snapshots/` folder holds the snapshots. An instance with `runtime.state` checks the location at startup, which needs write access under `_spice/`, and does not report ready until the [check](../../../reference/spicepod/runtime#startup-check-of-the-state-location) passes, even though snapshot reads do not wait for it.
