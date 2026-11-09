@@ -21,7 +21,7 @@ For sources with a native CDC path, prefer the dedicated connector — [PostgreS
 ```
 ┌────────────────┐  Debezium connector   ┌───────────┐    Spice consumes      ┌───────────────────┐    ChangeBatch     ┌───────────────┐
 │   Source DB    │ ────────────────────▶│   Kafka   │ ────────────────────▶│   Spice runtime   │──────────────────▶│  Accelerator  │
-│   (MySQL,      │  WAL → JSON events    │   topic   │   one consumer group   │  (debezium        │  (INSERT/         │  DuckDB /     │
+│   (MySQL,      │  WAL → JSON events    │   topic   │   one consumer group   │  (debezium        │  (INSERT/         │  Cayenne /    │
 │    SQL Server, │                       │           │   per Spice replica    │   connector)      │   UPDATE /        │  SQLite /     │
 │    Oracle, …)  │                       │           │                        │                   │   DELETE)         │  Postgres     │
 └────────────────┘                       └───────────┘                        └───────────────────┘                   └───────────────┘
@@ -33,7 +33,7 @@ On startup, Spice subscribes to the configured Debezium-managed Kafka topic usin
 
 - A running **Debezium connector** publishing change events to a **Kafka topic** for the source table.
 - A reachable Kafka cluster (one or more `bootstrap.servers`).
-- A Spice acceleration engine that supports CDC: `duckdb`, `sqlite`, or `postgres`.
+- A Spice acceleration engine that supports CDC: `cayenne`, `arrow`, `sqlite`, or `postgres`. Arrow is the only engine that accepts Debezium messages without Kafka message keys.
 
 ## Minimal configuration
 
@@ -48,7 +48,7 @@ datasets:
       kafka_security_protocol: PLAINTEXT
     acceleration:
       enabled: true                     # Required.
-      engine: duckdb                    # duckdb / sqlite / postgres
+      engine: cayenne                   # cayenne / arrow / sqlite / postgres
       mode: file                        # Persist Kafka offsets so restarts resume.
       refresh_mode: changes             # Required.
 ```
@@ -72,7 +72,7 @@ datasets:
       kafka_ssl_ca_location: ./certs/kafka_ca_cert.pem
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
 ```

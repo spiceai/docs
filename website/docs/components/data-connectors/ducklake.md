@@ -212,7 +212,7 @@ datasets:
       ducklake_connection_string: s3://my-bucket/metadata.ducklake
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_interval: 1h
 ```

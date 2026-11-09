@@ -644,7 +644,7 @@ This configuration permits requests only from the `https://example.com` origin.
 
 ## `runtime.cpu`
 
-The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, DuckDB's per-instance `threads`, and a cluster executor's concurrent-task advertisement.
+The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, and a cluster executor's concurrent-task advertisement.
 
 The entitlement also sets the partition count of the DataFusion sessions the runtime builds for its own work outside the user query session: refresh and accelerator writes, Cayenne compaction and maintenance, results caching, search, and SQL user-defined functions. These sessions do not use DataFusion's default of the host's core count, so on a pod with a CPU request and no CPU limit, background work is partitioned for the entitlement rather than for the whole node.
 
@@ -732,7 +732,7 @@ CPU budget derived sizing: main_runtime_worker_threads=8, dedicated_runtime_work
 
 These two lines are the primary diagnostic: between them they name what the runtime sized for, which rung produced it, and every quantity derived from it. A pod sized differently than expected is answered here rather than by inference.
 
-The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, DuckDB's `threads`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
+The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
 
 The following warnings identify CPU configuration issues and remedies:
 
@@ -747,9 +747,9 @@ The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit
 
 ## `runtime.query.memory_limit`
 
-The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
+The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
 
-If not specified, defaults to **90% of the memory the process may use** — its cgroup memory limit when one binds, otherwise total system memory. The limit is read from the process's own cgroup path (cgroup v2 `memory.max`, cgroup v1 `memory.limit_in_bytes`), taking the smallest limit found at any level of that path, so a container limit, a `systemd` unit's `MemoryMax=`, a capped parent slice, and a Kubernetes pod cgroup all size the default. When a cgroup limit binds, the runtime logs the figure it sized from at startup. When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier. When DuckDB accelerators are configured, that default is reduced further so the query pool and the DuckDB instance ceilings together fit within available memory — see [Coordinated memory budget](../../components/data-accelerators/duckdb#coordinated-memory-budget). An explicitly configured `memory_limit` is always honored verbatim and is never reduced.
+If not specified, defaults to **90% of the memory the process may use** — its cgroup memory limit when one binds, otherwise total system memory. The limit is read from the process's own cgroup path (cgroup v2 `memory.max`, cgroup v1 `memory.limit_in_bytes`), taking the smallest limit found at any level of that path, so a container limit, a `systemd` unit's `MemoryMax=`, a capped parent slice, and a Kubernetes pod cgroup all size the default. When a cgroup limit binds, the runtime logs the figure it sized from at startup. When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier. An explicitly configured `memory_limit` is always honored verbatim and is never reduced.
 
 ```yaml
 runtime:
@@ -824,7 +824,7 @@ This setting controls the trade-off between disk space usage and query performan
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="runtimetemp_directory"></a>
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. It is used by DataFusion query execution (spill for sorts, aggregations, and sort-merge joins that exceed `runtime.query.memory_limit`), by Spice Cayenne's dedicated compaction runtime, by every DuckDB accelerator instance (passed through as DuckDB's own `temp_directory`), and by cluster-mode executors as their local working directory. When unset, DataFusion spills to the operating system's temporary directory (`$TMPDIR`, otherwise `/tmp`) and DuckDB to a `.tmp` directory beside its database file; when Cayenne acceleration is active and the setting is unset, the runtime logs a reminder at startup.
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. It is used by DataFusion query execution (spill for sorts, aggregations, and sort-merge joins that exceed `runtime.query.memory_limit`), by Spice Cayenne's dedicated compaction runtime, and by cluster-mode executors as their local working directory. When unset, DataFusion spills to the operating system's temporary directory (`$TMPDIR`, otherwise `/tmp`); when Cayenne acceleration is active and the setting is unset, the runtime logs a reminder at startup.
 
 ```yaml
 runtime:
@@ -832,7 +832,7 @@ runtime:
     temp_directory: /nvme/spice/tmp
 ```
 
-Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, the [Managing Memory Usage documentation](../memory), and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb#temporary-directory).
+Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, and the [Managing Memory Usage documentation](../memory).
 
 ## `runtime.query.prefer_hash_join`
 

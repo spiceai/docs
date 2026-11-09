@@ -36,13 +36,13 @@ datasets:
     name: customers
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
 
   - from: databricks:team_b.transactions
     name: transactions
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
 
@@ -65,5 +65,5 @@ This configuration federates customer data from PostgreSQL, transaction data fro
 ### Learn More
 
 - **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md).
 - **Observability**: [Documentation](../../features/observability).

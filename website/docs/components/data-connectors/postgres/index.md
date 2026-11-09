@@ -250,7 +250,7 @@ datasets:
       pg_publication: spice_pub
       pg_replication_slot: spice_slot
     acceleration:
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       write_mode: write_through # default; use write_back for fast async writes

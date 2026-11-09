@@ -79,7 +79,7 @@ For more, see [Search Functionality](../../../features/search) and the [SQL sear
 | `ORDER BY`                                   | Evaluated locally unless paired with a search UDTF.                   |
 | `vector_search` / `text_search` / `rrf`      | Native — issued as kNN / BM25 query bodies.                           |
 
-For workloads dominated by selective filters, accelerate the dataset (`acceleration.enabled: true`) into DuckDB / SQLite / Cayenne so DataFusion can apply filters at acceleration time rather than fetching unfiltered hits.
+For workloads dominated by selective filters, accelerate the dataset (`acceleration.enabled: true`) into Cayenne / SQLite so DataFusion can apply filters at acceleration time rather than fetching unfiltered hits.
 
 ## Schema Stability
 

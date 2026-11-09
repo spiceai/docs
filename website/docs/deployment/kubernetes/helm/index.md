@@ -479,10 +479,10 @@ spicepod:
         file_format: parquet
       acceleration:
         enabled: true
-        engine: duckdb
+        engine: cayenne
         mode: file
         params:
-          duckdb_file: /data/taxi_trips.db
+          cayenne_file_path: /data/
         # Uncomment to refresh the acceleration on a schedule
         # refresh_check_interval: 1h
         # refresh_mode: full

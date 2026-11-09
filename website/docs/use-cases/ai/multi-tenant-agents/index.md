@@ -27,7 +27,7 @@ Pipeline-per-integration architectures collapse at scale: every tenant brings it
 - **Zero-ETL federation**: Query PostgreSQL, Snowflake, Databricks, S3, Kafka, and 25+ other sources through a single SQL interface. Onboarding a tenant is a dataset declaration, not a pipeline build.
 - **Configurable isolation**: Choose logical, config-level, or runtime-level tenant boundaries. Isolation becomes a deployment property rather than something enforced in application code.
 - **Sandboxed runtimes**: The Spice runtime is lightweight enough to deploy one instance per tenant or per agent, giving each agent its own sources, acceleration layers, and secrets.
-- **Local acceleration with CDC**: Materialize tenant working sets into Arrow, DuckDB, SQLite, or PostgreSQL accelerators and keep them current with change data capture.
+- **Local acceleration with CDC**: Materialize tenant working sets into Spice Cayenne, Arrow, SQLite, or PostgreSQL accelerators and keep them current with change data capture.
 - **Declarative configuration**: The [`spicepod.yaml`](../../reference/spicepod) manifest defines datasets, models, secrets, and acceleration behavior, so tenant topology is version-controlled and auditable.
 
 ## Deployment Patterns
@@ -122,11 +122,9 @@ datasets:
       pg_pass: ${secrets:PG_PASS}
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 1s
-      params:
-        duckdb_file: /var/lib/spice/tenant-abc.db
 ```
 
 This gives the clearest isolation model and per-tenant operational control, at the cost of higher operational overhead as tenant count grows. It fits regulated workloads that require strict data boundaries.

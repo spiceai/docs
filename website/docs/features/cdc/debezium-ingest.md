@@ -33,7 +33,7 @@ If you already operate Debezium **over Kafka**, continue using the [`debezium:` 
   spiced   POST /v1/datasets/{name}/cdc
            │  decode → change batch
            ▼
-  accelerator (Cayenne / DuckDB / SQLite / Arrow / …)
+  accelerator (Cayenne / SQLite / Arrow / …)
 ```
 
 The Debezium plugin runs as a separate process and pushes change events into Spice. The HTTP request blocks until the batch has been applied to the accelerator (ack), so the capturer can safely commit its source offsets only after a successful response.
@@ -55,7 +55,7 @@ datasets:
         type: float64
     acceleration:
       enabled: true
-      engine: cayenne # or duckdb, sqlite, arrow, …
+      engine: cayenne # or sqlite, arrow, …
       mode: file
       refresh_mode: changes
       primary_key: id
@@ -72,7 +72,7 @@ datasets:
 - `acceleration.enabled: true`
 - `acceleration.refresh_mode: changes`
 - Explicitly declared `columns` with types — there is no upstream bus or catalog to infer the schema from.
-- `primary_key`, except for the append-only [Arrow](../../components/data-accelerators/arrow/index.md) accelerator. On Spice Cayenne, DuckDB, and SQLite, an update event or a repeated create event replaces the row with the same key.
+- `primary_key`, except for the append-only [Arrow](../../components/data-accelerators/arrow/index.md) accelerator. On Spice Cayenne and SQLite, an update event or a repeated create event replaces the row with the same key.
 
 ### Parameters
 

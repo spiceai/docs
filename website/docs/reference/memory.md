@@ -7,7 +7,6 @@ keywords:
   - memory
   - performance
   - cayenne
-  - duckdb
   - tuning
 pagination_prev: null
 pagination_next: null
@@ -54,13 +53,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 
 The multiples are working-set figures. Add them to the baseline rather than using them as the total, and treat the 8 GB row as a floor that applies regardless of how small the data is.
 
-Memory requirements can be reduced by using file-based acceleration with [DuckDB](../components/data-accelerators/duckdb), [SQLite](../components/data-accelerators/sqlite), or [Spice Cayenne](../components/data-accelerators/cayenne), which store data on disk and support spilling.
-
-:::tip[Datasets 10 GB or larger]
-
-For any dataset of **10 GB or larger**, [Spice Cayenne](../components/data-accelerators/cayenne) is recommended over [DuckDB](../components/data-accelerators/duckdb), because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset.
-
-:::
+Memory requirements can be reduced by using file-based acceleration with [Spice Cayenne](../components/data-accelerators/cayenne), which stores data on disk and supports spilling.
 
 ### What Makes Up the Baseline
 
@@ -195,38 +188,6 @@ datasets:
       mode: file
 ```
 
-### DuckDB
-
-[DuckDB](../components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. Left to itself, each DuckDB instance sizes its own limit at roughly 80% of host memory.
-
-**Memory Configuration Parameters:**
-
-| Parameter             | Default                                       | Description                            |
-| --------------------- | --------------------------------------------- | -------------------------------------- |
-| `duckdb_memory_limit` | A coordinated share of the query memory budget | Maximum memory for the DuckDB instance |
-
-When `duckdb_memory_limit` is not set, Spice does not leave the instance on DuckDB's own ~80%-of-host-RAM default. At startup it computes a [coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget) across the query pool and every DuckDB instance so their combined ceilings fit within the memory the process can use, capping each un-limited instance at an equal share and reducing the query pool to match. Explicit `duckdb_memory_limit` and `runtime.query.memory_limit` values are always honored as-is.
-
-**Memory Usage Guidelines:**
-
-- For datasets of **10 GB or larger**, prefer [Spice Cayenne](#spice-cayenne), which typically needs one-third to one-half the memory of DuckDB for the same dataset
-- Set `duckdb_memory_limit` to control memory per DuckDB instance, rather than relying on the automatic split
-- DuckDB indexes do not support spilling and may consume significant memory
-- Allocate at least 30% additional container/machine memory for the runtime process
-
-**Example Configuration:**
-
-```yaml
-datasets:
-  - from: postgres:analytics.orders
-    name: orders
-    acceleration:
-      engine: duckdb
-      mode: file
-      params:
-        duckdb_memory_limit: 4GB
-```
-
 ### SQLite
 
 [SQLite](../components/data-accelerators/sqlite) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
@@ -287,7 +248,7 @@ Both are consequences of the partition being coordinated. The practical guidance
 
 - Per-dataset accelerator caches (see [What Makes Up the Baseline](#what-makes-up-the-baseline))
 - Serialization and encode buffers for query results, Arrow IPC, and Flight responses, apart from two that the pool tracks. A streamed `/v1/sql` response chunk and an encoded Flight message are charged to the query pool while they wait to be sent, but that charge never refuses a query: when the pool is full, it waits briefly and then goes over the limit. A `/v1/sql` result that is buffered before it is written is reserved from the query pool and is refused when it does not fit, as described in [How a Memory Refusal Surfaces](#how-a-memory-refusal-surfaces)
-- Embedded engine internals that manage their own memory, such as DuckDB's pool and SQLite's page cache
+- Embedded engine internals that manage their own memory, such as SQLite's page cache
 - Results, search, and embedding caches. The copy of a cacheable SQL result that the results cache keeps while the result streams is the exception: it is charged to the query pool, and a result whose copy does not fit is returned but not cached ([Results That Cannot Be Cached](../features/caching/index.md#results-that-cannot-be-cached))
 - [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) state on Spice Cayenne datasets. The retraction index and the `min` and `max` distinct-value state share a per-dataset budget of 10% of the query pool, at least 8 MiB but never more than the pool, or 512 MiB when the pool has no limit. Each view's per-group keys and running aggregates are not counted toward that budget
 - Allocator retention — pages the process has freed but not returned to the operating system
@@ -451,10 +412,9 @@ For time-series data, sort by timestamp. For multi-tenant data, consider sorting
 | ------------- | -------------- | ---------------------------- | --------------- | ----------------------------------------- |
 | Arrow         | Memory only    | `runtime.query.memory_limit` | Yes             | Small datasets, maximum speed             |
 | Spice Cayenne | Disk (Vortex)  | `runtime.query.memory_limit` | Yes             | Datasets 10 GB and above, scalable analytics; lowest memory footprint |
-| DuckDB        | Memory or Disk | `duckdb_memory_limit`        | Yes             | Datasets under 10 GB, complex queries     |
 | SQLite        | Memory or Disk | None                         | No              | Small-medium datasets, simple queries     |
 
-Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter — though when that parameter is unset, the runtime sizes the two together rather than independently (see [Coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget)).
+Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration.
 
 ## Memory Allocators
 
@@ -647,9 +607,7 @@ The runtime computes its memory partition at startup, before any data is loaded,
 | Startup warning (leading phrase)                                            | Meaning                                                                                                                       | Action                                                                                     |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `Cayenne CDC cache reservation exceeds what the query pool can yield`          | The per-dataset caches do not fit beside the query pool even after the pool has been reduced to its floor. The startup commitment already exceeds available memory. | Add memory, reduce dataset count, or lower per-dataset cache parameters. Expect resident memory above the budgets until then. |
-| `Cayenne in-memory CDC ingestion has limited memory available`                | The query pool, compaction pool, and any co-resident DuckDB reservations leave little room for CDC ingestion.                     | Lower `runtime.query.memory_limit` or per-dataset `duckdb_memory_limit`. Ingestion will spill to disk more often until then. |
-| `Detected potential memory over-commit from DuckDB accelerators`              | Un-limited DuckDB instances would each default to ~80% of host RAM. The runtime capped them automatically.                       | Set explicit `duckdb_memory_limit` values rather than relying on the automatic split.       |
-| `The explicit DuckDB accelerator memory limits plus the query memory limit exceed the coordinated memory budget` | Explicitly configured limits over-commit memory. These are honored as-is and **not** reduced.                                    | Lower the explicit `duckdb_memory_limit` and/or `runtime.query.memory_limit` values.        |
+| `Cayenne in-memory CDC ingestion has limited memory available`                | The query pool and compaction pool leave little room for CDC ingestion.                                                         | Lower `runtime.query.memory_limit`. Ingestion will spill to disk more often until then.                                      |
 
 The first warning is the important one for a constrained environment: it fires precisely in the situation described in [Sizing a Non-Production Environment](#sizing-a-non-production-environment) — an environment small enough that the per-dataset floors no longer fit beside a working query pool. Treat it as a statement that the environment is undersized for the dataset count, not as a tuning prompt.
 
@@ -691,7 +649,6 @@ Where a load test is impractical, mirror production traffic to a canary instance
 - [Apache DataFusion](https://datafusion.apache.org/) - Query execution engine used by Spice
 - [DataFusion Memory Usage](https://datafusion.apache.org/user-guide/configs.html#runtime-configuration-settings) - DataFusion runtime memory configuration
 - [DataFusion Tuning Guide](https://datafusion.apache.org/user-guide/configs.html#tuning-guide) - Memory-limited query optimization
-- [DuckDB Memory Management](https://duckdb.org/docs/operations_manual/limits.html) - DuckDB memory limits documentation
 - [jemalloc](https://jemalloc.net/jemalloc.3.html) - Page retention and the `dirty_decay_ms` / `muzzy_decay_ms` decay schedule
 - [`mallopt`](https://man7.org/linux/man-pages/man3/mallopt.3.html) - glibc's `M_TRIM_THRESHOLD` and when freed memory is returned to the OS
 - [cgroup v2 memory interface](https://docs.kernel.org/admin-guide/cgroup-v2.html#memory-interface-files) - What `memory.max` accounts for and how the OOM decision is made

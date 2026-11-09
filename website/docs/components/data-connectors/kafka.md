@@ -31,7 +31,7 @@ datasets:
 
     acceleration:
       enabled: true # Acceleration is required for the kafka connector.
-      engine: duckdb # `duckdb`, `sqlite` and `postgres` are supported acceleration engines for Kafka.
+      engine: cayenne # `cayenne`, `arrow`, `sqlite`, and `postgres` are supported acceleration engines for Kafka.
       refresh_mode: append # Required. Must be set to `append` for the Kafka connector.
       mode: file # Persistence is recommended to not have to fully rebuild the table each time Spice starts.
 ```
@@ -157,9 +157,9 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`cayenne`: Use [Spice Cayenne](../data-accelerators/cayenne) as the acceleration engine.</li><li>`arrow`: Use [Arrow](../data-accelerators/arrow) as the acceleration engine (memory only).</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                        |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, so it can resume from the last known state instead of re-processing all messages.                                                             |
+| `mode`         | Optional. The persistence mode to use. When using the `cayenne` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, so it can resume from the last known state instead of re-processing all messages.                                                             |
 
 ## Data Format Support
 

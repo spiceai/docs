@@ -153,7 +153,7 @@ Common runtime variables:
 
 ## Persistence
 
-For workloads that use file-based acceleration (for example, DuckDB or SQLite), mount a host directory or named volume so data survives container restarts:
+For workloads that use file-based acceleration (for example, Spice Cayenne with `mode: file`), mount a host directory or named volume so data survives container restarts:
 
 ```bash
 docker run --rm -p 127.0.0.1:8090:8090 \
@@ -163,7 +163,7 @@ docker run --rm -p 127.0.0.1:8090:8090 \
   --http 0.0.0.0:8090
 ```
 
-In the Spicepod, configure the accelerator to write under the mount path, for example `duckdb_file: /data/taxi_trips.db`.
+In the Spicepod, configure the accelerator to write under the mount path, for example `cayenne_file_path: /data/`.
 
 ## Temporary files
 

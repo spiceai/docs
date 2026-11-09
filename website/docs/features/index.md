@@ -19,7 +19,7 @@ Spice provides a set of features for building data-driven applications and AI ag
 
 ### Data Acceleration and Caching
 
-[Data Acceleration](./data-acceleration/index.md) materializes remote datasets locally in memory or on disk using engines like Arrow, DuckDB, SQLite, or PostgreSQL. Accelerated datasets stay current through scheduled refreshes, append mode, or [Change Data Capture (CDC)](./cdc/index.md). [Caching](./caching/index.md) stores query and search results in memory with configurable TTLs and eviction policies to avoid redundant computation.
+[Data Acceleration](./data-acceleration/index.md) materializes remote datasets locally in memory or on disk using engines like Spice Cayenne, Arrow, SQLite, or PostgreSQL. Accelerated datasets stay current through scheduled refreshes, append mode, or [Change Data Capture (CDC)](./cdc/index.md). [Caching](./caching/index.md) stores query and search results in memory with configurable TTLs and eviction policies to avoid redundant computation.
 
 ### Views
 

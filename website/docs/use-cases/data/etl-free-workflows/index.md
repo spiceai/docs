@@ -35,16 +35,16 @@ datasets:
     name: legacy_orders
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
 
   - from: mysql:new_system.orders
     name: new_orders
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
 ```
 
-This configuration federates order data from both the legacy PostgreSQL database and the new MySQL system, accelerating both locally in DuckDB for consistent query performance.
+This configuration federates order data from both the legacy PostgreSQL database and the new MySQL system, accelerating both locally in Spice Cayenne for consistent query performance.
 
 ## Benefits
 
@@ -55,5 +55,5 @@ This configuration federates order data from both the legacy PostgreSQL database
 ### Learn More
 
 - **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md).
 - **Observability**: [Documentation](../../features/observability).

@@ -21,32 +21,30 @@ runtime:
 datasets:
   - name: some_table
     acceleration:
-      engine: duckdb
+      engine: cayenne
       mode: file
       snapshots: enabled
       snapshots_trigger: refresh_complete
-      params:
-        duckdb_file: /nvme/some_table.db
 ```
 
 ## Overview
 
-Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (DuckDB, SQLite, or Cayenne) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
+Acceleration snapshots let Spice reuse a pre-built acceleration file on startup instead of waiting for a full refresh. When a dataset uses a file-mode acceleration engine (Cayenne or SQLite) and the local file is missing (for example on first boot or when using ephemeral NVMe storage), Spice downloads the most recent snapshot from object storage and moves the dataset straight to a ready state.
 
 ## How it works
 
-- On startup, Spice checks whether the file supplied in `acceleration.params` (for example `duckdb_file`) exists.
+- On startup, Spice checks whether the file supplied in `acceleration.params` (for example `sqlite_file`) exists.
 - If the file is missing and snapshots are enabled, Spice looks under the configured snapshot location and downloads the newest snapshot for that dataset. The download runs as consecutive 8 MiB range requests, four at a time, each with its own retries, so a slow connection does not restart the whole download. Each download holds at most 32 MiB in memory.
 - If no snapshot is available, the acceleration boots empty and refreshes from the source. A [`refresh_mode: snapshot`](./refresh-modes/snapshot) reader instead waits for the first snapshot.
 - Spice creates new snapshots based on the configured `snapshots_trigger` mode. A snapshot that fails for a transient reason, such as a network or object store error, is retried up to three times with backoff. A permanent failure, such as a schema mismatch, an unreadable `metadata.json`, or a store that does not enforce [conditional writes](#conditional-writes-on-the-snapshot-location), is not retried.
 
-Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset` accelerated with DuckDB, Spice writes files such as:
+Snapshots are organized with Hive-style partitioning so they are easy to retain and prune. For a dataset named `my_dataset` accelerated with Cayenne, Spice writes files such as:
 
 ```bash
-s3://some_bucket/some_folder/snapshots/month=2025-09/day=2025-09-19/dataset=my_dataset/my_dataset_20250919T134522Z_01996238f1157a59ae4d69b4f18b22a4.duckdb
+s3://some_bucket/some_folder/snapshots/month=2025-09/day=2025-09-19/dataset=my_dataset/my_dataset_20250919T134522Z_01996238f1157a59ae4d69b4f18b22a4.cayenne
 ```
 
-The timestamp is recorded in UTC using ISO 8601 without punctuation. The UUIDv7 after the timestamp gives each snapshot its own object name, so two snapshots written in the same second do not overwrite each other. The file extension names the acceleration engine that wrote the snapshot: `.duckdb`, `.sqlite`, or `.cayenne`. Snapshots that a v2.4 or earlier runtime wrote with the removed `turso` engine end in `.turso`. The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
+The timestamp is recorded in UTC using ISO 8601 without punctuation. The UUIDv7 after the timestamp gives each snapshot its own object name, so two snapshots written in the same second do not overwrite each other. The file extension names the acceleration engine that wrote the snapshot: `.cayenne` or `.sqlite`. Snapshots that a v2.4 or earlier runtime wrote with the removed `duckdb` and `turso` engines end in `.duckdb` and `.turso`, and a v2.5 runtime refuses them with the [removed-engine error](../../components/data-accelerators/cayenne/migration.md#what-spice-reports). The engine is also recorded in the snapshot metadata, and a snapshot whose engine differs from the dataset's current engine is rejected at bootstrap rather than restored.
 
 :::warning Dedicated files only
 Every accelerated dataset must write to its own file (for example, `/nvme/my_dataset.db`). Sharing a single file across multiple datasets is not supported.
@@ -54,9 +52,9 @@ Every accelerated dataset must write to its own file (for example, `/nvme/my_dat
 
 ## What each snapshot contains
 
-Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — DuckDB, SQLite, or Cayenne — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
+Each snapshot is a complete copy of that dataset's acceleration file at the time Spice writes it. The object under the snapshot location is the whole accelerated dataset — Cayenne or SQLite — ready for a reader to download and open. Spice writes that full file on every snapshot. It does not publish an incremental delta of the rows or objects that changed since the previous snapshot.
 
-A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times the number of snapshots kept. The [28-day retention period](#snapshot-retention) applies to the entries in `metadata.json`; dropped files stay at least 24 more hours, until a later publish deletes them, so budget for about 29 days of snapshot files, plus the current and newest snapshot when they are older. DuckDB [`snapshots_compaction`](#snapshot-compaction) can shrink each copy. The uploaded object is still a full file.
+A bootstrap, and a [`refresh_mode: snapshot`](./data-refresh#snapshot) reload, replaces the local acceleration file with that copy. Every upload moves the full file, and bucket or object replication of the snapshot prefix moves the full file again. Storage grows with the size of the accelerated dataset times the number of snapshots kept. The [28-day retention period](#snapshot-retention) applies to the entries in `metadata.json`; dropped files stay at least 24 more hours, until a later publish deletes them, so budget for about 29 days of snapshot files, plus the current and newest snapshot when they are older.
 
 When the workload needs incremental replication of changed data between regions or storage tiers, use a path that publishes the changed objects:
 
@@ -251,8 +249,6 @@ acceleration:
   snapshots: enabled | disabled # default: disabled
   snapshots_trigger: <trigger_mode> # see trigger modes below
   snapshots_trigger_threshold: <value> # threshold for time_interval or stream_batches
-  snapshots_compaction: enabled | disabled # default: disabled (DuckDB only)
-  snapshots_reset_expiry_on_load: enabled | disabled # default: disabled (DuckDB only with Caching refresh mode)
   snapshots_location: <uri> # default: the snapshots/ folder of runtime.state.location
   snapshots_params: <params> # default: the params of that location
   snapshots_bootstrap_on_failure_behavior: warn | retry | fallback # default: warn
@@ -279,12 +275,10 @@ datasets:
     name: some_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       snapshots: enabled
       # snapshots_trigger defaults to refresh_complete
-      params:
-        duckdb_file: /nvme/some_table.db
 ```
 
 Example with time-based trigger:
@@ -295,13 +289,11 @@ datasets:
     name: some_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       snapshots: enabled
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 30m
-      params:
-        duckdb_file: /nvme/some_table.db
 ```
 
 #### Caching datasets
@@ -331,14 +323,12 @@ datasets:
     name: cdc_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       snapshots: enabled
       # snapshots_trigger defaults to time_interval
       # snapshots_trigger_threshold defaults to 10m
-      params:
-        duckdb_file: /nvme/cdc_table.db
 ```
 
 Example with batch-based trigger:
@@ -349,50 +339,21 @@ datasets:
     name: cdc_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       snapshots: enabled
       snapshots_trigger: stream_batches
       snapshots_trigger_threshold: 300
-      params:
-        duckdb_file: /nvme/cdc_table.db
 ```
 
-### Snapshot compaction
+### Snapshot compaction and expiry reset
 
-For DuckDB-based accelerations, enable `snapshots_compaction` to compact the database before uploading. This uses DuckDB's internal mechanism (`COPY DATABASE`) to reduce file size and improve read performance.
+`snapshots_compaction` and `snapshots_reset_expiry_on_load` applied only to the `duckdb` acceleration engine, which v2.5 removes. Both are still accepted and have no effect on any engine. Remove both settings from the Spicepod. A dataset that enables either one logs a warning:
 
-```yaml
-acceleration:
-  enabled: true
-  engine: duckdb
-  mode: file
-  snapshots: enabled
-  snapshots_compaction: enabled
-  params:
-    duckdb_file: /nvme/some_table.db
-```
-
-:::info
-Compaction is only available for the DuckDB acceleration engine.
-:::
-
-### Snapshot Resetting Expiry on Load
-
-When using `Caching` refresh mode with DuckDB-based acceleration, you can enable `snapshots_reset_expiry_on_load` to extend the data's expiry to `now() + TTL` each time a snapshot is loaded.
-
-```yaml
-acceleration:
-  enabled: true
-  engine: duckdb
-  mode: file
-  refresh_mode: caching
-  snapshots: enabled
-  snapshots_reset_expiry_on_load: enabled
-  params:
-    caching_ttl: 1m
-    caching_stale_while_revalidate_ttl: 1m
+```text
+Snapshot compaction enabled but engine does not support it
+Resetting expiry on load is not supported by the `cayenne` acceleration engine. Ignoring snapshots_reset_expiry_on_load.
 ```
 
 ## Complete example
@@ -413,27 +374,22 @@ datasets:
       s3_auth: iam_role
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       snapshots: enabled
       snapshots_trigger: refresh_complete
-      snapshots_compaction: enabled
-      params:
-        duckdb_file: /nvme/batch_table.db
 
   # Stream dataset with time-interval snapshots
   - from: debezium:cdc_source
     name: stream_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       snapshots: enabled
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 5m
-      params:
-        duckdb_file: /nvme/stream_table.db
 ```
 
 :::info Readiness with append refreshes
@@ -470,7 +426,7 @@ A snapshot dataset needs no `acceleration` block, no `refresh_mode`, no `acceler
 
 The dataset reports Ready only after the current process has restored a snapshot. A local copy left from an earlier run is never served as current. Until the first snapshot is published, the dataset reports an error status and Spice logs a warning such as `Dataset 'some_table' has no snapshot to load yet, so it cannot be queried until one is published`. Spice keeps checking, with a backoff capped at `refresh_check_interval`. A query that reaches the dataset before a snapshot loads returns an error, not an empty result.
 
-Spice keeps the local copy under `.spice/data/`. DuckDB and SQLite copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout: a data directory per dataset and one shared catalog, both under `.spice/data/` by default. Each parameter moves its own part. `cayenne_file_path` moves the data directory, and when it is a local path the catalog follows it to `{cayenne_file_path}/metadata`. `cayenne_metadata_dir` moves the catalog alone, and the data directory keeps its default. Setting both lets a reader keep its copy on a chosen volume, in the same layout as the writer:
+Spice keeps the local copy under `.spice/data/`. SQLite copies are named for the dataset and a hash of the `from` location, so a dataset pointed at a new location never reopens the previous location's copy. Cayenne keeps its own layout: a data directory per dataset and one shared catalog, both under `.spice/data/` by default. Each parameter moves its own part. `cayenne_file_path` moves the data directory, and when it is a local path the catalog follows it to `{cayenne_file_path}/metadata`. `cayenne_metadata_dir` moves the catalog alone, and the data directory keeps its default. Setting both lets a reader keep its copy on a chosen volume, in the same layout as the writer:
 
 ```yaml
 datasets:
@@ -514,7 +470,6 @@ The dataset is read-only. Spice rejects a configuration that contradicts reading
 - **Budget storage for a full file on every write.** Each snapshot is a complete copy of the accelerated dataset. See [What each snapshot contains](#what-each-snapshot-contains) and [Snapshot location and the Cayenne data tier](#snapshot-location-and-the-cayenne-data-tier).
 - **Treat the snapshot interval as a freshness gap.** A reader that bootstraps from object storage serves the last successful snapshot until its own next refresh. `refresh_complete` is as fresh as the writer's last refresh; `time_interval` can be older still. Size the trigger against the freshness the readers are allowed to serve, and keep a durable volume when that gap is too wide. See [Read/Write Separation](../../deployment/read-write-separation).
 - **Pair with ephemeral storage:** Deployments commonly place the acceleration file on fast ephemeral disks (such as NVMe instance storage) while relying on snapshots for persistence across restarts. Local NVMe is the recommended medium for accelerations — see [Storage](../../reference/performance-tuning#storage) for the tiers, the instance-store lifetime, and the capacity figures.
-- **Enable compaction for large datasets:** Use `snapshots_compaction: enabled` for DuckDB accelerations to reduce snapshot size and improve bootstrap performance.
 - **Tune trigger thresholds for stream datasets:** For high-throughput streaming datasets, balance snapshot frequency against I/O overhead by adjusting `snapshots_trigger_threshold`.
 - **Let Spice expire snapshots:** Spice keeps [28 days of snapshots](#snapshot-retention) and deletes older files itself. An expiration rule for current objects on the snapshot location is not needed. When one is required, set its expiration longer than 28 days. Such a rule can still delete the file of a current or newest snapshot older than its expiration. On a bucket with versioning enabled, a Spice delete leaves a noncurrent version, so add a noncurrent-version expiration rule to reclaim that storage. A replication destination keeps deleted files unless the replication carries deletes or the destination has its own lifecycle rule.
 - **Monitor bootstraps:** Track warning logs emitted when Spice falls back to an empty acceleration so operators can respond quickly if snapshot loading fails.
