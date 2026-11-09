@@ -249,6 +249,8 @@ The negation of `IS DISTINCT FROM`
 +--------------------------------+
 ```
 
+`IS DISTINCT FROM` and `IS NOT DISTINCT FROM` bind more tightly than `AND` and `OR`, as in [PostgreSQL](https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-PRECEDENCE): `a IS DISTINCT FROM b OR c` is `(a IS DISTINCT FROM b) OR c`. Spice v2.4.1 and earlier read the right operand as everything up to the end of the expression, so `a IS DISTINCT FROM b OR c` was `a IS DISTINCT FROM (b OR c)`. On those versions, `SELECT true IS DISTINCT FROM true OR true` returns `false`, a `WHERE` filter of that form can drop rows, and an integer operand fails with `Cannot infer common argument type for logical boolean operation Int64 OR Boolean`. Wrap the comparison in parentheses to get the same result on every version.
+
 ### `~` {#op_re_match}
 
 Regex Match

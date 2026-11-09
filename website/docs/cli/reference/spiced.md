@@ -26,7 +26,7 @@ If `SPICEPOD_PATH` is omitted, `spiced` uses the current working directory. When
 - `--metrics <BIND_ADDRESS>` — Enable the Prometheus scrape endpoint on the given address. Disabled by default.
 - `--pods-watcher-enabled` — Watch the Spicepod directory for changes and hot-reload. Disabled by default.
 - `--telemetry-enabled <true|false>` — Override anonymous telemetry collection. When unset, the value is taken from `runtime.telemetry.enabled` in the Spicepod.
-- `--version` — Print the runtime version and exit.
+- `--version` — Print the runtime version, followed by the commit it was built from, such as `v2.5.0+models (6c9b6e4a7e)`, and exit. In v2.4.x and earlier, a release build prints only the version.
 - `-v`, `--verbose` — Increase log verbosity. Repeat (`-vv`) for debug output.
 - `--very-verbose` — Equivalent to `-vv`.
 - `--set-runtime <key.subkey=value>` — Override a runtime configuration value. Can be repeated; see [examples in `spice run`](./run#--set-runtime).
@@ -53,7 +53,7 @@ These configure TLS for the HTTP and Flight servers.
 
 Used when running `spiced` as part of a [distributed cluster](../../features/distributed-query). Omit these for standalone operation.
 
-- `--role <scheduler|executor>` — Explicit cluster role. If omitted but `--scheduler-address` is set, the role defaults to `executor`.
+- `--role <server|sidecar|scheduler|executor>` — The runtime's role. Default: `server`, or `executor` when `--scheduler-address` is set. `sidecar` runs Spice as an [application sidecar](#sidecar-role) and needs none of the other cluster flags. Combining `--scheduler-address` with `--role server` or `--role sidecar` fails at startup with ``--scheduler-address` joins a cluster as an executor and cannot be used with `--role sidecar`. Remove `--scheduler-address`, or use `--role executor`.``
 - `--scheduler-address <URL>` — URL of the scheduler service. Required on executors.
 - `--node-bind-address <BIND_ADDRESS>` — Bind address for the internal cluster gRPC service. Default: `0.0.0.0:50052`.
 - `--node-advertise-address <HOST_OR_IP>` — Hostname or IP this node advertises to the rest of the cluster. Required on every scheduler and executor. With cluster mTLS, it must be a Subject Alternative Name in the node certificate.
@@ -61,6 +61,18 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - `--node-mtls-certificate-file <PATH>` — Certificate file used for both server TLS and client mTLS on the node port.
 - `--node-mtls-key-file <PATH>` — Private key file for the node certificate.
 - `--allow-insecure-connections` — Run cluster connections without mTLS, for local development and testing on a trusted network. Cluster connections are then neither authenticated nor encrypted. Has no effect on cluster connections when the `--node-mtls-*` flags are set. See [Local development without mTLS](../../features/distributed-query/index.md#local-development-without-mtls). It is also required on every node of a GGUF model that llama.cpp splits across nodes, whose connections are never authenticated or encrypted, with or without the `--node-mtls-*` flags. See [GGUF models split across nodes](../../components/models/index.md#gguf-models-split-across-nodes).
+
+### Sidecar role
+
+`spiced --role sidecar` runs Spice next to an application, in the same pod or on the same host, and reads data from an upstream Spice runtime through the [Spice.ai Data Connector](../../components/data-connectors/spiceai/index.md). Compared with the default `server` role, a sidecar:
+
+- Sends the parts of a query the upstream can run as [Substrait](https://substrait.io/) plans instead of SQL text. See [Sidecar mode](../../components/data-connectors/spiceai/index.md#sidecar-mode).
+- Runs on at most 4 CPU cores. A `--cpu-cores`, `SPICE_CPU_CORES`, or `runtime.cpu.cores` setting above 4, including `all`, is capped at 4, and Spice logs a warning that quotes the setting.
+- Runs each query on one target partition when `runtime.query.target_partitions` is not set, and admits 16 concurrent queries per core when `runtime.query.max_concurrent_queries` is not set, where a server admits 4.
+- Refuses DDL on every catalog, with the error ``DDL is not allowed on a sidecar. Run CREATE and DROP statements on the Spice runtime the sidecar reads from, or start Spice without `--role sidecar`.``
+- Does not register HTTP or WebAssembly [functions](../../reference/spicepod/functions.md), and logs an error for each one. SQL functions are registered.
+
+The role is set when `spiced` starts. Spice v2.4.x has no sidecar role.
 
 ### Spice Cloud Connect flags
 
