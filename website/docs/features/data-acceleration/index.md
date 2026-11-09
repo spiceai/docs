@@ -36,7 +36,7 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 **Schema Changes**: An accelerated dataset keeps the schema it registered at startup. The default [`on_schema_change: block`](../reference/spicepod/datasets#on_schema_change) does not adopt a later source change, and the dataset keeps serving the registered schema. Plan the rollout and set an explicit policy (`append_new_columns`, `sync_all_columns`, or `drop_and_recreate`) when the change should be accepted. [`mode: file_update`](../reference/spicepod/datasets#accelerationmode) drops and recreates the accelerated table when an incompatible change is found, leaving the acceleration file in place. See [Runtime Schema Changes](../components/data-connectors#runtime-schema-changes).
 
-**Engine Selection**: Choose the acceleration engine based on workload characteristics. Spice Cayenne is the default engine, and every other engine is deprecated. To move an acceleration from another engine, see [Migrating to Spice Cayenne](../components/data-accelerators/cayenne/migration.md).
+**Engine Selection**: Choose the acceleration engine based on workload characteristics. Spice Cayenne is the default engine, and every other engine is deprecated. To move an acceleration from another engine, see [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 | Engine     | Best For                                           | Mode                                              |
 | ---------- | -------------------------------------------------- | ------------------------------------------------- |
