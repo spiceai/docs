@@ -703,7 +703,7 @@ When the goal is to reduce peak memory, prefer bounding concurrency over lowerin
 
 | Intent                                          | Setting                                                                                     |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Reduce peak memory under burst                    | `runtime.query.max_concurrent_queries` (defaults to 4× the CPU entitlement's cores, not from memory) |
+| Reduce peak memory under burst                    | `runtime.query.max_concurrent_queries` (defaults to 4× the CPU entitlement's cores, or 16× with `--role sidecar`, not from memory) |
 | Reduce per-plan fan-out and its reservations      | `runtime.query.target_partitions` (defaults to the CPU entitlement's cores, or `1` with `--role sidecar`) |
 | Change how much memory a single query may reserve | `runtime.query.memory_limit`                                                                  |
 

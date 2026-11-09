@@ -755,7 +755,7 @@ Behavior:
 
 - Applies to ordinary queries, DDL/DML, and `EXECUTE`. Lightweight session-state statements (`PREPARE`, `DEALLOCATE`, `SET`) are not gated.
 - A permit is held for the plan's full execution and result-streaming lifetime. A results-cache hit is never gated.
-- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
+- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. A runtime started with [`--role sidecar`](../../cli/reference/spiced.md#sidecar-role) admits sixteen per core, `64` on its 4-core maximum, because each sidecar plan runs on one target partition and mostly waits on the upstream. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
 - `max_concurrent_queries: 0` opts out and leaves concurrency **unbounded**. Every other configured value is a limit, applied verbatim.
 
 :::warning Behavior change
