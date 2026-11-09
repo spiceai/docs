@@ -20,6 +20,8 @@ spice version [flags]
 
 ### Sample output
 
+Each version names the commit it was built from, as in `v2.5.0 (6c9b6e4a7e)` for the CLI and `v2.5.0+models (6c9b6e4a7e)` for the runtime. In v2.4.x and earlier, a release build prints only the version, such as `v2.4.2`, and the samples below show that form.
+
 
 **Upgrade available**: 
 ```shell

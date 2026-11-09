@@ -12,7 +12,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts — a reload logs a warning and the previous value stays in effect:**
 
-`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.mode` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
+`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
@@ -60,26 +60,6 @@ API key authentication supports the following configuration parameters:
 ## `runtime.dataset_load_parallelism`
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
-
-## `runtime.mode`
-
-Selects the runtime's deployment profile: `server` (the default) or `sidecar`. Any other value fails to load with `Invalid runtime.mode '<value>'. Use 'server' (default) or 'sidecar'.`
-
-```yaml
-runtime:
-  mode: sidecar
-```
-
-Set `sidecar` when Spice runs next to an application, in the same pod or on the same host, and reads its data from an upstream Spice runtime through the [Spice.ai Data Connector](../../components/data-connectors/spiceai/index.md). In sidecar mode:
-
-- Queries on `spice.ai` datasets are planned in the sidecar, and the parts the upstream can run are sent to it as [Substrait](https://substrait.io/) plans instead of SQL text. See [Sidecar mode](../../components/data-connectors/spiceai/index.md#sidecar-mode).
-- When `runtime.query.target_partitions` is not set, queries run with one target partition, so concurrent application queries share the CPU budget. In `server` mode the default is the [CPU entitlement](#runtimecpu) in whole cores. An explicit `runtime.query.target_partitions` applies in both modes.
-
-A sidecar cannot also be a cluster scheduler or executor. Starting `spiced` with `--role` or `--scheduler-address` and `runtime.mode: sidecar` fails with `runtime.mode: sidecar cannot run as a cluster scheduler or executor. Remove --role and --scheduler-address, or set runtime.mode: server.`
-
-The mode is applied when `spiced` starts. A Spicepod reload that changes it logs a warning and keeps the current mode until `spiced` restarts.
-
-`runtime.mode` is not available in v2.4.1 and earlier.
 
 ## `runtime.caching`
 
@@ -165,7 +145,7 @@ In addition to the common cache configuration parameters, `sql_results` also sup
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
 
-A Flight SQL request that carries a Substrait plan, as a [sidecar](#runtimemode) sends, has no SQL text. With `cache_key_type: plan`, it is cached under a hash of its serialized plan, so identical plan bytes share an entry within the caller's cache namespace. With `cache_key_type: sql`, or with a client-supplied `Spice-Cache-Key` header, the request bypasses the results cache. In v2.4.1 and earlier, a Substrait request is cached under its logical plan with `plan`, and under a key derived from the plan bytes with `sql`.
+A Flight SQL request that carries a Substrait plan, as a [sidecar](../../cli/reference/spiced.md#sidecar-role) sends, has no SQL text. With `cache_key_type: plan`, it is cached under a hash of its serialized plan, so identical plan bytes share an entry within the caller's cache namespace. With `cache_key_type: sql`, or with a client-supplied `Spice-Cache-Key` header, the request bypasses the results cache. In v2.4.1 and earlier, a Substrait request is cached under its logical plan with `plan`, and under a key derived from the plan bytes with `sql`.
 
 ### Choosing a `hashing_algorithm`
 
@@ -775,7 +755,7 @@ Behavior:
 
 - Applies to ordinary queries, DDL/DML, and `EXECUTE`. Lightweight session-state statements (`PREPARE`, `DEALLOCATE`, `SET`) are not gated.
 - A permit is held for the plan's full execution and result-streaming lifetime. A results-cache hit is never gated.
-- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
+- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. A runtime started with [`--role sidecar`](../../cli/reference/spiced.md#sidecar-role) admits sixteen per core, `64` on its 4-core maximum, because each sidecar plan runs on one target partition and mostly waits on the upstream. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
 - `max_concurrent_queries: 0` opts out and leaves concurrency **unbounded**. Every other configured value is a limit, applied verbatim.
 
 :::warning Behavior change
@@ -1188,6 +1168,8 @@ runtime:
 | `do_put_rate_limit_enabled` | Yes      | `true`  | Whether rate limiting is applied to `DoPut` Arrow Flight operations. |
 | `batch_size`                | Yes      | `mode: adaptive`, `max: 131072` | Record batch size of Arrow Flight and Flight SQL query responses. With `mode: adaptive`, Spice raises the batch size of a response whose planner estimate is large, up to `max` rows. With `mode: default`, every response uses the query engine's configured batch size. |
 | `ipc_compression`           | Yes      | `none`  | Compression of the Arrow IPC record batches in Arrow Flight and Flight SQL responses: `none`, `lz4_frame`, or `zstd`. The client must support the codec to read the response. |
+
+Spice sends each record batch of an Arrow Flight or Flight SQL response, and of a `DoExchange` change stream, as one or more Flight messages of about 2 MiB at most. A batch over that size is split into row slices, each sent as its own message, so a client that keeps gRPC's default 4 MiB receive limit can read wide rows, such as lists, structs, or large JSON strings. A single row is never split, so a row over 4 MiB still needs a client with a larger receive limit, and so does a dictionary over 4 MiB, which is sent in its own message. In v2.4.x and earlier, each record batch is one message, and a batch of wide rows can exceed 4 MiB; a client then fails with an error such as `decoded message length too large: found 7604497 bytes, the limit is 4194304` until its receive limit is raised.
 
 The `DoPut` rate limit admits 100 writes per minute, shared by all clients of the runtime. Arrow Flight data writes, Flight SQL bulk ingestion (`CommandStatementIngest`), and Flight SQL statement updates (`CommandStatementUpdate`, sent by a Flight SQL client's execute-update call) count against it. Prepared statement calls, including parameter binding, do not. A write over the limit fails with the gRPC status `RESOURCE_EXHAUSTED`.
 
