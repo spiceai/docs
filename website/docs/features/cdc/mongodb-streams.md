@@ -9,17 +9,17 @@ pagination_next: null
 
 Stream every insert, update, replace, and delete from a MongoDB collection directly into a Spice-accelerated dataset using native [MongoDB Change Streams](https://www.mongodb.com/docs/manual/changeStreams/).
 
-This is the recommended way to keep a Spice accelerator ([DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres), Cayenne) continuously in sync with a MongoDB source — no Kafka, no Debezium, no external services.
+This is the recommended way to keep a Spice accelerator ([Cayenne](../../components/data-accelerators/cayenne), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres)) continuously in sync with a MongoDB source — no Kafka, no Debezium, no external services.
 
 ## How it works
 
 ```
 ┌──────────────────┐     Change Streams       ┌───────────────────┐    ChangeBatch     ┌───────────────┐
 │   MongoDB        │ ───────────────────────▶│   Spice runtime   │──────────────────▶│  Accelerator  │
-│   replica set /  │  fullDocument=           │  (mongodb         │   (INSERT/        │  DuckDB /     │
+│   replica set /  │  fullDocument=           │  (mongodb         │   (INSERT/        │  Cayenne /    │
 │   sharded        │    updateLookup          │   connector)      │    UPDATE /       │  SQLite /     │
-│   cluster        │  + resume tokens         │                   │    DELETE)        │  Postgres /   │
-└──────────────────┘                          └───────────────────┘                   │  Cayenne      │
+│   cluster        │  + resume tokens         │                   │    DELETE)        │  Postgres     │
+└──────────────────┘                          └───────────────────┘                   │               │
                                                                                       └───────────────┘
 ```
 
@@ -39,7 +39,7 @@ In-memory accelerators do not persist a resume token; restarts re-bootstrap from
 
 - **MongoDB 4.0+** with Change Streams enabled. MongoDB requires a **replica set** or **sharded cluster** — single-node `mongod` deployments do not support Change Streams.
 - The MongoDB user must have the `changeStream` privilege on the source collection.
-- The accelerator must support upsert behavior — use `duckdb`, `sqlite`, `postgres`, or `cayenne`.
+- The accelerator must support upsert behavior — use `cayenne`, `sqlite`, or `postgres`.
 - `acceleration.primary_key: _id` is required. Delete events only include the document key, so Spice needs `_id` to route deletes.
 - On engines other than `cayenne`, `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows. Cayenne keeps one row per `_id` without it.
 
@@ -57,12 +57,10 @@ datasets:
       mongodb_pass: ${secrets:mongodb_pass}
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file              # Persist resume tokens so restarts skip the snapshot
       refresh_mode: changes
       primary_key: _id
-      on_conflict:
-        _id: upsert
 ```
 
 ## Tuning

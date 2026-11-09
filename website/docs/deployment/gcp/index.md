@@ -112,7 +112,7 @@ For declarative GitOps, swap this command for an Argo CD `Application` or a Flux
 
 #### 4. Storage and ingress
 
-For stateful acceleration (DuckDB, SQLite, Cayenne):
+For stateful acceleration (Cayenne or SQLite):
 
 - **Local SSD (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on a machine type with attached [Local SSD](https://cloud.google.com/compute/docs/disks/local-ssd) (`n2-standard-*-lssd`, `c3-standard-*-lssd`, `z3` series). Expose Local SSDs through GKE's [Local SSD raw block / ephemeral storage](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/local-ssd) provisioner. Local SSDs do not survive node replacement, so pair with a refresh strategy or a re-hydration source. [Local NVMe Storage](kubernetes/local-nvme) walks through the GKE setup step by step — the `--local-nvme-ssd-block` node pool, Google's provisioner manifests, the `nvme-ssd-block` class in the chart values, and verification.
 - **Hyperdisk Extreme / Balanced** — when shared, replica-attachable persistence is required, [Hyperdisk](https://cloud.google.com/compute/docs/disks/hyperdisk) provides high IOPS and configurable throughput. Use the [Compute Engine persistent disk CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/gce-pd-csi-driver) with a custom StorageClass (`type: hyperdisk-balanced` or `hyperdisk-extreme`).
@@ -182,7 +182,7 @@ gcloud run deploy spiceai \
 
 The comma-separated `--args` values are passed to `spiced`. The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` on port `8090`, which Cloud Run ingress cannot reach.
 
-To run multiple replicas with shared file-based acceleration, mount [Cloud Storage with FUSE](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts) and point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`). Cloud Storage volume latency is significantly higher than local SSD, so prefer GKE for latency-sensitive accelerated workloads.
+To run multiple replicas with shared file-based acceleration, mount [Cloud Storage with FUSE](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts) and point file accelerators at the mount path. Cloud Storage volume latency is significantly higher than local SSD, so prefer GKE for latency-sensitive accelerated workloads.
 
 #### 3. Scaling rules
 

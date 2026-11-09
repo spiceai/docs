@@ -26,7 +26,7 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 ## Considerations
 
-**Storage Capacity**: Accelerated datasets consume local storage. In-memory accelerations (Arrow, or `mode: memory`, the default mode) require sufficient RAM; file-based accelerations (`mode: file` on DuckDB, SQLite, or Cayenne) require sufficient disk space. As a guideline, allocate at least 1.5x the source dataset size to account for indexing and temporary refresh overhead. Check current usage by querying `runtime.metrics`.
+**Storage Capacity**: Accelerated datasets consume local storage. In-memory accelerations (Arrow, or `mode: memory`, the default mode) require sufficient RAM; file-based accelerations (`mode: file` on Cayenne or SQLite) require sufficient disk space. As a guideline, allocate at least 1.5x the source dataset size to account for indexing and temporary refresh overhead. Check current usage by querying `runtime.metrics`.
 
 **Data Security**: Accelerating a dataset copies data from the source to the local runtime. Assess whether the data sensitivity is appropriate for the deployment environment. Secure network connections between the runtime and data source using TLS (`pg_sslmode: verify-full` for PostgreSQL, `s3_auth: iam_role` for S3). Encrypt data at rest when using file-based accelerators in production.
 
@@ -36,12 +36,11 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 
 **Schema Changes**: An accelerated dataset keeps the schema it registered at startup. The default [`on_schema_change: block`](../reference/spicepod/datasets#on_schema_change) does not adopt a later source change, and the dataset keeps serving the registered schema. Plan the rollout and set an explicit policy (`append_new_columns`, `sync_all_columns`, or `drop_and_recreate`) when the change should be accepted. [`mode: file_update`](../reference/spicepod/datasets#accelerationmode) drops and recreates the accelerated table when an incompatible change is found, leaving the acceleration file in place. See [Runtime Schema Changes](../components/data-connectors#runtime-schema-changes).
 
-**Engine Selection**: Choose the acceleration engine based on workload characteristics. For the DuckDB versus Cayenne choice — mostly-static indexed lookups versus frequent refresh and CDC — see [Spice Cayenne vs DuckDB](../components/data-accelerators#spice-cayenne-vs-duckdb).
+**Engine Selection**: Choose the acceleration engine based on workload characteristics. Spice Cayenne is the default engine, and every other engine is deprecated. To move an acceleration from another engine, see [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 | Engine     | Best For                                           | Mode                                              |
 | ---------- | -------------------------------------------------- | ------------------------------------------------- |
 | `arrow`    | Read-heavy analytics, in-memory speed              | `memory`                                          |
-| `duckdb`   | Complex analytical queries under 10 GB, file-based persistence | `memory`, `file`, `file_create`, or `file_update` |
 | `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `memory`, `file`, `file_create`, or `file_update` |
 | `postgres` | When a full SQL database is needed as accelerator  | External                                          |
 | `cayenne`  | Default engine; datasets 10 GB and above, high-performance columnar | `memory`, `file`, `file_create`, or `file_update` |

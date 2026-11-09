@@ -6,7 +6,7 @@ sidebar_position: 6
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like SQLite, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Scalar functions help transform, compute, and manipulate data at the row level. These functions are evaluated for each row in a query result and return a single value per invocation. Spice.ai supports a broad set of scalar functions, including math, string, conditional, date/time, array, struct, map, regular expression, and hashing functions. The function set closely follows the PostgreSQL dialect.
@@ -4276,7 +4276,7 @@ datasets:
   - name: my_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       partition_by:
         - bucket(100, account_id)

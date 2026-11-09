@@ -37,7 +37,7 @@ For example, deploy Spice as a sidecar alongside applications served by centrali
 ## 3. How is Spice different?
 
 - **Application-Centric Design:** Spice is designed for 1:1 or 1:N mappings between applications and Spice instances, making it flexible for tenant-specific or customer-specific configurations. Unlike traditional databases designed for many applications sharing one data system, Spice often runs one instance per application or tenant.
-- **Dual-Engine Acceleration:** Spice supports both OLAP (DuckDB/Arrow) and OLTP (SQLite/PostgreSQL) databases at the dataset level, providing flexibility for various query workloads.
+- **Dual-Engine Acceleration:** Spice supports both OLAP (Cayenne/Arrow) and OLTP (SQLite/PostgreSQL) databases at the dataset level, providing flexibility for various query workloads.
 - **Separation of Materialization and Storage/Compute:** Spice enables data to remain close to its source while materializing working sets for fast access, reducing data movement and query latency.
 - **Deployment Flexibility:** Deployable across infrastructure tiers, including edge, on-prem, and cloud environments. Spice can run as a standalone instance, sidecar, microservice, or cluster.
 
@@ -57,7 +57,7 @@ Starting in v2, Spice also supports multi-node [Distributed Query](features/dist
 
 ## 7. How does Spice compare to DuckDB?
 
-DuckDB is an embedded analytics database optimized for OLAP queries. Spice integrates DuckDB for data acceleration, combining DuckDB's analytical capabilities with Spice's broader federation, multi-engine support, and flexible deployment. Spice can be considered an enterprise/production productization of DuckDB for data-intensive applications.
+DuckDB is an embedded analytics database optimized for OLAP queries. Spice queries DuckDB database files through the [DuckDB data connector](components/data-connectors/duckdb) and accelerates data locally with [Spice Cayenne](components/data-accelerators/cayenne), adding federation across many sources, multi-engine support, and flexible deployment.
 
 ## 8. Can Spice handle federated queries?
 
@@ -79,7 +79,7 @@ Spice pushes JSON predicates down to the underlying engine (e.g. DuckDB) where s
 
 ## 11. What query engines does Spice support?
 
-Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators. Spice also supports DuckDB, SQLite, and PostgreSQL as acceleration engines. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
+Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators. Spice also supports SQLite and PostgreSQL as acceleration engines. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
 
 See [Performance Tuning](reference/performance-tuning) for sizing guidance and the [Memory](reference/memory) reference for how Spice manages query memory and spilling under load. For deeper context, see [How we use Apache DataFusion at Spice AI](https://spice.ai/blog/how-we-use-apache-datafusion-at-spice-ai) and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) on the Cayenne columnar format.
 
@@ -93,7 +93,7 @@ Yes. Spice can be deployed as a CDN for databases by loading and materializing d
 
 ## 14. Can Spice be used for real-time analytics?
 
-Yes. Spice accelerates data locally using Apache Arrow, Spice Cayenne (Vortex), DuckDB, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
+Yes. Spice accelerates data locally using Spice Cayenne (Vortex), Apache Arrow, SQLite, or PostgreSQL, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
 
 ## 15. Does Spice support Change Data Capture (CDC)?
 
@@ -158,7 +158,7 @@ When embeddings must be computed at query time (e.g. user-supplied queries for [
 
 Spice supports [vector search](features/search/vector-search), [full-text search](features/search/full-text), [multi-vector search](../features/search/multi-vector.md), and [reranking](../features/search/rerank.md) over accelerated datasets. Vectors are stored in the acceleration alongside the source data, so search executes locally without round-tripping to a separate vector database.
 
-For best performance, store accelerated vector datasets in **file-mode DuckDB or Spice Cayenne (Vortex)** — file-mode is often faster than in-memory due to columnar compression and dictionary encoding — and configure [acceleration indexes](features/data-acceleration/indexes) on filter columns to narrow brute-force scans. See [Performance Tuning](reference/performance-tuning) and the [Memory](reference/memory) reference for sizing accelerated vector workloads, and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) for the storage format underpinning Cayenne. Expanded HNSW and other approximate-nearest-neighbor index types are tracked for future releases.
+For best performance, store accelerated vector datasets in **file-mode Spice Cayenne (Vortex)** — file-mode is often faster than in-memory due to columnar compression and dictionary encoding — and configure [acceleration indexes](features/data-acceleration/indexes) on filter columns to narrow brute-force scans. See [Performance Tuning](reference/performance-tuning) and the [Memory](reference/memory) reference for sizing accelerated vector workloads, and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) for the storage format underpinning Cayenne. Expanded HNSW and other approximate-nearest-neighbor index types are tracked for future releases.
 
 ## 24. What search APIs does Spice provide?
 

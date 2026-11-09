@@ -151,20 +151,20 @@ datasets:
     name: my_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot
       refresh_check_interval: 30s  # Poll interval; defaults to 1m
       snapshots: enabled
       snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
-        duckdb_file: /nvme/my_table.db
+        cayenne_file_path: /nvme/
 ```
 
 **Requirements:**
 
 - `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
-- The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, or **Cayenne**
+- The acceleration engine must be a snapshot-capable file-based engine: **Cayenne** or **SQLite**
 
 **Behavior:**
 
@@ -327,7 +327,7 @@ Acceleration checkpoints written by Spice v2.3 and earlier do not record the acc
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (DuckDB, SQLite, or Cayenne) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based acceleration engines (Cayenne or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 

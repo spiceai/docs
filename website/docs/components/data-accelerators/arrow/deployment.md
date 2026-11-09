@@ -22,7 +22,7 @@ The Arrow accelerator is an in-process, in-memory engine. There is no external s
 The Arrow accelerator is **not durable**. Data is held in RAM and is lost on process restart; every restart re-materializes the dataset from the source connector.
 
 - **Crash recovery**: None — on restart, the dataset is refreshed from scratch.
-- **File modes**: File-mode acceleration is rejected at startup; Arrow is memory-only. Use [DuckDB](../duckdb/deployment), [SQLite](../sqlite/deployment), [PostgreSQL](../postgres/deployment), or [Cayenne](../cayenne/deployment) when durability or spill is required.
+- **File modes**: File-mode acceleration is rejected at startup; Arrow is memory-only. Use [Cayenne](../cayenne/deployment), [SQLite](../sqlite/deployment), or [PostgreSQL](../postgres/deployment) when durability or spill is required.
 - **Concurrency**: Arrow reads are lock-free. Refresh cadence is controlled by the runtime refresh semaphore, not by the accelerator itself.
 
 ## Capacity & Sizing
@@ -62,9 +62,9 @@ Arrow acceleration operations (refresh, query) participate in [task history](../
 
 | Symptom                                          | Likely cause                                            | Resolution                                                                                     |
 | ------------------------------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| OOM on refresh                                   | Source dataset larger than RAM.                         | Switch to a durable accelerator (DuckDB / SQLite / Cayenne) that supports spill to disk.       |
+| OOM on refresh                                   | Source dataset larger than RAM.                         | Switch to a durable accelerator (Cayenne / SQLite) that supports spill to disk.       |
 | Long startup time                                | Full-dataset refresh runs on boot.                      | Switch to a durable accelerator so refresh is incremental, not full, on restart.               |
 | `The hash_index acceleration parameter is ignored for Arrow acceleration` warning | `hash_index` no longer activates indexing on its own. | Remove `hash_index` from `params:` and set `primary_key:` or `indexes:` instead.               |
 | No hash index despite `primary_key` being set     | `refresh_mode: caching` drops the primary-key constraint. | Configure `indexes:` on the looked-up columns, or use a non-`caching` refresh mode.            |
 | Query slow for point lookups                     | No primary key/index, or wrong key column.              | Add a `primary_key:` (or secondary `indexes:` entry); ensure the query filter matches the indexed columns. |
-| Accelerator refuses to start with file mode      | Arrow rejects file-mode acceleration.                   | Switch `engine:` to `duckdb`, `sqlite`, `postgres`, or `cayenne`.                              |
+| Accelerator refuses to start with file mode      | Arrow rejects file-mode acceleration.                   | Switch `engine:` to `cayenne`, `sqlite`, or `postgres`.                                        |

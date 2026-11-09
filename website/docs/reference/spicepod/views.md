@@ -119,20 +119,21 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine.
-- [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
 - [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
+
+The `duckdb` and `turso` engines are removed: a view that sets either one fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
-- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `duckdb` or `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_view.db`).
+Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.sqlite_file: /nvme/my_view.db`).
 
 Supported values:
 

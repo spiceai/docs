@@ -36,16 +36,16 @@ datasets:
       scylladb_keyspace: catalog
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 1h
       params:
-        duckdb_file: /nvme/spice/data/products.duckdb
+        cayenne_file_path: /nvme/spice/data/
 ```
 
-Choose the engine by size: `duckdb` in file mode for tables under 10 GB with complex SQL, and [Spice Cayenne](../../data-accelerators/cayenne/index.md) for 10 GB and above — Cayenne needs one-third to one-half the memory of DuckDB for the same data and scales beyond a single file. See [Accelerator Selection](../../../reference/performance-tuning.md#accelerator-selection).
+[Spice Cayenne](../../data-accelerators/cayenne/index.md) is the default engine and scales beyond a single file. See [Accelerator Selection](../../../reference/performance-tuning.md#accelerator-selection).
 
-**Store the acceleration on local NVMe or SSD.** A file-mode acceleration runs at the per-I/O latency of the disk beneath it: Vortex's dependent segment reads and DuckDB's buffer manager each wait for the device before the query can continue, so the tens of microseconds an NVMe read takes — against a millisecond or more on network storage — is multiplied along every query. Place `duckdb_file` or `cayenne_file_path` on a local NVMe volume rather than the root disk, and never on a network file system (NFS, SMB, EFS); network block storage such as EBS works as a durable fallback, preferably a sub-millisecond tier such as `io2` Block Express. Point `runtime.query.temp_directory` at the same fast volume so large sorts and joins can spill. See [Storage](../../../reference/performance-tuning.md#storage) for the tiers, the cloud specifics, and the capacity figures.
+**Store the acceleration on local NVMe or SSD.** A file-mode acceleration runs at the per-I/O latency of the disk beneath it: Vortex's dependent segment reads wait for the device before the query can continue, so the tens of microseconds an NVMe read takes — against a millisecond or more on network storage — is multiplied along every query. Place `cayenne_file_path` on a local NVMe volume rather than the root disk, and never on a network file system (NFS, SMB, EFS); network block storage such as EBS works as a durable fallback, preferably a sub-millisecond tier such as `io2` Block Express. Point `runtime.query.temp_directory` at the same fast volume so large sorts and joins can spill. See [Storage](../../../reference/performance-tuning.md#storage) for the tiers, the cloud specifics, and the capacity figures.
 
 **Refresh incrementally where the table allows it.** A full refresh re-reads the whole table from ScyllaDB on every interval. For a table whose rows carry a monotonically increasing timestamp, set `time_column` and `refresh_mode: append` so each refresh fetches only new rows; see [Data Refresh](../../../features/data-acceleration/data-refresh.md). Keep `refresh_check_interval` no shorter than the freshness the workload needs, since each refresh is a scan against the cluster.
 

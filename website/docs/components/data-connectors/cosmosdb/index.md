@@ -202,7 +202,7 @@ LIMIT 50;
 
 ### Acceleration
 
-Standard Spice acceleration (DuckDB, SQLite, Arrow in-memory, Cayenne) works on top of the Cosmos DB connector. Acceleration is recommended when the container is large or when query latency matters — it avoids per-query RU consumption against the Cosmos account.
+Standard Spice acceleration (Cayenne, SQLite, Arrow in-memory) works on top of the Cosmos DB connector. Acceleration is recommended when the container is large or when query latency matters — it avoids per-query RU consumption against the Cosmos account.
 
 ```yaml
 datasets:
@@ -212,7 +212,7 @@ datasets:
       cosmosdb_connection_string: ${secrets:COSMOSDB_CONNECTION_STRING}
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 1h
 ```

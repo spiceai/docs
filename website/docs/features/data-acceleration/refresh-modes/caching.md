@@ -12,7 +12,7 @@ The `caching` refresh mode provides intelligent caching for HTTP-based datasets 
 The caching mode supports two key paradigms:
 
 1. **Stale-While-Revalidate (SWR)** - Serves cached data immediately while refreshing in the background, optimizing for low latency and reduced API costs
-2. **Cache Persistence** - Stores cached data to disk using file-based accelerators (DuckDB, SQLite, or Cayenne) for fast cold starts and durability
+2. **Cache Persistence** - Stores cached data to disk using file-based accelerators (Cayenne or SQLite) for fast cold starts and durability
 
 ## Overview
 
@@ -66,7 +66,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 30s
       params:
@@ -91,7 +91,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -125,7 +125,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 10s
@@ -152,7 +152,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 10s
@@ -222,7 +222,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       params:
         caching_ttl: 10s # Data is fresh for 10 seconds
@@ -257,7 +257,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       params:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
@@ -283,9 +283,8 @@ The `caching` mode supports persisting cached data to disk using file-based acce
 
 ### File-Based Accelerators
 
-Three acceleration engines support file persistence for caching mode:
+Two acceleration engines support file persistence for caching mode:
 
-- **DuckDB** - High-performance analytical database with excellent compression
 - **SQLite** - Lightweight, reliable database ideal for embedded scenarios
 - **Cayenne** - Spice's native accelerator optimized for analytical workloads
 
@@ -304,7 +303,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb # or sqlite, cayenne
+      engine: cayenne # or sqlite
       mode: file # Enable file persistence
       params:
         caching_ttl: 10s
@@ -314,34 +313,6 @@ datasets:
         SELECT * FROM shows_persistent_cache
         WHERE request_path IN ('/shows/82', '/shows/169')
            OR (request_path = '/search/shows' AND request_query = 'q=game+of+thrones')
-```
-
-### DuckDB Persistence Example
-
-DuckDB provides excellent performance for analytical queries on cached data:
-
-```yaml
-datasets:
-  - from: https://api.tvmaze.com
-    name: tv_shows_duckdb
-    params:
-      file_format: json
-      allowed_request_paths: '/shows/*,/shows/*/episodes'
-      request_query_filters: enabled
-    acceleration:
-      enabled: true
-      refresh_mode: caching
-      engine: duckdb
-      mode: file
-      params:
-        caching_ttl: 10s
-        caching_stale_while_revalidate_ttl: 10s
-        duckdb_file: tv_shows_cache.db # Specify custom file location
-      refresh_check_interval: 30s
-      refresh_sql: |
-        SELECT * FROM tv_shows_duckdb
-        WHERE request_path IN ('/shows/82', '/shows/169')
-           OR (request_path = '/shows/82/episodes' AND request_query = 'season=1')
 ```
 
 ### SQLite Persistence Example
@@ -418,7 +389,7 @@ Choose between in-memory and file-based caching based on your requirements:
 | **Capacity**    | Limited by available memory       | Limited by disk space         |
 | **Cold start**  | Slow - must refetch all data      | Fast - loads from disk        |
 | **Best for**    | Small, frequently changing caches | Large, stable caches          |
-| **Engines**     | `cayenne` (default), `arrow` | `duckdb`, `sqlite`, `cayenne` |
+| **Engines**     | `cayenne` (default), `arrow` | `cayenne`, `sqlite`           |
 
 ### Combining SWR and Persistence
 
@@ -435,7 +406,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist to disk
       params:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
@@ -481,7 +452,7 @@ This behavior differs from other modes:
 
 An origin that answers a cached request with no rows, such as `[]`, has retracted the rows it returned before. On the `cayenne` engine, that empty response replaces the entry: the stored rows for that request are deleted, so a later [`caching_stale_if_error`](#stale-if-error-behavior) fallback or [stale-while-revalidate](#stale-while-revalidate-pattern) read does not serve the retracted rows. The replacement is scoped to the one request the lookup names. A request part the lookup does not name is matched as empty, the value the HTTP connector stores for a part it does not send, so an empty answer to a GET leaves a POST response or a response to another `request_query` under the same path in place. When the lookup's filters do not name a single request, the empty response is not written and the earlier entry is kept.
 
-On `duckdb`, `sqlite`, and `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
+On `sqlite` and `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
 
 ### Concurrent Cache Misses
 
@@ -540,7 +511,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       primary_key: '(id, season, number)' # stored rows are unique per episode
       params:
@@ -583,7 +554,7 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
 | `on_zero_results`        | **Ignored in caching mode.** Caching mode always queries the source on a cache miss, regardless of this setting. | `return_empty` |
-| `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `cayenne` |
+| `engine`                 | Acceleration engine (`cayenne`, `arrow`, `sqlite`)                    | `cayenne` |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
 
 ### Cache TTL (Time-to-Live)
@@ -613,7 +584,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       refresh_check_interval: 30s # Periodic check for stale data
       params:
@@ -697,7 +668,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -753,7 +724,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -819,5 +790,5 @@ Choose one approach:
 - [Refresh SQL](../data-refresh#refresh-sql) - Using SQL to control refresh behavior
 - [Special Metadata Fields](../../../components/data-connectors/https#special-metadata-fields) - HTTP request metadata fields
 - [Data Accelerators](../../../components/data-accelerators) - Acceleration engines for cache persistence
-- [DuckDB Accelerator](../../../components/data-accelerators/duckdb) - DuckDB acceleration engine
+- [Spice Cayenne Accelerator](../../../components/data-accelerators/cayenne) - Spice Cayenne acceleration engine
 - [SQLite Accelerator](../../../components/data-accelerators/sqlite) - SQLite acceleration engine

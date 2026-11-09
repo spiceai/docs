@@ -45,7 +45,7 @@ The Delta Lake connector reads the `_delta_log` transaction log on each query pl
 - **Metadata cost**: Reading a Delta table requires reading its `_delta_log`, which grows with every commit. Checkpointing (handled by the writer) bounds this cost. Ensure the writer is issuing checkpoints every 10-100 commits for large, high-churn tables.
 - **Partition pruning**: The connector prunes partitions using Delta's partition metadata during query planning. Partition datasets by the dominant filter columns (date, tenant) for best performance.
 - **Column pruning and predicate pushdown**: Filters and column projections are pushed down into the underlying Parquet readers. Queries over a narrow column set over a large table are efficient without requiring acceleration.
-- **Acceleration sizing**: When materializing into DuckDB/SQLite/Postgres, size the target engine to hold the refreshed snapshot plus WAL overhead (typically 1.3–2× the raw Parquet size for row-oriented accelerators).
+- **Acceleration sizing**: When materializing into Cayenne/SQLite/Postgres, size the target engine to hold the refreshed snapshot plus WAL overhead (typically 1.3–2× the raw Parquet size for row-oriented accelerators).
 
 ## Metrics
 

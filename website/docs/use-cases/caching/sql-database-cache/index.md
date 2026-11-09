@@ -21,7 +21,7 @@ graph LR
 
 ## Why Spice.ai?
 
-- **Dataset Acceleration**: Materializes tables from PostgreSQL, MySQL, or other SQL connectors into a local accelerator (Cayenne, DuckDB, SQLite, Arrow), with configurable refresh intervals or CDC-based change tracking.
+- **Dataset Acceleration**: Materializes tables from PostgreSQL, MySQL, or other SQL connectors into a local accelerator (Cayenne, SQLite, Arrow), with configurable refresh intervals or CDC-based change tracking.
 - **SQL Results Cache**: Caches query results in memory with LRU eviction, configurable TTL, and stale-while-revalidate support. Enabled by default for HTTP and Arrow Flight SQL APIs.
 - **Reduced Upstream Load**: Repeated queries are served from the local cache or accelerator without hitting the upstream database, protecting production databases from read amplification.
 - **CDC Support**: Debezium-based change data capture keeps the accelerated copy in sync with the source database in near-real-time, without polling.
@@ -50,7 +50,7 @@ datasets:
     name: orders
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
 ```

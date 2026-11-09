@@ -63,7 +63,7 @@ The default distribution includes the standard `spiced` feature set, including A
 **Included Features:**
 
 - All standard data connectors (PostgreSQL, MySQL, DuckDB, SQLite, ClickHouse, etc.)
-- Embedded data accelerators (Spice Cayenne, DuckDB, SQLite)
+- Embedded data accelerators (Spice Cayenne, SQLite)
 - AI/ML model inference (LLMs, embeddings)
 - Search capabilities (Vector and BM-25 Full-Text-Search)
 - Default memory allocator (snmalloc)
@@ -284,7 +284,7 @@ Custom distributions with specific feature combinations can be built:
 
 ```bash
 # Build with specific features (replaces the default feature set)
-SPICED_CUSTOM_FEATURES="duckdb,postgres,sqlite,models" make build
+SPICED_CUSTOM_FEATURES="adbc,postgres,sqlite,models" make build
 
 # Build with non-default features added to defaults
 SPICED_NON_DEFAULT_FEATURES="odbc" make install

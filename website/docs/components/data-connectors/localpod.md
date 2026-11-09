@@ -29,8 +29,8 @@ datasets:
     name: test
     params: ...
     acceleration:
-      enabled: true # This dataset will be accelerated into a DuckDB file
-      engine: duckdb
+      enabled: true # This dataset will be accelerated to disk with Spice Cayenne
+      engine: cayenne
       mode: file
       refresh_check_interval: 10s
   - from: localpod:test

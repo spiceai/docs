@@ -20,7 +20,7 @@ graph LR
 
 ## Why Spice.ai?
 
-- **Local Acceleration**: Materializes S3 data into a fast local engine (Cayenne, DuckDB, SQLite, Arrow) so queries run at local speed instead of scanning remote storage.
+- **Local Acceleration**: Materializes S3 data into a fast local engine (Cayenne, SQLite, Arrow) so queries run at local speed instead of scanning remote storage.
 - **Smart Refresh Skip**: For single-file S3 datasets, Spice checks the object's metadata before refreshing. If the file has not changed (same size, last modified timestamp, and version/ETag), the refresh is skipped entirely.
 - **Multiple File Formats**: Supports Parquet, CSV, JSON, and other formats stored in S3 or S3-compatible systems (MinIO, Cloudflare R2).
 - **Folder-Level Datasets**: Point a dataset at an S3 folder to load all files within it as a single table, with periodic refresh to pick up new files.
@@ -59,7 +59,7 @@ datasets:
       s3_region: us-west-2
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 5m
 ```
@@ -105,4 +105,4 @@ The `Results-Cache-Status` response header indicates cache state: `HIT`, `MISS`,
 - **S3 Data Connector**: [Documentation](../../components/data-connectors/s3) for authentication, configuration, and supported formats.
 - **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Data Refresh](../../features/data-acceleration/data-refresh).
 - **Caching**: [Documentation](../../features/caching) for SQL results cache configuration, Cache-Control directives, and response headers.
-- **DuckDB Data Accelerator**: [Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) for file-backed acceleration.
+- **Cayenne Data Accelerator**: [Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md) for file-backed acceleration.

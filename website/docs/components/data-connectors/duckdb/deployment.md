@@ -31,11 +31,11 @@ DuckDB supports a single writer with many readers per database file. The Spice D
 
 ### Crash Recovery
 
-DuckDB's WAL provides crash recovery for any process that wrote to the file. The Spice connector does not itself write (the data connector is read-only; the DuckDB _accelerator_ is distinct and handles write paths).
+DuckDB's WAL provides crash recovery for any process that wrote to the file. The Spice connector does not itself write: the data connector is read-only.
 
 ## Capacity & Sizing
 
-- **Memory**: DuckDB manages its own memory based on available system memory when executing queries against the file. The connector opens the database read-only and exposes no memory-limit or connection-string setting — its only parameter is `duckdb_open`. For a Spice-configurable memory limit, use the [DuckDB accelerator](../../data-accelerators/duckdb), which supports the `duckdb_memory_limit` acceleration parameter.
+- **Memory**: DuckDB manages its own memory based on available system memory when executing queries against the file. The connector opens the database read-only and exposes no memory-limit or connection-string setting — its only parameter is `duckdb_open`. To keep a Spice-managed local copy with memory bounded by `runtime.query.memory_limit`, accelerate the dataset with [Spice Cayenne](../../data-accelerators/cayenne).
 - **Disk**: Plan for 1.5–2× the raw data size to accommodate DuckDB's internal compression, WAL, and temporary spill files during query execution.
 - **Temporary spill**: Large queries can spill to DuckDB's temp directory (by default, alongside the database file). The connector exposes no spill-directory setting, so ensure the volume holding the database file has adequate free space.
 
@@ -51,7 +51,7 @@ DuckDB queries participate in [task history](../../../reference/task_history) th
 
 ## Known Limitations
 
-- **Read-only via the data connector**: For a writable, Spice-managed DuckDB, use the [DuckDB accelerator](../../data-accelerators/duckdb) instead.
+- **Read-only via the data connector**: For a writable, Spice-managed local copy of the data, accelerate the dataset with [Spice Cayenne](../../data-accelerators/cayenne) instead.
 - **Single-writer**: A DuckDB file cannot be written by two processes concurrently. Coordinate writers out-of-band.
 - **`HUGEINT` values beyond 38 digits**: DuckDB exports `HUGEINT` as `Decimal128(38, 0)`, so a value with more than 38 digits is returned with a digit missing ([spiceai/spiceai#15869](https://github.com/spiceai/spiceai/issues/15869)).
 - **`octet_length` on strings**: `octet_length` over a `VARCHAR` column is pushed down to DuckDB, which has no `octet_length(VARCHAR)`, so the query fails ([spiceai/spiceai#15865](https://github.com/spiceai/spiceai/issues/15865)).

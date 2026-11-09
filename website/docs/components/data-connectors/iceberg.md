@@ -455,7 +455,7 @@ WHERE deleted = false
 
 [Cluster acceleration](../../deployment/architectures/cluster-sidecar) plus a sidecar [SQL results cache](../../features/caching) addresses a different problem. The cache stores query results; it does not apply the soft-delete filter. It moves hot point lookups closer to the application, and it splits the deployment: the cluster holds the accelerated log, and each sidecar keeps its own result cache instead of another filtered copy of that log.
 
-A worked DuckDB example of this log-plus-filtered-view shape is in [Sorted views](../../reference/performance-tuning#sorted-views).
+To keep the filtered copy sorted by the columns queries filter on, set Spice Cayenne [`sort_columns`](../data-accelerators/cayenne/performance#sorted-data-and-segment-pruning) on its acceleration.
 
 ## Examples
 

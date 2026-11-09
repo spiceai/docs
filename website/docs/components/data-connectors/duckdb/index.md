@@ -194,7 +194,7 @@ A call that fails the screen is evaluated in Spice, and the query still answers.
 | `regexp_replace(s, 'a', 'X', 'g')` | DuckDB |
 | `regexp_replace(s, '(a)(b)', '$2$1')` | Spice (the replacement holds `$`) |
 
-The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckDB data accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake data connector](../ducklake.md) and the [DuckLake catalog connector](../../catalogs/ducklake.md).
+The same rules apply wherever the DuckDB dialect is used: this connector, the [DuckLake data connector](../ducklake.md), and the [DuckLake catalog connector](../../catalogs/ducklake.md).
 
 ## `concat` and Binary Values
 
@@ -220,19 +220,19 @@ Spice evaluates the following expressions itself, above the federated scan, beca
 - **A `CAST` or `TRY_CAST` into a binary type**, such as `CAST(name AS BYTEA)`, whatever the type of its operand.
 - **DataFusion's cast and type functions**: [`arrow_cast`](../../../reference/sql/scalar_functions.md#arrow_cast), [`arrow_try_cast`](../../../reference/sql/scalar_functions.md#arrow_try_cast), `cast_to_type`, `try_cast_to_type`, [`arrow_typeof`](../../../reference/sql/scalar_functions.md#arrow_typeof), `arrow_field`, [`arrow_metadata`](../../../reference/sql/scalar_functions.md#arrow_metadata), and `with_metadata`. DuckDB has no functions with most of these names, and its own `cast_to_type` casts by DuckDB's rules.
 
-Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast appears in a `ProjectionExec` or `FilterExec` above the `VirtualExecutionPlan`, and the `base_sql` sent to DuckDB selects only the referenced columns. These rules apply wherever the DuckDB dialect is used, including the [DuckDB accelerator](../../data-accelerators/duckdb/index.md).
+Run [`EXPLAIN`](../../../reference/sql/explain.md) to see the split: the cast appears in a `ProjectionExec` or `FilterExec` above the `VirtualExecutionPlan`, and the `base_sql` sent to DuckDB selects only the referenced columns. These rules apply wherever the DuckDB dialect is used, including the [DuckLake connector](../ducklake.md) and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## Decimal Averages
 
 `AVG` over a decimal column is never sent to DuckDB. DuckDB's `avg` over a `DECIMAL` returns a `DOUBLE`, which rounds and carries about 16 significant digits, while Spice divides the exact decimal sum in decimal arithmetic and truncates the result to the scale of the result type. The two can differ in the last digit, and for a large `DECIMAL(38, 2)` value in the integer digits. A decimal `AVG`, called as an aggregate or as a window function, is therefore evaluated in Spice above the federated scan, and the query still answers. An `AVG` whose argument type Spice cannot determine is also evaluated in Spice.
 
-DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+DuckDB's decimal `SUM` is exact, so it is still sent to DuckDB, as is `AVG` over integer and floating-point columns. The same rule applies to the [DuckLake connector](../ducklake.md) and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## Decimal Division
 
 A `/` with a decimal operand, such as `price / 7` over a `DECIMAL` column, is never sent to DuckDB. The DuckDB dialect writes every division as `//`, so that an integer `/` stays integer division, and DuckDB evaluates both `//` and `/` over a `DECIMAL` as a `DOUBLE`, which carries about 16 significant digits. Spice would then cast that double back to the decimal result type, so the digits past the double's precision would look exact and be wrong. Spice evaluates the division itself, above the federated scan, in decimal arithmetic. A `/` whose operand type Spice cannot determine is also evaluated in Spice.
 
-Integer and floating-point `/` are sent to DuckDB when the divisor passes the check in [Division by Zero](#division-by-zero), and an integer `/` is still integer division. The same rule applies to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+Integer and floating-point `/` are sent to DuckDB when the divisor passes the check in [Division by Zero](#division-by-zero), and an integer `/` is still integer division. The same rule applies to the [DuckLake connector](../ducklake.md) and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## Division by Zero
 
@@ -252,7 +252,7 @@ Spice reads a backslash in a `LIKE` or `ILIKE` pattern as the default escape cha
 
 `SIMILAR TO` is evaluated in Spice for every federated source, as described in [Query Federation](../../../features/query-federation/index.md#similar-to-and-federation).
 
-The rules in [Division by Zero](#division-by-zero), [`substr` Positions](#substr-positions), [`LIKE` Patterns with a Backslash](#like-patterns-with-a-backslash), and this section apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md). In v2.4.1 and earlier, these expressions are sent to DuckDB and can return the DuckDB results described above.
+The rules in [Division by Zero](#division-by-zero), [`substr` Positions](#substr-positions), [`LIKE` Patterns with a Backslash](#like-patterns-with-a-backslash), and this section apply to the [DuckLake connector](../ducklake.md) and the [DuckLake catalog](../../catalogs/ducklake.md). In v2.4.1 and earlier, these expressions are sent to DuckDB and can return the DuckDB results described above.
 
 ## Ordered Aggregates and `IGNORE NULLS`
 
@@ -260,7 +260,7 @@ An aggregate can take an `ORDER BY` inside the call, as in `string_agg(name, ','
 
 Any other aggregate whose result depends on an `ORDER BY` inside the call, such as `nth_value`, is evaluated in Spice above the federated scan, so the result keeps the requested order. This rule does not apply to an aggregate that takes its ordering as `WITHIN GROUP (ORDER BY ...)`, because the SQL sent to DuckDB keeps that clause. An `ORDER BY` inside an aggregate whose result does not depend on the order, such as `count`, `sum`, `min`, `max`, or `avg`, does not change where the aggregate runs; a decimal `AVG` is still evaluated in Spice, as described in [Decimal Averages](#decimal-averages). An aggregate or window function with `IGNORE NULLS`, such as `lag(v) IGNORE NULLS OVER (ORDER BY id)`, is always evaluated in Spice, because the SQL sent to DuckDB cannot carry that clause.
 
-The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+The same rules apply to the [DuckLake connector](../ducklake.md) and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## `approx_distinct` and `encode`
 
@@ -268,7 +268,7 @@ The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/
 
 `encode(x, 'hex')` is sent to DuckDB as `lower(hex(x))`, which returns the same lowercase hexadecimal text as Spice. `encode` with any other encoding, such as `'base64'`, is evaluated in Spice.
 
-The same rules apply to the [DuckDB accelerator](../../data-accelerators/duckdb/index.md), the [DuckLake connector](../ducklake.md), and the [DuckLake catalog](../../catalogs/ducklake.md).
+The same rules apply to the [DuckLake connector](../ducklake.md) and the [DuckLake catalog](../../catalogs/ducklake.md).
 
 ## Cookbook
 

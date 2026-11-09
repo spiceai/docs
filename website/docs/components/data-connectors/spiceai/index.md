@@ -308,5 +308,5 @@ Sidecar mode is not available in v2.4.1 and earlier.
 :::warning Memory considerations
 Without `acceleration.enabled: true`, federated queries that join across multiple Spice instances perform the join in memory on the local runtime. Ensure the local runtime has enough memory for query workspace plus runtime overhead, especially for concurrent queries.
 
-For large workloads, accelerate hot datasets locally with a file-mode engine ([`duckdb`](../data-accelerators/duckdb) or [`sqlite`](../data-accelerators/sqlite) with `mode: file`) to spill to disk instead of RAM.
+For large workloads, accelerate hot datasets locally with a file-mode engine ([`cayenne`](../data-accelerators/cayenne) or [`sqlite`](../data-accelerators/sqlite) with `mode: file`) to spill to disk instead of RAM.
 :::

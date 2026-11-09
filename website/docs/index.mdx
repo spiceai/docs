@@ -91,7 +91,7 @@ Spice simplifies building data-driven AI applications and agents by combining SQ
 
 1. **AI-Native Runtime**: Combines data query and AI inference in a single engine for data-grounded, accurate AI.
 2. **Application-Focused**: Designed for distributed deployment at the application or agent level, often as a 1:1 or 1:N mapping, unlike centralized databases serving multiple apps. Multiple Spice instances can be deployed, even one per tenant or customer.
-3. **Dual-Engine Acceleration**: Supports **OLAP** (Arrow/DuckDB) and **OLTP** (SQLite/PostgreSQL) engines at the dataset level for flexible performance across analytical and transactional workloads.
+3. **Dual-Engine Acceleration**: Supports **OLAP** (Cayenne/Arrow) and **OLTP** (SQLite/PostgreSQL) engines at the dataset level for flexible performance across analytical and transactional workloads.
 4. **Disaggregated Storage**: Separates compute from storage, co-locating materialized working datasets with applications, dashboards, or ML pipelines while accessing source data in its original storage.
 5. **Edge to Cloud Native**: Deploy as a standalone instance, Kubernetes sidecar, microservice, or cluster across edge, on-prem, and public clouds. Chain multiple Spice instances for tier-optimized, distributed deployments.
 
@@ -108,7 +108,7 @@ For detailed comparisons with other data query engines and AI frameworks, see [H
 
 ### Database CDN and Query Mesh
 
-- **Data Acceleration**: Co-locate materialized datasets in Cayenne, Arrow, SQLite, or DuckDB for sub-second queries. [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md)
+- **Data Acceleration**: Co-locate materialized datasets in Cayenne, Arrow, or SQLite for sub-second queries. [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md)
 - **Resiliency and Local Dataset Replication**: Maintain availability with local replicas of critical datasets. [Local Dataset Replication Recipe](https://github.com/spiceai/cookbook/blob/trunk/localpod/README.md)
 - **Responsive Dashboards**: Enable fast, real-time analytics for frontends and BI tools. [Sales BI Dashboard Demo](https://github.com/spiceai/cookbook/blob/trunk/sales-bi/README.md)
 - **Simplified Legacy Migration**: Unify legacy systems with modern infrastructure via federated SQL querying. [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md)

@@ -33,7 +33,7 @@ Running both on the same Spice instance forces a single hardware shape, refresh 
 
 The two tiers communicate through two channels:
 
-1. **Snapshots** in object storage — the cluster periodically writes a complete copy of each acceleration file (DuckDB, SQLite, or Cayenne) to standard S3, GCS, or ADLS. The copy is the whole accelerated dataset. Spice does not publish an incremental delta of what changed. Read instances bootstrap from the latest snapshot on startup and (optionally) refresh from snapshots on a schedule. No live network dependency on the cluster.
+1. **Snapshots** in object storage — the cluster periodically writes a complete copy of each acceleration (Cayenne or SQLite) to standard S3, GCS, or ADLS. The copy is the whole accelerated dataset. Spice does not publish an incremental delta of what changed. Read instances bootstrap from the latest snapshot on startup and (optionally) refresh from snapshots on a schedule. No live network dependency on the cluster.
 2. **Live query delegation** — when a read instance needs data outside its materialized working set (a historical query, a cross-dataset join, a broad search), it transparently delegates to the cluster over Arrow Flight. See [Cluster-Sidecar Architecture](architectures/cluster-sidecar).
 
 Most production deployments use both: snapshots for the steady-state working set, and live delegation for the long tail.
@@ -93,7 +93,7 @@ Cluster Spicepod responsibilities:
 
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
-- Accelerate to file-mode engines (Cayenne, DuckDB, or SQLite) so the materialization can be exported as a snapshot.
+- Accelerate to file-mode engines (Cayenne or SQLite) so the materialization can be exported as a snapshot.
 - Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh.
 
 ```yaml
@@ -111,14 +111,13 @@ datasets:
       file_format: parquet
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 5m
       snapshots: enabled # write a new snapshot after every refresh
       snapshots_trigger: refresh_complete
-      snapshots_compaction: enabled
       params:
-        duckdb_file: /data/orders.db
+        cayenne_file_path: /data/
 
   - from: postgres:public.customers
     name: customers
@@ -128,14 +127,14 @@ datasets:
       pg_pass: ${ secrets:PG_PASS }
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes # CDC
       snapshots: enabled
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 10m
       params:
-        duckdb_file: /data/customers.db
+        cayenne_file_path: /data/
 ```
 
 Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), and the publishing instance keeps each dataset's snapshots of the last 28 days. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention), and [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
@@ -166,25 +165,25 @@ datasets:
       file_format: parquet
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot # reload from the snapshot store; never query the source
       refresh_check_interval: 1m # poll the snapshot store every minute
       snapshots: bootstrap_only # download only; never write back
       params:
-        duckdb_file: /local/orders.db
+        cayenne_file_path: /local/
 
   - from: postgres:public.customers
     name: customers
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot
       refresh_check_interval: 1m
       snapshots: bootstrap_only
       params:
-        duckdb_file: /local/customers.db
+        cayenne_file_path: /local/
 ```
 
 Two settings make the read tier read-only. `snapshots: bootstrap_only` means read instances **read** snapshots but never **write** them, so multiple replicas don't race to upload. `refresh_mode: snapshot` makes every steady-state refresh a snapshot reload — the federated source is never queried, so a read instance stays functional with no source credentials at all. `refresh_mode: snapshot` also rejects `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` against the accelerated table.
@@ -213,7 +212,7 @@ The application sees a single SQL surface — accelerated tables and delegated t
 
 When a read instance starts:
 
-1. For each accelerated dataset, Spice checks for the local file (`duckdb_file` / `sqlite_file`).
+1. For each accelerated dataset, Spice checks for the local acceleration data (the Cayenne data directory, or the `sqlite_file`).
 2. If absent and snapshots are enabled, Spice lists the snapshot prefix, downloads the newest snapshot for that dataset, and the dataset goes ready immediately.
 3. If no snapshot is found, behavior is governed by `bootstrap_on_failure_behavior`:
    - `warn` (default) — boot empty and refresh from the source. Avoid in read-tier instances that should not have source access.
@@ -239,11 +238,11 @@ Snapshots are written to Hive-partitioned paths so retention is straightforward:
 
 ```text
 s3://spiceai-snapshots/prod/
-  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z_019de368f9537198907799402bf53e23.duckdb
-  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.duckdb
+  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z_019de368f9537198907799402bf53e23.cayenne
+  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.cayenne
 ```
 
-The extension names the engine that wrote the snapshot (`.duckdb`, `.sqlite`, or `.cayenne`), so the cluster and read tiers must accelerate a dataset with the same engine.
+The extension names the engine that wrote the snapshot (`.cayenne` or `.sqlite`), so the cluster and read tiers must accelerate a dataset with the same engine.
 
 The publishing instance deletes snapshots older than 28 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
 
@@ -251,7 +250,7 @@ The snapshot bucket is the only shared dependency between the tiers, so keep it 
 
 ### Full copies and incremental replication
 
-Each snapshot object is the full acceleration file. Replicating the snapshot bucket between regions copies that entire file on every snapshot. Size the bucket for dataset size times the number of snapshots written in about 29 days: 28 days of retention plus at least 24 hours before a dropped file is deleted. DuckDB `snapshots_compaction` shrinks each copy; the result is still a full file. See [What each snapshot contains](../features/data-acceleration/snapshots#what-each-snapshot-contains).
+Each snapshot object is the full acceleration file. Replicating the snapshot bucket between regions copies that entire file on every snapshot. Size the bucket for dataset size times the number of snapshots written in about 29 days: 28 days of retention plus at least 24 hours before a dropped file is deleted. See [What each snapshot contains](../features/data-acceleration/snapshots#what-each-snapshot-contains).
 
 When changed data should replicate as objects between regions or tiers, use a path that publishes the change:
 
@@ -358,7 +357,7 @@ Rough first-pass sizing rules:
 | Read instance    | 1 replica per application pod. 0.5–2 vCPU, 512Mi–4Gi memory, 10–50Gi local SSD.                      |
 | Snapshot bucket  | Standard tier, same region. Lifecycle rule sized to refresh frequency × number of datasets × 24–72h. |
 
-Read-tier memory is dominated by the working set of the file-mode acceleration engine. DuckDB compaction (`snapshots_compaction: enabled`) typically reduces snapshot size by 30–60%.
+Read-tier memory is dominated by the working set of the file-mode acceleration engine.
 
 ## Security model
 

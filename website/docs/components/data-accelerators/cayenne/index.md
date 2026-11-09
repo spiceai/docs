@@ -25,7 +25,7 @@ Spice Cayenne uses Vortex as its storage format, providing significant performan
 
 Vortex is a Linux Foundation (LF AI & Data) project under Apache-2.0 license with neutral governance. For performance benchmarks, see [bench.vortex.dev](https://bench.vortex.dev/).
 
-Spice Cayenne is recommended for any dataset of **10 GB or larger**. [DuckDB](duckdb) suits smaller datasets, but its memory requirements grow faster: Cayenne typically needs one-third to one-half the memory of the DuckDB accelerator for the same dataset, and scales beyond the limits at which a single DuckDB file becomes impractical.
+Spice Cayenne is the default acceleration engine, and v2.5 removes the `duckdb` and `turso` engines. To move an existing acceleration, see [Migrating to Spice Cayenne](./migration.md).
 
 ## Architecture
 
@@ -361,7 +361,7 @@ datasets:
       refresh_mode: changes
 ```
 
-Cayenne is not the only engine that can apply a change stream — `arrow`, `duckdb`, and `sqlite` are also valid `changes` sinks — but Cayenne adds CDC-specific capabilities built for large-scale, continuously-updated datasets:
+Cayenne is not the only engine that can apply a change stream — `arrow` and `sqlite` are also valid `changes` sinks — but Cayenne adds CDC-specific capabilities built for large-scale, continuously-updated datasets:
 
 - **Incrementally maintained aggregate views (IVM).** Aggregate views declared with `maintained_aggregates` are updated in place as each change event is applied, rather than recomputed, so `GROUP BY` rollups stay fresh at CDC speed. See [Maintained Aggregates](#maintained-aggregates).
 - **Key-based incremental deletes.** With a primary key, `cayenne_deletion_mode: auto` resolves to key-based deletion vectors so source `DELETE` and `UPDATE` events apply efficiently. See [Deletion Vectors](#deletion-vectors).
@@ -583,7 +583,7 @@ datasets:
 
 ### Secondary indexes
 
-Segment statistics prune a *selective* query well, but they are not a row address: when a query pins an exact key the table is not clustered on, most files remain candidates and the scan opens them. A dataset's [`indexes`](../../features/data-acceleration/indexes) — the same acceleration field DuckDB, SQLite, and PostgreSQL accept — gives a Cayenne table one secondary index per entry, in both `mode: file` and `mode: memory`:
+Segment statistics prune a *selective* query well, but they are not a row address: when a query pins an exact key the table is not clustered on, most files remain candidates and the scan opens them. A dataset's [`indexes`](../../features/data-acceleration/indexes) — the same acceleration field SQLite and PostgreSQL accept — gives a Cayenne table one secondary index per entry, in both `mode: file` and `mode: memory`:
 
 ```yaml
 datasets:

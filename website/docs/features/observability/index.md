@@ -88,7 +88,7 @@ dataset_load_state{dataset="taxi_trips_accelerated"} 2
 # HELP dataset_active_count Number of currently loaded datasets.
 # TYPE dataset_active_count gauge
 dataset_active_count{engine="None"} 1
-dataset_active_count{engine="duckdb"} 1
+dataset_active_count{engine="cayenne"} 1
 ...
 ```
 

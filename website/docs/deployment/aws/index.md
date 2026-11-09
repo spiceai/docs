@@ -90,7 +90,7 @@ For declarative GitOps, swap this command for an Argo CD `Application` or a Flux
 
 #### 4. Storage and ingress
 
-For stateful acceleration (DuckDB, SQLite, Cayenne):
+For stateful acceleration (Cayenne or SQLite):
 
 - **Local NVMe (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on an instance-store-backed family (`i4i`, `i7ie`, `m6id`, `m7gd`, `c7gd`, `r7gd` and other `d`-suffixed instances). Provision the [NVMe local volume](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-store-volumes.html) with the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) or use [Bottlerocket's `local-volume-provisioner`](https://github.com/bottlerocket-os/bottlerocket) to expose it as a `local-storage` StorageClass. Note that local volumes do not survive node replacement, so pair with a refresh strategy or a re-hydration source. [Local NVMe Storage](kubernetes/local-nvme) walks through the EKS setup step by step — Karpenter's `instanceStorePolicy`, `nodeadm` local-storage mounting, the provisioner, the chart values, and verification.
 - **Amazon EBS io2 Block Express** — when shared / replica-attachable persistence is required and node-local capacity is insufficient, [`io2`](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html#io2-bx) delivers up to 256K IOPS and sub-millisecond latency. Use the [Amazon EBS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) and a custom StorageClass with `type: io2` and a provisioned `iops` value.
@@ -250,7 +250,7 @@ Spice accelerations are latency- and IOPS-sensitive. Choose the storage type bas
 ]
 ```
 
-In the Spicepod, point file accelerators at `/data`, for example `duckdb_file: /data/taxi_trips.db`.
+In the Spicepod, point file accelerators at `/data`, for example `cayenne_file_path: /data/`.
 
 #### 4. Auto-scaling
 

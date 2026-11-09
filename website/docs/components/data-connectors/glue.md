@@ -263,7 +263,7 @@ Cannot read Hive ACID/transactional ORC table '<table>', so queries against it w
 
 When using the Glue Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`cayenne`](../data-accelerators/cayenne) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 Each query retrieves data from the S3 source, which might result in significant network requests and bandwidth consumption. This can affect network performance and incur costs related to data transfer from S3.
 

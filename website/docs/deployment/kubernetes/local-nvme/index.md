@@ -225,7 +225,7 @@ spicepod:
   kind: Spicepod
   runtime:
     query:
-      temp_directory: /data/tmp # query, compaction, and DuckDB spill on the same NVMe
+      temp_directory: /data/tmp # query and compaction spill on the same NVMe
   datasets:
     - from: postgres:public.orders
       name: orders
@@ -240,10 +240,11 @@ spicepod:
     - from: postgres:public.customers
       name: customers
       acceleration:
-        engine: duckdb
+        engine: cayenne
         mode: file
         params:
-          duckdb_file: /data/customers.duckdb
+          cayenne_file_path: /data/customers/
+          cayenne_metadata_dir: /data/metadata
 ```
 
 ```bash

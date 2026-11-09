@@ -60,7 +60,7 @@ datasets:
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](duckdb) and [`sqlite`](sqlite) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by the [`cayenne`](cayenne) and [`sqlite`](sqlite) accelerators by specifying `mode: file`.
 
 :::
 

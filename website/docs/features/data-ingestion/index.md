@@ -20,7 +20,7 @@ Data ingestion is useful for scenarios such as keeping a local accelerator conti
 
 ## Ingestion via Acceleration Refresh Modes
 
-When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Arrow, DuckDB, SQLite, PostgreSQL, or Cayenne). The `refresh_mode` controls how that ingestion happens.
+When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Cayenne, Arrow, SQLite, or PostgreSQL). The `refresh_mode` controls how that ingestion happens.
 
 | Refresh Mode                                                            | What it ingests                                                                                                                                                                              | Typical source                                                                                |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
@@ -46,12 +46,12 @@ datasets:
       pg_db: myapp
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file        # Persistence so resume across restarts is cheap
       refresh_mode: changes
 ```
 
-This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to ingest every `INSERT`, `UPDATE`, and `DELETE` from `public.users` into a local DuckDB accelerator with low latency.
+This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to ingest every `INSERT`, `UPDATE`, and `DELETE` from `public.users` into a local Spice Cayenne accelerator with low latency.
 
 ## SQL Statements
 

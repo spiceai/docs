@@ -9,17 +9,17 @@ pagination_next: null
 
 Stream every `INSERT`, `UPDATE`, and `DELETE` from a PostgreSQL table directly into a Spice-accelerated dataset over Postgres' native logical replication protocol.
 
-This is the recommended way to keep a Spice accelerator ([DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres), Cayenne, Arrow) continuously in sync with a PostgreSQL source.
+This is the recommended way to keep a Spice accelerator ([Cayenne](../../components/data-accelerators/cayenne), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres), Arrow) continuously in sync with a PostgreSQL source.
 
 ## How it works
 
 ```
 ┌────────────────┐   WAL (pgoutput)   ┌───────────────────┐   ChangeBatch   ┌───────────────┐
 │   PostgreSQL   │──────────────────▶│    Spice runtime  │────────────────▶│  Accelerator  │
-│  wal_level=    │   replication     │  (postgres        │    (INSERT/     │  DuckDB /     │
+│  wal_level=    │   replication     │  (postgres        │    (INSERT/     │  Cayenne /    │
 │  logical       │   slot            │   connector)      │     UPDATE /    │  SQLite /     │
-│                │                   │                   │     DELETE)     │  Postgres /   │
-└────────────────┘                   └───────────────────┘                 │  Cayenne      │
+│                │                   │                   │     DELETE)     │  Postgres     │
+└────────────────┘                   └───────────────────┘                 │               │
                                                                            └───────────────┘
 ```
 
@@ -90,7 +90,7 @@ Spice applies each `UPDATE` and `DELETE` to the row with the same primary key, s
 
   PostgreSQL accepts an index for `REPLICA IDENTITY USING INDEX` only when it is unique, non-partial, and non-deferrable, and every indexed column is `NOT NULL`. Otherwise the `ALTER TABLE ... REPLICA IDENTITY USING INDEX` statement fails. See [Replica identity](https://www.postgresql.org/docs/current/logical-replication-publication.html#LOGICAL-REPLICATION-PUBLICATION-REPLICA-IDENTITY) and [`ALTER TABLE`](https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-REPLICA-IDENTITY) in the PostgreSQL documentation.
 
-  The `cayenne` and `arrow` engines need only the `primary_key`. Other engines, such as `duckdb`, `sqlite`, and `postgres`, also need a matching `acceleration.on_conflict` upsert entry for the key.
+  The `cayenne` and `arrow` engines need only the `primary_key`. Other engines, such as `sqlite` and `postgres`, also need a matching `acceleration.on_conflict` upsert entry for the key.
 
 `REPLICA IDENTITY FULL` alone is not enough: it does not give a row a unique identity, because identical rows are indistinguishable. A `refresh_mode: changes` dataset over a table with no primary key and no `acceleration.primary_key` fails to load with an error that names both fixes. Tables with `REPLICA IDENTITY NOTHING` are rejected at startup.
 
@@ -121,22 +121,20 @@ datasets:
       pg_sslrootcert: /etc/ssl/pg-ca.pem   # optional; omit to use system root CAs
     acceleration:
       enabled: true
-      engine: duckdb           # or: sqlite | postgres | cayenne | arrow
+      engine: cayenne          # or: arrow | sqlite | postgres
       refresh_mode: changes    # <-- triggers WAL streaming
-      primary_key: id
-      on_conflict:
-        id: upsert             # required for UPDATE to become an upsert, except on cayenne and arrow
+      primary_key: id          # sqlite and postgres also need an `on_conflict` upsert on this key
 ```
 
 Start the runtime. Spice will:
 
 - Auto-create publication `spice_users_<dataset-hash>_pub`.
 - Auto-create replication slot `spice_users_<dataset-hash>_<instance-hash>`.
-- Snapshot `public.users` into the DuckDB accelerator.
+- Snapshot `public.users` into the Cayenne accelerator.
 - Stream every subsequent change as it commits on Postgres.
 
 :::tip Use a persistent accelerator
-Pair with `mode: file` on DuckDB/SQLite (or the PostgreSQL accelerator) so restarts resume from the last acknowledged LSN instead of re-snapshotting.
+Pair with `mode: file` on Cayenne or SQLite (or use the PostgreSQL accelerator) so restarts resume from the last acknowledged LSN instead of re-snapshotting.
 :::
 
 ## Full configuration reference
@@ -174,11 +172,9 @@ datasets:
       pg_connection_string: postgresql://spice:${secrets:pg_pass}@pg.internal:5432/myapp
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       refresh_mode: changes
       primary_key: id
-      on_conflict:
-        id: upsert
 ```
 
 - The connection string **takes precedence** over discrete host/user/database parameters when both are set.
@@ -208,13 +204,12 @@ When the connection is configured with [`pg_connection_string`](#connecting-with
 
 | Engine     | `INSERT` |           `UPDATE`           | `DELETE` | Notes                                                                                                                                                                                                  |
 |------------|:--------:|:----------------------------:|:--------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `duckdb`   |    ✅    | ✅ (upsert)                  |    ✅    | Recommended for most workloads.                                                                                                                                                                        |
 | `sqlite`   |    ✅    | ✅ (upsert)                  |    ✅    | Great for small/medium datasets.                                                                                                                                                                       |
 | `postgres` |    ✅    | ✅ (upsert)                  |    ✅    | Use when the accelerator is another Postgres.                                                                                                                                                          |
-| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | S3-backed Vortex format, good for read-heavy analytics. Keeps one row per `primary_key` without `on_conflict`.                                                                                        |
+| `cayenne`  |    ✅    | ✅ (upsert)                  |    ✅    | Recommended for most workloads. Vortex columnar format on local disk or S3 Express One Zone. Keeps one row per `primary_key` without `on_conflict`.                                                                                        |
 | `arrow`    |    ✅    | ✅ (upsert with primary key) |    ✅    | Arrow's in-memory engine uses a hash index for primary-key upserts. Without a primary key, `UPDATE`s are appended as new rows. `DELETE` and `TRUNCATE` are applied via Arrow's `DeletionTableProvider`. |
 
-For Arrow workloads that need true upsert semantics (so `UPDATE`s replace existing rows instead of duplicating them), configure a `primary_key`. DuckDB, SQLite, PostgreSQL, and Cayenne also support upsert behavior.
+For Arrow workloads that need true upsert semantics (so `UPDATE`s replace existing rows instead of duplicating them), configure a `primary_key`. Cayenne, SQLite, and PostgreSQL also support upsert behavior.
 
 ## Sharing one slot across datasets
 
@@ -234,21 +229,17 @@ datasets:
       pg_replication_slot: spice_app_cdc   # same slot ⇒ shared
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       refresh_mode: changes
       primary_key: id
-      on_conflict:
-        id: upsert
   - from: postgres:public.orders
     name: orders
     params: *repl                          # same connection + slot ⇒ shares the slot above
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       refresh_mode: changes
       primary_key: id
-      on_conflict:
-        id: upsert
 ```
 
 Notes:
@@ -517,7 +508,7 @@ Stop Spice, delete the dataset's acceleration data, drop the replication slot wi
 
 What to delete depends on the engine, and deleted data is gone, so copy it first if it must be kept:
 
-- **DuckDB and SQLite**: the dataset's database file. A `mode: file` dataset without `duckdb_file` or `sqlite_file` shares the default file (`accelerated_duckdb.db` or `accelerated_sqlite.db`) with every other such dataset, and several datasets can also set the same `duckdb_file` or `sqlite_file`. Deleting a file discards the acceleration of every dataset that resolves to it, so check all datasets for that path first.
+- **SQLite**: the dataset's database file. A `mode: file` dataset without `sqlite_file` shares the default file (`accelerated_sqlite.db`) with every other such dataset, and several datasets can also set the same `sqlite_file`. Deleting a file discards the acceleration of every dataset that resolves to it, so check all datasets for that path first.
 - **Cayenne**: the data directory and the shared metastore, which also reloads every other Cayenne dataset that uses the metastore. Follow the steps in [Changing `partition_by` after refresh](../data-acceleration/partitioning.md#changing-partition_by-after-refresh), without changing `partition_by`.
 - **PostgreSQL**: there is no local file. Drop the dataset's accelerated table in the accelerator database.
 - **Arrow, `mode: memory`, and `mode: file_create`**: nothing to delete. These accelerations start empty on every start, so dropping the slot is enough.
@@ -534,7 +525,7 @@ When a replicated column's type changes on the source (`ALTER TABLE ... ALTER CO
 | `fail`                                     | The stream stops with an error that names the column and the type change.                                                                                                                                                                                                                                             |
 | `append_new_columns`                       | A lossless widening is not adopted, and a warning is logged. Values are cast to the current column type, and a change is applied only if every value it writes casts exactly.                                                                                                                                               |
 | `sync_all_columns` or `drop_and_recreate` on non-partitioned `cayenne` | A lossless widening, such as `integer` to `bigint` or `double precision`, is adopted while the stream runs. The accelerated column takes the new type and changes keep applying.                                                                                                                                  |
-| `sync_all_columns` or `drop_and_recreate` on other engines, such as `duckdb` | These engines cannot change a column's type mid-stream, so a lossless widening is logged as a warning. Values are cast to the current column type, and a change is applied only if every value it writes casts exactly. When the acceleration persists across restarts (`engine: postgres`, or `mode: file` or `mode: file_update` on other engines), a restart keeps the stored column and does not adopt the widening, and the refused change can then be stored rounded in the old column type ([spiceai/spiceai#15024](https://github.com/spiceai/spiceai/issues/15024)). To adopt the new type on a persistent acceleration, [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch). When it does not persist (`mode: file_create`, or `mode: memory` on an engine other than `postgres`), the table is created from the current source schema on each start, so a restart adopts it. |
+| `sync_all_columns` or `drop_and_recreate` on other engines, such as `sqlite` | These engines cannot change a column's type mid-stream, so a lossless widening is logged as a warning. Values are cast to the current column type, and a change is applied only if every value it writes casts exactly. When the acceleration persists across restarts (`engine: postgres`, or `mode: file` or `mode: file_update` on other engines), a restart keeps the stored column and does not adopt the widening, and the refused change can then be stored rounded in the old column type ([spiceai/spiceai#15024](https://github.com/spiceai/spiceai/issues/15024)). To adopt the new type on a persistent acceleration, [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch). When it does not persist (`mode: file_create`, or `mode: memory` on an engine other than `postgres`), the table is created from the current source schema on each start, so a restart adopts it. |
 | `sync_all_columns` or `drop_and_recreate` on partitioned `cayenne` | A partitioned table cannot change a column's type in place, so a change that carries the widening is refused before anything is written, even when its values fit the current type. The source position is kept. Under `mode: file_create` or `mode: memory`, restart Spice: the table is created from the current source schema and reloaded from the source under the default `pg_replication_initial_snapshot: auto`. Under `mode: file` or `mode: file_update`, a restart keeps the stored table and refuses again: [rebuild the acceleration](#rebuilding-an-accelerator-from-scratch). Removing `partition_by` alone does not recover the table. |
 
 On a `refresh_mode: changes` dataset, `drop_and_recreate` behaves like `sync_all_columns`: the replication stream never drops and recreates the accelerated table, because the source cannot replay the history that would be lost.
@@ -592,7 +583,7 @@ each full-refresh event is a rebuild; the preceding log gives its reason.
 | Error: *`cannot be stored in the accelerated column's type ... without loss, so the change is refused rather than stored rounded`* | A source column's type changed, and the acceleration has not adopted it. On a persistent acceleration (`engine: postgres`, or `mode: file` or `mode: file_update` on other engines), do not restart to apply it: a restart keeps the stored column, and the refused change can be stored rounded ([spiceai/spiceai#15024](https://github.com/spiceai/spiceai/issues/15024)). [Rebuild the acceleration](#rebuilding-an-accelerator-from-scratch) instead. On a non-persistent acceleration (`mode: file_create`, or `mode: memory` on an engine other than `postgres`), a restart creates the table from the current source schema. A rebuild or a fresh start adopts the current source type under any `on_schema_change` policy. To have later widenings adopted without a rebuild where the engine supports it, use `on_schema_change: sync_all_columns`. Partitioned `cayenne` reports a different error and needs a mode-specific recovery. See [Source column type changes](#source-column-type-changes). |
 | `wal` on the source disk growing forever                                     | An abandoned slot. Drop it with `pg_drop_replication_slot`.                                                                       |
 | The whole table is re-read on a restart that used to resume                  | The recorded position was missing or unusable on attach, or the accelerated table was empty beneath a usable one, so resume was not possible. The `rebuild_cause` field on the `warn!` line says which — see [Detecting an unplanned source read](#unplanned-source-reads) and [Recovering from a lost replication slot](#recovering-from-a-lost-replication-slot). |
-| `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `duckdb`, `sqlite`, `postgres`, or `cayenne`. |
+| `UPDATE`s on Arrow-engine dataset don't replace rows                         | Configure a `primary_key` so Arrow can use its hash index for upserts, or switch to `cayenne`, `sqlite`, or `postgres`. |
 | Huge `TEXT`/`JSONB` columns show as `NULL` after `UPDATE`                    | Unchanged TOASTed columns are omitted by pgoutput. Run `ALTER TABLE ... REPLICA IDENTITY FULL;` if you need them in every event.  |
 
 ## Limitations

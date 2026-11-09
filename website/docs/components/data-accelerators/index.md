@@ -10,7 +10,7 @@ pagination_next: null
 
 Data sourced by Data Connectors can be locally materialized and accelerated using a Data Accelerator.
 
-A Data Accelerator queries/fetches data from a connected data source and stores/updates it locally in an embedded acceleration engine, such as Spice Cayenne, DuckDB, or SQLite. To set data refresh behavior, such as refreshing data on an interval, see [Data Refresh](../features/data-acceleration/data-refresh).
+A Data Accelerator queries/fetches data from a connected data source and stores/updates it locally in an embedded acceleration engine, such as Spice Cayenne. To set data refresh behavior, such as refreshing data on an interval, see [Data Refresh](../features/data-acceleration/data-refresh).
 
 Dataset acceleration is enabled by setting the acceleration configuration:
 
@@ -41,14 +41,12 @@ Some configurations load on Arrow but not on Cayenne. With no `engine`, each of 
 | ---------- | ------------------------------- | ----------------- | ---------------- |
 | `cayenne`  | [Spice Cayenne][cayenne]        | Stable            | `memory`, `file`, `file_create`, `file_update` |
 | `arrow`    | In-Memory Arrow Records         | Deprecated        | `memory`         |
-| `duckdb`   | Embedded [DuckDB][duckdb]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
 | `postgres` | Attached [PostgreSQL][postgres] (Spice.ai Enterprise) | Deprecated | N/A              |
 | `sqlite`   | Embedded [SQLite][sqlite]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
 
-Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. The `turso` engine is already removed: a dataset or view that sets `acceleration.engine: turso` fails to load. See [Migrating to Spice Cayenne](./cayenne/migration.md).
+Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. The `turso` and `duckdb` engines are already removed: a dataset or view that sets `acceleration.engine: turso` or `acceleration.engine: duckdb` fails to load. See [Migrating to Spice Cayenne](./cayenne/migration.md).
 
 [cayenne]: ./cayenne/index.md
-[duckdb]: ./duckdb/index.md
 [postgres]: data-accelerators/postgres
 [sqlite]: ./sqlite/index.md
 
@@ -59,37 +57,14 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Use Case                                            | Recommended Accelerator | Rationale                                               |
 | --------------------------------------------------- | ----------------------- | ------------------------------------------------------- |
 | Small datasets (under 1 GB), maximum speed          | `arrow`                 | In-memory storage provides lowest latency               |
-| Small datasets (1-10 GB), complex SQL               | `duckdb`                | Mature SQL support with memory management               |
-| Datasets 10 GB and above (up to 1+ TB)              | `cayenne`               | Needs 1/3 to 1/2 the memory of `duckdb`; Vortex columnar format scales beyond single-file limits |
+| Datasets 10 GB and above (up to 1+ TB)              | `cayenne`               | Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
 | Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
 | External database integration                       | `postgres`              | Use existing PostgreSQL infrastructure                  |
 
-### Spice Cayenne vs DuckDB
+### Moving a dataset from DuckDB to Cayenne
 
-Both [Spice Cayenne](data-accelerators/cayenne) and [DuckDB](data-accelerators/duckdb) support file-based acceleration, but differ in architecture and performance characteristics. **Spice Cayenne is recommended for any dataset of 10 GB or larger**, because of DuckDB's memory requirements: Cayenne typically needs one-third to one-half the memory of the DuckDB accelerator for the same dataset.
-
-**Choose Spice Cayenne when:**
-
-- Datasets are 10 GB or larger
-- Memory headroom is constrained, or the deployment must run in a smaller container
-- The dataset is mutable, refreshed often, or ingested with native CDC (`refresh_mode: changes`)
-- `refresh_mode: full` would be repeated often enough to grow a DuckDB file — see [Sizing the volume](data-accelerators/duckdb#sizing-the-volume)
-- Multi-file data ingestion is required (e.g., partitioned S3 data)
-- Workloads benefit from Vortex's [10-20x faster scans](https://bench.vortex.dev)
-- Point lookups and random access patterns are common ([100x faster than Parquet](https://bench.vortex.dev))
-
-**Choose DuckDB when:**
-
-- Datasets are under 10 GB and mostly static between refreshes
-- Point lookups go through a primary key or secondary indexes on that smaller table
-- Complex SQL features are required (window functions, CTEs)
-- Existing DuckDB tooling integration is beneficial
-- Database-enforced index semantics are required (a `unique` index that rejects duplicate writes; Cayenne's `indexes` narrow reads but do not constrain writes)
-
-#### Moving a dataset from DuckDB to Cayenne
-
-Set `acceleration.engine` to `cayenne` and remove the DuckDB-only parameters, which Cayenne does not read: `duckdb_file`, `duckdb_memory_limit`, `duckdb_preserve_insertion_order`, `on_refresh_sort_columns`, and `on_full_refresh`. To keep the data clustered, replace [`on_refresh_sort_columns`](data-accelerators/duckdb#configuration-parameters) with Cayenne [`sort_columns`](data-accelerators/cayenne/performance#sorted-data-and-segment-pruning):
+The `duckdb` engine is removed in v2.5, and a dataset that still sets it fails to load. Set `acceleration.engine` to `cayenne` and remove the DuckDB-only parameters, which Cayenne does not read: `duckdb_file`, `duckdb_memory_limit`, `duckdb_preserve_insertion_order`, `on_refresh_sort_columns`, and `on_full_refresh`. To keep the data clustered, replace `on_refresh_sort_columns` with Cayenne [`sort_columns`](data-accelerators/cayenne/performance#sorted-data-and-segment-pruning):
 
 ```yaml
 datasets:
@@ -108,7 +83,7 @@ datasets:
 
 Unlike `on_refresh_sort_columns`, which drops `primary_key`, indexes, and `on_conflict`, `sort_columns` works with a primary key. For CDC datasets with a `primary_key`, the default [`cayenne_deletion_mode: auto`](data-accelerators/cayenne#deletion-strategies) applies deletes by key.
 
-Leave [`cayenne_file_path`](data-accelerators/cayenne#parameters) and [`cayenne_metadata_dir`](data-accelerators/cayenne#metastore-location) unset so every Cayenne dataset shares the default data root and catalog. If a deployment sets `cayenne_file_path`, use the same path on every Cayenne dataset; see [Metastore location](data-accelerators/cayenne#metastore-location) for why.
+Leave [`cayenne_file_path`](data-accelerators/cayenne#parameters) and [`cayenne_metadata_dir`](data-accelerators/cayenne#metastore-location) unset so every Cayenne dataset shares the default data root and catalog. If a deployment sets `cayenne_file_path`, use the same path on every Cayenne dataset; see [Metastore location](data-accelerators/cayenne#metastore-location) for why. [Migrating to Spice Cayenne](./cayenne/migration.md) covers which DuckDB files and snapshots to delete, and how to check that the source still holds the acceleration's data.
 
 ## Data Types
 
@@ -118,7 +93,7 @@ Data Accelerators may not support all possible Apache Arrow data types. For comp
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](data-accelerators/duckdb) and [`sqlite`](data-accelerators/sqlite) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by the [`cayenne`](data-accelerators/cayenne) and [`sqlite`](data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 :::
 
@@ -141,4 +116,4 @@ import DocCardList from '@theme/DocCardList';
 - [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
 - [Managing Memory Usage](../reference/memory) - Memory configuration reference
 - [Data Refresh](../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../features/data-acceleration/indexes) - Index configuration for DuckDB, SQLite, PostgreSQL, and Spice Cayenne
+- [Indexes](../features/data-acceleration/indexes) - Index configuration for Spice Cayenne, SQLite, and PostgreSQL

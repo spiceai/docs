@@ -9,17 +9,17 @@ pagination_next: null
 
 Stream every `INSERT`, `UPDATE`, and `DELETE` from an Amazon DynamoDB table directly into a Spice-accelerated dataset using [DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html).
 
-This is the recommended way to keep a Spice accelerator ([DuckDB](../../components/data-accelerators/duckdb), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres), Cayenne) continuously in sync with a DynamoDB source — no Kafka, no Debezium, no Lambda required.
+This is the recommended way to keep a Spice accelerator ([Cayenne](../../components/data-accelerators/cayenne), [SQLite](../../components/data-accelerators/sqlite), [PostgreSQL](../../components/data-accelerators/postgres)) continuously in sync with a DynamoDB source — no Kafka, no Debezium, no Lambda required.
 
 ## How it works
 
 ```
 ┌──────────────────┐    DynamoDB Streams    ┌───────────────────┐    ChangeBatch     ┌───────────────┐
 │   DynamoDB       │──────────────────────▶│   Spice runtime   │──────────────────▶│  Accelerator  │
-│   table          │   shard iterators      │  (dynamodb        │   (INSERT/        │  DuckDB /     │
+│   table          │   shard iterators      │  (dynamodb        │   (INSERT/        │  Cayenne /    │
 │   + stream       │                        │   connector)      │    UPDATE /       │  SQLite /     │
-│                  │                        │                   │    DELETE)        │  Postgres /   │
-└──────────────────┘                        └───────────────────┘                   │  Cayenne      │
+│                  │                        │                   │    DELETE)        │  Postgres     │
+└──────────────────┘                        └───────────────────┘                   │               │
                                                                                     └───────────────┘
 ```
 
@@ -73,7 +73,7 @@ The credentials Spice uses need both table and stream actions:
 
 ### 3. Acceleration must be enabled with `refresh_mode: changes`
 
-Using DynamoDB Streams **requires** acceleration with `refresh_mode: changes`. Supported engines are `duckdb`, `sqlite`, `postgres`, and `cayenne`.
+Using DynamoDB Streams **requires** acceleration with `refresh_mode: changes`. Supported engines are `cayenne`, `sqlite`, and `postgres`.
 
 ## Minimal configuration
 
@@ -87,7 +87,7 @@ datasets:
       dynamodb_aws_secret_access_key: ${secrets:aws_secret_access_key}
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file              # Persistence is recommended so restarts skip the initial Scan
       refresh_mode: changes
 ```
@@ -104,7 +104,7 @@ datasets:
       dynamodb_replication_invalid_checkpoint_behavior: restart   # Re-bootstrap on > 24h lag (default error)
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       snapshots: enabled
