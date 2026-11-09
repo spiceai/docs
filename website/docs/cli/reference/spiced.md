@@ -71,6 +71,7 @@ Used when running `spiced` as part of a [distributed cluster](../../features/dis
 - Runs each query on one target partition when `runtime.query.target_partitions` is not set, and admits 16 concurrent queries per core when `runtime.query.max_concurrent_queries` is not set, where a server admits 4.
 - Refuses DDL on every catalog, with the error ``DDL is not allowed on a sidecar. Run CREATE and DROP statements on the Spice runtime the sidecar reads from, or start Spice without `--role sidecar`.``
 - Does not register HTTP or WebAssembly [functions](../../reference/spicepod/functions.md), and logs an error for each one. SQL functions are registered.
+- Serves accelerations from memory and local disk only. A dataset that keeps data or a search index on object storage fails to load: one that sets `cayenne_datalake_location`, `cayenne_s3_zone_ids`, or a `cayenne_file_path` on object storage (a URL other than `file://`), or that uses `vectors.engine: s3_vectors`. Configure those datasets on the upstream runtime, or run Spice in the `server` role.
 
 The role is set when `spiced` starts. Spice v2.4.x has no sidecar role.
 

@@ -278,7 +278,7 @@ datasets:
       engine: cayenne
 ```
 
-Start the sidecar with `spiced --role sidecar`. Sidecar mode applies to every `spice.ai` (or `spiceai`) dataset, with the same `from:` formats, authentication, and TLS parameters. It does not change refresh schedules, replicate datasets, or change a dataset's fallback policy. The [results cache](../../../features/caching) and configured accelerations serve reads as they do in the `server` role, and Substrait applies to the reads that go to the upstream.
+Start the sidecar with `spiced --role sidecar`. Sidecar mode applies to every `spice.ai` (or `spiceai`) dataset, with the same `from:` formats, authentication, and TLS parameters. It does not change refresh schedules, replicate datasets, or change a dataset's fallback policy. The [results cache](../../../features/caching) and configured accelerations serve reads as they do in the `server` role, except that a sidecar refuses a dataset that keeps data or a search index on object storage (see [Sidecar role](../../../cli/reference/spiced.md#sidecar-role)), and Substrait applies to the reads that go to the upstream.
 
 Parts of a query that Substrait cannot carry with the same meaning run in the sidecar after their inputs are read from the upstream. These include `IN` subqueries, NULL-aware joins, user-defined functions, asynchronous functions, `embed`, `rerank`, and SQL operators that have no Substrait equivalent.
 
