@@ -126,7 +126,7 @@ datasets:
       mode: file
       refresh_check_interval: 1s
       params:
-        cayenne_file_path: /var/lib/spice/
+        cayenne_file_path: /var/lib/spice/tenant-abc/
 ```
 
 This gives the clearest isolation model and per-tenant operational control, at the cost of higher operational overhead as tenant count grows. It fits regulated workloads that require strict data boundaries.
