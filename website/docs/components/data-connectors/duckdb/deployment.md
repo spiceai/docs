@@ -55,7 +55,7 @@ DuckDB queries participate in [task history](../../../reference/task_history) th
 - **Single-writer**: A DuckDB file cannot be written by two processes concurrently. Coordinate writers out-of-band.
 - **`HUGEINT` values beyond 38 digits**: DuckDB exports `HUGEINT` as `Decimal128(38, 0)`, so a value with more than 38 digits is returned with a digit missing ([spiceai/spiceai#15869](https://github.com/spiceai/spiceai/issues/15869)).
 - **`octet_length` on strings**: `octet_length` over a `VARCHAR` column is pushed down to DuckDB, which has no `octet_length(VARCHAR)`, so the query fails ([spiceai/spiceai#15865](https://github.com/spiceai/spiceai/issues/15865)).
-- **Version compatibility**: Spice opens DuckDB files with the DuckDB library installed on the host, which must be 1.5.0 or later (see [Requirements](./index.md#requirements)). A file must be readable by that library's version, so upgrading or downgrading the installed DuckDB can require regenerating older database files.
+- **Version compatibility**: Spice opens DuckDB files with the DuckDB library installed on the host, which must be 1.5.2 or later (see [Requirements](./index.md#requirements)). A file must be readable by that library's version, so upgrading or downgrading the installed DuckDB can require regenerating older database files.
 
 ## Troubleshooting
 
@@ -65,5 +65,5 @@ DuckDB queries participate in [task history](../../../reference/task_history) th
 | `Catalog Error: Table ... does not exist`     | Table name mismatch or database not at the expected path. | Query `SELECT * FROM information_schema.tables` via the connector to list tables.      |
 | Queries spill aggressively, slow performance  | Working set exceeds memory.                            | Increase system memory or set a smaller batch size; direct temp to faster storage.       |
 | `Serialization Error: Failed to deserialize ... database ... not a valid database` | DuckDB version mismatch. | Install a DuckDB library on the Spice host that can read the file producer's version.   |
-| `Failed to load the installed DuckDB library. Install libduckdb on the system library path or register the 'duckdb' ADBC driver manifest.` | `libduckdb` is not installed where the ADBC driver manager looks. | Install DuckDB 1.5.0 or later as described in [Requirements](./index.md#requirements). |
-| `Failed to load the installed DuckDB library: version ... is older than the minimum supported version 1.5.0.` | The installed `libduckdb` is older than 1.5.0. | Upgrade the installed DuckDB library to 1.5.0 or later. |
+| `Failed to load the installed DuckDB library. Install libduckdb on the system library path or register the 'duckdb' ADBC driver manifest.` | `libduckdb` is not installed where the ADBC driver manager looks. | Install DuckDB 1.5.2 or later as described in [Requirements](./index.md#requirements). |
+| `Failed to load the installed DuckDB library: version ... is older than the minimum supported version 1.5.2.` | The installed `libduckdb` is older than 1.5.2. | Upgrade the installed DuckDB library to 1.5.2 or later. |
