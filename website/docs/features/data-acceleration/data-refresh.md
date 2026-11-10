@@ -280,7 +280,7 @@ Query availability and source health are reported separately: a dataset can serv
 
 #### Logs and Error Messages
 
-While the source cannot be reached, the dataset status is `Error` with the cause in `error_message` from [`GET /v1/datasets?status=true`](../../api/HTTP/get-datasets). Spice logs a warning on the first failure and then at most every five minutes while the connection is retried:
+While the source cannot be reached and the dataset is served from its existing acceleration, the dataset status is `Error` with the cause in `error_message` from [`GET /v1/datasets?status=true`](../../api/HTTP/get-datasets). Spice logs a warning on the first failure and then at most every five minutes while the connection is retried:
 
 ```text
 WARN Failed to connect to the source for dataset orders. Serving data from the existing acceleration for orders while retrying the connection. <cause>
@@ -291,6 +291,8 @@ In these messages, `orders` is the dataset name and `<cause>` is the connector's
 ```text
 ERROR Dataset 'orders' cannot connect to its source because of its configuration, so it is served from its existing acceleration and will not refresh until the configuration is fixed. <cause>
 ```
+
+When a dataset's load fails before it is served, for example because its acceleration cannot be opened without the source, its status keeps that load error while the source is retried. The messages above are still logged. In v2.4.2 and earlier, each retry replaced the load error in the status with the connection message within a few seconds.
 
 When a dataset with data on disk waits for its source because of its configuration (the `access`, `refresh_mode`, search column, Drasi, `file` connector, `mode`, or `on_schema_change` conditions above), Spice logs the configuration that requires it when the first load attempt fails, and the dataset's `error_message` starts with `Not served`. The log message is not emitted for a snapshot reader whose first snapshot download is pending:
 

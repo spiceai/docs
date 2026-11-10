@@ -17,7 +17,7 @@ Use `append` when:
 
 ## Configuration
 
-`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) and [ISO 8601 String Time Columns](#iso-8601-string-time-columns) for the two cases where that comparison is inclusive instead.
+For most sources, `append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) and [ISO 8601 String Time Columns](#iso-8601-string-time-columns) for the two cases where that comparison is inclusive instead.
 
 ```yaml
 datasets:
@@ -29,6 +29,20 @@ datasets:
       refresh_mode: append
       refresh_check_interval: 10m
 ```
+
+The [Kafka](../../../components/data-connectors/kafka.md) and [Spice.ai](../../../components/data-connectors/spiceai) connectors are the exception: they provide a stream of appended rows, and without a `time_column` Spice subscribes to that stream instead of comparing a time column. For any other source, a dataset with `refresh_mode: append` and no `time_column` fails to load on every engine except Cayenne, with this error:
+
+```text
+Acceleration mode `append` requires `time_column` parameter for source databricks:my_dataset. Configure `time_column` parameter and try again. For details, visit: https://spiceai.org/docs/reference/spicepod/datasets#time_column
+```
+
+On Cayenne, such a dataset loads only when it has a primary key, such as one set with [`primary_key`](../../../reference/spicepod/datasets#accelerationprimary_key). Without one, the load fails with:
+
+```text
+Append mode requires either `time_column` or `primary_key` to be specified in the dataset configuration. For details, visit: https://spiceai.org/docs/components/data-accelerators/data-refresh#append
+```
+
+With a primary key and no `time_column`, a refresh has no column to tell new rows from rows already stored, so each refresh reads the whole source again. Set a `time_column` to read only new rows.
 
 ## Late-Arriving Data
 

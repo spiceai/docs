@@ -240,7 +240,7 @@ The application sees one endpoint, one wire format, and one latency distribution
 - Sidecars can run anywhere — in your VPC, on-premises, at the edge, or in any Kubernetes cluster — while connecting securely to the managed cluster.
 - Horizontal scalability — add sidecars without increasing load on data sources.
 - Resilience — sidecars serve cached data even if the cluster is temporarily unavailable.
-- Encrypted transport — the Spice Cloud endpoint built from `spiceai_region` uses TLS (`https://`), and a self-hosted cluster uses TLS when its `from:` endpoint is `https://` or `grpc+tls://`. Mutual TLS is opt-in: the sidecar presents a client certificate only when the [`spiceai_tls_client_*` parameters](../../components/data-connectors/spiceai#mutual-tls-mtls) are set. An `http://` endpoint connects without TLS and suits local development. Data is encrypted at rest.
+- Encrypted transport — the Spice Cloud endpoint built from `spiceai_region` uses TLS (`https://`), and a self-hosted cluster uses TLS when its `from:` endpoint is `https://` or `grpc+tls://`. Mutual TLS is opt-in: the sidecar presents a client certificate only when the [`spiceai_tls_client_*` parameters](../../components/data-connectors/spiceai#mutual-tls-mtls) are set. An `http://` endpoint connects without TLS and suits local development. Spice does not encrypt acceleration files or snapshots itself, so encryption at rest comes from the storage that holds them, such as an encrypted volume for `mode: file` accelerations and server-side encryption on the snapshot bucket.
 
 ## Considerations
 
