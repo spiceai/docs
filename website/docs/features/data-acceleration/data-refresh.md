@@ -100,7 +100,7 @@ This approach can drastically speed up incremental updates for large datasets, a
 
 If a data column named `_last_modified` already exists, that column value takes precedence over the metadata value from the file itself.
 
-This mode is for append-only datasets where only new files are added. Overwriting an existing file re-reads the whole file and appends its rows, which duplicates rows unless a `primary_key` is set. Deleting a file does not remove rows already loaded into the acceleration.
+This mode is for append-only datasets where only new files are added. Overwriting an existing file re-reads the whole file and appends its rows, which can duplicate rows. A `primary_key` prevents those duplicates when the accelerator resolves keys. Spice Cayenne does this by default, with the exceptions in [One row per primary key on Spice Cayenne](./constraints.md#one-row-per-primary-key-on-spice-cayenne): key resolution can be disabled, and a partitioned acceleration stores a key once per partition if the key spans partitions. Deleting a file does not remove rows already loaded into the acceleration.
 
 Example using `time_column`:
 
