@@ -92,11 +92,15 @@ datasets:
 
 Spice can automatically detect and append only newly created or updated files from object-store data sources. This is useful for append-only datasets where only new files are added to the source and existing files are not modified or deleted.
 
-Enable this feature by setting either `time_column` or `time_partition_column` to the special value `last_modified`. When configured this way with `refresh_mode: append`, Spice will use the file/object's metadata to determine which files are new or have been updated.
+Enable this feature by setting `time_column` to `_last_modified` and `time_format` to `timestamptz`. When configured this way with `refresh_mode: append`, Spice will use the file/object's metadata to determine which files are new or have been updated.
+
+The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`. `refresh_mode: append` still requires a `time_column` or a `primary_key`; `time_partition_column` alone is not enough.
 
 This approach can drastically speed up incremental updates for large datasets, as Spice only needs to process the new files rather than scanning the entire dataset for changes to a column. This optimization is particularly valuable for datasets with many files or large file sizes.
 
-If `last_modified` already exists as a column in the parquet data, that column will take precedence over the metadata value from the file itself.
+If a data column named `_last_modified` already exists, that column value takes precedence over the metadata value from the file itself.
+
+This mode is for append-only datasets where only new files are added. Overwriting an existing file re-reads the whole file and appends its rows, which duplicates rows unless a `primary_key` is set. Deleting a file does not remove rows already loaded into the acceleration.
 
 Example using `time_column`:
 
@@ -104,7 +108,8 @@ Example using `time_column`:
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
-    time_column: last_modified
+    time_column: _last_modified
+    time_format: timestamptz
     params:
       file_format: parquet
     acceleration:
@@ -112,14 +117,15 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-Example using `time_partition_column`:
+Example using `time_partition_column` together with a `time_column`:
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
     time_column: created_at
-    time_partition_column: last_modified
+    time_partition_column: _last_modified
+    time_partition_format: timestamptz
     params:
       file_format: parquet
     acceleration:

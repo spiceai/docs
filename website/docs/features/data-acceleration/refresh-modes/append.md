@@ -119,13 +119,16 @@ datasets:
 
 ## Append Only Modified Files
 
-For object-store sources, set `time_column` or `time_partition_column` to the special value `last_modified` to append only newly created or updated files. Spice uses file metadata to determine which files are new, dramatically reducing scan time for large datasets.
+For object-store sources, set `time_column` to `_last_modified` and `time_format` to `timestamptz` to append only newly created or updated files. Spice uses file metadata to determine which files are new, dramatically reducing scan time for large datasets.
+
+The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`.
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
-    time_column: last_modified
+    time_column: _last_modified
+    time_format: timestamptz
     params:
       file_format: parquet
     acceleration:
@@ -133,7 +136,9 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-If `last_modified` exists as a column in the data, the column value takes precedence over file metadata.
+If a data column named `_last_modified` already exists, that column value takes precedence over file metadata.
+
+This mode is for append-only datasets where only new files are added. Overwriting an existing file re-reads the whole file and appends its rows, which duplicates rows unless a `primary_key` is set. Deleting a file does not remove rows already loaded into the acceleration.
 
 This is supported for connectors that accept the [file format parameter](../../../reference/file_format), such as `s3://`, `abfs://`, and `file://`.
 
