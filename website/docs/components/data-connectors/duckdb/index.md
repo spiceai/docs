@@ -18,12 +18,12 @@ datasets:
 
 ## Requirements
 
-The DuckDB connector reads DuckDB files and runs DuckDB table functions through the DuckDB library installed on the host (`libduckdb`), which Spice loads over [ADBC](https://arrow.apache.org/adbc/). DuckDB 1.5.0 or later is required. Spice's Docker images include `libduckdb` 2.0.0, so this requirement applies only to a `spiced` binary installed outside them.
+The DuckDB connector reads DuckDB files and runs DuckDB table functions through the DuckDB library installed on the host (`libduckdb`), which Spice loads over [ADBC](https://arrow.apache.org/adbc/). DuckDB 1.5.2 or later is required. DuckDB 1.4 cannot stage DuckLake writes; for its support status, see the [DuckDB release calendar](https://duckdb.org/release_calendar). DuckDB 1.5.0 and 1.5.1 return wrong results for some DuckLake reads. Neither is supported. Spice's Docker images include `libduckdb` 2.0.0, so this requirement applies only to a `spiced` binary installed outside them.
 
-To install it, download the DuckDB C/C++ shared library from the [DuckDB installation page](https://duckdb.org/install/) and place `libduckdb.so` (Linux) or `libduckdb.dylib` (macOS) on the system library path, or register a `duckdb` [ADBC driver manifest](https://arrow.apache.org/adbc/current/format/driver_manifests.html). Spice checks the library's version each time it opens a dataset. When the library is missing or older than 1.5.0, that dataset fails to load, and the rest of the Spicepod loads normally:
+To install it, download the DuckDB C/C++ shared library from the [DuckDB installation page](https://duckdb.org/install/) and place `libduckdb.so` (Linux) or `libduckdb.dylib` (macOS) on the system library path, or register a `duckdb` [ADBC driver manifest](https://arrow.apache.org/adbc/current/format/driver_manifests.html). Spice checks the library's version each time it opens a dataset. When the library is missing or older than 1.5.2, that dataset fails to load, and the rest of the Spicepod loads normally:
 
 ```text
-Failed to load the installed DuckDB library: version v1.4.4 is older than the minimum supported version 1.5.0. Install DuckDB 1.5.0 or later. For details, visit: https://spiceai.org/docs/components/data-connectors/duckdb
+Failed to load the installed DuckDB library: version v1.5.1 is older than the minimum supported version 1.5.2. Install DuckDB 1.5.2 or later. For details, visit: https://spiceai.org/docs/components/data-connectors/duckdb
 ```
 
 ## Configuration
