@@ -862,13 +862,14 @@ In this scenario, `event_date` is the day bucket used for physical partitioning 
 
 ### Last-Modified Optimization
 
-For object storage with append-only files, use `last_modified` to skip unchanged files:
+For object storage with append-only files, use `_last_modified` with `time_format: timestamptz` to skip unchanged files. The metadata column was renamed from `last_modified` to `_last_modified` in v2.0.
 
 ```yaml
 datasets:
   - from: s3://bucket/logs/
     name: logs
-    time_column: last_modified  # Special value using file metadata
+    time_column: _last_modified  # File metadata column
+    time_format: timestamptz
     acceleration:
       refresh_mode: append
 ```

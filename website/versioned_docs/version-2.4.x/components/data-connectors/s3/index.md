@@ -126,7 +126,7 @@ Set `s3_url_style` explicitly to skip auto-detection.
 
 An accelerated S3 prefix can refresh from [S3 Event Notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html) delivered to an Amazon SQS queue instead of on a polling interval. Set `refresh_mode: changes` and `s3_changes_queue_url`. Spice long-polls the queue and, for each `s3:ObjectCreated:*` notification, reads the new object and appends its rows to the acceleration.
 
-This is object-level, not row-level, change data capture. A new object adds rows; a removed object never deletes individual rows. For the list-and-poll alternative, see [`append` refresh](../../features/data-acceleration/refresh-modes/append) with `time_column: last_modified`.
+This is object-level, not row-level, change data capture. A new object adds rows; a removed object never deletes individual rows. For the list-and-poll alternative, see [`append` refresh](../../features/data-acceleration/refresh-modes/append) with `time_column: _last_modified` and `time_format: timestamptz`.
 
 ```yaml
 datasets:
