@@ -341,6 +341,8 @@ When the query memory pool cannot satisfy a reservation, the query is refused ra
 | `query_failures` metric | `err_code="ResourcesExhausted"` |
 | Runtime log | Logged at `warn` level (`Query refused, out of memory: …`), so a runtime refusing queries is visible at the default `INFO` verbosity |
 
+A query with two or more `COUNT(DISTINCT …)` aggregates keeps a set of distinct values for each one and charges each stored value for its own bytes. In v2.4.1 and earlier, when one of those aggregates was over a list, struct, or map column, each stored value kept the whole input batch it was read from and was charged for it, so such a query could be refused with `ResourcesExhausted` even though its distinct values fit in the pool.
+
 A sustained rate of these means the deployment needs more memory, fewer concurrent queries, or fewer partitions — not that the client's SQL is malformed. Note that `/health` is served by a separate Tokio runtime and stays green while queries are being refused, so alert on `query_failures{err_code="ResourcesExhausted"}` rather than relying on health checks.
 
 ### Bounding Peak Memory with Concurrency
