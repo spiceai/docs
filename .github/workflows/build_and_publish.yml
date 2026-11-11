@@ -18,6 +18,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+    environment: ${{ github.event_name == 'pull_request' && 'Preview' || 'Production' }}
     permissions:
       contents: write
       deployments: write
@@ -73,5 +74,5 @@ jobs:
       - name: Trigger search reindex after deployment
         if: ${{ github.ref == 'refs/heads/trunk' }}
         run: |
-          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
+          curl --fail-with-body -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
             --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"

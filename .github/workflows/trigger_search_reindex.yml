@@ -9,6 +9,7 @@ on:
 jobs:
   trigger:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Wait for gh-page cache update
         if: github.event_name == 'page_build' && github.event.build.status == 'built'
@@ -16,5 +17,5 @@ jobs:
 
       - name: Trigger search reindex
         run: |
-          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
+          curl --fail-with-body -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
             --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"
