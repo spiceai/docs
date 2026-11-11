@@ -162,7 +162,7 @@ The Debezium messages for this dataset carry no Kafka message key, so updates an
 
 Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property). Declaring `acceleration.primary_key` in the Spicepod does not help, because the key must be in the messages.
 
-Spice checks for a key when the dataset loads. When the topic has no messages at that point and the dataset declares `columns`, Spice takes the key columns from `acceleration.primary_key`, if set, and the dataset loads. A keyless update or delete that arrives later then fails when Spice applies it.
+Spice checks for a key when the dataset loads. A topic with no messages at that point loads only when the dataset declares typed `columns` and `acceleration.primary_key`; without `acceleration.primary_key`, it fails with the error above. Spice then applies later changes by those key columns, read from each message's value, and does not check whether each message carries a Kafka key.
 
 In v2.4.2 and earlier, the `arrow` engine loaded a keyless topic and applied updates and deletes by matching whole rows.
 
