@@ -9,7 +9,7 @@ on:
 jobs:
   trigger:
     runs-on: ubuntu-latest
-    environment: Production
+    environment: production
     steps:
       - name: Wait for gh-page cache update
         if: github.event_name == 'page_build' && github.event.build.status == 'built'

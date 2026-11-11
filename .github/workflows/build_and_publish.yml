@@ -18,7 +18,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
-    environment: ${{ github.event_name == 'pull_request' && 'Preview' || 'Production' }}
+    environment: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
     permissions:
       contents: write
       deployments: write
