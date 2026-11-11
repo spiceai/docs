@@ -1,5 +1,11 @@
 name: build_and_publish
 
+# The build runs in `secret-free` and reads no credentials. The deploy job reads
+# the Cloudflare and Algolia credentials from the `deploy` environment. Cloudflare
+# Pages serves `trunk` as production and every other branch as a preview. A secret
+# read outside its environment is empty, so the deploy job fails when its secrets
+# are missing instead of skipping.
+
 on:
   push:
     branches:
@@ -10,18 +16,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  deployments: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Build
+    environment: secret-free
     permissions:
-      contents: write
-      deployments: write
-      pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v7
 
@@ -37,19 +40,61 @@ jobs:
         working-directory: website
         run: npm run build
 
-      - name: Can Deploy?
-        id: can_deploy
+      - name: Upload website build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: website-build
+          path: website/build
+          retention-days: 1
+          if-no-files-found: error
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    needs: build
+    # Pull requests from forks and Dependabot receive no environment secrets, so they build only.
+    if: >-
+      ${{ github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    environment: deploy
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+    env:
+      IS_TRUNK: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/trunk' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download website build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: website-build
+          path: website/build
+
+      - name: Check deploy credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALGOLIA_CRAWLER_ID: ${{ secrets.ALGOLIA_CRAWLER_ID }}
+          ALGOLIA_USER_ID: ${{ secrets.ALGOLIA_USER_ID }}
+          ALGOLIA_TOKEN: ${{ secrets.ALGOLIA_TOKEN }}
         run: |
-          if [[ "${{ secrets.CLOUDFLARE_API_TOKEN }}" == "" || "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" == "" ]]; then
-            echo "CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set. Skipping deployment."
-            echo "can_deploy=false" >> $GITHUB_OUTPUT
-          else
-            echo "can_deploy=true" >> $GITHUB_OUTPUT
+          required=(CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID)
+          if [[ "$IS_TRUNK" == "true" ]]; then
+            required+=(ALGOLIA_CRAWLER_ID ALGOLIA_USER_ID ALGOLIA_TOKEN)
+          fi
+          missing=()
+          for name in "${required[@]}"; do
+            [[ -n "${!name}" ]] || missing+=("$name")
+          done
+          if (( ${#missing[@]} )); then
+            echo "::error::The deploy environment is missing: ${missing[*]}"
+            exit 1
           fi
 
       - name: Deploy
         id: deploy
-        if: ${{ steps.can_deploy.outputs.can_deploy == 'true' }}
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
         with:
           workingDirectory: website
@@ -59,7 +104,7 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add deploy comment to PR
-        if: ${{ github.event_name == 'pull_request' && steps.can_deploy.outputs.can_deploy == 'true' }}
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/github-script@v9
         with:
           script: |
@@ -71,7 +116,7 @@ jobs:
             })
 
       - name: Trigger search reindex after deployment
-        if: ${{ github.ref == 'refs/heads/trunk' }}
+        if: ${{ env.IS_TRUNK == 'true' }}
         run: |
-          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
+          curl --fail-with-body -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
             --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"
