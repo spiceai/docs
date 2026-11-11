@@ -1,20 +1,34 @@
 name: Trigger Algolia Search Reindex
 
 on:
+  # Cloudflare Pages reports each deployment as a "Cloudflare Pages" check run,
+  # which completes once the deployment is live.
+  check_run:
+    types: [completed]
   workflow_dispatch:
 
-  # trigger automatically when gh-pages is built
-  page_build:
+permissions: {}
 
 jobs:
   trigger:
+    name: Trigger search reindex
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.check_run.app.slug == 'cloudflare-workers-and-pages' &&
+      github.event.check_run.name == 'Cloudflare Pages' &&
+      github.event.check_run.conclusion == 'success' &&
+      github.event.check_run.check_suite.head_branch == 'trunk')
     runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: algolia-reindex
     steps:
-      - name: Wait for gh-page cache update
-        if: github.event_name == 'page_build' && github.event.build.status == 'built'
-        run: sleep 60
-
       - name: Trigger search reindex
+        env:
+          ALGOLIA_CRAWLER_ID: ${{ secrets.ALGOLIA_CRAWLER_ID }}
+          ALGOLIA_USER_ID: ${{ secrets.ALGOLIA_USER_ID }}
+          ALGOLIA_TOKEN: ${{ secrets.ALGOLIA_TOKEN }}
         run: |
-          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
-            --user "${{ secrets.ALGOLIA_USER_ID }}":"${{ secrets.ALGOLIA_TOKEN }}"
+          curl --fail-with-body --silent --show-error -X POST \
+            "https://crawler.algolia.com/api/1/crawlers/${ALGOLIA_CRAWLER_ID}/reindex" \
+            --user "${ALGOLIA_USER_ID}:${ALGOLIA_TOKEN}"
