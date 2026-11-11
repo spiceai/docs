@@ -164,6 +164,8 @@ Give the source table a primary key, or set `message.key.columns` in the Debeziu
 
 Spice checks for a key when the dataset loads. A topic with no messages at that point loads only when the dataset declares typed `columns` and `acceleration.primary_key`; without `acceleration.primary_key`, it fails with the error above. Spice then applies later changes by those key columns, read from each message's value, and does not check whether each message carries a Kafka key.
 
+With a persistent acceleration (`mode: file`), the first load stores the dataset's Debezium metadata, including its key columns, before the key check runs, and later loads reuse the stored metadata. A dataset that failed the check therefore keeps failing after the source is fixed, or after `acceleration.primary_key` is added, until its acceleration starts again from empty state.
+
 In v2.4.2 and earlier, the `arrow` engine loaded a keyless topic and applied updates and deletes by matching whole rows.
 
 ## JSON Nesting
