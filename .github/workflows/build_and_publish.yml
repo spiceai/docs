@@ -18,6 +18,12 @@ on:
 permissions:
   contents: read
 
+# Runs for the same ref deploy one at a time, in push order, so an older build
+# cannot overwrite a newer deployment. Pull request runs cancel superseded runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
