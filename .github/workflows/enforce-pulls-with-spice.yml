@@ -9,6 +9,7 @@ on:
 jobs:
   enforce-pull-with-spice:
     runs-on: ubuntu-latest
+    environment: secret-free
     permissions:
       contents: read
       pull-requests: write
