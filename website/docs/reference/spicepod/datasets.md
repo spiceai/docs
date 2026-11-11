@@ -224,7 +224,7 @@ For an accelerated dataset, Spice checks `time_format` against the data type of 
 | `iso8601`                                   | String types (`Utf8`, `LargeUtf8`, `Utf8View`)      |
 | `date`                                      | `Date32`, `Date64`                                  |
 
-Because `timestamp` is the default, a string, integer, floating-point, date, or timezone-aware `time_column` needs an explicit `time_format`. A pair that does not match fails the dataset with an error that names the column's data type and the value to set. For example, `time_format: unix_seconds` on a `Timestamp(s)` column named `ts` in a dataset named `events` fails with:
+Because `timestamp` is the default, a string, integer, floating-point, date, or timezone-aware `time_column` needs an explicit `time_format`. The exception is the object-store `_last_modified` metadata column, or a legacy `last_modified` that Spice resolves to it: when its format is unset, Spice uses `timestamptz` and logs a warning. This applies to `time_partition_column` and `time_partition_format` too. In v2.4.2 and earlier, `_last_modified` also needs `time_format: timestamptz`. A pair that does not match fails the dataset with an error that names the column's data type and the value to set. For example, `time_format: unix_seconds` on a `Timestamp(s)` column named `ts` in a dataset named `events` fails with:
 
 ```text
 `time_column` 'ts' in dataset 'events' has data type 'Timestamp(s)', but `time_format` is configured as 'unix_seconds'. Set `time_format` to `timestamp`, or remove `time_format` if the column is already a timestamp. See: https://spiceai.org/docs/reference/spicepod/datasets#time_format

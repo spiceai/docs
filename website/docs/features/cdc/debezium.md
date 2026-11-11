@@ -33,7 +33,8 @@ On startup, Spice subscribes to the configured Debezium-managed Kafka topic usin
 
 - A running **Debezium connector** publishing change events to a **Kafka topic** for the source table.
 - A reachable Kafka cluster (one or more `bootstrap.servers`).
-- A Spice acceleration engine that supports CDC: `cayenne`, `arrow`, `sqlite`, or `postgres`. Arrow is the only engine that accepts Debezium messages without Kafka message keys.
+- A Spice acceleration engine that supports CDC: `cayenne`, `arrow`, `sqlite`, or `postgres`.
+- Debezium messages that carry a Kafka message key. Every engine applies updates and deletes by key, so a dataset whose topic has keyless messages fails to load. See [Kafka message keys](../../components/data-connectors/debezium.md#kafka-message-keys).
 
 ## Minimal configuration
 

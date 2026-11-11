@@ -462,6 +462,14 @@ A waiting request shares the fetch only when that fetch returns enough rows for 
 
 A waiting request makes its own origin request when the shared fetch fails, is cancelled, or returns a `429` or `5xx` response, or when it has waited 30 seconds. [`caching_stale_if_error`](#transient-error-handling) then applies to that request as it does to any other.
 
+### Partial Cache Hits
+
+A query can name several cache keys with `IN` or with an `OR` over one request column, such as `request_path IN ('/shows/82', '/shows/169')`. When the accelerator holds some of those keys and not others, Spice returns the cached rows for the keys it holds, fetches only the missing keys from the origin, stores them, and returns their rows with the cached ones. [Stale-while-revalidate](#stale-while-revalidate-pattern) applies to the cached keys as it does on any hit.
+
+Spice does not compare the requested keys with the cached ones when the query's filters name no request column, use `NOT IN` on a request column, or combine different request columns in one `OR`, such as `(request_path = '/a' AND request_query = 'p') OR (request_path = '/b' AND request_query = 'q')`. For those queries, any cached rows answer the whole query, as they did before.
+
+In v2.4.2 and earlier, any cached rows answered the whole query, so a query that named a cached key and an uncached key returned only the cached key's rows and did not request the uncached key from the origin.
+
 ### Cache Key Behavior
 
 A cache entry is **always** addressed by HTTP request metadata — `request_path`, `request_query`, and `request_body` — whether or not a `primary_key` is declared. A lookup is built from the request alone, because that is all a query supplies before the response exists.
