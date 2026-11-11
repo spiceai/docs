@@ -137,6 +137,8 @@ For object-store sources, set `time_column` to `_last_modified` and `time_format
 
 The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`.
 
+In vNext, a Spicepod that still sets `time_column: last_modified` (or `time_partition_column: last_modified`) loads when the source has no data column named `last_modified`: Spice reads `_last_modified` instead and logs a deprecation warning. When `time_column` or `time_partition_column` resolves to `_last_modified` and the matching `time_format` or `time_partition_format` is unset, Spice uses `timestamptz` when the column carries a time zone, as the metadata column does. An explicit format is kept. In v2.4.2 and earlier, `time_column: last_modified` on such a source fails dataset setup with `time_column 'last_modified' was not found in dataset <name>`.
+
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset

@@ -152,6 +152,22 @@ The following settings are required:
 | `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
 | `mode`         | Optional. The persistence mode to use. When using the `cayenne` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
 
+### Kafka message keys
+
+Every acceleration engine applies Debezium updates and deletes by the Kafka message key, so each message on the topic must carry one. A dataset whose messages carry no key fails to load with this error:
+
+```text
+The Debezium messages for this dataset carry no Kafka message key, so updates and deletes cannot be applied to its acceleration. Give the source table a primary key, or set `message.key.columns` in the Debezium connector, so that each message carries a key. For details, visit: https://spiceai.org/docs/components/data-connectors/debezium
+```
+
+Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property). Declaring `acceleration.primary_key` in the Spicepod does not help, because the key must be in the messages.
+
+Spice checks for a key when the dataset loads. A topic with no messages at that point loads only when the dataset declares typed `columns` and `acceleration.primary_key`; without `acceleration.primary_key`, it fails with the error above. Spice then applies later changes by those key columns, read from each message's value, and does not check whether each message carries a Kafka key.
+
+With a persistent acceleration (`mode: file`), the first load stores the dataset's Debezium metadata, including its key columns, before the key check runs, and later loads reuse the stored metadata. A dataset that failed the check therefore keeps failing after the source is fixed, or after `acceleration.primary_key` is added, until its acceleration starts again from empty state.
+
+In v2.4.2 and earlier, the `arrow` engine loaded a keyless topic and applied updates and deletes by matching whole rows.
+
 ## JSON Nesting
 
 When a change event carries many fields but you only need a few as discrete columns, you can consolidate the rest into a single JSON column using the `json_object` metadata option. Declare the fields you want as top-level columns explicitly in the `columns` list, then add a "catch-all" column with `json_object: "*"` metadata — every field not otherwise listed is nested into it as a JSON object. This applies to the change-stream (CDC) events the connector decomposes into the accelerator.

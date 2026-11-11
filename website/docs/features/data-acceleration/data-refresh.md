@@ -96,6 +96,8 @@ Enable this feature by setting `time_column` to `_last_modified` and `time_forma
 
 The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`. `refresh_mode: append` still requires a `time_column` or a `primary_key`; `time_partition_column` alone is not enough.
 
+In vNext, a Spicepod that still sets `time_column: last_modified` (or `time_partition_column: last_modified`) loads when the source has no data column named `last_modified`: Spice reads `_last_modified` instead and logs a deprecation warning. When `time_column` or `time_partition_column` resolves to `_last_modified` and the matching `time_format` or `time_partition_format` is unset, Spice uses `timestamptz` when the column carries a time zone, as the metadata column does. An explicit format is kept. In v2.4.2 and earlier, `time_column: last_modified` on such a source fails dataset setup with `time_column 'last_modified' was not found in dataset <name>`.
+
 This approach can drastically speed up incremental updates for large datasets, as Spice only needs to process the new files rather than scanning the entire dataset for changes to a column. This optimization is particularly valuable for datasets with many files or large file sizes.
 
 If a data column named `_last_modified` already exists, that column value takes precedence over the metadata value from the file itself.

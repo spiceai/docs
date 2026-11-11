@@ -28,7 +28,7 @@ The runtime log carries a portal link that creates the instance's project. Once 
 
 ## Docker
 
-The key travels in an environment variable rather than on the command line, and the identity lives on a named volume:
+`spiced` reads the key only from `--token`, so the key is in the process's command line, which other processes on the same host can list, for as long as that `spiced` process runs. The key is single-use, and `spiced` never writes it to a file. Recreate the container without `--token` once the runtime is ready. The identity lives on a named volume:
 
 ```shell
 docker volume create spice-identity
@@ -38,7 +38,6 @@ docker run --rm \
   -p 50051:50051 \
   -v spice-identity:/data \
   -e SPICE_CONFIG_DIR=/data/.spice \
-  -e SPICE_ENROLL_KEY \
   spiceai/spiceai:latest \
   --token "$SPICE_ENROLL_KEY" \
   --http 0.0.0.0:8090 \
