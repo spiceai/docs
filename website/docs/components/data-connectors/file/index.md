@@ -80,7 +80,7 @@ When the file is modified, the acceleration will be refreshed and will include t
 
 For a single-file dataset, the watcher watches the file's parent directory and reacts only to events for that file name, so a file replaced atomically (written to a temporary file, then renamed over the original) still triggers a refresh, as do later writes to the replacement. For a directory dataset, it watches the directory recursively. Creating, modifying, or removing the file triggers a refresh; reading it does not.
 
-The refresh starts 400 ms after the last change event. Each new event restarts the wait, so a truncate-then-write or a burst of appends is loaded as one change rather than as a partial file. Events that arrive while a refresh runs trigger one more refresh after it finishes.
+The refresh starts 400 ms after the last change event. Each new event restarts the wait, so a truncate-then-write or a burst of appends whose writes are less than 400 ms apart is loaded as one change. A writer that pauses for longer than 400 ms partway through can still have a refresh read the empty or partial file, so when a refresh must read a complete file, write a temporary file and rename it over the original. Events that arrive while a refresh runs trigger one more refresh after it finishes.
 
 Detecting an atomic replacement needs read permission on the parent directory. When the runtime cannot watch the directory, it logs a warning and watches the file only, which picks up in-place writes but not a replacement.
 
