@@ -30,4 +30,4 @@ The [Spice.ai Cloud Platform documentation](https://docs.spice.ai/) covers the p
 
 The platform is SOC 2 Type II compliant. Sensitive data is encrypted in transit and at rest, access uses multi-factor authentication and role-based access control, access and usage are logged for audit, and least privilege is enforced. The [Spice.ai security documentation](https://docs.spice.ai/security/security) has the details.
 
-A Cloud Connect instance narrows the surface further: the platform holds an issued instance identity rather than an operator's login, delivered secret values stay inside the runtime process, and the instance dials out — Spice Cloud never opens an inbound connection to it.
+A Cloud Connect instance narrows the surface further: the platform holds an issued instance identity rather than an operator's login, delivered secret values are written to the instance's disk only encrypted, in `secrets-cache.json` under the instance's `.spice` directory with a key stored in its `identity.json`, so a restart can load them without reaching Spice Cloud, and the instance dials out — Spice Cloud never opens an inbound connection to it.
