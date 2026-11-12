@@ -80,7 +80,7 @@ A result holds at most 100 rows and at most 10% of the calling model's context w
 }
 ```
 
-A text value longer than 1,024 characters keeps its first 1,024 followed by `…[+N chars]`, a list longer than 16 elements keeps 16 followed by `"…[+N items]"`, and a binary value is shown as `"<binary N bytes>"`. When a value is shortened, the `message` says so.
+A text value longer than 1,024 characters keeps its first 1,024 followed by `…[+N chars]`, and a list or map longer than 16 elements keeps 16 followed by `"…[+N items]"` or `"…[+N entries]"`. The `message` then says to read the rest with `substr(column, 1025, 1024)` or `array_slice(column, 17, 32)`. A binary value is shown as `"<binary N bytes>"`, and the `message` says to read it with `encode(column, 'hex')`. A map is a list of `[key, value]` pairs. A result never exceeds its budget, column names included: a result whose column names alone do not fit lists the names that fit, then `…[+N columns]`, and no rows.
 
 Over MCP, these tools declare an `outputSchema` and return the result as `structuredContent`, with the same JSON as text. Programs that need every row use [`/v1/sql`](/docs/api/http/post-sql) instead.
 
