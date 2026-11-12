@@ -59,15 +59,32 @@ models:
 [mcp]: tools/mcp
 
 
-### Result Size Limit
+### Results
 
-The `sql` tool fails when its result, written as JSON, is larger than 16 MiB, and the sampling tools (`sample_distinct_columns`, `random_sample`, `top_n_sample`) fail when the rows they collect take more than 16 MiB of memory. The limit is fixed and has no setting. The error tells the model how to ask for less, for example:
+The `sql` tool and the sampling tools (`sample_distinct_columns`, `random_sample`, `top_n_sample`) return a result sized for a model's context window:
 
-```text
-The result is larger than 16 MiB, the size limit for this request. Add a LIMIT clause, select fewer columns, or aggregate the rows.
+```json
+{"columns": ["d_year", "net_paid"], "rows": [[1998, 1234567.89], [1999, 1301122.07]]}
 ```
 
-Tools served by an MCP server have the same [16 MiB limit](./mcp.md#tool-result-size-limit). In v2.4.1 and earlier, the `sql` and sampling tools returned results of any size.
+Each row is an array of values in `columns` order. Numbers are JSON numbers, NULL is `null`, a decimal with more than 15 significant digits is a string so that no digit is lost, and `NaN` and `±Infinity` are the strings `"NaN"`, `"Infinity"` and `"-Infinity"`.
+
+A result holds at most 100 rows and at most 10% of the calling model's context window, taken as 4 bytes per token, between 4 KiB and 32 KiB. A call without a model, such as from an MCP client or `POST /v1/tools/{name}`, gets 32 KiB. A result with more rows shows the rows that fit, and says so:
+
+```json
+{
+  "columns": ["ss_item_sk", "ss_net_paid"],
+  "rows": [[1, 12.5], [2, 8.0]],
+  "truncated": true,
+  "message": "Showing the first 100 rows; the result has more. Do not compute totals, counts, or averages from these rows. Run an aggregate query instead, or narrow the query with a WHERE clause."
+}
+```
+
+A text value longer than 1,024 characters keeps its first 1,024 followed by `…[+N chars]`, and a list or map longer than 16 elements keeps 16 followed by `"…[+N items]"` or `"…[+N entries]"`. The `message` then says to read the rest with `substr(column, 1025, 1024)` or `array_slice(column, 17, 32)`. A binary value is shown as `"<binary N bytes>"`, and the `message` says to read it with `encode(column, 'hex')`. A map is a list of `[key, value]` pairs. A result never exceeds its budget, column names included: a result whose column names alone do not fit lists the names that fit, then `…[+N columns]`, and no rows.
+
+Over MCP, these tools declare an `outputSchema` and return the result as `structuredContent`, with the same JSON as text. Programs that need every row use [`/v1/sql`](/docs/api/http/post-sql) instead.
+
+In v2.4.x and earlier, the `sql` tool returned a JSON array of row objects, and the sampling tools a text table, up to 16 MiB.
 
 ### Loading and Reloading Tools
 
