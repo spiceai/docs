@@ -15,9 +15,9 @@ For details on tool specifications, see the [Tools Spicepod Reference](../refere
 
 | Name                      | Description                                                       | Default Group |
 | ------------------------- | ----------------------------------------------------------------- | ------------- |
-| `list_datasets`           | List all available datasets in the runtime.                       | `auto`        |
+| `list_datasets`           | List the datasets the runtime can query, 50 at a time, optionally searched by name, description, and columns. | `auto`        |
 | `sql`                     | Execute SQL queries on the runtime. Write statements (`INSERT`/`UPDATE`/`DELETE`/DDL) are accepted only when the request is authenticated with a ReadWrite API key and the target dataset is configured `access: read_write`; otherwise the tool runs as read-only. | `auto`        |
-| `table_schema`            | Get the schema of a specific SQL table.                           | `auto`        |
+| `table_schema`            | List a table's columns with their SQL types, descriptions, and keys, optionally only the columns matching a search. | `auto`        |
 | `search`                  | Searches a configured dataset based on an input query.            | `auto`        |
 | `get_readiness`           | Report the readiness state of every runtime component (datasets, accelerators, models, embeddings, catalogs). | `auto`        |
 | `get_current_datetime`    | Return the current UTC date and time as an ISO 8601 timestamp.    | `auto`        |
@@ -68,6 +68,43 @@ The result is larger than 16 MiB, the size limit for this request. Add a LIMIT c
 ```
 
 Tools served by an MCP server have the same [16 MiB limit](./mcp.md#tool-result-size-limit). In v2.4.1 and earlier, the `sql` and sampling tools returned results of any size.
+
+### Datasets and Schemas
+
+A model with Spice's tools is told which datasets it can query in a system message, after the Spicepod `system_prompt` and the client's own system messages:
+
+```text
+Datasets (use these names in sql, search, and table_schema):
+- spice.public.orders: Customer orders
+- spice.docs.pages: Product docs [searchable]
+```
+
+When the list would take more than about 2,000 tokens (8 KiB), the message instead says how many datasets there are and to find them with `list_datasets`:
+
+```text
+992 datasets are available. Call list_datasets with search to find the ones relevant to the question.
+```
+
+`list_datasets` takes optional `search`, `limit` (default 50, at most 200), and `offset`. `search` matches dataset names, descriptions, column names, and column descriptions, best match first:
+
+```json
+{"datasets": [{"table": "spice.docs.pages", "description": "Product docs", "can_search_documents": true}], "total": 992, "has_more": true}
+```
+
+`can_search_documents` appears only when `search` can query the dataset, and `description` and `metadata` only when the dataset has them.
+
+`table_schema` lists each table's columns, one per line, with its SQL type and `NOT NULL`. With `output: full` (the default), it adds column descriptions and the table's keys:
+
+```text
+spice.tpcds.store_sales: TPC-DS store_sales table
+  ss_item_sk BIGINT NOT NULL
+  ss_net_paid DECIMAL(7,2) -- Net paid
+  primary key (ss_item_sk, ss_ticket_number)
+```
+
+For a wide table, `search` lists only the columns whose names or descriptions match, followed by a count of the others. `output: minimal` lists names and types only.
+
+In v2.4.x and earlier, Spice added a `list_datasets` call and its result to every chat request, `list_datasets` returned every dataset at once, and `table_schema` returned a Markdown table.
 
 ### Loading and Reloading Tools
 
