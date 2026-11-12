@@ -8,6 +8,7 @@ on:
 jobs:
   generate-api-docs:
     runs-on: ubuntu-latest
+    environment: secret-free
 
     steps:
       - name: Checkout repository

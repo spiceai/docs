@@ -11,6 +11,7 @@ on: [pull_request_target]
 jobs:
   label:
     runs-on: ubuntu-latest
+    environment: secret-free
     permissions:
       contents: read
       pull-requests: write
