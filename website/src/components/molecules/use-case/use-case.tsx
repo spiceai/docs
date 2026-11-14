@@ -15,7 +15,7 @@ export const UseCase = ({ useCaseData }: { useCaseData: UseCaseData }) => {
       <Button
         variant={'secondary'}
         href={useCaseData.buttonLink}
-        className='w-full bg-alpha-900 text-neutral lg:w-auto lg:bg-transparent lg:text-alpha-900 lg:group-hover:bg-primary lg:group-hover:text-primary-foreground'
+        className='w-full text-center bg-alpha-900 text-neutral lg:w-auto lg:bg-transparent lg:text-alpha-900 lg:group-hover:bg-primary lg:group-hover:text-primary-foreground'
       >
         <span className='line-clamp-1'>{useCaseData.buttonText}</span>
       </Button>
