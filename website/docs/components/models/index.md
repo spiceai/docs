@@ -256,6 +256,8 @@ Not every template can honor every value. When a model loads, Spice renders its 
 
 A template with no reasoning control, such as Llama 3's, takes any value.
 
+A streamed chat completion from a local model carries the reasoning as the model generates it, in `choices[].delta.reasoning_content`, the streamed counterpart of the `message.reasoning_content` that a non-streamed response returns. A chunk without reasoning has no `reasoning_content` field. In v2.4.2 and earlier, a streamed reply carried no reasoning.
+
 To set a default for every request, use the [model provider prefix](#model-provider-prefix): `file_reasoning_effort` or `hf_reasoning_effort`. A request's own `reasoning_effort` still takes precedence. A default the chat template cannot honor fails the model's load with the same message.
 
 ```yaml

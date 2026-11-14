@@ -466,6 +466,14 @@ A waiting request makes its own origin request when the shared fetch fails, is c
 
 A query can name several cache keys with `IN` or with an `OR` over one request column, such as `request_path IN ('/shows/82', '/shows/169')`. When the accelerator holds some of those keys and not others, Spice returns the cached rows for the keys it holds, fetches only the missing keys from the origin, stores them, and returns their rows with the cached ones. [Stale-while-revalidate](#stale-while-revalidate-pattern) applies to the cached keys as it does on any hit.
 
+When an HTTP dataset sets [`max_request_partitions`](../../../components/data-connectors/https#params), a partial hit counts every request key the query names, cached or not, against the limit before it fetches anything, as a cache miss does. A query over the limit fails with the error a miss returns, and sends no request to the origin. The error includes:
+
+```text
+The HTTP connector would create 6 request partitions, which exceeds max_request_partitions=3. Reduce the number of request_path, request_query, request_body, or request_headers filter values, or increase max_request_partitions.
+```
+
+A query whose keys are all cached is served from the cache without this check.
+
 Spice does not compare the requested keys with the cached ones when the query's filters name no request column, use `NOT IN` on a request column, or combine different request columns in one `OR`, such as `(request_path = '/a' AND request_query = 'p') OR (request_path = '/b' AND request_query = 'q')`. For those queries, any cached rows answer the whole query, as they did before.
 
 In v2.4.2 and earlier, any cached rows answered the whole query, so a query that named a cached key and an uncached key returned only the cached key's rows and did not request the uncached key from the origin.
