@@ -50,6 +50,8 @@ Spice recommends that custom Docker images based on Spice run as a non-root user
 
 ```dockerfile
 RUN groupadd --system --gid 1001 sandboxgroup && useradd --system --uid 1001 --gid sandboxgroup sandbox
+# Spice writes file-mode accelerations under the working directory (/app/.spice/data by default).
+RUN mkdir -p /app/.spice && chown -R sandbox:sandboxgroup /app
 USER sandbox
 ```
 
