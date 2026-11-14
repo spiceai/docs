@@ -26,8 +26,10 @@ Since v1.3.0, a custom Docker image that installs additional dependencies requir
 ```dockerfile
 FROM debian:trixie-slim
 
-# Copy the spiced binary from the spiceai/spiceai image into the custom image.
+# Copy the spiced binary, and the PDFium library it loads to parse PDF documents,
+# from the spiceai/spiceai image into the custom image.
 COPY --from=spiceai/spiceai:2.3.4 /usr/local/bin/spiced /usr/local/bin/spiced
+COPY --from=spiceai/spiceai:2.3.4 /usr/local/bin/libpdfium.so /usr/local/bin/libpdfium.so
 
 # Install any additional dependencies needed for the image.
 RUN apt update && apt install -y --no-install-recommends <your-dependencies>
