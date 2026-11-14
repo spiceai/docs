@@ -107,7 +107,7 @@ Model 'gpt' serves the Messages API by translating requests into chat completion
 
 Translation has these limits:
 
-- A streamed response carries reasoning only from a local model (`file` or `hf`), whose engine streams it in `delta.reasoning_content`. The chat completions streams of other providers carry no reasoning, so their streamed responses have no `thinking` block.
+- A streamed response carries reasoning only when the model's chat completions stream carries it in `delta.reasoning_content`. Local models (`file` or `hf`) stream it, and so does an OpenAI-compatible endpoint that sends that field. The Bedrock and Google providers stream no reasoning, so their streamed responses have no `thinking` block.
 - A response that stopped on a matched stop sequence reports `stop_reason: end_turn`.
 - `POST /v1/messages/count_tokens` is refused with a `400`, because a token count is specific to the model's tokenizer. Only a `from: anthropic` model counts tokens.
 
