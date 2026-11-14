@@ -135,7 +135,7 @@ By default, the Helm release installs a minimal Spice.ai setup with an empty Spi
 :::
 
 Create a `values.yaml` file and override the default values as needed.
-The full list of configurable parameters and their defaults are specified in the [values.yaml file](https://github.com/spiceai/spiceai/blob/v2.4.1/deploy/chart/values.yaml) in the `spiceai/spiceai` repository.
+The full list of configurable parameters and their defaults are specified in the [values.yaml file](https://github.com/spiceai/spiceai/blob/v2.4.2/deploy/chart/values.yaml) in the `spiceai/spiceai` repository.
 The [Common Parameters](#common-parameters) section below lists the most commonly used configurable parameters and their descriptions.
 
 ### Spicepod
@@ -175,7 +175,7 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `command` | Command for the Spice.ai container. When unset, the chart runs `/usr/local/bin/spiced --http 0.0.0.0:8090 --metrics 0.0.0.0:9090 --flight 0.0.0.0:50051`, so the HTTP, metrics, and Arrow Flight endpoints listen on every interface of the pod. A custom `command` replaces these flags. | unset |
 | `imagePullSecrets` | Image pull secrets for the pod, as a list of `name:` entries, for example `[{name: regcred}]`. | Unset |
 | `image.repository`              | The repository of the Docker image.                                                                                                                                                       | `spiceai/spiceai` |
-| `image.tag` | Replace with a specific version of Spice.ai to run. | `2.4.1` |
+| `image.tag` | Replace with a specific version of Spice.ai to run. | `2.4.2` |
 | `monitoring.podMonitor.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`           |
 | `nodeSelector` | Node labels the pod must match to be scheduled. See [nodeSelector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector). Omitted from the manifest when unset. | unset |
 | `replicaCount`                  | Number of Spice.ai replicas to run.                                                                                                                                                       | `1`               |
@@ -479,10 +479,10 @@ spicepod:
         file_format: parquet
       acceleration:
         enabled: true
-        engine: duckdb
+        engine: cayenne
         mode: file
         params:
-          duckdb_file: /data/taxi_trips.db
+          cayenne_file_path: /data/
         # Uncomment to refresh the acceleration on a schedule
         # refresh_check_interval: 1h
         # refresh_mode: full
