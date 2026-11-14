@@ -32,5 +32,12 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - run: gh extension install github/gh-actions-lock --pin v0.4.1
-      - run: gh actions-lock --verify
+      - name: Download the gh-actions-lock verifier and check its digest
+        env:
+          VERIFIER_VERSION: v0.4.1
+          VERIFIER_SHA256: 39deb2fe714dbf74b073d8245fc7f3d50cd0eee18d5c0900e9e849ae933ae17e
+        run: |
+          gh release download "$VERIFIER_VERSION" --repo github/gh-actions-lock --pattern linux-amd64 --output "$RUNNER_TEMP/gh-actions-lock" --clobber
+          echo "$VERIFIER_SHA256  $RUNNER_TEMP/gh-actions-lock" | sha256sum --check --strict
+          chmod +x "$RUNNER_TEMP/gh-actions-lock"
+      - run: '"$RUNNER_TEMP/gh-actions-lock" --verify'
