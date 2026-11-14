@@ -49,9 +49,11 @@ This will restore the previous behavior of starting as the root user and includi
 Spice recommends that custom Docker images based on Spice run as a non-root user. i.e.
 
 ```dockerfile
-RUN groupadd --system --gid 1001 sandboxgroup && useradd --system --uid 1001 --gid sandboxgroup sandbox
-# Spice writes file-mode accelerations under the working directory (/app/.spice/data by default).
+RUN groupadd --system --gid 1001 sandboxgroup && useradd --system --uid 1001 --gid sandboxgroup --home-dir /app sandbox
+# Spice writes file-mode accelerations under the working directory (/app/.spice/data by default),
+# and caches downloaded models under $HOME.
 RUN mkdir -p /app/.spice && chown -R sandbox:sandboxgroup /app
+ENV HOME=/app
 USER sandbox
 ```
 
