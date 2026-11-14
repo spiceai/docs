@@ -106,7 +106,7 @@ spice.tpcds.store_sales: TPC-DS store_sales table
 
 A column name that SQL must quote, such as one with capitals or spaces, is listed in double quotes, as a query writes it: `"Net Paid" DOUBLE`.
 
-For a wide table, `search` lists only the columns whose names or descriptions match, followed by a count of the others. `output: minimal` lists names and types only.
+For a wide table, `search` lists only the columns whose names or descriptions match, followed by a count of the others. `output: minimal` lists names, types, and `NOT NULL` only.
 
 In v2.4.x and earlier, Spice added a `list_datasets` call and its result to every chat request, `list_datasets` returned every dataset at once, and `table_schema` returned a Markdown table.
 
