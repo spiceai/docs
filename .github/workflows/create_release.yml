@@ -23,7 +23,7 @@ jobs:
     environment: secret-free
     steps:
       - name: Checkout base branch
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ inputs.base_branch }}
 
