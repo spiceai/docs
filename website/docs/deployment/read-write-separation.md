@@ -215,12 +215,12 @@ When a read instance starts:
 
 1. For each accelerated dataset, Spice checks for the local acceleration data (the Cayenne data directory, or the `sqlite_file`).
 2. If absent and snapshots are enabled, Spice lists the snapshot prefix, downloads the newest snapshot for that dataset, and the dataset goes ready immediately.
-3. If no snapshot is found, behavior is governed by `bootstrap_on_failure_behavior`:
+3. If no snapshot is found, behavior is governed by the dataset's `acceleration.snapshots_bootstrap_on_failure_behavior`:
    - `warn` (default) — boot empty and refresh from the source. Avoid in read-tier instances that should not have source access.
    - `fallback` — try older snapshots until one loads.
    - `retry` — keep retrying the newest snapshot.
 
-For zero-source-credentials read instances, set `bootstrap_on_failure_behavior: fallback` or `retry` and ensure the dataset is **never** configured with usable source credentials.
+For zero-source-credentials read instances, set `snapshots_bootstrap_on_failure_behavior: fallback` or `retry` and ensure the dataset is **never** configured with usable source credentials.
 
 Steady-state refresh on read instances is configured per dataset:
 
