@@ -21,13 +21,13 @@ For most users, this change will be transparent. However, there are a few cases 
 
 ### Building a custom Docker image based on v1.3.0
 
-Building a custom Docker image based on v1.3.0 that installs additional dependencies will require using the `debian:bookworm-slim` base image and copying the `spiced` binary from the `spiceai/spiceai` image into the custom image. This approach can also be used to restore the previous behavior of including standard Linux tools like `bash`.
+Since v1.3.0, a custom Docker image that installs additional dependencies requires copying the `spiced` binary from the `spiceai/spiceai` image into an image whose glibc is 2.39 or later, such as `debian:trixie-slim`, the base of the `spiceai/spiceai` image. Debian 12 (`bookworm`) ships an older glibc and cannot run it. See [System Requirements](../../reference/system_requirements.md#linux-distribution-support). This approach can also be used to restore the previous behavior of including standard Linux tools like `bash`.
 
 ```dockerfile
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 # Copy the spiced binary from the spiceai/spiceai image into the custom image.
-COPY --from=spiceai/spiceai:1.3.0 /usr/local/bin/spiced /usr/local/bin/spiced
+COPY --from=spiceai/spiceai:2.3.4 /usr/local/bin/spiced /usr/local/bin/spiced
 
 # Install any additional dependencies needed for the image.
 RUN apt update && apt install -y --no-install-recommends <your-dependencies>
@@ -46,7 +46,7 @@ This will restore the previous behavior of starting as the root user and includi
 Spice recommends that custom Docker images based on Spice run as a non-root user. i.e.
 
 ```dockerfile
-RUN addgroup -g 1001 -S sandboxgroup && adduser -u 1001 -S -G sandboxgroup sandbox
+RUN groupadd --system --gid 1001 sandboxgroup && useradd --system --uid 1001 --gid sandboxgroup sandbox
 USER sandbox
 ```
 

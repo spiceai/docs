@@ -98,12 +98,6 @@ Cluster Spicepod responsibilities:
 
 ```yaml
 # cluster spicepod.yaml
-snapshots:
-  enabled: true
-  location: s3://spiceai-snapshots/prod/
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: s3://my-lake/orders/
     name: orders
@@ -115,6 +109,9 @@ datasets:
       mode: file
       refresh_check_interval: 5m
       snapshots: enabled # write a new snapshot after every refresh
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
       snapshots_trigger: refresh_complete
       params:
         cayenne_file_path: /data/
@@ -131,6 +128,9 @@ datasets:
       mode: file
       refresh_mode: changes # CDC
       snapshots: enabled
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 10m
       params:
@@ -151,13 +151,6 @@ Read Spicepod responsibilities:
 
 ```yaml
 # read instance spicepod.yaml
-snapshots:
-  enabled: true
-  location: s3://spiceai-snapshots/prod/
-  bootstrap_on_failure_behavior: fallback # try older snapshots if the newest fails
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: s3://my-lake/orders/ # same source URL, but never used at runtime
     name: orders
@@ -170,6 +163,10 @@ datasets:
       refresh_mode: snapshot # reload from the snapshot store; never query the source
       refresh_check_interval: 1m # poll the snapshot store every minute
       snapshots: bootstrap_only # download only; never write back
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
+      snapshots_bootstrap_on_failure_behavior: fallback # try older snapshots if the newest fails
       params:
         cayenne_file_path: /local/
 
@@ -182,6 +179,10 @@ datasets:
       refresh_mode: snapshot
       refresh_check_interval: 1m
       snapshots: bootstrap_only
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
+      snapshots_bootstrap_on_failure_behavior: fallback
       params:
         cayenne_file_path: /local/
 ```
@@ -246,7 +247,7 @@ The extension names the engine that wrote the snapshot (`.cayenne` or `.sqlite`)
 
 The publishing instance deletes snapshots older than 28 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
 
-The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network. When read instances run in another region, replicate this standard bucket. Keep `snapshots.location` on standard S3, GCS, or ADLS for that replication. Cayenne's S3 Express One Zone settings (`cayenne_file_path`, `cayenne_s3_*`) store the Cayenne data tier in one zone and do not substitute for the snapshot bucket. See [Snapshot location and the Cayenne data tier](../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network. When read instances run in another region, replicate this standard bucket. Keep `snapshots_location` on standard S3, GCS, or ADLS for that replication. Cayenne's S3 Express One Zone settings (`cayenne_file_path`, `cayenne_s3_*`) store the Cayenne data tier in one zone and do not substitute for the snapshot bucket. See [Snapshot location and the Cayenne data tier](../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
 
 ### Full copies and incremental replication
 

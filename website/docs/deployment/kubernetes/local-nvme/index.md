@@ -280,12 +280,6 @@ A local volume lives exactly as long as its node. Decide up front how a replacem
 - **Bootstrap from snapshots** (Spice.ai Enterprise) — the pattern this storage was designed for. Each refresh uploads the acceleration file to object storage, and a pod that starts with an empty `/data` downloads the newest snapshot instead of refreshing:
 
   ```yaml
-  snapshots:
-    enabled: true
-    location: s3://my-bucket/spice-snapshots/
-    params:
-      s3_auth: iam_role
-
   datasets:
     - from: postgres:public.orders
       name: orders
@@ -293,6 +287,9 @@ A local volume lives exactly as long as its node. Decide up front how a replacem
         engine: cayenne
         mode: file
         snapshots: enabled
+        snapshots_location: s3://my-bucket/spice-snapshots/
+        snapshots_params:
+          s3_auth: iam_role
         params:
           cayenne_file_path: /data/orders/
   ```
