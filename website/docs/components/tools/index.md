@@ -79,6 +79,8 @@ Datasets (use these names in sql, search, and table_schema):
 - spice.docs.pages: Product docs [searchable]
 ```
 
+On `/v1/responses`, the list goes at the end of the request's `instructions` instead, after the client's. A response that continues a conversation with `previous_response_id` does not carry instructions over, so the conversation holds one copy of the list, not one per turn.
+
 When the list would take more than about 2,000 tokens (8 KiB), the message instead says how many datasets there are and to find them with `list_datasets`:
 
 ```text
@@ -101,6 +103,8 @@ spice.tpcds.store_sales: TPC-DS store_sales table
   ss_net_paid DECIMAL(7,2) -- Net paid
   primary key (ss_item_sk, ss_ticket_number)
 ```
+
+A column name that SQL must quote, such as one with capitals or spaces, is listed in double quotes, as a query writes it: `"Net Paid" DOUBLE`.
 
 For a wide table, `search` lists only the columns whose names or descriptions match, followed by a count of the others. `output: minimal` lists names and types only.
 
