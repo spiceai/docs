@@ -69,7 +69,7 @@ The `sql` tool and the sampling tools (`sample_distinct_columns`, `random_sample
 
 Each row is an array of values in `columns` order. Numbers are JSON numbers, NULL is `null`, a decimal with more than 15 significant digits is a string so that no digit is lost, and `NaN` and `±Infinity` are the strings `"NaN"`, `"Infinity"` and `"-Infinity"`.
 
-A result holds at most 100 rows and at most 10% of the calling model's context window, taken as 4 bytes per token, between 4 KiB and 32 KiB. A call without a model, such as from an MCP client or `POST /v1/tools/{name}`, gets 32 KiB. A result with more rows shows the rows that fit, and says so:
+A result holds at most 100 rows and at most 10% of the calling model's context window, taken as 4 bytes per token, between 4 KiB and 32 KiB. A call without a model, such as from an MCP client or `POST /v1/tools/{name}`, gets 32 KiB. A result with more rows shows the rows that fit, and says so. This example shows 2 of its 100 rows:
 
 ```json
 {
@@ -84,7 +84,7 @@ A text value longer than 1,024 characters keeps its first 1,024 followed by `…
 
 Over MCP, these tools declare an `outputSchema` and return the result as `structuredContent`, with the same JSON as text. Programs that need every row use [`/v1/sql`](../api/HTTP/post-sql) instead.
 
-In v2.4.x and earlier, the `sql` tool returned a JSON array of row objects, and the sampling tools a text table, up to 16 MiB.
+In v2.4.x and earlier, the `sql` tool returned a JSON array of row objects, and the sampling tools a text table, with no size limit.
 
 ### Loading and Reloading Tools
 
