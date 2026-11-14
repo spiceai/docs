@@ -71,7 +71,7 @@ Tools served by an MCP server have the same [16 MiB limit](./mcp.md#tool-result-
 
 ### Datasets and Schemas
 
-A model with Spice's tools is told which datasets it can query in a system message, after the Spicepod `system_prompt` and the client's own system messages:
+A model that has the `list_datasets` tool is told which datasets it can query in a system message, after the Spicepod `system_prompt` and the client's own system messages. A model without `list_datasets`, such as one with `tools: memory, sql`, gets no list:
 
 ```text
 Datasets (use these names in sql, search, and table_schema):
@@ -87,7 +87,7 @@ When the list would take more than about 2,000 tokens (8 KiB), the message inste
 992 datasets are available. Call list_datasets with search to find the ones relevant to the question.
 ```
 
-`list_datasets` takes optional `search`, `limit` (default 50, at most 200), and `offset`. `search` matches dataset names, descriptions, column names, and column descriptions, best match first:
+`list_datasets` takes optional `search`, `limit` (default 50, at most 200), and `offset`. `search` matches dataset names, descriptions, column names, and column descriptions, best match first. A catalog table matches on its columns only when the runtime has its schema at hand:
 
 ```json
 {"datasets": [{"table": "spice.docs.pages", "description": "Product docs", "can_search_documents": true}], "total": 992, "has_more": true}
