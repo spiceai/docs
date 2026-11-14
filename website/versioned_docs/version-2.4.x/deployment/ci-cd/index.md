@@ -62,7 +62,7 @@ spicepod:
         file_format: parquet
       acceleration:
         enabled: true
-        engine: duckdb
+        engine: cayenne
 ```
 
 For details on chart values, see the [Helm deployment guide](https://spiceai.org/docs/deployment/kubernetes/helm).

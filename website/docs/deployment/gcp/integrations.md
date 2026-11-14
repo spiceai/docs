@@ -28,6 +28,7 @@ Data connectors federate SQL queries across GCP data sources without data moveme
 | Connector                     | Description                                                                                                                                                                                                                              | Documentation                                                            |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | **BigQuery** (via ADBC)       | Query [BigQuery](https://cloud.google.com/bigquery) tables using the [BigQuery ADBC driver](https://docs.adbc-drivers.org/drivers/bigquery/index.html). Includes built-in SQL dialect support for federated queries.                     | [ADBC Data Connector](../../components/data-connectors/adbc)             |
+| **Cloud Storage**             | Query Parquet, CSV, and JSON objects in [Cloud Storage](https://cloud.google.com/storage) with `gs://` paths, authenticated with a service account key or Application Default Credentials. | [GCS Data Connector](../../components/data-connectors/gcs)               |
 | **Cloud Storage** (S3-compat) | Query Parquet, CSV, and JSON objects in [Cloud Storage](https://cloud.google.com/storage) using the S3 connector with HMAC keys against the GCS [interoperability endpoint](https://cloud.google.com/storage/docs/aws-simple-migration). | [S3 Data Connector](../../components/data-connectors/s3)                 |
 | **Cloud SQL for PostgreSQL**  | Connect to [Cloud SQL for PostgreSQL](https://cloud.google.com/sql/docs/postgres) directly or through the [Cloud SQL Auth Proxy](https://cloud.google.com/sql/docs/postgres/sql-proxy).                                                  | [PostgreSQL Data Connector](../../components/data-connectors/postgres)   |
 | **Cloud SQL for MySQL**       | Connect to [Cloud SQL for MySQL](https://cloud.google.com/sql/docs/mysql) directly or through the Cloud SQL Auth Proxy.                                                                                                                  | [MySQL Data Connector](../../components/data-connectors/mysql)           |
@@ -131,11 +132,12 @@ embeddings:
 
 ## Snapshots and shared state
 
-[Snapshots](../../features/data-acceleration/snapshots) and the [distributed query](../../features/distributed-query) state location can use Cloud Storage as the shared object store. Configure with the `gs://` scheme:
+[Snapshots](../../features/data-acceleration/snapshots) and the [distributed query](../../features/distributed-query) state location can use Cloud Storage as the shared object store. Set `runtime.state.location` to a `gs://` URI. Snapshots are stored in its `snapshots/` folder, here `gs://my-bucket/spiceai/snapshots/`:
 
 ```yaml
-snapshots:
-  location: gs://my-bucket/spiceai/snapshots
+runtime:
+  state:
+    location: gs://my-bucket/spiceai/
 ```
 
 When no explicit credentials are supplied, Spice reads Cloud Storage credentials in the order described in [Authentication](#authentication).
