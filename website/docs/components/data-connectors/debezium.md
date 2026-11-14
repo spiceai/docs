@@ -42,6 +42,8 @@ datasets:
 
 Upon startup, Spice subscribes to the specified Debezium-managed Kafka topic using either a uniquely generated consumer group or a custom one specified via `kafka_consumer_group_id`. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, so Spice can resume without reprocessing all historical change events.
 
+When its changes stream starts, Spice reads the newest offset of each partition of the topic, and reports the dataset ready only after it has applied every change event up to those offsets. After a restart with a persistent acceleration, the first query after the dataset is ready therefore returns each row's state as of the latest change event on the topic when Spice started, not an older version. Change events produced after the stream starts do not delay readiness. Until the broker returns those offsets, Spice retries with backoff and the dataset stays not ready. A change event that fails to convert counts as applied: Spice reports it as an error rather than waiting for it. In v2.4.2 and earlier, the dataset reported ready after its first batch and could serve older rows while it applied the rest of the topic.
+
 ## Consumer Group Management
 
 The Debezium connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, so Spice can track consumption progress.

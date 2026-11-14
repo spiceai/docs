@@ -97,15 +97,17 @@ Claude Code names a model in every request, and Spice answers only names defined
 
 A model with `from: anthropic` serves the Messages API natively. Spice sends the request to Anthropic as the client sent it, including every content block, tool, `anthropic-beta` header, and stream event, and replaces the model name with the model's Anthropic model ID. The response's `model` is the Spicepod model name. The model's `system_prompt`, [parameter overrides](parameter_overrides.md), and [Spice tools](tools.md) apply.
 
-Every other chat model serves the Messages API by translation: Spice converts the request into a chat completion for the model and converts the answer back into a Messages API response. A field that a chat completion can carry is carried over. A field that only changes how Anthropic serves a request is accepted and has no effect: `cache_control`, a tool's `eager_input_streaming`, `service_tier`, `speed`, `context_management`, `fallbacks`, `diagnostics`, `thinking`, and `output_config.effort`. Any other field that a chat completion cannot carry, such as `top_k`, `container`, `mcp_servers`, a tool field such as `defer_loading`, or an unknown field, is refused with a `400` `invalid_request_error` that names it, rather than dropped:
+Every other chat model serves the Messages API by translation: Spice converts the request into a chat completion for the model and converts the answer back into a Messages API response. A field that a chat completion can carry is carried over. A field that only changes how Anthropic serves a request is accepted and has no effect: `cache_control`, a tool's `eager_input_streaming`, `service_tier`, `speed`, `context_management`, `fallbacks`, `diagnostics`, and `output_config.effort`. Any other field that a chat completion cannot carry, such as `top_k`, `container`, `mcp_servers`, a tool field such as `defer_loading`, or an unknown field, is refused with a `400` `invalid_request_error` that names it, rather than dropped:
 
 ```text
 Model 'gpt' serves the Messages API by translating requests into chat completions, which cannot carry `container`. Remove `container`, or use a model with `from: anthropic`. See: https://spiceai.org/docs/components/models
 ```
 
+`thinking` decides whether the response carries the model's reasoning, which a chat completion returns as `reasoning_content`. With `thinking.type` set to `enabled` or `adaptive`, the reasoning is returned as a `thinking` block, streamed as `thinking_delta` events, with its text left empty when `thinking.display` is `omitted`. Without `thinking`, or with any other type, the response has no `thinking` block. A model that returns no reasoning produces no `thinking` block either way.
+
 Translation has these limits:
 
-- Reasoning is not streamed: the chat completions stream carries no reasoning.
+- A streamed response carries reasoning only from a local model (`file` or `hf`), whose engine streams it in `delta.reasoning_content`. The chat completions streams of other providers carry no reasoning, so their streamed responses have no `thinking` block.
 - A response that stopped on a matched stop sequence reports `stop_reason: end_turn`.
 - `POST /v1/messages/count_tokens` is refused with a `400`, because a token count is specific to the model's tokenizer. Only a `from: anthropic` model counts tokens.
 
