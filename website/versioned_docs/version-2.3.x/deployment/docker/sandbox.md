@@ -31,8 +31,9 @@ FROM debian:trixie-slim
 COPY --from=spiceai/spiceai:2.3.4 /usr/local/bin/spiced /usr/local/bin/spiced
 COPY --from=spiceai/spiceai:2.3.4 /usr/local/bin/libpdfium.so /usr/local/bin/libpdfium.so
 
-# Install any additional dependencies needed for the image.
-RUN apt update && apt install -y --no-install-recommends <your-dependencies>
+# Install the packages the spiceai/spiceai image includes (TLS root certificates,
+# OpenSSL, and time zone data), and any additional dependencies needed for the image.
+RUN apt update && apt install -y --no-install-recommends ca-certificates libssl3 tzdata <your-dependencies>
 
 # Any other customizations needed for the image.
 
