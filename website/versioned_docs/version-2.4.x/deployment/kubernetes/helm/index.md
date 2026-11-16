@@ -425,7 +425,7 @@ Setting the key that does not match the current mode has no effect: `strategy` i
 ```yaml
 additionalLabels:
   environment: production
-  app: spice
+  team: data-platform
 
 image:
   repository: spiceai/spiceai

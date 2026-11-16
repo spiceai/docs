@@ -316,7 +316,17 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
         "bedrock:InvokeModel",
         "bedrock:InvokeModelWithResponseStream",
         "bedrock:ApplyGuardrail",
-        "secretsmanager:GetSecretValue"
+        "secretsmanager:GetSecretValue",
+        "s3vectors:CreateVectorBucket",
+        "s3vectors:GetVectorBucket",
+        "s3vectors:CreateIndex",
+        "s3vectors:GetIndex",
+        "s3vectors:ListIndexes",
+        "s3vectors:PutVectors",
+        "s3vectors:GetVectors",
+        "s3vectors:ListVectors",
+        "s3vectors:QueryVectors",
+        "s3vectors:DeleteVectors"
       ],
       "Resource": "*"
     }
@@ -324,7 +334,7 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
 }
 ```
 
-Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`.
+Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`. The `s3vectors` actions are needed only for [S3 Vectors](#vector-stores-amazon-s3-vectors) search; Spice creates the vector bucket and index when they do not exist, which is why `CreateVectorBucket` and `CreateIndex` are listed. See the [Amazon S3 Vectors actions](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazons3vectors.html) reference.
 
 ## Deployment Options
 

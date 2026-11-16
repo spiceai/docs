@@ -163,7 +163,7 @@ docker run --rm -p 127.0.0.1:8090:8090 \
   --http 0.0.0.0:8090
 ```
 
-In the Spicepod, configure the accelerator to write under the mount path, for example `duckdb_file: /data/taxi_trips.db`.
+In the Spicepod, configure the accelerator to write under the mount path, for example `cayenne_file_path: /data`, which stores each dataset's files under `/data/<dataset>/`.
 
 ## Temporary files
 
