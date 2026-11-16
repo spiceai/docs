@@ -244,7 +244,7 @@ Add `--metrics` and `0.0.0.0:9090` to the list to serve Prometheus metrics.
 
 With `--ingress external`, the app is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
 
-To run multiple replicas with shared file-based acceleration, define an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) and reference it from the app's revision template, then point file accelerators at the mount path.
+To run multiple replicas, give each replica its own acceleration on local storage. Do not point Cayenne at an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) shared between replicas: its metastore is a SQLite database, and [SQLite locking is unreliable on network file systems](https://www.sqlite.org/useovernet.html) such as SMB, so replicas that share the mount can corrupt it (see [Metastore location](../components/data-accelerators/cayenne#metastore-location)). To start new replicas from a shared copy, use [acceleration snapshots](../features/data-acceleration/snapshots).
 
 #### 4. Scaling rules
 

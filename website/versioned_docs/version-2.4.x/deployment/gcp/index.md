@@ -182,7 +182,7 @@ gcloud run deploy spiceai \
 
 The comma-separated `--args` values are passed to `spiced`. The `spiceai/spiceai` image starts `spiced` with no arguments, and `spiced` then listens only on `127.0.0.1` on port `8090`, which Cloud Run ingress cannot reach.
 
-To run multiple replicas with shared file-based acceleration, mount [Cloud Storage with FUSE](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts) and point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`). Cloud Storage volume latency is significantly higher than local SSD, so prefer GKE for latency-sensitive accelerated workloads.
+To run multiple replicas, give each replica its own acceleration on local storage. Do not point Cayenne at a [Cloud Storage FUSE mount](https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts) shared between replicas: its metastore is a SQLite database, and [Cloud Storage FUSE does not support file locking](https://cloud.google.com/storage/docs/cloud-storage-fuse/overview), so replicas that share the mount can corrupt it (see [Metastore location](../components/data-accelerators/cayenne#metastore-location)). To start new replicas from a shared copy, use [acceleration snapshots](../features/data-acceleration/snapshots). Prefer GKE for latency-sensitive accelerated workloads.
 
 #### 3. Scaling rules
 
