@@ -82,6 +82,16 @@ Spice serves a GGUF model on a single node, from the [`file`][file] or [`hugging
 
 The OpenAI-compatible API works the same way on both engines: streaming, `usage`, `finish_reason`, `reasoning_effort` and `reasoning_content` are unchanged, and so are the GGUF's own chat template and the `chat_template` and `context_length` parameters. Prompts are rendered and tool calls are parsed with the same code as on mistral.rs, so a GLM-5.3 tool call, which that parser does not read, stays unparsed on both engines. Each streamed tool call carries its own `index`.
 
+On one node, llama.cpp decodes up to 8 requests to a model at once. When llama.cpp cannot create a context for 8 requests, or creating it would leave less than 2 GiB of memory free, the model serves fewer: 4, 2, or 1. The model logs how many it serves when it loads:
+
+```text
+Model '<name>' serves up to 8 requests at once from 8192 tokens of shared context memory; one request can use all of it. See: https://spiceai.org/docs/components/models
+```
+
+For most architectures, the requests running together share one context of `context_length` tokens, so their prompts and replies must fit it together. A request that does not fit waits until running requests finish. When a model is idle, any request whose prompt fits the context starts.
+
+A conversation's prompt is kept between requests, so its next turn does not read the prompt again. When a request with a different prompt starts, the idle prompt moves from the model's cache to host memory, and the conversation's next turn restores it. Idle prompts take up to 8 GiB of host memory, and no more than half the memory the process can still use.
+
 The `paged_attention` parameter has no effect on a GGUF model served by llama.cpp, which manages its own KV cache. It still applies to a GGUF model with `distributed_backend: ring` that mistral.rs serves. The parameter is read only for `from: file:` models, and a `from: file:` GGUF model on one node that sets `paged_attention: disabled` logs this once at load, at info level:
 
 ```text
