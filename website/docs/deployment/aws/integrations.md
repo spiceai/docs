@@ -319,12 +319,31 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
         "secretsmanager:GetSecretValue"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3vectors:CreateVectorBucket",
+        "s3vectors:GetVectorBucket",
+        "s3vectors:CreateIndex",
+        "s3vectors:GetIndex",
+        "s3vectors:ListIndexes",
+        "s3vectors:PutVectors",
+        "s3vectors:GetVectors",
+        "s3vectors:ListVectors",
+        "s3vectors:QueryVectors",
+        "s3vectors:DeleteVectors"
+      ],
+      "Resource": [
+        "arn:aws:s3vectors:us-east-1:123456789012:bucket/my-s3-vector-bucket",
+        "arn:aws:s3vectors:us-east-1:123456789012:bucket/my-s3-vector-bucket/index/*"
+      ]
     }
   ]
 }
 ```
 
-Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`.
+Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`. The `s3vectors` actions are needed only for [S3 Vectors](#vector-stores-amazon-s3-vectors) search; Spice creates the vector bucket and index when they do not exist, which is why `CreateVectorBucket` and `CreateIndex` are listed. These actions can delete vectors, so the policy scopes them to the vector bucket and its indexes rather than `*`. See the [Amazon S3 Vectors actions](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazons3vectors.html) reference. Replace the Region, account ID, and bucket name in the scoped statement with your own.
 
 ## Deployment Options
 
