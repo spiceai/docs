@@ -250,7 +250,7 @@ Spice accelerations are latency- and IOPS-sensitive. Choose the storage type bas
 ]
 ```
 
-In the Spicepod, point Cayenne at `/data` with `cayenne_file_path: /data`, which stores each dataset's files under `/data/<dataset>/`.
+Keep Cayenne's data and its metastore off this EFS mount. The metastore is a SQLite database, and SQLite locking is unreliable on NFS, so two tasks that share the mount can corrupt it (see [Metastore location](../components/data-accelerators/cayenne#metastore-location)). Use the mount only for files that must survive task replacement, and keep each task's Cayenne acceleration on its own local or EBS storage.
 
 #### 4. Auto-scaling
 

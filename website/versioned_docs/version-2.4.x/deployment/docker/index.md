@@ -153,7 +153,7 @@ Common runtime variables:
 
 ## Persistence
 
-For workloads that use file-based acceleration (for example, DuckDB or SQLite), mount a host directory or named volume so data survives container restarts:
+For workloads that use file-based acceleration (for example, Cayenne with `mode: file`), mount a host directory or named volume so data survives container restarts:
 
 ```bash
 docker run --rm -p 127.0.0.1:8090:8090 \
