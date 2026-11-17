@@ -307,13 +307,18 @@ Most AWS services that Spice connects to have explicit parameters for configurin
    - Used primarily with OpenID Connect (OIDC) and OAuth
    - Common in Kubernetes environments using IAM roles for service accounts (IRSA)
 
-4. **ECS Container Credentials**:
-   - Used when running in Amazon ECS containers
-   - Automatically uses the task's IAM role
-   - Retrieved from the ECS credential provider endpoint
-   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
+4. **GitHub Actions Job Identity**:
+   - Used when Spice runs in a GitHub Actions job with `permissions: id-token: write`, `AWS_ROLE_ARN` set, and no `AWS_WEB_IDENTITY_TOKEN_FILE`
+   - Requests the job's OIDC token and exchanges it with AWS STS for temporary credentials of the role that `AWS_ROLE_ARN` names
+   - Requests a new token each time the credentials are refreshed
 
-5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
+5. **Container Credentials (Amazon ECS or EKS Pod Identity)**:
+   - Used when running in Amazon ECS tasks or in EKS pods with [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html)
+   - Automatically uses the task's or pod's IAM role
+   - Retrieved from the container credential provider endpoint
+   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI`, which ECS and EKS Pod Identity inject automatically.
+
+6. **AWS EC2 Instance Metadata Service (IMDSv2)**:
    - Used when running on EC2 instances.
    - Automatically uses the instance's IAM role.
    - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).

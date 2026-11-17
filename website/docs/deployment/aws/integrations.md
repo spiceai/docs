@@ -284,10 +284,10 @@ datasets:
 All AWS integrations support the standard AWS SDK credential chain. When credentials are not explicitly configured, Spice loads them from the following sources in order:
 
 1. **Environment Variables**: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`
-2. **Shared Credentials Files**: `~/.aws/credentials` and `~/.aws/config`
-3. **AWS SSO Sessions**: Configured via `aws configure sso`
-4. **Web Identity Token**: For OIDC/OAuth (common with EKS IRSA)
-5. **ECS Container Credentials**: Automatic IAM role for ECS tasks
+2. **AWS Profile**: `~/.aws/credentials` and `~/.aws/config`, including SSO sessions configured with `aws configure sso`
+3. **Web Identity Token**: `AWS_ROLE_ARN` and `AWS_WEB_IDENTITY_TOKEN_FILE`, as EKS IRSA sets them
+4. **GitHub Actions Job Identity**: `AWS_ROLE_ARN` in a GitHub Actions job with `permissions: id-token: write` and no token file
+5. **Container Credentials**: the IAM role of an Amazon ECS task or an EKS Pod Identity pod
 6. **EC2 Instance Metadata (IMDSv2)**: Automatic IAM role for EC2 instances
 
 ### IAM Permissions
