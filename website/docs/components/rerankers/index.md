@@ -91,7 +91,11 @@ When the load or the test request fails:
 - The reranker is not registered. A `rerank()` query that names it fails with `model '<name>' not found in rerankers, chat models, or evaluation models`.
 - With the default runtime [`ready_state`](../../reference/spicepod/runtime.md#runtimeready_state) of `on_load`, [`/v1/ready`](../../api/HTTP/ready.api.mdx) returns `503`.
 
-Spice loads rerankers only at startup. Spice does not retry a reranker that failed to load, and a change to the `rerankers:` section does not reload rerankers, also when the Spicepod watcher is on. After you correct the configuration, restart the runtime.
+A reranker that failed to load is retried in the background with backoff, and it is registered once a load and its test request succeed, for example after the provider recovers or accepts the API key. A configuration error, such as an unknown `from` source or a missing or invalid parameter, is not retried. It stays unavailable until the configuration is fixed.
+
+With the Spicepod watcher on (`spice run`, or [`spiced --pods-watcher-enabled`](../../cli/reference/spiced.md#hot-reload)), changes to the `rerankers:` section take effect without a restart: an added reranker loads, a changed one is unloaded and loads again with its new configuration, and a removed one is unloaded. A reload waits up to 2 minutes for a reranker to load, then applies the rest of the change while the load continues in the background.
+
+In v2.4.3 and earlier, Spice loaded rerankers only at startup, did not retry a reranker that failed to load, and ignored changes to `rerankers:` until the runtime restarted.
 
 Rerankers require the `models` feature, which the default `spiced` build includes. A build without it logs an error and loads no rerankers.
 

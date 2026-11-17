@@ -108,8 +108,26 @@ For a model llama.cpp splits, the nodes take two roles:
 - **Every other node** serves its GPU and holds its share of the model for the head. Its load completes once it serves its GPU, and it refuses chat requests with:
 
   ```text
-  Model '<name>' is served by the first machine in 'nodes' (<head>); this machine holds part of it.
+  Model '<name>' is served by the first machine in 'nodes' (<head>); this machine holds part of it. Set `head_url` to the address clients reach the head at to name it here.
   ```
+
+The addresses in `nodes` are the ones the nodes reach each other at, which can be a private network that clients cannot reach. Set the `head_url` parameter to the `http` or `https` URL that clients reach the head at, and every other node names it when it refuses a request. For example, the model `params` on the node with `node_rank: 1`:
+
+```yaml
+params:
+  distributed_backend: ring
+  nodes: 10.42.9.100,10.42.2.102,10.42.0.101
+  node_rank: 1
+  head_url: http://192.168.1.100:8090
+```
+
+```text
+Model '<name>' is served by the head at http://192.168.1.100:8090; this machine holds part of it, so send requests there.
+```
+
+`head_url` must be an `http` or `https` URL with a host; another value fails the model's load with an error that names `head_url`. Like `nodes` and `node_rank`, it is refused without `distributed_backend: ring`.
+
+On every node, each [`/v1/models`](../../api/HTTP/get-models) entry for a model split across nodes includes `node_rank`: `0` on the head, which serves the model's requests, and the node's position in `nodes` on every other node. Clients can use it to find the node that serves the model before sending requests. A model that runs on one node, or that failed to load, has no `node_rank`, and the CSV format (`?format=csv`) omits the field.
 
 The node at `node_rank` _r_ serves its GPU on port `12345` plus _r_, at its own address in `nodes`, and llama.cpp's connections between nodes use the ports 1000 above those. Each node needs a GPU that llama.cpp can use. These connections are neither authenticated nor encrypted, so every node must run `spiced` with [`--allow-insecure-connections`](../../cli/reference/spiced.md). Run the nodes only on a trusted private network: any host that reaches a node's GPU server can use that GPU. Without the flag, the model fails to load with:
 
