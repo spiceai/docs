@@ -37,8 +37,8 @@ The model after `typesafe:` is sent to TypeSafe as follows:
 | --------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------- |
 | `typesafe_api_key`          | The TypeSafe API key. `typesafe_ai_api_key` is accepted as an alias.                                          | -                         |
 | `typesafe_endpoint`         | The TypeSafe API base URL.                                                                                    | `https://api.typesafe.ai` |
-| `max_concurrency`           | Maximum concurrent requests from the `ai` SQL function and the SQL decision functions.                        | Provider default          |
-| `requests_per_minute_limit` | Maximum requests per minute from the `ai` SQL function and the SQL decision functions.                        | Provider default          |
+| `max_concurrency`           | Maximum number of concurrent requests to this model.                                                          | Provider default          |
+| `requests_per_minute_limit` | Maximum requests per minute to this model.                                                                    | Provider default          |
 
 When `typesafe_api_key` is not set, Spice loads the key from the `TYPESAFE_API_KEY` secret, and then from `TYPESAFE_AI_API_KEY`. If neither is found, the model fails to load.
 

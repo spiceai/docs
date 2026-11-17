@@ -47,7 +47,7 @@ Tier selection governs the internal rate controller's concurrency + per-minute b
 | `tier4`     | 125             | 10,000            |
 | `tier5`     | 125             | 10,000            |
 
-These model parameters set the budget for requests that the [`ai` SQL function](../../../reference/sql/ai.md) and the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions) send. They do not change the tier budget for chat and responses requests:
+These model parameters set the budget for requests from the [`ai` SQL function](../../../reference/sql/ai.md), the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions), and the `POST /v1/decisions` endpoint. They do not change the tier budget for chat and responses requests:
 
 | Parameter                      | Description                                         |
 | ------------------------------ | --------------------------------------------------- |
@@ -80,7 +80,7 @@ Note: Responses API hosted tools are **not** available from the `/v1/chat/comple
 ## Capacity & Sizing
 
 - **Context window**: Driven by the selected model (e.g., `gpt-4o-mini`: 128k). Spice does not enforce context trimming — prompt and history management is the caller's responsibility.
-- **Concurrency**: Chat and responses requests use the `openai_usage_tier` budget. SQL function requests use `max_concurrency` when it is set. For high-throughput workloads, upgrade the OpenAI tier rather than over-subscribing the rate limiter.
+- **Concurrency**: Chat and responses requests use the `openai_usage_tier` budget. SQL function and decisions requests use `max_concurrency` when it is set. For high-throughput workloads, upgrade the OpenAI tier rather than over-subscribing the rate limiter.
 - **Latency**: Bounded by OpenAI's server-side latency plus network RTT. Streaming (`stream=true`) begins emitting tokens quickly and is preferred for chat interfaces.
 
 ## Metrics
