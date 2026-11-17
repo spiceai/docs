@@ -62,7 +62,7 @@ Add ~20–30% headroom for KV cache and working memory during inference.
 
 ### Concurrency
 
-`max_concurrency` limits the requests that the [`ai` SQL function](../../../reference/sql/ai.md), the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions), and the `POST /v1/decisions` endpoint send to the model. It defaults to **1** for local models. `requests_per_minute_limit` limits the same requests and has no default for local models. It does not limit requests to the chat endpoints. A GGUF model served by llama.cpp decodes up to 8 requests at once; see [Local GGUF Models](../index.md#local-gguf-models). Raise `max_concurrency` to let these paths send more requests at once.
+`max_concurrency` limits the requests that the [`ai` SQL function](../../../reference/sql/ai.md), the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions), and the `POST /v1/decisions` endpoint send to the model. It defaults to **1** for local models. `requests_per_minute_limit` limits the same requests and has no default for local models. Neither parameter limits requests to the chat endpoints. A GGUF model served by llama.cpp decodes up to 8 requests at once; see [Local GGUF Models](../index.md#local-gguf-models). Raise `max_concurrency` to let these paths send more requests at once.
 
 ## Metrics
 
