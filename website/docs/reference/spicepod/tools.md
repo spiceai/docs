@@ -46,6 +46,14 @@ Optional. A map of key-value pairs for additional parameters specific to the too
 
 Optional. A map of key-value pairs of arbitrary environment variables to set when running the tool. Only useable if the tool requires a subprocess to run (e.g. MCP over stdio) .
 
+### `as_sql`
+
+Optional. Whether the tool is also registered as a SQL scalar function that calls the tool once per row. Defaults to `false`. Requires [`signature`](#signature) and [`runtime.functions.enabled: true`](./runtime.md#runtimefunctions). A tool registered this way also appears in the [tool registry](../../features/tool-registry/index.md).
+
+### `signature`
+
+Optional. The typed arguments and return type of the SQL function that `as_sql` registers, in the same form as a [function's `signature`](./functions.md#signature). A tool's JSON Schema does not map to a single SQL signature, so `as_sql` needs the types set here. Ignored unless `as_sql` is `true`.
+
 ### `dependsOn`
 
 Optional. A list of dependencies that must be available before this tool can be used.
