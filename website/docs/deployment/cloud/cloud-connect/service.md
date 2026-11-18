@@ -96,6 +96,8 @@ INFO Spice Cloud Connect: applied the deployed spicepod (12 datasets, 1 models, 
 
 `spice cloud service restart` is what applies them.
 
+Secrets follow the same rule when one is removed. After a secret is deleted from the project with [`spice cloud secrets delete`](../../../cli/reference/cloud.md#secrets) and the project is deployed again, the running instance keeps resolving the old value and names `secrets` among the sections that take effect at the next start. When the deployment carries no secrets at all, the instance also removes its delivered-secret cache, so after the restart a `${cloud:NAME}` reference to a deleted secret no longer resolves. In v2.4.3 and earlier, a deployment with no secrets left the cache in place, and each start restored the deleted secrets.
+
 ## Removing the service
 
 ```shell

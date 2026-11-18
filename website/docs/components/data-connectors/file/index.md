@@ -88,13 +88,13 @@ In v2.4.2 and earlier, the watcher watched only the file path, so on Linux, writ
 
 ## Missing Source Files
 
-For a dataset of structured files, such as Parquet, CSV, or JSON, when the `from` path no longer exists or lists no data files, a query or refresh that reads it fails instead of returning zero rows:
+For a dataset of structured files, such as Parquet, CSV, or JSON, when the `from` path no longer exists or lists no data files, a query or full refresh that reads it fails instead of returning zero rows:
 
 ```text
 No data files are yet available for dataset <name> at <path>. The source path is missing or has no matching files.
 ```
 
-Spice logs the same message as a warning. A federated query returns the error, and a refresh fails, so an accelerated dataset keeps the rows it last loaded. When the files are restored, the next refresh loads them. An existing file with no rows, such as a header-only CSV or a zero-row Parquet file, still reads as zero rows. A path with no data files when Spice starts already fails the dataset load, and the runtime retries until the source data becomes available.
+Spice logs the same message as a warning. A federated query returns the error, and a full refresh fails, so an accelerated dataset keeps the rows it last loaded. When the files are restored, the next refresh loads them. An [`append`](../../../features/data-acceleration/refresh-modes/append.md) refresh is not checked, because it adds rows instead of replacing them: it reads a path with no data files as zero rows, so an append dataset whose path starts empty does not fail each refresh while it waits for its first file. In v2.4.3, an `append` refresh of such a path failed as well. An existing file with no rows, such as a header-only CSV or a zero-row Parquet file, still reads as zero rows. A path with no data files when Spice starts already fails the dataset load, and the runtime retries until the source data becomes available.
 
 The same check applies to the other connectors that read files from a path or an object store prefix, such as [S3](../s3/index.md). A query that names objects with a [`_location`](../index.md#file-listing-pruning-with-metadata-columns) `=` or `IN` condition, such as a `refresh_sql` that filters on `_location`, reads those objects without listing the path and is not checked. A full refresh of such a dataset can still replace the accelerated data with an empty result when the named objects are gone. Document formats, such as `md`, `txt`, `pdf`, or `docx`, are not checked either: when their files are gone, a query returns zero rows and a full refresh replaces the accelerated documents with an empty table. In v2.4.2 and earlier, a query of a deleted path returned zero rows, and a full refresh replaced the accelerated data with an empty table.
 
