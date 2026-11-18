@@ -1,0 +1,13 @@
+[package]
+name = "cloud_connect_cache_key"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "Spec for Cloud Connect delivered-secret cache key placement. Fails until a config-directory copy cannot recover a delivered secret."
+
+[dependencies]
+base64 = "0.22"
+libc = "0.2"
+runtime-cloud-connect = { git = "https://github.com/spiceai/spiceai", tag = "v2.4.3" }
+tempfile = "3"
+zeroize = "1.8"
