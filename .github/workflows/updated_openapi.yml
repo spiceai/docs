@@ -1,29 +1,66 @@
 name: Generate API Docs
 
+# Regenerates the HTTP API docs for pull requests that change the OpenAPI
+# document and commits them to the pull request branch.
+#
+# Only the OpenAPI document is taken from the pull request. The docs are
+# generated with the default branch's toolchain in a job whose token is
+# read-only. A separate job, which runs no pull request code, commits the
+# generated files and receives a token that can push only in its push step.
+
 on:
   pull_request:
     paths:
       - "website/public/openapi.json"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   generate-api-docs:
     runs-on: ubuntu-latest
     environment: secret-free
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout default branch
         uses: actions/checkout@v7.0.1
         with:
-          fetch-depth: 0 # Ensure the full history is available
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Checkout pull request OpenAPI document
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pull-request
+          persist-credentials: false
+          sparse-checkout: website/public/openapi.json
+          sparse-checkout-cone-mode: false
+
+      - name: Use the pull request OpenAPI document
+        run: |
+          spec=pull-request/website/public/openapi.json
+          if [ ! -f "$spec" ] || [ -L "$spec" ]; then
+            echo "::error::$spec is missing or is not a regular file"
+            exit 1
+          fi
+          cp "$spec" website/public/openapi.json
+          rm -rf pull-request
 
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: 26
+          node-version-file: website/.nvmrc
 
       - name: Install dependencies
         working-directory: website
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Generate API docs
         working-directory: website
@@ -31,27 +68,84 @@ jobs:
           rm -rf docs/api/HTTP/*
           npm run docusaurus gen-api-docs all
 
-      - name: Check for new or modified .mdx files
+      - name: Upload generated API docs
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: api-docs
+          path: website/docs/api/HTTP/
+          if-no-files-found: error
+          retention-days: 1
+
+  push-api-docs:
+    needs: generate-api-docs
+    # Fork pull requests receive a read-only token, so only same-repository
+    # branches are updated.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.head_ref != github.event.repository.default_branch &&
+      !startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    environment: secret-free
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Download generated API docs
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: api-docs
+          path: ${{ runner.temp }}/api-docs
+
+      - name: Replace API docs with generated files
         run: |
-          if git diff --name-only | grep '\.mdx$'; then
-            echo "CHANGES_FOUND=true" >> $GITHUB_ENV
-          else
-            echo "CHANGES_FOUND=false" >> $GITHUB_ENV
+          generated="$RUNNER_TEMP/api-docs"
+          if [ ! -d "$generated" ]; then
+            echo "::error::generated API docs were not downloaded"
+            exit 1
           fi
+          if [ -n "$(find "$generated" -mindepth 1 ! -type f ! -type d -print -quit)" ]; then
+            echo "::error::generated API docs contain entries that are not regular files or directories"
+            exit 1
+          fi
+          for dir in website website/docs website/docs/api; do
+            if [ -L "$dir" ] || [ ! -d "$dir" ]; then
+              echo "::error::$dir is not a directory in the pull request"
+              exit 1
+            fi
+          done
+          rm -rf website/docs/api/HTTP
+          mkdir website/docs/api/HTTP
+          cp -R "$generated"/. website/docs/api/HTTP/
 
-      - name: Configure Git user
-        if: env.CHANGES_FOUND == 'true'
+      - name: Commit generated API docs
+        id: commit
         run: |
-          git config --global user.name 'Spice Schema Bot'
-          git config --global user.email 'schema-bot@spice.ai'
+          git add -A website/docs/api/HTTP
+          if ! git diff --cached --name-only -- website/docs/api/HTTP | grep -q '\.mdx$'; then
+            echo "Generated API docs match the pull request."
+            exit 0
+          fi
+          git -c core.hooksPath=/dev/null \
+            -c user.name='Spice Schema Bot' \
+            -c user.email='schema-bot@spice.ai' \
+            commit -m "chore: update API docs"
+          echo "committed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push changes
-        if: env.CHANGES_FOUND == 'true'  && !startsWith(github.head_ref, 'release/')
-        working-directory: website
-        run: |
-          git add docs/api/HTTP/
-          git commit -m "chore: update API docs" || exit 0 # Prevent failure if no changes
-          git pull --rebase origin "${{ github.head_ref }}" # Pull latest changes and rebase
-          git push origin "HEAD:refs/heads/${{ github.head_ref }}"
+      # A push is rejected if the branch moved after the docs were generated.
+      # The new commit starts a new run that regenerates them.
+      - name: Push generated API docs
+        if: steps.commit.outputs.committed == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          git -c core.hooksPath=/dev/null \
+            -c credential.helper= \
+            -c 'credential.helper=!f() { test "$1" = get || exit 0; echo username=x-access-token; echo "password=$GITHUB_TOKEN"; }; f' \
+            push origin "HEAD:refs/heads/$HEAD_REF"
