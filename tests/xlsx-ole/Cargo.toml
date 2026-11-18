@@ -1,0 +1,13 @@
+[package]
+name = "xlsx-ole-bounds"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Spice 2.1.0 locks this crate (Cargo.lock checksum
+# 15e02a18e79de779a78b0a6ec84a3deed1ff0607dd970a11369f993263f99f1a).
+# These tests fail on 0.28.0 and 0.37.0. They pass on 0.38.0, the version
+# Spice 2.4.3 locks.
+[dependencies]
+calamine = "=0.28.0"
+libc = "0.2"
