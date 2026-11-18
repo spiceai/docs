@@ -235,6 +235,7 @@ The cache is dropped wholesale — every entry, not only the affected ones — w
 - a dataset or a view is registered, updated, or removed;
 - a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
 - a spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md) — one whose declaration changed, or one whose name a provider is already registered under. Re-registering a catalog builds a fresh provider under the same name, and a plan holds the table source it was planned against;
+- a periodic [Unity Catalog](../../components/catalogs/unity-catalog/index.md) or [Databricks](../../components/catalogs/databricks.md) catalog refresh replaces or removes a table;
 - an accelerated table's schema evolves, in place or by recreation.
 
 A reload that adds a catalog name nothing was registered under invalidates nothing — no cached plan can have resolved a table in it — and a reload that changes no catalog leaves the cache intact.
@@ -417,7 +418,8 @@ A change to a definition that cached results were computed from clears every cac
 
 - a [view](../../reference/spicepod/views.md) is updated or removed;
 - a Spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md), either one whose declaration changed or one whose name a provider is already registered under;
-- a Spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md).
+- a Spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
+- a periodic [Unity Catalog](../../components/catalogs/unity-catalog/index.md) or [Databricks](../../components/catalogs/databricks.md) catalog refresh replaces or removes a table.
 
 A cached result records the tables a view reads, not the view itself, so the cache cannot find the entries that read through a changed view and clears all of them. A query that started before the clear does not store its result, even when it reads no table. After a view is updated, a repeat of an earlier query returns the result of the new definition. After a view is removed, the repeat fails because the view no longer exists.
 

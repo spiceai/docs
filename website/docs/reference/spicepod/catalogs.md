@@ -84,6 +84,11 @@ Optional. Specifies the access level for the catalog. Supported values are:
 
 - `read` (default): Read-only access.
 - `read_write`: Enables both read and write operations. Only supported for [write-capable catalogs](../../tags/write).
+- `read_write_create`: Enables read and write operations and DDL statements such as `CREATE TABLE` and `DROP TABLE`. Each catalog's page lists the access levels it supports, such as [DuckLake](../../components/catalogs/ducklake.md).
+
+A Spicepod reload that lowers a catalog's `access` withdraws what the new level does not include at once: a change from `read_write_create` to `read_write` refuses DDL and keeps writes, and a change to `read` refuses writes and DDL. Removing the catalog from the Spicepod refuses writes and DDL, and its tables stay readable until Spice restarts. Access that a reload adds takes effect once the catalog has loaded with the new configuration. A reload does not wait for catalogs to load, so a catalog whose source does not answer does not hold back the reload's other changes or later reloads.
+
+In v2.4.3 and earlier, a reload never withdrew write access, so writes reached the catalog until Spice restarted, and a reload that added a catalog whose source did not answer never finished.
 
 ## `params`
 

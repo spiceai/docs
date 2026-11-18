@@ -125,6 +125,14 @@ The `op` field maps to a row-level change: `c` create, `u` update, `d` delete, `
 | Confluent wire format | Body begins with the magic byte `0` and a 4-byte schema id; set `cdc_schema_registry_url` on the dataset so Spice can resolve the schema. |
 | Raw Avro | Body is a single Avro datum; provide the schema via the `cdc_avro_schema` dataset param or the `X-Avro-Schema` request header. |
 
+Spice refuses a recursive Avro schema, one whose record contains itself directly or through a union, array, map, or another record, with `400 Bad Request`. The check applies to schemas from Schema Registry, the `cdc_avro_schema` param, and the `X-Avro-Schema` header, before Spice decodes the body:
+
+```text
+Invalid Avro schema: record 'Node' contains itself, directly or through other types. CDC ingest does not accept recursive Avro schemas; send a schema without self-referencing records
+```
+
+A schema that reuses a named record in several fields, such as the Debezium `before` and `after` fields, is not recursive and is accepted. In v2.4.3 and earlier, Spice accepted recursive schemas.
+
 ### Response
 
 On success the endpoint returns the number of applied changes:
