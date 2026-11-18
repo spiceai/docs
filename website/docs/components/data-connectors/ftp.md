@@ -20,6 +20,7 @@ datasets:
       file_format: csv
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 Query the data using SQL:
@@ -35,6 +36,7 @@ SELECT * FROM sales LIMIT 10;
 | Default Port    | 21                        | 22                             |
 | Encryption      | None (plain text)         | SSH encryption                 |
 | Authentication  | Username/password         | Username/password              |
+| Server identity | Not verified              | Host key fingerprint           |
 | Recommended Use | Internal/trusted networks | Production and public networks |
 
 :::tip[Security Recommendation]
@@ -91,15 +93,36 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                                  |
 | `sftp_user`                 | Required. Username for SFTP authentication.                                                                    |
 | `sftp_pass`                 | Required. Password for SFTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_sftp_pass}`. |
+| `sftp_host_key_fingerprint` | Required. SHA256 fingerprint of the server's host key, in the form `SHA256:<base64>`. See [SFTP Host Key Verification](#sftp-host-key-verification). |
 | `sftp_port`                 | SFTP server port. Default: `22`.                                                                               |
 | `client_timeout`            | Wall-clock bound for one connection attempt — name resolution, TCP connect, SSH handshake and password authentication together. E.g. `30s`, `1m`. Default: `20s`. |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                  |
+
+### SFTP Host Key Verification
+
+Spice verifies the identity of the SFTP server before it sends credentials. After the SSH handshake, Spice compares the host key the server presents with `sftp_host_key_fingerprint`. If they differ, Spice closes the connection before authentication, and the dataset fails to load with an error that names the key type and fingerprint the server presented. A dataset without `sftp_host_key_fingerprint` does not load.
+
+To list the fingerprints of the server's host keys, run `ssh-keyscan` and `ssh-keygen`:
+
+```bash
+ssh-keyscan -p 22 files.example.com | ssh-keygen -lf -
+```
+
+```text
+3072 SHA256:yJ4VCOIOOWvxDlYmmCuu5w/Cx6xrOdTOLTS6tjAws0g files.example.com (RSA)
+256 SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk files.example.com (ECDSA)
+256 SHA256:+d5F7o6yAKJ9uQ+8Vz3YTnl9xsi9BHBBL2nqptG1pVc files.example.com (ED25519)
+```
+
+A server usually has more than one host key. Spice uses the first key type the server has in this order: ECDSA, ED25519, RSA. Set `sftp_host_key_fingerprint` to the fingerprint on the line for that key type. In the output above, that is the ECDSA line.
+
+`ssh-keyscan` does not authenticate the server. Confirm the fingerprint with the server administrator, or run the command from a network path you trust.
 
 ## Examples
 
 ### Basic SFTP Connection
 
-Connect to an SFTP server with username and password authentication:
+Connect to an SFTP server with username and password authentication, and verify the server's host key:
 
 ```yaml
 datasets:
@@ -109,6 +132,7 @@ datasets:
       file_format: parquet
       sftp_user: datauser
       sftp_pass: ${secrets:sftp_password}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Basic FTP Connection
@@ -136,6 +160,7 @@ datasets:
     params:
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Connection with Timeout
@@ -150,6 +175,7 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
       client_timeout: 120s
 ```
 
@@ -168,6 +194,7 @@ datasets:
       sftp_port: 2222
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Hive Partitioning
@@ -182,6 +209,7 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
       hive_partitioning_enabled: true
 ```
 
@@ -217,6 +245,7 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 
   - from: sftp://data.example.com/inventory/
     name: inventory
@@ -224,6 +253,7 @@ datasets:
       file_format: csv
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Accelerated Dataset
@@ -238,6 +268,7 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
     acceleration:
       enabled: true
       refresh_check_interval: 1h
@@ -255,6 +286,7 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_username}
       sftp_pass: ${secrets:sftp_password}
+      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 For detailed information, refer to the [secret stores documentation](../secret-stores).
