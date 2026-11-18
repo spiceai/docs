@@ -115,7 +115,7 @@ spec:
     spec:
       chart: spiceai
       # Pin to a specific chart version for reproducible deployments
-      version: 2.4.2
+      version: 2.4.3
       sourceRef:
         kind: HelmRepository
         name: spiceai
@@ -182,7 +182,7 @@ spec:
   chart:
     spec:
       chart: spiceai
-      version: 2.4.2
+      version: 2.4.3
       sourceRef:
         kind: HelmRepository
         name: spiceai
@@ -220,7 +220,7 @@ Upgrade by changing `spec.chart.spec.version` to a newer chart version, then com
 spec:
   chart:
     spec:
-      version: 2.4.2
+      version: 2.4.3
 ```
 
 To track the latest chart version automatically, set `version: '*'` or a semver range such as `2.x`. Pinning to a specific version is recommended for production.
