@@ -113,6 +113,8 @@ catalogs:
 
 - `engine`: Optional. The accelerator engine used for every table. Defaults to `cayenne`, currently the only supported value.
 - `refresh_mode`: Required. The only supported value is `changes` (CDC); there is no catalog-level `full` mode.
+- `mode`: Optional. The storage mode for every table the catalog accelerates, with the same values and meaning as a dataset's [`acceleration.mode`](./datasets.md#accelerationmode). Defaults to `memory`, which is not durable: the accelerator starts empty on every restart, and each table runs its initial snapshot from the source again. Use `mode: file` or `mode: file_update`, with `params.cayenne_file_path`, to keep the acceleration across restarts and resume from the replication slot. `mode: file_create` deletes the acceleration on every startup, so like `memory` it snapshots each table again.
+- `params`: Optional. Engine parameters applied to every table the catalog accelerates, with the same meaning as a dataset's [`acceleration.params`](./datasets.md#accelerationparams). With `cayenne_file_path`, each table gets its own subdirectory under that path.
 
 Per-table-only acceleration settings (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are not configurable at the catalog level — they remain on an individual [dataset's `acceleration` block](../../components/data-accelerators).
 
