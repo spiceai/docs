@@ -50,9 +50,13 @@ Optional. A map of key-value pairs of arbitrary environment variables to set whe
 
 Optional. Whether the tool is also registered as a SQL scalar function that calls the tool once per row. Defaults to `false`. Requires [`signature`](#signature) and [`runtime.functions.enabled: true`](./runtime.md#runtimefunctions). A tool registered this way also appears in the [tool registry](../../features/tool-registry/index.md).
 
+Only a single tool can be registered. A `tools` entry that provides several tools, such as an [MCP server](../../components/tools/mcp), is not registered as a SQL function. When registration is not possible, because `runtime.functions.enabled` is not set, `signature` is missing, the entry is a tool catalog, or the signature uses an unsupported type, Spice logs a warning and loads the tool without a SQL function.
+
 ### `signature`
 
 Optional. The typed arguments and return type of the SQL function that `as_sql` registers, in the same form as a [function's `signature`](./functions.md#signature). A tool's JSON Schema does not map to a single SQL signature, so `as_sql` needs the types set here. Ignored unless `as_sql` is `true`.
+
+A tool's arguments and return value pass through JSON, so a tool signature accepts only these types: `int8`, `int16`, `int32`, `int64`, and `int`, which all become `Int64`; `float32`, `float64`, `float`, and `double`, which all become `Float64`; `utf8` and `string`; and `boolean` and `bool`. Other types that a function signature accepts, such as lists, decimals, and timestamps, are not supported for tools.
 
 ### `dependsOn`
 

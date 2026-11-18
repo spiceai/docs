@@ -184,7 +184,7 @@ Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
 - `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write), unless the dataset is accelerated with [`acceleration.write_mode: acceleration`](#accelerationwrite_mode), which keeps writes in the acceleration.
-- `read_write_create`: Enables read and write operations and DDL statements such as `CREATE TABLE` and `DROP TABLE`, where the connector supports them.
+- `read_write_create`: Accepted, and behaves as `read_write` for a dataset. DDL statements such as `CREATE TABLE` and `DROP TABLE` are allowed by a catalog's [`access`](./catalogs.md#access), not a dataset's.
 
 To enable write operations, configure your dataset with `read_write` access:
 
