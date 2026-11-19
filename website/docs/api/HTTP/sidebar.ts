@@ -160,18 +160,6 @@ const sidebar: SidebarsConfig = {
           label: "Ingest Debezium CDC changes",
           className: "api-method post",
         },
-        {
-          type: "doc",
-          id: "api/HTTP/post-otlp-logs",
-          label: "Ingest OTLP logs over HTTP",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
-          id: "api/HTTP/post-otlp-metrics",
-          label: "Ingest OTLP metrics over HTTP",
-          className: "api-method post",
-        },
       ],
     },
     {

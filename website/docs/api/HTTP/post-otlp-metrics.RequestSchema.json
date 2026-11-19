@@ -1,1 +1,0 @@
-{"title":"Body","body":{"description":"OTLP ExportMetricsServiceRequest","content":{"application/json":{"schema":{}},"application/x-protobuf":{"schema":{"type":"array","items":{"type":"integer","format":"int32","minimum":0}}}},"required":true}}
