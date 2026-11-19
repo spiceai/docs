@@ -218,7 +218,7 @@ datasets:
 
 Append streams are **append-only** — deletes and updates from the upstream are not propagated. Stream reconnection is automatic; persistent loss of connection causes the dataset to enter `Error` state if the lag exceeds the configured acceptable window. See [Data Refresh](../../features/data-acceleration/data-refresh) for the full append-mode reference.
 
-An upstream dataset accelerated with `refresh_mode: append` and no `primary_key` or `unique` index forwards the rows each refresh appends to the sidecar. When the upstream ends a subscription with `DATA_LOSS`, for example after an append refresh larger than 128 MiB, the sidecar resubscribes and reloads the dataset from a fresh snapshot. A sidecar that subscribes just after an upstream append refresh commits can receive those rows twice ([spiceai/spiceai#16427](https://github.com/spiceai/spiceai/issues/16427)). See [Append Streams](./deployment.md#append-streams) for the details, the workaround, and the v2.4.3 behavior.
+An upstream dataset accelerated with `refresh_mode: append` and no primary key or unique constraint, from the Spicepod or from the source, forwards the rows each refresh appends to the sidecar. When the upstream ends a subscription with `DATA_LOSS`, for example after an append refresh larger than 128 MiB, the sidecar resubscribes and reloads the dataset from a fresh snapshot. A sidecar that subscribes just after an upstream append refresh commits can receive those rows twice ([spiceai/spiceai#16427](https://github.com/spiceai/spiceai/issues/16427)). See [Append Streams](./deployment.md#append-streams) for the details, the workaround, and the v2.4.3 behavior.
 
 ### Sidecar example
 
