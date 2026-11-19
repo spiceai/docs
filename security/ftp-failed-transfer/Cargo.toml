@@ -1,0 +1,13 @@
+[package]
+name = "ftp-failed-transfer"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Pins stay on the Rust 1.83 compiler this crate was run with.
+# suppaftp is the 6.3.0 client Spice v2.4.2 ships.
+[dependencies]
+futures = "=0.3.31"
+libc = "=0.2.169"
+suppaftp = { version = "=6.3.0", features = ["async"] }
+tokio = { version = "=1.43.0", features = ["macros", "rt-multi-thread", "time"] }
