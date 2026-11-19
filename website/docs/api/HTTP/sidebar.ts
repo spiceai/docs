@@ -76,12 +76,6 @@ const sidebar: SidebarsConfig = {
           label: "Get a model",
           className: "api-method get",
         },
-        {
-          type: "doc",
-          id: "api/HTTP/post-gemini-generate-content",
-          label: "Generate content",
-          className: "api-method post",
-        },
       ],
     },
     {
