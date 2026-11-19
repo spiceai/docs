@@ -186,7 +186,7 @@ To run multiple replicas, give each replica its own acceleration. Cloud Run's wr
 
 #### 3. Scaling rules
 
-Cloud Run scales by concurrent requests per instance ([default 80](https://cloud.google.com/run/docs/about-concurrency)). For background workloads (refresh schedules, ingestion) that should not scale to zero, set `--min-instances 1`. For workloads with long-running HTTP requests, set `--no-cpu-throttling` and tune `--concurrency` to match the runtime's request profile. The deployment above serves the HTTP API only: it sets `--http` and not `--flight`, so `spiced` listens for Arrow Flight on `127.0.0.1:50051`, which Cloud Run ingress cannot reach. Run Arrow Flight clients against a deployment on GKE or Compute Engine.
+Cloud Run scales by concurrent requests per instance ([default 80](https://cloud.google.com/run/docs/about-concurrency)). For background workloads (refresh schedules, streaming refresh, ingestion), set `--min-instances 1` so the service does not scale to zero, and `--no-cpu-throttling` so the instance keeps its CPU between requests ([background activity](https://cloud.google.com/run/docs/configuring/billing-settings)). For long-running HTTP requests, tune `--concurrency` to match the runtime's request profile. The deployment above serves the HTTP API only: it sets `--http` and not `--flight`, so `spiced` listens for Arrow Flight on `127.0.0.1:50051`, which Cloud Run ingress cannot reach. Run Arrow Flight clients against a deployment on GKE or Compute Engine.
 
 #### 4. Health probes and revisions
 
