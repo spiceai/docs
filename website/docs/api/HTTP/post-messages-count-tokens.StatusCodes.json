@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"The input token count","content":{"application/json":{"schema":{},"example":{"input_tokens":10}}}},"400":{"description":"The request is invalid, or the model cannot count tokens"},"404":{"description":"The model was not found"}}}

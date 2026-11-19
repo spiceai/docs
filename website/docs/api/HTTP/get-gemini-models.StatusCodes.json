@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"The chat models, as Gemini API models","content":{"application/json":{"schema":{},"example":{"models":[{"name":"models/my-model","displayName":"my-model","supportedGenerationMethods":["generateContent"]}]}}}}}}
