@@ -66,6 +66,8 @@ datasets:
 
 With the example above, Spice resolves `${azure:postgres_user}` by reading `spice-postgres-user` from the `prod-vault` Key Vault, falling back to `postgres-user`.
 
+Limit the principal to these secret names, as described in [Required Role Assignments](#required-role-assignments).
+
 ## Authentication
 
 The `auth_method` parameter selects the credential source:
@@ -80,24 +82,42 @@ For sovereign clouds (Azure China, Azure Government), set `endpoint` to the regi
 
 ## Required Role Assignments
 
-The principal used by Spice must have read access to secrets in the target Key Vault. The recommended built-in role is **Key Vault Secrets User** (`4633458b-17de-408a-b874-0445c86b69e6`):
+The principal used by Spice must be able to read the secrets the Spicepod references, and no others. Spice reads any secret name a `${azure:...}` reference produces, and `spice run` reloads the Spicepod when the file changes. A principal that can read every secret in the vault therefore exposes every secret in the vault, including secrets that belong to other applications, to anyone who can edit the Spicepod.
+
+Assign the built-in **Key Vault Secrets User** role (`4633458b-17de-408a-b874-0445c86b69e6`) on the vault with an [Azure ABAC condition](https://learn.microsoft.com/azure/key-vault/general/rbac-abac) that limits `getSecret` to the secret names the Spicepod uses. For the [example](#example) above:
 
 ```bash
 az role assignment create \
   --assignee-object-id "<PRINCIPAL_OBJECT_ID>" \
   --assignee-principal-type ServicePrincipal \
   --role "Key Vault Secrets User" \
-  --scope "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.KeyVault/vaults/<vault>"
+  --scope "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.KeyVault/vaults/<vault>" \
+  --condition-version "2.0" \
+  --condition "(NOT ActionMatches{'Microsoft.KeyVault/vaults/secrets/getSecret/action'}) OR (@Resource[Microsoft.KeyVault/vaults/secrets:name] ForAnyOfAnyValues:StringEquals {'spice-postgres-user', 'postgres-user', 'spice-postgres-password', 'postgres-password'})"
 ```
 
-The store performs a `list_secret_properties` call on startup to validate connectivity and fail fast on misconfiguration. A `403 Forbidden` on list is tolerated, so principals scoped only to per-secret `Microsoft.KeyVault/vaults/secrets/getSecret/action` (for example, **Key Vault Reader** combined with a custom role) are supported.
+The condition lists both names for each key. Spice requests the `spice-` name first and requests the unprefixed name only when Key Vault returns `404 Not Found`. Any other error, including `403 Forbidden`, stops the lookup and fails the reference. Storing each secret under its `spice-` name means the first request returns the secret. Write the names in lowercase, because Key Vault normalizes secret names to lowercase before evaluating the condition. When the Spicepod adds a secret reference, add its names to the condition. A reference to a name outside the condition fails with `403 Forbidden`.
 
-| Permission                                              | Purpose                                            |
-| ------------------------------------------------------- | -------------------------------------------------- |
-| `Microsoft.KeyVault/vaults/secrets/getSecret/action`    | Required. Read individual secret values.           |
-| `Microsoft.KeyVault/vaults/secrets/readMetadata/action` | Optional. Powers the startup validation list call. |
+ABAC conditions for Key Vault are in preview and require the vault to use the [Azure RBAC permission model](https://learn.microsoft.com/azure/key-vault/general/rbac-guide). Without conditions, assign the role on each secret instead of on the vault. Store each secret under its `spice-` name so that the first request is for a secret the principal can read:
 
-For Key Vaults configured with the legacy [access policy permission model](https://learn.microsoft.com/azure/key-vault/general/assign-access-policy), grant the `Get` and (optionally) `List` permissions on **Secrets** instead of an RBAC role assignment.
+```bash
+az role assignment create \
+  --assignee-object-id "<PRINCIPAL_OBJECT_ID>" \
+  --assignee-principal-type ServicePrincipal \
+  --role "Key Vault Secrets User" \
+  --scope "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.KeyVault/vaults/<vault>/secrets/spice-postgres-user"
+```
+
+Repeat the assignment for `spice-postgres-password` and for every other secret the Spicepod references.
+
+The store performs a `list_secret_properties` call on startup to validate connectivity and fail fast on misconfiguration. A `403 Forbidden` on list is tolerated, so a principal limited to `getSecret` on individual secrets passes startup. The vault-scope assignment above also grants `readMetadata` on the vault, so the list call succeeds; it returns secret names and properties, not values.
+
+| Permission                                              | Purpose                                                                               |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `Microsoft.KeyVault/vaults/secrets/getSecret/action`    | Required. Read secret values. Limit it to the secret names the Spicepod references.   |
+| `Microsoft.KeyVault/vaults/secrets/readMetadata/action` | Optional. Powers the startup validation list call. Returns names and properties only. |
+
+Key Vaults that use the legacy [access policy permission model](https://learn.microsoft.com/azure/key-vault/general/assign-access-policy) cannot limit access to individual secrets: a `Get` permission on **Secrets** applies to every secret in the vault. Migrate the vault to the [Azure RBAC permission model](https://learn.microsoft.com/azure/key-vault/general/rbac-migration) and use one of the assignments above, or keep the Spicepod's secrets in a vault that holds no secrets for other applications.
 
 ## Caching
 

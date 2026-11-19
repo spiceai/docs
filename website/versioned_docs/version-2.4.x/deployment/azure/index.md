@@ -332,7 +332,7 @@ The ABFS connector does not use certificate credentials (`AZURE_CLIENT_CERTIFICA
 **Azure SQL and Azure OpenAI.** The [MSSQL connector](../components/data-connectors/mssql) authenticates with a SQL Server login, and [Azure OpenAI models](../components/models/azure) authenticate with `azure_api_key` or `azure_entra_token`. Neither reads an Azure identity from the environment.
 
 :::note[Role assignments]
-Regardless of the credential source, the principal must have the appropriate Azure role assignments (for example, `Storage Blob Data Reader` on a storage account, or `Key Vault Secrets User` on a key vault). When a Spicepod connects to multiple Azure services, the principal must have permissions across all of them.
+Regardless of the credential source, the principal must have the appropriate Azure role assignments (for example, `Storage Blob Data Reader` on a storage account, or `Key Vault Secrets User` on a key vault with a condition that limits `getSecret` to the secret names the Spicepod references; see [Required Role Assignments](../components/secret-stores/azure-keyvault#required-role-assignments)). When a Spicepod connects to multiple Azure services, the principal must have permissions across all of them.
 :::
 
 ## Resources

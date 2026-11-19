@@ -195,7 +195,7 @@ Each principal must have the appropriate Azure RBAC role for the services it acc
 | Service                        | Common role(s)                                                 |
 | ------------------------------ | -------------------------------------------------------------- |
 | Azure Blob Storage / ADLS Gen2 | `Storage Blob Data Reader` or `Storage Blob Data Contributor`  |
-| Azure Key Vault                | `Key Vault Secrets User` (data plane) or RBAC equivalent       |
+| Azure Key Vault                | `Key Vault Secrets User` with a condition that limits `getSecret` to the secret names the Spicepod references. See [Required Role Assignments](../../components/secret-stores/azure-keyvault#required-role-assignments). |
 | Azure SQL Database             | Database permissions granted to the SQL login                  |
 | Azure OpenAI                   | `Cognitive Services OpenAI User`                               |
 | Azure Container Registry       | `AcrPull` for image pulls                                      |
