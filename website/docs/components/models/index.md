@@ -71,7 +71,7 @@ In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the bac
 
 ## Hosted Model Endpoint Timeouts and Response Limits
 
-Spice holds hosted model endpoints to fixed timeouts and a response size limit, so an endpoint that stops answering cannot hang a request, and an oversized answer cannot exhaust the runtime's memory. The limits apply to [OpenAI](./openai) and OpenAI-compatible endpoints, [Azure OpenAI](./azure), [Anthropic](./anthropic) (including the [Messages API](../../features/large-language-models/messages.md)), [Databricks](./databricks), [xAI](./xai), and [Spice.ai](./spiceai) models, and to the model listings Spice requests from OpenAI, xAI, and Spice.ai. They are not configurable.
+Spice holds hosted model endpoints to fixed timeouts and a response size limit, so an endpoint that stops answering cannot hang a request, and an oversized answer cannot exhaust the runtime's memory. The limits apply to [OpenAI](./openai/index.md) and OpenAI-compatible endpoints, [Azure OpenAI](./azure.md), [Anthropic](./anthropic.md) (including the [Messages API](../../features/large-language-models/messages.md)), [Databricks](./databricks.md), [xAI](./xai.md), and [Spice.ai](./spiceai.md) models, and to the model listings Spice requests from OpenAI, xAI, and Spice.ai. They are not configurable.
 
 | Limit | Value | What it covers |
 | --- | --- | --- |
