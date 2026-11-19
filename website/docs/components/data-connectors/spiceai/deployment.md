@@ -101,6 +101,19 @@ The connector supports long-lived append streams for real-time CDC. The upstream
 
 Append streams are append-only — deletes and updates from the upstream are **not** propagated. Use `refresh_mode: full` for datasets that mutate.
 
+When the upstream dataset is itself accelerated with `refresh_mode: append`, the rows each upstream refresh appends reach the sidecar after the upstream write commits. The upstream forwards them only for an acceleration with no primary key or unique constraint, since a constraint can make the accelerator drop or replace rows on write. A constraint can come from the Spicepod (`primary_key`, or a `unique` entry in `indexes`) or from the source: a document dataset read from object storage, for example, has a primary key on `location`. For an upstream acceleration with a constraint, the sidecar receives the initial snapshot and then no refresh-driven appends, with no error ([spiceai/spiceai#16426](https://github.com/spiceai/spiceai/issues/16426)). To keep such a dataset current on the sidecar, set `refresh_mode: full` with a [`refresh_check_interval`](../../../features/data-acceleration/data-refresh#refresh-interval), such as `1m`, on the sidecar. Without an interval, a full refresh does not run on a schedule.
+
+The upstream holds up to 128 MiB of one append refresh for its subscribers. A larger append refresh, or a subscriber that joins while an append refresh is still writing, ends the subscription with the gRPC status `DATA_LOSS`. The sidecar then logs a warning that names the dataset and the attempt, and resubscribes. A new subscription opens with a truncate and a full snapshot of the upstream dataset, so the sidecar's acceleration is reloaded rather than left missing rows. The sidecar resubscribes at most 5 times in a row, waiting 250 milliseconds times the attempt number before each one; a subscription that lasts 60 seconds resets the count. Other stream errors are not handled by resubscribing.
+
+The append stream has two known gaps ([spiceai/spiceai#16427](https://github.com/spiceai/spiceai/issues/16427)):
+
+- The upstream does not mark the end of the initial snapshot, so the sidecar can report the dataset `Ready` before the whole snapshot has arrived.
+- A sidecar that subscribes after an upstream append refresh commits, but before the upstream forwards that append, receives the same rows twice: in its snapshot and again as a live append. This window is outside the write, so it does not end the subscription with `DATA_LOSS`. A dataset without a primary key keeps both copies, so counts and sums can be too high.
+
+When the sidecar must not hold duplicate rows, use `refresh_mode: full` with a `refresh_check_interval` on the sidecar instead of an append stream.
+
+In v2.4.3 and earlier, rows appended by an upstream `refresh_mode: append` acceleration never reached the sidecar: it received the initial snapshot and then nothing, while the dataset stayed `Ready`. The sidecar also wrote an upstream table without a primary key one row per write, and stopped its stream on `DATA_LOSS` instead of resubscribing.
+
 ## Capacity & Sizing
 
 ### Message Sizing
