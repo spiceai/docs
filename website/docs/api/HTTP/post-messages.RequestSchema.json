@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"A Messages API request.","content":{"application/json":{"schema":{},"example":{"model":"claude","max_tokens":1024,"messages":[{"role":"user","content":"Hello!"}]}}},"required":true}}

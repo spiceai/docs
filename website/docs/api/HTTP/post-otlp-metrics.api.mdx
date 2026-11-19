@@ -1,0 +1,70 @@
+---
+id: post-otlp-metrics
+title: "Ingest OTLP metrics over HTTP"
+description: "OpenTelemetry Protocol (OTLP/HTTP) metrics receiver. Accepts protobuf or JSON"
+sidebar_label: "Ingest OTLP metrics over HTTP"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVdtOGzEQ/ZWRn1opN0KR2vSJUlCpaIkgqA+AiLM72Ri8tmt7A9tV/r0z3oRbUD+geYh27Zkzl3NmthFRFkGMLsVXGWXAGMR1R+QYMq9cVNaIkTh1aCaoscToaxh7G21mNbw7nZyM+98mk/F74CuVBfCYoVqi78F+lqGLARybz6o5WA/fz09/Xpnp4YOzPv5oXc7RL1WGZ/i7whCnMLO5wtABm6JLrWso/ijXzWzpPIaAeQekySFES68QF1iCVnfIT1emOBsfPCYB1vApHGlVLCJw0J7oCOvQSwY/zqk4Z0O8sVG7m3UNZOHbZL7YvBaj5nU3qGr4Rwnkn1kT0UT2lc5plaVw/dvAAI0IGSUt6Wm16rwweOhuuvXCTMTaIUWW3sua4FXEMjw7VxStQE83c+tLGduj3SEdlMqosirFaLBacTSuTHmkwqOvMB0EZ03AhDccDLbrbUsFmfjk7lPHgpoRL/cqLsBJH5XUECoyCEEQ5oe3YI7NUmqVM791h8WAxFANOamOEClfuJesn1vMKEoLs7MN80NRcFMwgFoj7o+P4Q7r1mV32+WXp4al/AMHWDeArXfesGbSIVoLWvoCW7O9bbMLEyrHjcEcDlq6uxOigxPbvB+ajMRsCgbZeyuzI6k0+UcL9ylHemC9boYpSfwzpcxjxxeYqBBMJNks7Ea/RLSTcUFv/eVO/0nHgYSJnqe7EZXXdL+I0Y36fW0zqRfkOfo4+DQQrwf+hK8hJ4a0dSWVAi1Sj0ubq6Ly2JI/7XYZcdoTq2sOl1VUR53iSadumJXR5TXfKTO3SbIqatasr0xUJW6FnlCZwdE05fBkQgOCpFH2N7Jk930naTq6wx4nr3JKUc0VjcCLG2oTl98CD3t7vUG3MiHKmU68cudKaZ6hHpuCBhjShG9IsLxIeMm9TrV5GvP/bUOu90rEh9h3WirD7UoCatZCuxTLHZFUmKRGBLOa+LxpZvQZufB6teJjytknERAX0qvUe5YEOaDMmTHSStKJeD5Ggs11lbbe6w3KcnqU//j0fELGs/WqLm2e1CXveY3T/0ikjc/eacWls0ZoaYpKFmzbYvLvL+GRdNY=
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Ingest OTLP metrics over HTTP"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/metrics"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+OpenTelemetry Protocol (OTLP/HTTP) metrics receiver. Accepts protobuf or JSON
+`ExportMetricsServiceRequest` bodies, optionally gzip-compressed, and stores them like the
+gRPC receiver on the Flight port.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./post-otlp-metrics.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./post-otlp-metrics.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

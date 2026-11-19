@@ -1,0 +1,75 @@
+---
+id: post-messages
+title: "Create a message"
+description: "Answers a conversation in the shape of the Anthropic Messages API, so Anthropic SDKs and"
+sidebar_label: "Create a message"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVm1vIzUQ/ivGXwpS3prrIVgQKLScrlDEibaIU1Ml7u5s1tRr79nepCHKf2fG3k23r5wq7guiH9LE4xk/M/PMy4Z7sXA8ueCTY37Z4xm41MrKS6N5wifarcA6Jlhq9BK/CRIwqZkvgLlCVMBMHn5MtC+sqWTKfgHnxAIcm7w77jFnOqLTo5/RmM6m2hujHFsZe82u1qwyUnupF2RJWnYlHLDz306Y8OwU9WDA5qXJQM2ZFiWQiTVLC5SG0wbPVIe7lckSBBwlK+kLNs+tKfGshTFnFlKQSzREyC18qMF5JhxzoH2PAIYXDEptNDTVOxXpmbdCOyU8ZPi0NxQeApOaslJAERqws65htBcfcpXRDjAo3gI6gnH4fD7l8deUJ2i4hvkXzFimDQLJjVJmFXS7QUVDOVjQKSRT/W3hfeWS4TAzqRukStQZDBDJEPRQVHJYNorfDXiPmwpsSOFxhtmtjPOzVo7SSlgE5THNyIcNp1DjrV3Y+kQA4kWPSyJHASIDy+9z5uw+2kZtwCYpZoeClqODFCyEciWV9Otv2Hw8Gr/qj77sj/bnTMbEGK3WO218h+IpLSD0XCgMI3dpAaXgyYb7dQVEYgwl0gjv6lopfrnd9h7x4wq8+AcnDk1Zir4DCgkhJhWWg/A1JpESY1fCZijA7AeCuCeo9lLcl1EN6fODydZ09V5l3mdEuEuvYaV6pDGpiKpSMg0JH/7pSG9z+/a2x+FGEGPpODiBdiOB0EwpbmbeXINGMuyPxgd40jKFyGEN6fHaheDt3uRvASn7Gd+iC9uu58TscBBLwNGb49HooWNEnwBmz7HmxR4VRAzvg2LpYT26pp6oFSEeZEyfCpnBEj/di0MiqUZKt5iN9v94c3R+9P6nxWRy+NdSV375u3n/4wlajvlrQ0O5jnERzknnkQYUyfuh3cG5aAnAPdzQ1fCvDSJ7i7WfCs2OWQGqYmtTI90ysf6eEz2cN9UM3Q5OcNDZDMlJxRkEjgiBHYInxKgeJorwkVe6qn0ns9gUan/naLzdhuQdPJWetq9hmUq9FEpmIUPCXbtQ2s5gFymadt40YvQDW1pMz4sz0gQLrDXEuvj/9rwBM2vwzdp7bXaSmIqEvZGgMrYj587fg2foyFY4H8iF3NQ6+1Qu4AOz8MBT4NlepNFeB0uD//Xo1XP4cyFVbFjKCFIi274w7SQIA8AX+Gu43B92xkIsqVj2tSUm08jBiaNMKlSBqslXo69HD3roCYlZhlWoTFVSQUZLA3ZodC4X2Eqbqu73ySL2ysBrSGuLMyG8hxNsdg30/ZJkUucmREv6UGa2xrWhhEdnkKNlALO8u4IpQoKHLDQjYVIJzFJ/PCDwMkOIMpfY0O5IME7t4Ev4ePB6MOrXGmv7ChGgjEJXCt2xeohF6YFWkF1XuINu02mX/y9Y/60Fq9POh5USuGIgRULRbJrquuDLfd4ZpshqKiESbDaUl3Ortls6Rt9sYD4SUFgZCEd10GuXFiqQTDoS3O4WT1Lt0+1ljzodqvbR5RGbdE33OS1nH4//X13JPgpysyfewRvvHEZU/TMyc3vjwRy41YgxfvbuZachv/v19AwvXzW7H/lD7U6saMXAT0RD2zxph1UqnG24EnpRx2kRbdLf37So1Tk=
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a message"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/messages"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Answers a conversation in the shape of the Anthropic Messages API, so Anthropic SDKs and
+tools work by pointing their base URL at Spice. `model` names any chat model in the
+Spicepod: a model with `from: anthropic` receives the request as sent, and any other model
+receives it translated into a chat completion. The request and the response, streamed
+(`"stream": true`) or not, follow the Messages API reference:
+&lt;https://docs.claude.com/en/api/messages&gt;.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./post-messages.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./post-messages.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./post-messages.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

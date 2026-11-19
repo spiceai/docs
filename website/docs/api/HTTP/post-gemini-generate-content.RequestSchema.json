@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"A Gemini API `generateContent` request.","content":{"application/json":{"schema":{},"example":{"contents":[{"role":"user","parts":[{"text":"Hello!"}]}]}}},"required":true}}

@@ -1,0 +1,74 @@
+---
+id: post-gemini-generate-content
+title: "Generate content"
+description: "Answers `models/{model}:generateContent`, `:streamGenerateContent` (with `?alt=sse`, a"
+sidebar_label: "Generate content"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVttuGzcQ/RWWL22B1aVOUjSbtoGaFokKxzZsOS+xYVG7I4n1arkhuZIFQf/eM+TKkiXbQPNQoEBtQLbIuc85M1xJryZOpp9lry+vE5mTy6yuvDalTGWvdAuyTgxnJqfCdVbh7zqdUElWeXpnSk+lHyZimDpvSc3e792I7xbaT8XwrSr8L84RRNVVGWWFGQtHdk625SAraI5P971QZQ57malLPzC3VLqh0KXwUxJuqipiNf7ynma61KJ31k+EM83XqzIrNJsRC2NvxWgpKqNLr8sJ62grRsqRuDw/FsqLi0pn1G6yG4pSzcjB+1JkU9yG08bzVRlkK5O/Cb4tfanJeaGd8FaVrkDKOWS9ESpqZ2ZWFcR1bIvBjgYnFy24ypQOlsemKMxiLyXcj8lSmVEqfp56X7m001G6PTFmUlA7p3lHVbqzaUQri/X+tS0TaSo+g+d+jh5WxvmbSTB8sxG/acQhXCmLtD26DBCsJNcASiF33GpGQaX8VO5Dg3MKUt+6UDj0FThxXKV4jq4V2qER2scKwMvU5CKmy8cpuvwPkGTsHio4Vy6rtoREva0pkS6b0kzJdCX9suJMYAzNl+t1cp8coLhJDT2xy4PchgxUEcNwTweEhA/h+0Yw4E0NbPiI2Yh1zcKQgpIpSfx5cXoilLVq+TCLsSrcs2lcR2lA6TeTL1lij7K7IBrul3cDQ3a6wQBMqKoqdBYw0/nLsZ3VNoR1IulOMZr5uNGKaLGGD2WNMkQoNeee7mBXfiC0+hu5vsYvGrDXrHAQSeDY8lG3e5jOLsw20glDYRzg8HhnEtTeie2Q2br56qxBW53DRcxvx0hTgg1hnqiB+ACGw4joiykV1VuuSSLH6JObnpMKzuXF4PQsADOnO5l2udW1UxP6SF7Bd4BDZTFXIgHeMRVk+iLZiW734sdEeuNVsXv2Gl5DqJ9A+Fjh2bIVg1+HHr18qgs7I0+Xc1XoPPRBuVsXmuEME7wZtM3wRGCl8ZElX117stbYCL0cBwgQOZDjyuyFNgIjOD72qUSIcXOXipl2jqMbayqwXzY4HiIu55Wv0TXZP/nUO+7/ftM7f3/58Y+TQahJKMrLZ6DJZWiG20JF72OUO5fQfNV98ZzmWOkCiwNrozAq5yklo6VmcAdEYfqmsjP/YQQcdJ7fxJxMGEkRg7UtoMrrA9ujMJkqpjCa/tR93T0Yesd8LbBYqDDVjEdVtNQWsD3Wk9qSiLu81WKLGL+MUEdZbbVfBn9YSTe3xP9f853GbgszTPtAEgsM6hk9ukvC5kC77kUADwz5gIBmbvcqBYS0jtocvM4RokYz7cMbVHB+j+2j9qt2t1XjvaFGiAB3XNSZKnesboaH2O7EB9HtsP3/99B/8j3UrFAeyJ2qUFj8AEKgxqph12cZ2SWb6ciLYtU095BjQDbTiNVWK67fpYUYH8fnBDMh144ht93oT2LqX39sPFqOwNrmZYTBWbNE4PdcWR3Iw5xG4qRyphxSjCpNgK0BW93qHsx3fn9FjV4G4PhnZa93xuDZ6cUAwqPmtTMLS0BateB3Ez4RJz95WTs8I8LZShaqnNRxRUSb/PM35CiMTA==
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Generate content"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1beta/models/{model}:generateContent"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Answers `models/{model}:generateContent`, `:streamGenerateContent` (with `?alt=sse`, a
+stream of server-sent events) and `:countTokens` in the shape of the Gemini API, so Gemini
+clients work by pointing their base URL at Spice. `model` names any chat model in the
+Spicepod; the request is translated into a chat completion. The request and the response
+follow the Gemini API reference: &lt;https://ai.google.dev/api/generate-content&gt;.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./post-gemini-generate-content.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./post-gemini-generate-content.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./post-gemini-generate-content.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
