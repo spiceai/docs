@@ -77,7 +77,7 @@ Some fields are accepted and have no effect, because a chat completion has no eq
 
 - `safetySettings`: the chat model applies its own safety.
 - `generationConfig.topK`: a chat completion has no top-k sampling.
-- `generationConfig.thinkingConfig`: a chat completion has no per-request reasoning budget. A reasoning model's effort is its Spicepod `reasoning_effort` param. The response carries no `thought` parts.
+- `generationConfig.thinkingConfig`: a chat completion has no per-request reasoning budget. Set a reasoning model's default effort with the [model provider prefix](../../components/models/index.md#model-provider-prefix) followed by `reasoning_effort`, such as `hf_reasoning_effort`, as [Parameter Overrides](parameter_overrides.md) describes. The response carries no `thought` parts.
 - Tools that Google runs, such as `googleSearch`, `codeExecution`, and `urlContext`: only the declared functions are offered to the model.
 - Earlier turns' reasoning (parts marked `thought`) and `thoughtSignature` values.
 
