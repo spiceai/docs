@@ -72,7 +72,7 @@ Add ~20–30% headroom for KV cache and working memory during inference.
 A request to a local model uses the host's CPU, GPU and memory, and one request with a long prompt can keep them busy. Before exposing a runtime that serves a local model:
 
 - Set [`runtime.auth`](../../../reference/spicepod/runtime.md#runtimeauth). Without it, any caller that can reach the HTTP endpoint can run inference.
-- Restrict the network bind. The HTTP endpoint defaults to `127.0.0.1:8090`; if you change it with `--http-endpoint`, allow only trusted clients through a firewall, security group or private network.
+- Restrict the network bind. The HTTP server binds to `127.0.0.1:8090` by default. If you change the bind (`spiced --http <BIND_ADDRESS>`, or `--http-endpoint` with `spice run`), allow only trusted clients through a firewall, security group or private network.
 - Set the [`context_length`](../index.md#local-gguf-models) parameter to the context the host can serve, and set a request timeout on the reverse proxy or load balancer in front of the runtime.
 
 ## Metrics
