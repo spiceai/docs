@@ -218,6 +218,8 @@ datasets:
 
 Append streams are **append-only** — deletes and updates from the upstream are not propagated. Stream reconnection is automatic; persistent loss of connection causes the dataset to enter `Error` state if the lag exceeds the configured acceptable window. See [Data Refresh](../../features/data-acceleration/data-refresh) for the full append-mode reference.
 
+An upstream dataset accelerated with `refresh_mode: append` and no primary key or `on_conflict` forwards the rows each refresh appends to the sidecar. When the upstream ends a subscription with `DATA_LOSS`, for example after an append refresh larger than 128 MiB, the sidecar resubscribes and reloads the dataset from a fresh snapshot. See [Append Streams](./deployment.md#append-streams) for the details and the v2.4.3 behavior.
+
 ### Sidecar example
 
 A sidecar Spice running alongside an application, federating to a cluster Spice over TLS with API key auth and local in-memory acceleration:

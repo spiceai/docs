@@ -69,6 +69,20 @@ After correcting the Spicepod, a runtime that watches it for changes loads the m
 
 In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the background. It loads again only when the runtime restarts, or when a change to the model's Spicepod definition reaches a runtime that watches the Spicepod; until then, the runtime stays not ready.
 
+## Hosted Model Endpoint Timeouts and Response Limits
+
+Spice holds hosted model endpoints to fixed timeouts and a response size limit, so an endpoint that stops answering cannot hang a request, and an oversized answer cannot exhaust the runtime's memory. The limits apply to [OpenAI](./openai) and OpenAI-compatible endpoints, [Azure OpenAI](./azure), [Anthropic](./anthropic) (including the [Messages API](../../features/large-language-models/messages.md)), [Databricks](./databricks), [xAI](./xai), and [Spice.ai](./spiceai) models, and to the model listings Spice requests from OpenAI, xAI, and Spice.ai. They are not configurable.
+
+| Limit | Value | What it covers |
+| --- | --- | --- |
+| Connect timeout | 10 seconds | Time for the endpoint to accept a connection. |
+| Read timeout | 10 minutes | Time for the endpoint to start its response, and then each gap between two parts of it. There is no limit on the total time, so a streamed response continues for as long as data keeps arriving. |
+| Response size | 256 MiB | A response that is not streamed is read whole, up to 256 MiB after decompression. For a streamed response (a request with `"stream": true` that the endpoint answers successfully), each server-sent event is held to 256 MiB instead. |
+
+A request that passes a limit fails with an error rather than waiting or buffering further. A streamed response that sends an event larger than the limit ends with the error `one server-sent event is larger than 268435456 bytes`. A compressed response that expands to more than 256 MiB fails too.
+
+In v2.4.3 and earlier, the chat clients for these providers set no connect timeout, no read timeout, and no response size limit.
+
 ## Local GGUF Models
 
 Spice serves a GGUF model on a single node, from the [`file`][file] or [`huggingface`][hf] provider, with [llama.cpp](https://github.com/ggml-org/llama.cpp). The model's file format selects the engine, so no Spicepod change is needed.

@@ -223,13 +223,23 @@ Write operations require `s3:PutObject` permission on the target S3 bucket and `
 :::warning
 
 - This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported.
-- The location of a Parquet, ORC, or CSV table must be an `s3://` URL. A table whose location uses another scheme, including `s3a://`, `http://`, `https://`, or `file://`, is refused before any request is sent, with an error that names the table and its location. See [AWS Glue Data Connector limitations](../data-connectors/glue#limitations).
+- The location of a Parquet, ORC, or CSV table must be an `s3://` URL. The catalog skips a table whose location uses another scheme, including `s3a://`, `http://`, `https://`, or `file://`, before any request is sent, and names it in the skipped-tables warning below. A dataset that reads the same table through the [AWS Glue Data Connector](../data-connectors/glue#limitations) fails to load with an error that names the table and its location.
 - This catalog connector is limited to Iceberg tables and tables whose data format is Parquet, ORC, or CSV. A Hive ACID/transactional ORC table (the Glue table property `transactional` set to `true`, `yes`, or `1`) is refused at registration — Spice does not implement Hive ACID snapshot semantics (`base_*`, `delta_*`, `delete_delta_*`). Export or materialize the current snapshot to a non-transactional ORC location and register that instead.
 
 :::
 
-Tables with unsupported formats are skipped. A warning summarizes skipped tables per database;
+Tables with unsupported formats or locations are skipped. A warning summarizes skipped tables per database;
 debug logs provide each reason. Warnings are rate-limited unless the set of skipped tables changes.
+
+### Tables That Fail to Load
+
+A table or database that fails to load does not fail the catalog. The catalog loads each database and table on its own, leaves out one that fails, and registers the rest:
+
+- At startup, a table that fails to load is not registered. The skipped-tables warning names it and quotes the error of a failed load. A database whose tables cannot be listed is not registered, with a warning that names the database and the error.
+- On a refresh, a table that was registered before and now fails to load keeps the definition it was last loaded with, and stays queryable. A warning per database names the tables that kept their earlier definition. A database whose tables cannot be listed on a refresh keeps the tables it had. Tables added to or dropped from Glue are still picked up.
+- When every database, or every table, that a load tries fails, the load fails. This is how an error that affects the whole catalog, such as missing credentials or permissions, shows up: the catalog is not registered empty, and the runtime does not report ready.
+
+In v2.4.3 and earlier, one table or database that failed to load, such as a table at an `s3a://` location, failed the whole catalog: at startup the catalog was not registered and the runtime did not report ready, and on a running catalog every refresh failed, so tables added or dropped in Glue were not picked up.
 
 ## Cookbook
 
