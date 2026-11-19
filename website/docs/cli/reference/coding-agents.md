@@ -28,7 +28,7 @@ Every argument after the command name is passed to the agent unchanged, so `spic
 | `spice grok`     | [Grok Build](https://docs.x.ai/build/overview)                        | `/v1/chat/completions`                                                          |
 | `spice opencode` | [OpenCode](https://opencode.ai/docs/)                                 | `/v1/chat/completions`                                                          |
 | `spice pi`       | [pi](https://pi.dev)                                                  | `/v1/chat/completions`                                                          |
-| `spice agy`      | [Antigravity CLI](https://antigravity.google/docs/install/)           | The Gemini API, `/v1beta/models`                                                |
+| `spice agy`      | [Antigravity CLI](https://antigravity.google/docs/install/)           | The [Gemini API](../../features/large-language-models/gemini.md), `/v1beta/models` |
 
 The agent must be installed and on `PATH`. When it is not, the command fails with the agent's install instructions. Cursor's public CLI, `cursor-agent`, sends every request to Cursor's servers and cannot use another model endpoint; `spice cursor` needs Cursor's local-agent build, `cursor-agent-local`.
 

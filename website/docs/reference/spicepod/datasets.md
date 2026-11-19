@@ -197,6 +197,35 @@ datasets:
       # ... connector-specific parameters
 ```
 
+## `has_metadata_table`
+
+Optional. Defaults to `false`. When `true`, Spice registers a second table, `metadata.<dataset name>`, that lists the files the dataset reads, one row per file. It applies to datasets from the object store and file connectors that list files: [S3](../../components/data-connectors/s3/index.md), [Azure BlobFS](../../components/data-connectors/abfs.md), [Google Cloud Storage](../../components/data-connectors/gcs.md), [File](../../components/data-connectors/file/index.md), [FTP and SFTP](../../components/data-connectors/ftp.md), [SMB](../../components/data-connectors/smb.md), [NFS](../../components/data-connectors/nfs.md) (Spice.ai Enterprise), and [SharePoint](../../components/data-connectors/sharepoint.md). The [Hugging Face](../../components/data-connectors/huggingface.md) connector refuses it with an error. Other connectors, including [HTTP(S)](../../components/data-connectors/https/index.md), register no metadata table.
+
+```yaml
+datasets:
+  - from: file:./data/
+    name: files
+    has_metadata_table: true
+    params:
+      file_format: csv
+```
+
+For every connector above except a SharePoint metadata-listing dataset (`sharepoint:` with a single colon), the metadata table has these columns:
+
+| Column          | Type        | Description                                                  |
+| --------------- | ----------- | ------------------------------------------------------------ |
+| `location`      | `Utf8`      | The file's path in the object store. The table's primary key. |
+| `last_modified` | `Timestamp` | When the file was last modified.                             |
+| `size`          | `UInt64`    | The file's size in bytes.                                    |
+| `e_tag`         | `Utf8`      | The file's entity tag, when the store reports one.           |
+| `version`       | `Utf8`      | The file's version, when the store reports one.              |
+
+```sql
+SELECT * FROM metadata.files;
+```
+
+A SharePoint metadata-listing dataset's metadata table lists its drive items as the [SharePoint connector](../../components/data-connectors/sharepoint.md#metadata-listing--sharepoint-single-colon) does, without the file content.
+
 ## `time_column`
 
 Optional. The name of the column that represents the temporal (time) ordering of the dataset.

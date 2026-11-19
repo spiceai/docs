@@ -22,6 +22,14 @@ Spice provides high-performance, industry-standard APIs:
 
 - **HTTP APIs**: `POST /v1/messages` is compatible with Anthropic SDKs and tools such as Claude Code, and is served by any chat model in the Spicepod. For details, see the [Messages API documentation](../features/large-language-models/messages.md).
 
+### Gemini API
+
+- **HTTP APIs**: `/v1beta/models` serves the Gemini API's `models.list`, `models.get`, `generateContent`, and `streamGenerateContent` methods with any chat model in the Spicepod, for Gemini clients such as the Antigravity CLI. For details, see the [Gemini API documentation](../features/large-language-models/gemini.md).
+
+### OpenTelemetry Ingest APIs
+
+- **HTTP APIs**: `POST /v1/metrics` and `POST /v1/logs` accept OTLP/HTTP exports from OpenTelemetry SDKs and Collectors and store them in the datasets configured to receive them. For details, see [OpenTelemetry Data Ingestion](../features/data-ingestion/index.md#opentelemetry-data-ingestion).
+
 ### Iceberg Catalog REST APIs
 
 - **HTTP APIs**: Unified API for consuming Apache Iceberg catalogs in data lake architectures.
