@@ -69,7 +69,7 @@ Add ~20–30% headroom for KV cache and working memory during inference.
 
 ### Securing a Runtime That Serves Local Models
 
-A request to a local model uses the host's CPU, GPU and memory, and one request with a long prompt can keep them busy. Before exposing a runtime that serves a local model:
+A request to a local model uses the host's CPU, GPU and memory, and one request with a long prompt can keep them busy. A prompt that fits the context can also keep generating after the client disconnects, until the engine's token cap is reached. Before exposing a runtime that serves a local model:
 
 - Set [`runtime.auth`](../../../reference/spicepod/runtime.md#runtimeauth). Without it, any caller that can reach the HTTP endpoint can run inference.
 - Restrict the network bind. The HTTP server binds to `127.0.0.1:8090` by default. If you change the bind (`spiced --http <BIND_ADDRESS>`, or `--http-endpoint` with `spice run`), allow only trusted clients through a firewall, security group or private network.
