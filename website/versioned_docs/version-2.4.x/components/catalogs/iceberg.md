@@ -214,7 +214,11 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ## Required IAM Permissions
 
-The IAM role or user needs the following permissions to access Iceberg tables in S3/Glue:
+Scope each policy to the Glue catalog, database, and table ARNs and the S3 prefixes of the tables the Spicepod uses. Keep `glue:UpdateTable` and `s3:PutObject` out of the read policy, and attach the write policy only to a role that runs a Spicepod with `access: read_write`.
+
+### Read IAM Permissions
+
+The following policy grants read access to the `my_table` table in the `my_database` database, stored under the `my_database/my_table/` prefix of the `company-bucketname-datasets` bucket. Replace the region, account ID, bucket, prefix, database, and table with the values for each table the Spicepod queries. To read every table in a database, use `table/my_database/*` as the table ARN and the database's S3 prefix for `s3:GetObject`.
 
 ```json
 {
@@ -228,7 +232,7 @@ The IAM role or user needs the following permissions to access Iceberg tables in
       {
         "Effect": "Allow",
         "Action": ["s3:GetObject"],
-        "Resource": "arn:aws:s3:::company-bucketname-datasets/*"
+        "Resource": "arn:aws:s3:::company-bucketname-datasets/my_database/my_table/*"
       },
       {
         "Effect": "Allow",
@@ -237,10 +241,39 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetDatabases",
           "glue:GetDatabase",
           "glue:GetTable",
-          "glue:GetTables",
-          "glue:UpdateTable"
+          "glue:GetTables"
         ],
-        "Resource": "*"
+        "Resource": [
+          "arn:aws:glue:us-east-1:123456789012:catalog",
+          "arn:aws:glue:us-east-1:123456789012:database/my_database",
+          "arn:aws:glue:us-east-1:123456789012:table/my_database/my_table"
+        ]
+      }
+    ]
+}
+```
+
+### Write IAM Permissions
+
+Writes need the following policy in addition to the read policy. It permits new snapshot commits for `my_table` only, and object writes only under that table's S3 prefix. List each table that accepts writes by its own table ARN and S3 prefix. A wildcard such as `table/my_database/*`, `company-bucketname-datasets/*`, or `"Resource": "*"` gives the role write access to every matching table.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": ["s3:PutObject"],
+        "Resource": "arn:aws:s3:::company-bucketname-datasets/my_database/my_table/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": ["glue:UpdateTable"],
+        "Resource": [
+          "arn:aws:glue:us-east-1:123456789012:catalog",
+          "arn:aws:glue:us-east-1:123456789012:database/my_database",
+          "arn:aws:glue:us-east-1:123456789012:table/my_database/my_table"
+        ]
       }
     ]
 }
@@ -252,12 +285,13 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | ------------------- | -------------------------------------------------------------- |
 | `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
 | `s3:GetObject`      | Required. Allows fetching objects                              |
+| `s3:PutObject`      | Write policy only. Writes objects under the table prefix.      |
 | `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
-| `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
+| `glue:UpdateTable`  | Write policy only. Commits new table snapshots.                |
 
 ## Write Support
 
@@ -286,7 +320,7 @@ SELECT * FROM staging_transactions;
 
 Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is supported on Iceberg v2+ tables, written as equality delete files — which constrains what a `WHERE` condition may read, see [Deleting rows](../data-connectors/iceberg#deleting-rows). Federated scans and `refresh_mode: full` apply those v2 position/equality delete files on table scan; `refresh_mode: append` does not retract already-accelerated rows when delete files appear. See [Delete files on federated reads](../data-connectors/iceberg#delete-files-on-federated-reads). `UPDATE` operations are not currently supported.
 
-Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. When the catalog is AWS Glue, writes also require `glue:UpdateTable` permission to commit the new table snapshot. For more details, see [Data Ingestion](../../features/data-ingestion).
+Write operations require `s3:PutObject` on the target table's S3 prefix in addition to the read permissions listed above. When the catalog is AWS Glue, writes also require `glue:UpdateTable` on the target table, its database, and the catalog to commit the new table snapshot. See [Write IAM Permissions](#write-iam-permissions). For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Secrets
 
