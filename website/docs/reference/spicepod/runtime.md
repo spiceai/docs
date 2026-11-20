@@ -609,7 +609,7 @@ Enables or disables CORS for the HTTP endpoint. Defaults to `false`.
 
 A list of allowed origins for CORS requests. Defaults to `["*"]`, which permits all origins.
 
-This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost:*`, `http://127.0.0.1:*`, `http://[::1]:*` and their `https://` forms, where `:*` matches any port) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; an entry without a port matches only the scheme's default port, and an entry ending in `:*` matches any port. A request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
+This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost:*`, `http://127.0.0.1:*`, `http://[::1]:*` and their `https://` forms, where `:*` matches any port) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; an entry without a port matches only the scheme's default port, and an entry ending in `:*` matches any port. Spice v2.4.3 and earlier do not recognize the `:*` suffix, so do not use it in an `allowed_origins` list for those releases. Their localhost defaults are written without a port and match any port. A request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
 
 Example:
 
