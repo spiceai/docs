@@ -39,6 +39,16 @@ spice login [command] [flags]
 - `snowflake` Login to a Snowflake warehouse
 - `spark` Login to a Spark Connect remote
 
+#### Provider flags
+
+Each provider subcommand writes the credentials it is given to the `.env` file. The flags of `abfs`, `sharepoint`, `snowflake`, and `spark` are described on the matching [data connector](../../components/data-connectors) pages.
+
+- `dremio`: `-u`, `--username <USERNAME>` and `-p`, `--password <PASSWORD>`, both required.
+- `postgres`: `-p`, `--password <PASSWORD>`, required.
+- `s3`: `-k`, `--access-key <ACCESS_KEY>` and `-s`, `--access-secret <ACCESS_SECRET>`, both required.
+- `databricks`: `-p`, `--token <TOKEN>` for a personal access token, or `--client-id <CLIENT_ID>` and `--client-secret <CLIENT_SECRET>` for a service principal. For Delta Lake tables in cloud storage, also the storage flags listed for `delta-lake`.
+- `delta-lake`: `--aws-region <AWS_REGION>`, `--aws-access-key-id <AWS_ACCESS_KEY_ID>`, and `--aws-secret-access-key <AWS_SECRET_ACCESS_KEY>` for S3; `--azure-storage-account-name <AZURE_STORAGE_ACCOUNT_NAME>` and `--azure-storage-access-key <AZURE_STORAGE_ACCESS_KEY>` for Azure Blob Storage; `--google-service-account-path <GOOGLE_SERVICE_ACCOUNT_PATH>` for Google Cloud Storage.
+
 #### Examples
 
 ```shell
