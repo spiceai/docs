@@ -23,7 +23,7 @@ spice acceleration set-snapshot <dataset> <snapshot_id> [flags]
 
 - `snapshots` List the snapshots of a dataset, most recent first. Calls `GET /v1/datasets/{name}/acceleration/snapshots`.
 - `snapshot` Show one snapshot: its timestamp, location, engine, size, row count, checksum, and whether it is the current snapshot. Calls `GET /v1/datasets/{name}/acceleration/snapshots/{snapshot_id}`.
-- `set-snapshot` Make a snapshot the dataset's current snapshot in the snapshot metadata, for rollback. Calls `POST /v1/datasets/{name}/acceleration/snapshots/current`. The running dataset keeps its loaded data: the runtime answers `Current snapshot for dataset <name> set to <id>. Restart the runtime to bootstrap from this snapshot.` Restart the runtime to load the snapshot. An instance that reads the snapshots with `refresh_mode: snapshot` does not load an older snapshot by polling, and keeps serving the snapshot it has loaded until it restarts. Run `set-snapshot` against the instance that publishes the dataset's snapshots: an instance that only reads them answers `400 Bad Request`, as [HTTP API behavior](../../features/data-acceleration/snapshots#http-api-behavior) describes.
+- `set-snapshot` Make a snapshot the dataset's current snapshot in the snapshot metadata, for rollback. Calls `POST /v1/datasets/{name}/acceleration/snapshots/current`. It does not change the data the dataset serves: the runtime answers `Current snapshot for dataset <name> set to <id>. Restart the runtime to bootstrap from this snapshot.` A restart bootstraps from a snapshot only when the dataset's local acceleration file is missing, as [How it works](../../features/data-acceleration/snapshots#how-it-works) describes, so a restart that finds the existing file keeps serving it. An instance that reads the snapshots with `refresh_mode: snapshot` does not load an older snapshot by polling. Run `set-snapshot` against the instance that publishes the dataset's snapshots: an instance that only reads them answers `400 Bad Request`, as [HTTP API behavior](../../features/data-acceleration/snapshots#http-api-behavior) describes.
 
 #### Flags
 
@@ -42,7 +42,7 @@ spice acceleration snapshots taxi_trips
 # Show snapshot 3
 spice acceleration snapshot taxi_trips 3
 
-# Select snapshot 2 as the current snapshot, then restart the runtime to load it
+# Record snapshot 2 as the current snapshot for the next bootstrap
 spice acceleration set-snapshot taxi_trips 2
 ```
 
