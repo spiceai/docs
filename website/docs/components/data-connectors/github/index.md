@@ -248,7 +248,7 @@ When set to `search`, Issues and Pull Requests will use the GitHub [Search API](
 
 All other filters are supported when `github_query_mode` is set to `search`, but cannot be pushed down to the GitHub API for improved performance.
 
-A string filter is pushed down only when GitHub search reads its value as one plain term. A value that contains whitespace, `:`, `"`, `(`, or `)`, starts with `-`, or is `AND`, `OR`, or `NOT` in any letter case is not pushed down, because it would add terms to the search query. Spice applies that filter to the rows GitHub returns, so the results are the same, but the query reads more from GitHub. For example, `WHERE author = 'octocat'` is pushed down, and `WHERE title LIKE '% the %'` is not. In Spice v2.4.3 and earlier, these values were copied into the search query as written.
+A string filter is pushed down only when GitHub search reads its value as one plain term. A value that contains whitespace, `:`, `"`, `(`, or `)`, starts with `-`, or is `AND`, `OR`, or `NOT` in any letter case is not pushed down, because it would add terms to the search query. Spice applies that filter to the rows GitHub returns, so the query reads more from GitHub. Because the Search API returns at most 1,000 results for a query (see the limitations below), a filter applied after the search can miss matching rows when the search without it matches more than 1,000 issues or pull requests. When results must be complete, narrow the search with filters that are pushed down, such as a `created_at` range, or use `github_query_mode: auto`. For example, `WHERE author = 'octocat'` is pushed down, and `WHERE title LIKE '% the %'` is not. In Spice v2.4.3 and earlier, these values were copied into the search query as written.
 
 :::warning[Limitations]
 
