@@ -356,7 +356,7 @@ Rough first-pass sizing rules:
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | Cluster (writer) | 3+ replicas. Memory sized for the largest accelerated dataset. Network bandwidth for source ingest.  |
 | Read instance    | 1 replica per application pod. 0.5–2 vCPU, 512Mi–4Gi memory, 10–50Gi local SSD.                      |
-| Snapshot bucket  | Standard tier, same region. Sized for 28 days of snapshots per dataset, the retention the publishing instance applies. No expiration rule for current objects. |
+| Snapshot bucket  | Standard tier, same region. Dataset size × snapshots written in about 29 days (28 days of retention plus at least 24 hours before a dropped file is deleted), plus each dataset's current and newest snapshot at any age. No expiration rule for current objects. |
 
 Read-tier memory is dominated by the working set of the file-mode acceleration engine. DuckDB compaction (`snapshots_compaction: enabled`) typically reduces snapshot size by 30–60%.
 
