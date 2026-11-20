@@ -91,7 +91,7 @@ Browser-based OAuth login flow. Automatically opens a browser for authentication
 spice cloud login subscription
 ```
 
-Use `--device` to print the URL and one-time code without opening a browser (useful for SSH/headless environments):
+Use `--device` to print the URL without opening a browser (useful for SSH/headless environments), then paste the address the browser was redirected to after signing in. See [Browser Login Flow](#browser-login-flow):
 
 ```shell
 spice cloud login subscription --device
