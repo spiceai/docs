@@ -27,7 +27,7 @@ datasets:
 
 - The GraphQL data connector does not support variables in the query.
 - Filter pushdown, with the exclusion of `LIMIT`, is not currently supported. Using a `LIMIT` will reduce the amount of data requested from the GraphQL server.
-- The connector follows at most 10 redirects, and does not follow a redirect that leaves the endpoint's host for a private, loopback, or link-local address, including a host name that resolves to one. A redirect within the endpoint's own host is followed. In Spice v2.4.3 and earlier, the connector followed redirects to any host.
+- The connector follows at most 10 redirects, and does not follow a redirect that leaves the endpoint's host for a private, loopback, or link-local address, including a host name that resolves to one. A redirect within the endpoint's own host is followed.
 
 :::
 

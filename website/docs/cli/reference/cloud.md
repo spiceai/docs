@@ -145,7 +145,7 @@ Detaches the current directory's instance, releases it in Spice Cloud, removes t
 
 Stop the runtime before running it — `unlink` refuses while an instance is running in the directory.
 
-`link` and `unlink` send the stored Spice Cloud login only to the configured Spice Cloud endpoint: `SPICE_CLOUD_API_URL` when it is set, then the older `SPICE_BASE_URL`, and the default endpoint otherwise. The directory's `.spice/identity.json` may come from someone else, so when it names a different endpoint, both commands stop before sending any request and print both endpoints. To link or unlink an identity on another Spice Cloud endpoint, set `SPICE_CLOUD_API_URL` to that endpoint. In Spice v2.4.3 and earlier, both commands sent the login to the endpoint in the identity file.
+`link` and `unlink` send the stored Spice Cloud login only to the configured Spice Cloud endpoint: `SPICE_CLOUD_API_URL` when it is set, then the older `SPICE_BASE_URL`, and the default endpoint otherwise. The directory's `.spice/identity.json` may come from someone else, so when it names a different endpoint, both commands stop before sending any request and print both endpoints. To link or unlink an identity on another Spice Cloud endpoint, set `SPICE_CLOUD_API_URL` to that endpoint.
 
 `unlink` does not delete the project. Delete a project with [`spice cloud project delete`](#project). To remove the service and keep the Cloud identity, use [`spice cloud service uninstall`](#service).
 
