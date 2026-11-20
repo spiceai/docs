@@ -282,6 +282,8 @@ readinessProbe:
   failureThreshold: 3
 ```
 
+To route traffic to the healthy datasets of a runtime where one dataset failed to load, set the readiness probe path to `/v1/ready?allow_unhealthy=true`. See [Serve healthy components when one fails to load](../../../reference/spicepod/runtime.md#serve-healthy-components-when-one-fails-to-load).
+
 #### Customizing Probes
 
 Probe values can be partially overridden — omitted fields keep the defaults from `values.yaml`. If `exec`, `tcpSocket`, or `grpc` is configured, the chart omits the default `httpGet` handler:
