@@ -53,7 +53,7 @@ spice cloud login api [--client-id <ID>] [--client-secret <SECRET>]
 
 Run with no subcommand to choose between a browser login and an access token. The chooser needs an interactive terminal; name a method explicitly when running non-interactively.
 
-- `subscription` — Open a browser and complete the login there. `--device` prints the URL and a one-time code to enter on another device instead, for SSH sessions and headless shells.
+- `subscription` — Open a browser and complete the login there, with OAuth 2.0, PKCE, and a loopback redirect to `127.0.0.1`. `--device` prints the URL instead of opening it, for SSH sessions and headless shells: sign in on another machine, then paste the address the browser was redirected to into the terminal.
 - `token` — Log in with a Spice Cloud access token. Omit `--token` to enter it at a secure prompt. Generate a token at `/account/tokens` in the Spice Cloud portal. Alias: `pat`.
 - `api` — Log in with OAuth client credentials, for CI and other automation. Omit either flag to enter its value interactively.
 
@@ -62,7 +62,7 @@ Flags:
 - `-o`, `--output <FORMAT>` Where to store or print the resulting credentials: `env` (default, writes to a local `.env` file), `json` (prints them to stdout), or `keychain` (stores them in the platform keychain).
 - `--org <ORG>` Store the credential for one organization rather than the whole membership.
 
-The browser flow is bounded at 5 minutes; see [`spice login`](./login#browser-login-flow) for its polling and failure behavior.
+The browser flow is bounded at 5 minutes; see [`spice login`](./login#browser-login-flow) for its steps, token renewal, and failure behavior.
 
 ### `logout`
 
@@ -144,6 +144,8 @@ spice cloud unlink
 Detaches the current directory's instance, releases it in Spice Cloud, removes the directory's service when one is installed, and clears the local identity.
 
 Stop the runtime before running it — `unlink` refuses while an instance is running in the directory.
+
+`link` and `unlink` send the stored Spice Cloud login only to the configured Spice Cloud endpoint: `SPICE_CLOUD_API_URL` when it is set, then the older `SPICE_BASE_URL`, and the default endpoint otherwise. The directory's `.spice/identity.json` may come from someone else, so when it names a different endpoint, both commands stop before sending any request and print both endpoints. To link or unlink an identity on another Spice Cloud endpoint, set `SPICE_CLOUD_API_URL` to that endpoint. In Spice v2.4.3 and earlier, both commands sent the login to the endpoint in the identity file.
 
 `unlink` does not delete the project. Delete a project with [`spice cloud project delete`](#project). To remove the service and keep the Cloud identity, use [`spice cloud service uninstall`](#service).
 
@@ -411,6 +413,9 @@ Most subcommands also take `-o`, `--output <FORMAT>`, which is `table` or `json`
 | `SPICE_CLOUD_CLIENT_ID`      | OAuth client ID for `spice cloud login api`                                |
 | `SPICE_CLOUD_CLIENT_SECRET`  | OAuth client secret for `spice cloud login api`                            |
 | `SPICE_CONFIG_DIR`           | Complete path to the instance state directory, instead of `<dir>/.spice`   |
+| `SPICE_CLOUD_API_URL`        | Spice Cloud API endpoint the CLI sends requests and the stored login to    |
+| `SPICE_CLOUD_API_HEADERS`    | Extra headers for every request to the Spice Cloud API host, as comma-separated `name=value` pairs with percent-encoded values |
+| `SPICE_CLOUD_PORTAL_HEADERS` | Extra headers for every request to the Spice Cloud portal host, in the same format |
 
 ## See also
 

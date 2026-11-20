@@ -37,6 +37,8 @@ models:
 
 For more information on tools, see [Tool components](../../components/tools).
 
+The memory tools need a `memory:` dataset to read from and write to. Without one, a model is not given the memory tools, they are not listed by [`/v1/mcp`](./mcp), and a request that names one, such as a call to `memory__load`, does not find it. In Spice v2.4.3 and earlier, a call that named a memory tool still ran it and failed with `No memory table found`.
+
 ## Cookbook
 
 - A cookbook recipe to give language models persistent memory across conversations. [LLM Memory: Persistent Memory for Language Models with Spice](https://github.com/spiceai/cookbook/tree/trunk/llm-memory#readme)
