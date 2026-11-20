@@ -61,7 +61,7 @@ Running `spice login` without `--key` in an interactive terminal offers the same
 
 The CLI asks only for the scopes its Spice Cloud commands use: `apps:read apps:write apps:delete deployments:read deployments:write secrets:read secrets:write instances:write`.
 
-- **The wait is bounded at 5 minutes.** If the sign-in is not completed in that window, the command exits with `Timed out waiting for the browser sign-in. If the browser showed an error, run 'spice cloud logout', then 'spice login' again.`
+- **The wait is bounded at 5 minutes.** If the sign-in is not completed in that window, the command exits with `Timed out waiting for the browser sign-in. If the browser showed an error, run 'spice cloud logout', then 'spice login' again.` When a shared user credential is stored, `spice cloud logout` refuses the default `--scope active`; run `spice cloud logout --scope all` instead, which discards every stored Spice Cloud session and the stored OAuth client ID, so the next sign-in registers the CLI again.
 - **A refused or mismatched response stops the sign-in.** An `error=` redirect, such as a denied sign-in, exits with `Spice Cloud refused the sign-in: <detail>`. A redirect whose `state` does not match this sign-in is refused.
 - **A browser on another machine.** The loopback redirect only reaches a browser on the machine that runs the CLI. With `--device`, the CLI prints the authorization URL instead of opening it. After signing in on another machine, paste the address of the page the browser was redirected to, which fails to load there, into the terminal. The CLI also reads a pasted address without `--device` when stdin is a terminal.
 
