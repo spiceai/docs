@@ -94,7 +94,7 @@ Cluster Spicepod responsibilities:
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
 - Accelerate to file-mode engines (Cayenne or SQLite) so the materialization can be exported as a snapshot.
-- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that writes data. A full refresh writes data, and publishes a snapshot, even when the source has not changed.
+- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that writes data.
 
 ```yaml
 # cluster spicepod.yaml
