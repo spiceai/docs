@@ -538,10 +538,10 @@ As a result:
 
 - Requests with the same custom key, the same SQL text, and the same parameters share one entry.
 - A different query, or the same query with a different parameter value or parameter type, gets its own entry, even under the same custom key.
-
-In Spice v2.4.3 and earlier, the SQL text key covered the parameter values but not their types, so a query could be served the cached result of the same SQL text bound to a value of another type with the same bits, such as an `Int64` and a `Float64`, or to a `NULL` of another type.
 - Queries that differ only in whitespace, formatting, or form (for example, two semantically equivalent queries) do not share an entry. To share one, send the same SQL text.
 - Entries cached with a custom key never collide with entries cached without one, and a custom key never shares entries across principals.
+
+In Spice v2.4.3 and earlier, the SQL text key covered the parameter values but not their types, so a query could be served the cached result of the same SQL text bound to a value of another type with the same bits, such as an `Int64` and a `Float64`, or to a `NULL` of another type.
 
 There is no option to make a custom key the whole cache key, so different queries cannot be made to share one result.
 
