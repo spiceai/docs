@@ -94,7 +94,7 @@ Cluster Spicepod responsibilities:
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
 - Accelerate to file-mode engines (Cayenne, DuckDB, SQLite, or Turso) so the materialization can be exported as a snapshot.
-- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that changes data.
+- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that writes data. A full refresh writes data, and publishes a snapshot, even when the source has not changed.
 
 ```yaml
 # cluster spicepod.yaml
@@ -114,7 +114,7 @@ datasets:
       engine: duckdb
       mode: file
       refresh_check_interval: 5m
-      snapshots: enabled # write a new snapshot after each refresh that changes data
+      snapshots: enabled # write a new snapshot after each refresh that writes data
       snapshots_trigger: refresh_complete
       snapshots_compaction: enabled
       params:
