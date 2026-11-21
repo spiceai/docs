@@ -53,25 +53,37 @@ A GGUF model is served by llama.cpp; see [Local GGUF Models](../index.md#local-g
 
 - **An exact `.gguf` path** loads that file. A path that names one shard of a series also loads the series' other shards. No draft head is added.
 - **A quantization name or folder**, such as `Q4_K_M` or `UD-Q3_K_XL`, loads every shard of that quantization, plus the repository's multi-token prediction (MTP) draft head, if it has one: the `Q8_0` head when the repository offers it, otherwise the head with the quantization's own tag. Heads whose file name contains `-shared` are not chosen.
-- **No `files`**: when the repository has no top-level safetensors weights (`model.safetensors.index.json`, `model.safetensors`, `model-NNNNN-of-NNNNN.safetensors`, or `consolidated.safetensors`) and no sharded PyTorch weights (`pytorch_model-NNNNN-of-NNNNN.bin`, `.pt`, or `.pth`), Spice loads the largest complete quantization whose weights fit the memory free for the model, keeping 10% of that memory and a further 4 GiB for the context and compute buffers. It adds the quantization's draft head the same way as for a named quantization. The free memory is the GPUs' free memory, or without a GPU, the memory the process can still use.
+- **No `files`**: when the repository has no top-level safetensors weights (`model.safetensors.index.json`, `model.safetensors`, `model-NNNNN-of-NNNNN.safetensors`, or `consolidated.safetensors`) and no sharded PyTorch weights (`pytorch_model-NNNNN-of-NNNNN.bin`, `.pt`, or `.pth`), Spice loads the quantization that llama.cpp's `-hf` option loads: `Q4_K_M`, else `Q8_0`, else the first quantization by path. A quantization has a tag when the tag is a whole part of the path of its first file, so `Model-UD-Q4_K_M.gguf` and a `Q4_K_M/` folder have the `Q4_K_M` tag, and `Model-BF16.gguf` does not have the `F16` tag. When the memory free for the model cannot hold the weights of that quantization, keeping 10% of that memory and a further 4 GiB for the context and compute buffers, Spice loads the largest complete quantization that fits instead. Spice does not load a quantization that is larger than this default. It adds the quantization's draft head the same way as for a named quantization. The free memory is the GPUs' free memory, or without a GPU, the memory the process can still use.
 
-A quantization is one GGUF file or one complete series of shards. MTP draft heads, whose file names start with `mtp-`, and `mmproj` vision projectors are not quantizations. Each quantization has a name that is unique in the repository: its folder, when the folder holds no other quantization, otherwise its quantization tag, otherwise its path. A name that matches several quantizations fails to load with an error that names them, and a name that matches none fails with an error that lists the repository's quantizations.
+A quantization is one GGUF file or one complete series of shards. MTP draft heads, whose file names start with `mtp-`, `mmproj` vision projectors, importance matrices, whose file names contain `imatrix`, and DFlash, EAGLE-3 and DSpark drafters, whose file names contain `dflash-`, `eagle3-` or `dspark-`, are not quantizations. Each quantization has a name that is unique in the repository: its folder, when the folder holds no other quantization, otherwise its quantization tag, otherwise its path. A name that matches several quantizations fails to load with an error that names them, and a name that matches none fails with an error that lists the repository's quantizations.
 
 An entry is resolved this way when it has `type: weights` or no `type`, and is not a safetensors, GGML, or `.bin` file. Other entries load as listed. The files go into the same Hugging Face cache, with the same revision (`repo:revision`), `hf_token` and offline behavior as the rest of the model.
 
-When Spice picks a quantization, or resolves a name, the load log names what it loads. A quantization Spice picks is logged with the `files:` entry that pins it, in this form:
+When Spice picks a quantization, or resolves a name, the load log names what it loads. The default quantization is logged with the other quantizations of the repository, in this form:
 
 ```text
-Model '<name>' loads quantization <quantization> (<n> files) (<size> GB) from Hugging Face repo '<repo>', the largest of its <count> complete GGUF quantizations whose weights fit the <memory> GiB of memory free for it with room for the context; <next larger quantization> (<size> GB) does not. Pin it with `files: [{path: <quantization>}]`.
+Model '<name>' loads quantization <quantization> (<size> GB) from Hugging Face repo '<repo>', the quantization a model with no `files` loads: <reason>. To load another of its <count> complete GGUF quantizations, name it in the model's `files`: <quantization> (<size> GB), <quantization> (<size> GB), ...
 ```
 
-When no quantization fits, the model fails to load with an error that names the smallest quantization; name one in `files` to load it anyway. A model split across machines with `nodes` does not pick a quantization: with no `files`, it loads a repository's only quantization and otherwise fails, so that every machine loads the same weights.
+`<reason>` is `its Q4_K_M, as llama.cpp loads it`, `its Q8_0, as llama.cpp loads it when a repository has no Q4_K_M`, or `its first by path, as llama.cpp loads it when a repository has neither Q4_K_M nor Q8_0`.
+
+A smaller quantization that Spice picks because the default does not fit is logged with the `files:` entry that pins it, in this form:
+
+```text
+Model '<name>' loads quantization <quantization> (<size> GB) from Hugging Face repo '<repo>', the largest of its <count> complete GGUF quantizations whose weights fit the <memory> GiB of memory free for it with room for the context; <default> (<size> GB), which a model with no `files` loads, does not. Pin it with `files: [{path: <quantization>}]`.
+```
+
+A quantization of several files is logged as `<quantization> (<n> files)`.
+
+When no quantization fits, the model fails to load with an error that names the smallest quantization; name one in `files` to load it anyway. A model split across machines with `nodes` loads the default quantization and does not compare it with the memory of a machine, so that every machine loads the same weights.
 
 The choice compares only the size of the weights with the free memory. A quantization that fits only by placing some of its weights in system memory is not picked, but naming it in `files` loads it. Fitting a model to its hardware with the engine's own estimate is tracked in [spiceai/spiceai#15577](https://github.com/spiceai/spiceai/issues/15577).
 
 In v2.4.1 and earlier, a GGUF model lists every `.gguf` file to load in `files`, including each shard and the draft head, and a GGUF repository with no `files` fails to load.
 
-#### Example: Pick a Quantization
+#### Example: Load the Default Quantization
+
+This model loads `Qwen3-0.6B-Q4_K_M.gguf`.
 
 ```yaml
 models:
