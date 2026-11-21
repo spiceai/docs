@@ -184,7 +184,7 @@ The table below shows the Delta Lake data types supported, along with the type m
 | `Variant`       | `Struct`                              |
 | `Map`           | `Map`                                 |
 
-Spark and Databricks write `Timestamp` columns as Parquet `INT96` by default. Spice reads `INT96` values at microsecond precision in UTC, the precision of the Delta `Timestamp` type, so dates outside 1677–2262, such as the `9999-12-31` often used as an open end date, read correctly and filters on them return the right rows. In v2.4.3 and earlier, `INT96` values were read at nanosecond precision, and values outside 1677–2262 came back as other dates without an error, including in accelerated copies. This applies to the Delta Lake connector and to the [Databricks connector](../databricks/index.md) with `mode: delta_lake`.
+Spark and Databricks write `Timestamp` columns as Parquet `INT96` by default. Spice reads `INT96` values at microsecond precision in UTC, the precision of the Delta `Timestamp` type, so dates outside 1677–2262, such as the `9999-12-31` often used as an open end date, read correctly and filters on them return the right rows. In v2.4.3 and earlier, `INT96` values were read at nanosecond precision, and values outside 1677–2262 came back as other dates without an error, including in accelerated copies. Upgrading does not correct rows that a file acceleration already holds: the next `refresh_mode: full` refresh reloads them from the source, and an acceleration with `refresh_mode: append` or `changes` keeps them until it is rebuilt. This applies to the Delta Lake connector and to the [Databricks connector](../databricks/index.md) with `mode: delta_lake`.
 
 ## Column Mapping
 
