@@ -207,7 +207,7 @@ The subject must match the token's `sub` claim exactly. GitHub lists the subject
 
 When the model loads, the `info` line above shows which parameter or environment variable supplied each part of the identity. When loading fails, the error names the cause:
 
-- **The environment has an identity token but no tenant or client ID.** A model in an environment with `AZURE_FEDERATED_TOKEN_FILE` but without `AZURE_TENANT_ID` or `AZURE_CLIENT_ID` fails to load. This happens, for example, on AKS when the webhook mounts the token but the service account lacks the `azure.workload.identity/client-id` annotation:
+- **The environment has an identity token but no tenant or client ID.** A model with no key and no federation parameter, in an environment with `AZURE_FEDERATED_TOKEN_FILE` but without `AZURE_TENANT_ID` or `AZURE_CLIENT_ID`, fails to load. This happens, for example, on AKS when the webhook mounts the token but the service account lacks the `azure.workload.identity/client-id` annotation:
 
   ```text
   Found `AZURE_FEDERATED_TOKEN_FILE` for model 'gpt' (azure), but `AZURE_CLIENT_ID` is not set. On AKS, label the pod `azure.workload.identity/use: "true"` and annotate its service account with `azure.workload.identity/client-id`, so the workload identity webhook sets all three. See: https://spiceai.org/docs/components/models/azure
