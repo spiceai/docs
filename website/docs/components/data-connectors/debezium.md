@@ -174,7 +174,7 @@ In v2.4.2 and earlier, the `arrow` engine loaded a keyless topic and applied upd
 
 A column declared in `columns` with `type: timestamptz` or `type: timestamp` holds nanoseconds, and a column declared as `Timestamp(Microsecond)` or `Timestamp(Millisecond)` holds that unit. Spice converts each change event's timestamp value into the declared column's unit:
 
-- An ISO 8601 string, such as Debezium's `io.debezium.time.ZonedTimestamp`, is parsed with or without a time zone.
+- An ISO 8601 string with `Z` or a UTC offset, such as Debezium's `io.debezium.time.ZonedTimestamp` value `2026-11-18T21:00:00.123456Z`, is converted for a column declared with or without a time zone. A string without `Z` or an offset, such as `2026-11-18T21:00:00`, is not a timestamp and fails the change event.
 - An integer is read in the unit of its Debezium type in the event's schema: milliseconds for `io.debezium.time.Timestamp` and Kafka Connect's `org.apache.kafka.connect.data.Timestamp`, microseconds for `io.debezium.time.MicroTimestamp`, and nanoseconds for `io.debezium.time.NanoTimestamp`.
 - An integer with no Debezium type in the schema is read in the column's own unit when the column is declared in milliseconds or microseconds.
 
