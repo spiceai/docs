@@ -109,7 +109,7 @@ Without the label, the workload identity webhook does not set the variables or m
 
 The environment supplies a workload identity when it has a tenant, a client ID, and an identity token, from `AZURE_FEDERATED_TOKEN_FILE` or the GitHub Actions job. A model that sets `azure_api_key` or `azure_entra_token` never uses the environment's workload identity.
 
-When the environment has no workload identity, the model uses a managed identity through the Azure Instance Metadata Service, such as on an Azure VM, App Service, or Container Apps, user-assigned when `AZURE_CLIENT_ID` names one, and then the Azure CLI login from `az login`, for local development.
+When the environment has no workload identity, the model uses a managed identity through the Azure Instance Metadata Service, such as on an Azure VM, App Service, or Container Apps, user-assigned when `AZURE_CLIENT_ID` names one, and then the Azure CLI login from `az login`, for local development. A configured workload identity whose token exchange fails stops the model from loading; Spice does not fall back to the other identities.
 
 ### Kubernetes Outside AKS
 
