@@ -33,15 +33,15 @@ The privilege the install runs with selects the service domain, and with it the 
 
 | Command                              | Starts                         |
 | ------------------------------------ | ------------------------------ |
-| `spice cloud service install`        | when its owner logs in         |
+| `spice cloud service install`        | when its owner logs in; on Linux, also at boot once the account lingers |
 | `sudo spice cloud service install`   | at boot, with nobody logged in |
 
 Both run from the instance directory, and both install and start the service. A system service still runs `spiced` as the operator who invoked `sudo`.
 
-On Linux, a user service also reaches boot persistence once its account lingers:
+On Linux, a user service reaches boot persistence when its account lingers, and `install` asks logind for that itself: once the service passes its health check, `install` runs `loginctl enable-linger` for the installing account. The install output says which outcome the host gave. `starts: at boot, without login` means the account lingers. When the account does not linger, for example because the host's policy refused the request, or when logind cannot report it, the output reads `starts: at login only` and names the `loginctl enable-linger` command to run. On a host whose policy reserves lingering for administrators, run it with `sudo`:
 
 ```shell
-loginctl enable-linger "$USER"
+sudo loginctl enable-linger "$USER"
 ```
 
 launchd has no equivalent, so on macOS a user service starts with its owner's desktop login session and boot persistence means the `sudo` install.

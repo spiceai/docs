@@ -505,6 +505,8 @@ datasets:
 
 In this example a query against `accelerated_dataset` within Spice like `SELECT * FROM accelerated_dataset WHERE city = 'Portland'` would initially query against the accelerated data, see that it returns zero results and then fallback to querying against the federated table in Databricks.
 
+The query's filters reach the accelerated scan, so a point lookup against a [Cayenne](../../components/data-accelerators/cayenne) acceleration, which applies most filters only when they reach its scan, reads only the matching rows. Filters that a join or an `ORDER BY … LIMIT` produces while the query runs are not passed to the accelerated scan, because one could empty the accelerated result and send a query to the source that the acceleration can answer. In v2.4.3 and earlier, no filter reached the accelerated scan under `use_source`, so a Cayenne lookup decoded every row of the acceleration and discarded the rows that did not match.
+
 :::warning
 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.

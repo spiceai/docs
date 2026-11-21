@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"The model","content":{"application/json":{"schema":{},"example":{"name":"models/my-model","displayName":"my-model","supportedGenerationMethods":["generateContent"]}}}},"404":{"description":"The model was not found"}}}

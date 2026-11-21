@@ -16,7 +16,9 @@ workflows:
     '.github/workflows/trigger_search_reindex.yml': []
     '.github/workflows/updated_openapi.yml':
         - 'actions/checkout@v7.0.1'
+        - 'actions/download-artifact@v8.0.2'
         - 'actions/setup-node@v7.1.0'
+        - 'actions/upload-artifact@v7.0.2'
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
 dependencies:
@@ -25,6 +27,11 @@ dependencies:
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
+    'actions/download-artifact@v8.0.2':
+        ref: 'v8.0.2'
+        commit: 'sha1-9000827ccba6bdab643e8b6fd33ac0654aef8333'
+        owner_id: 44036562
+        repo_id: 192626254
     'actions/labeler@v7.0.0':
         ref: 'v7.0.0'
         commit: 'sha1-bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13'
@@ -35,6 +42,11 @@ dependencies:
         commit: 'sha1-949feb2413d6458794dcd2491c4babbbce0c15c1'
         owner_id: 44036562
         repo_id: 189476904
+    'actions/upload-artifact@v7.0.2':
+        ref: 'v7.0.2'
+        commit: 'sha1-cf430e030ddbb5b0abf93d22962f4752f3646cd9'
+        owner_id: 44036562
+        repo_id: 192625955
     'spiceai/pulls-with-spice-action@v2.0.0':
         ref: 'v2.0.0'
         commit: 'sha1-61ef22e4a17be07209f0811fbfe4f0deb2e490a4'

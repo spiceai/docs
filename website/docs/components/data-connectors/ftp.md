@@ -20,7 +20,6 @@ datasets:
       file_format: csv
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 Query the data using SQL:
@@ -36,7 +35,7 @@ SELECT * FROM sales LIMIT 10;
 | Default Port    | 21                        | 22                             |
 | Encryption      | None (plain text)         | SSH encryption                 |
 | Authentication  | Username/password         | Username/password              |
-| Server identity | Not verified              | Host key fingerprint           |
+| Server identity | Not verified              | Host key in `known_hosts`      |
 | Recommended Use | Internal/trusted networks | Production and public networks |
 
 :::tip[Security Recommendation]
@@ -93,19 +92,22 @@ The dataset name used as the table name in SQL queries. Cannot be a [reserved ke
 | `file_format`               | Required when connecting to a directory. See [File Formats](./#file-formats).                                  |
 | `sftp_user`                 | Required. Username for SFTP authentication.                                                                    |
 | `sftp_pass`                 | Required. Password for SFTP authentication. Use [secrets](../secret-stores) syntax: `${secrets:my_sftp_pass}`. |
-| `sftp_host_key_fingerprint` | Required. SHA256 fingerprint of the server's host key, in the form `SHA256:<base64>`. See [SFTP Host Key Verification](#sftp-host-key-verification). |
 | `sftp_port`                 | SFTP server port. Default: `22`.                                                                               |
 | `client_timeout`            | Wall-clock bound for one connection attempt — name resolution, TCP connect, SSH handshake and password authentication together. E.g. `30s`, `1m`. Default: `20s`. |
 | `hive_partitioning_enabled` | Enable [Hive-style partitioning](#hive-partitioning) from folder structure. Default: `false`.                  |
 
 ### SFTP Host Key Verification
 
-Spice verifies the identity of the SFTP server before it sends credentials. After the SSH handshake, Spice compares the host key the server presents with `sftp_host_key_fingerprint`. If they differ, Spice closes the connection before authentication, and the dataset fails to load with an error that names the key type and fingerprint the server presented. A dataset without `sftp_host_key_fingerprint` does not load.
+Spice verifies the SFTP server before it sends the password, as `ssh` and `sftp` do. It reads `~/.ssh/known_hosts` of the user that runs `spiced`. Spice connects only when this file has an entry for the server and the host key that the server presents matches that entry. Spice never adds or changes entries in the file.
 
-To list the fingerprints of the server's host keys, run `ssh-keyscan` and `ssh-keygen`:
+#### Add a server
+
+Run these commands as the user that runs `spiced`:
 
 ```bash
-ssh-keyscan -p 22 files.example.com | ssh-keygen -lf -
+mkdir -p ~/.ssh
+ssh-keyscan -p 22 files.example.com >> ~/.ssh/known_hosts
+ssh-keygen -lf ~/.ssh/known_hosts
 ```
 
 ```text
@@ -114,15 +116,68 @@ ssh-keyscan -p 22 files.example.com | ssh-keygen -lf -
 256 SHA256:+d5F7o6yAKJ9uQ+8Vz3YTnl9xsi9BHBBL2nqptG1pVc files.example.com (ED25519)
 ```
 
-A server usually has more than one host key. Spice uses the first key type the server has in this order: ECDSA, ED25519, RSA. Set `sftp_host_key_fingerprint` to the fingerprint on the line for that key type. In the output above, that is the ECDSA line.
+`ssh-keyscan` does not authenticate the server. Compare the fingerprints with the fingerprints that the server's operator gives you before you use the file. If you already connected to the server with `ssh` or `sftp` as the same user and checked its key, the file already has the entry.
 
-`ssh-keyscan` does not authenticate the server. Confirm the fingerprint with the server administrator, or run the command from a network path you trust.
+- On port 22, the entry names the host, for example `files.example.com`. On other ports, it names `[host]:port`, for example `[files.example.com]:2222`. `ssh-keyscan -p <port>` writes the correct form.
+- The entry must name the host as the dataset's `from` URL does. An entry for an IP address does not match a dataset that uses a host name.
+- Hashed entries (`HashKnownHosts yes`) work.
+- Spice accepts Ed25519, ECDSA and RSA host keys. One entry for the server is sufficient: Spice asks the server only for the key types that the file has for it.
+- Host patterns such as `*.example.com`, and lines that start with `@cert-authority` or `@revoked`, are not supported.
+
+#### Containers and Kubernetes
+
+In a container, the file must exist in the home directory of the user that runs `spiced`. Create the file in the current directory, and compare its fingerprints with the fingerprints that the server's operator gives you:
+
+```bash
+ssh-keyscan -p 22 files.example.com > known_hosts
+ssh-keygen -lf known_hosts
+```
+
+The `spiceai/spiceai` image runs `spiced` as user `65534` with `HOME=/app`, so mount the file at `/app/.ssh/known_hosts`:
+
+```bash
+docker run -v "$PWD/known_hosts:/app/.ssh/known_hosts:ro" spiceai/spiceai
+```
+
+In Kubernetes, put the file in a ConfigMap. The file holds only public keys, so it does not need a Secret:
+
+```bash
+kubectl create configmap sftp-known-hosts --from-file=known_hosts=./known_hosts
+```
+
+Then mount it into the `spiced` container. With the [Spice Helm chart](../../deployment/kubernetes/helm), add this to `values.yaml`. In your own pod spec, add the same entries to the pod's `volumes` and the `spiced` container's `volumeMounts`:
+
+```yaml
+volumes:
+  - name: sftp-known-hosts
+    configMap:
+      name: sftp-known-hosts
+
+volumeMounts:
+  - name: sftp-known-hosts
+    mountPath: /app/.ssh/known_hosts
+    subPath: known_hosts
+    readOnly: true
+```
+
+A `subPath` mount does not receive ConfigMap updates. Restart the pod after you change the ConfigMap.
+
+#### Errors
+
+A dataset that Spice cannot verify fails to load with one of these errors:
+
+| Error | Cause | Fix |
+| ----- | ----- | --- |
+| `Cannot verify the SFTP server <host>:<port> because <path> cannot be read` | The file does not exist, `spiced` cannot read it, or the home directory of the user that runs `spiced` is not set. | Add the server as shown above. In a container, mount the file into the home directory of the user that runs `spiced`. |
+| `<path> has no Ed25519, ECDSA or RSA host key for the SFTP server <host>:<port>` | The file has no entry for the server, or the entry is for a different port or host name. | Run `ssh-keyscan -p <port> <host> >> <path>`, then check the fingerprints with the server's operator. |
+| `The SFTP server <host>:<port> presented the <type> host key SHA256:<fingerprint>, which does not match its entry in <path>` | The server's host key changed, or a different host answered. Spice did not send the password. | Ask the server's operator to confirm the new fingerprint. Then remove the old entry with `ssh-keygen -R <host> -f <path>` (`ssh-keygen -R '[<host>]:<port>' -f <path>` on ports other than 22) and add the server again. |
+| `The SSH handshake with the SFTP server <host>:<port> failed: ... Only host keys of the types <path> lists for the server are accepted` | The handshake failed. One cause is that the server has no host key of the types that the file has for it. | Check that the server is reachable, then add its current host keys as shown above. |
 
 ## Examples
 
 ### Basic SFTP Connection
 
-Connect to an SFTP server with username and password authentication, and verify the server's host key:
+Connect to an SFTP server with username and password authentication:
 
 ```yaml
 datasets:
@@ -132,7 +187,6 @@ datasets:
       file_format: parquet
       sftp_user: datauser
       sftp_pass: ${secrets:sftp_password}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Basic FTP Connection
@@ -160,7 +214,6 @@ datasets:
     params:
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Connection with Timeout
@@ -175,7 +228,6 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
       client_timeout: 120s
 ```
 
@@ -194,7 +246,6 @@ datasets:
       sftp_port: 2222
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Hive Partitioning
@@ -209,7 +260,6 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
       hive_partitioning_enabled: true
 ```
 
@@ -245,7 +295,6 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 
   - from: sftp://data.example.com/inventory/
     name: inventory
@@ -253,7 +302,6 @@ datasets:
       file_format: csv
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 ### Accelerated Dataset
@@ -268,7 +316,6 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_user}
       sftp_pass: ${secrets:sftp_pass}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
     acceleration:
       enabled: true
       refresh_check_interval: 1h
@@ -286,7 +333,6 @@ datasets:
       file_format: parquet
       sftp_user: ${secrets:sftp_username}
       sftp_pass: ${secrets:sftp_password}
-      sftp_host_key_fingerprint: SHA256:TTwqJr9zBNKiSdnBNNsNAP4XxPAg8xyxKU2toj1Vhdk
 ```
 
 For detailed information, refer to the [secret stores documentation](../secret-stores).

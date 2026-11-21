@@ -609,7 +609,7 @@ Enables or disables CORS for the HTTP endpoint. Defaults to `false`.
 
 A list of allowed origins for CORS requests. Defaults to `["*"]`, which permits all origins.
 
-This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; a request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
+This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost:*`, `http://127.0.0.1:*`, `http://[::1]:*` and their `https://` forms, where `:*` matches any port) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; an entry without a port matches only the scheme's default port, and an entry ending in `:*` matches any port. Spice v2.4.3 and earlier do not recognize the `:*` suffix, so do not use it in an `allowed_origins` list for those releases. Their localhost defaults are written without a port and match any port. A request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
 
 Example:
 
@@ -1241,6 +1241,26 @@ runtime:
 | ------------------- | ----------------------------------------------------------------------------------------------------- |
 | `on_load` (default) | The runtime reports ready after all components (datasets, models, etc.) have loaded successfully.     |
 | `on_registration`   | The runtime reports ready as soon as all components have been registered, before they finish loading. |
+
+### Serve healthy components when one fails to load
+
+Under `on_load`, one component that fails to load, such as a dataset whose secret reference does not resolve, keeps `/v1/ready` at `503`, so a readiness probe keeps the runtime out of service even though its other datasets can be queried. Request `/v1/ready?allow_unhealthy=true` instead to report ready once every component that has not failed has loaded:
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /v1/ready?allow_unhealthy=true
+    port: 8090
+```
+
+With `allow_unhealthy=true`:
+
+- A component whose status is `Error` does not block readiness.
+- Every other component must have been ready at least once. A component still on its first load blocks readiness, as it does without the parameter.
+- When the Spicepod has at least one dataset and every dataset is in `Error`, the runtime stays not ready, because it has nothing to serve.
+- Under `ready_state: on_registration`, the result is the same as `/v1/ready`.
+
+`/v1/ready` without the parameter keeps reporting full readiness. Spice v2.4.3 and earlier ignore the parameter and answer as `/v1/ready` does.
 
 ## `runtime.scheduler`
 

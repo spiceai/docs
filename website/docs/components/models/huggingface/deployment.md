@@ -67,6 +67,14 @@ Add ~20–30% headroom for KV cache and working memory during inference.
 
 `max_concurrency` limits the requests that the [`ai` SQL function](../../../reference/sql/ai.md), the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions), and the `POST /v1/decisions` endpoint send to the model. It defaults to **1** for local models. `requests_per_minute_limit` limits the same requests and has no default for local models. Neither parameter limits requests to the chat endpoints. A GGUF model served by llama.cpp decodes up to 8 requests at once; see [Local GGUF Models](../index.md#local-gguf-models). Raise `max_concurrency` to let these paths send more requests at once.
 
+### Securing a Runtime That Serves Local Models
+
+A request to a local model uses the host's CPU, GPU and memory, and one request with a long prompt can keep them busy. A prompt that fits the context can also keep generating after the client disconnects, until the engine's token cap is reached. Before exposing a runtime that serves a local model:
+
+- Set [`runtime.auth`](../../../reference/spicepod/runtime.md#runtimeauth). Without it, any caller that can reach the HTTP endpoint can run inference.
+- Restrict the network bind. The HTTP server binds to `127.0.0.1:8090` by default. If you change the bind (`spiced --http <BIND_ADDRESS>`, or `--http-endpoint` with `spice run`), allow only trusted clients through a firewall, security group or private network.
+- Set the [`context_length`](../index.md#local-gguf-models) parameter to the context the host can serve, and set a request timeout on the reverse proxy or load balancer in front of the runtime.
+
 ## Metrics
 
 Shared LLM metrics apply (see the [OpenAI Model Deployment Guide](../openai/deployment#metrics) for the full metric list): `llm_requests`, `llm_failures`, `llm_internal_request_duration_ms`, `llm_prompt_tokens_total`, `llm_completion_tokens_total`.

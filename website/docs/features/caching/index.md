@@ -111,7 +111,7 @@ In addition to the common caching parameters, `sql_results` also supports additi
 ### Choosing a `cache_key_type`
 
 - **`plan` (Default):** Uses the query's logical plan as the cache key. This approach matches semantically equivalent queries, even if their SQL syntax differs. However, it requires query parsing, which introduces some overhead.
-- **`sql`:** Uses the raw SQL string as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
+- **`sql`:** Uses the raw SQL string, together with the type and value of each bound parameter, as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility and semantic matching of queries.
 
@@ -529,7 +529,7 @@ against the HTTP or Arrow Flight API.
 
 Set the `Spice-Cache-Key` header to add a custom key to a request's cache entry. A custom key partitions entries; it does not replace the request's own key. Spice hashes the custom key together with:
 
-- for SQL queries, the raw SQL text and the bound parameter values;
+- for SQL queries, the raw SQL text and the type and value of each bound parameter;
 - for search requests, the full search request.
 
 When the header is set, Spice looks up the entry before planning, so `caching.sql_results.cache_key_type` does not apply to that request. The raw SQL text is used as is, the same text `cache_key_type: sql` keys on.
@@ -537,9 +537,11 @@ When the header is set, Spice looks up the entry before planning, so `caching.sq
 As a result:
 
 - Requests with the same custom key, the same SQL text, and the same parameters share one entry.
-- A different query, or the same query with a different parameter value, gets its own entry, even under the same custom key.
+- A different query, or the same query with a different parameter value or parameter type, gets its own entry, even under the same custom key.
 - Queries that differ only in whitespace, formatting, or form (for example, two semantically equivalent queries) do not share an entry. To share one, send the same SQL text.
 - Entries cached with a custom key never collide with entries cached without one, and a custom key never shares entries across principals.
+
+In Spice v2.4.3 and earlier, the SQL text key covered the parameter values but not their types, so a query could be served the cached result of the same SQL text bound to a value of another type with the same bits, such as an `Int64` and a `Float64`, or to a `NULL` of another type.
 
 There is no option to make a custom key the whole cache key, so different queries cannot be made to share one result.
 

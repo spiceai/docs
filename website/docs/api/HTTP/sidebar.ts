@@ -42,6 +42,18 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/HTTP/post-messages",
+          label: "Create a message",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/post-messages-count-tokens",
+          label: "Count tokens in a message",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "api/HTTP/get-models",
           label: "List Models",
           className: "api-method get",
@@ -51,6 +63,18 @@ const sidebar: SidebarsConfig = {
           id: "api/HTTP/post-responses",
           label: "post_responses",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-gemini-models",
+          label: "List models",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/HTTP/get-gemini-model",
+          label: "Get a model",
+          className: "api-method get",
         },
       ],
     },

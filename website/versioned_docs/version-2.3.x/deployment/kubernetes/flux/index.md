@@ -347,7 +347,7 @@ Each `HelmRelease` in this directory references the shared `HelmRepository` sour
 - [Flux `HelmRelease` API reference](https://fluxcd.io/flux/components/helm/helmreleases/)
 - [Flux `HelmRepository` API reference](https://fluxcd.io/flux/components/source/helmrepositories/)
 - [Flux GitOps guides](https://fluxcd.io/flux/guides/)
-- [Spice Helm chart source](https://github.com/spiceai/helm-charts)
+- [Spice Helm chart source](https://github.com/spiceai/spiceai/tree/trunk/deploy/chart)
 
 ## Cookbook
 

@@ -1,0 +1,1 @@
+{"parameters":[{"name":"model","in":"path","description":"The model's name, as `spice models` lists it.","required":true,"schema":{"type":"string"}}]}

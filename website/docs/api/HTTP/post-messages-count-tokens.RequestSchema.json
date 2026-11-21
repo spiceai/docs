@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"A Messages API request, without `max_tokens`.","content":{"application/json":{"schema":{},"example":{"model":"claude","messages":[{"role":"user","content":"Hello!"}]}}},"required":true}}
