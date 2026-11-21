@@ -170,6 +170,22 @@ With a persistent acceleration (`mode: file`), the first load stores the dataset
 
 In v2.4.2 and earlier, the `arrow` engine loaded a keyless topic and applied updates and deletes by matching whole rows.
 
+## Timestamp Columns
+
+A column declared in `columns` with `type: timestamptz` or `type: timestamp` holds nanoseconds, and a column declared as `Timestamp(Microsecond)` or `Timestamp(Millisecond)` holds that unit. Spice converts each change event's timestamp value into the declared column's unit:
+
+- An ISO 8601 string with `Z` or a UTC offset, such as Debezium's `io.debezium.time.ZonedTimestamp` value `2026-11-18T21:00:00.123456Z`, is converted for a column declared with or without a time zone. A string without `Z` or an offset, such as `2026-11-18T21:00:00`, is not a timestamp and fails the change event.
+- An integer is read in the unit of its Debezium type in the event's schema: milliseconds for `io.debezium.time.Timestamp` and Kafka Connect's `org.apache.kafka.connect.data.Timestamp`, microseconds for `io.debezium.time.MicroTimestamp`, and nanoseconds for `io.debezium.time.NanoTimestamp`.
+- An integer with no Debezium type in the schema is read in the column's own unit when the column is declared in milliseconds or microseconds.
+
+A change event fails, with an error that names the column, instead of loading a wrong value when a value does not fit the column's unit (a nanosecond column holds 1677 through 2262), when a value is not a timestamp, when an integer has a Debezium type that is not a timestamp, such as `io.debezium.time.Date`, or when an integer in a second or nanosecond column has no Debezium type:
+
+```text
+Failed to ingest a change event: the integer value 1795035600123456 of column 'at' has no Debezium timestamp type, so its unit is unknown. Send change events with their schema, or declare the column with the unit of its values, such as `Timestamp(Microsecond)` or `Timestamp(Microsecond, UTC)`. See: https://spiceai.org/docs/components/data-connectors/debezium
+```
+
+In v2.4.3 and earlier, a column declared `timestamptz` or `timestamp` failed every change event with `Timestamp type (Nanosecond, …) not supported yet`, and an integer timestamp was read in the column's unit whatever its Debezium type, so a millisecond value in a microsecond column loaded as a wrong timestamp.
+
 ## JSON Nesting
 
 When a change event carries many fields but you only need a few as discrete columns, you can consolidate the rest into a single JSON column using the `json_object` metadata option. Declare the fields you want as top-level columns explicitly in the `columns` list, then add a "catch-all" column with `json_object: "*"` metadata — every field not otherwise listed is nested into it as a JSON object. This applies to the change-stream (CDC) events the connector decomposes into the accelerator.
