@@ -109,6 +109,8 @@ Without the label, the workload identity webhook does not set the variables or m
 
 The environment supplies a workload identity when it has a tenant, a client ID, and an identity token, from `AZURE_FEDERATED_TOKEN_FILE` or the GitHub Actions job. A model that sets `azure_api_key` or `azure_entra_token` never uses the environment's workload identity.
 
+When the environment has no workload identity, the model uses a managed identity through the Azure Instance Metadata Service, such as on an Azure VM, App Service, or Container Apps, user-assigned when `AZURE_CLIENT_ID` names one, and then the Azure CLI login from `az login`, for local development.
+
 ### Kubernetes Outside AKS
 
 On another Kubernetes cluster, project a service account token with the audience `api://AzureADTokenExchange` into the pod, and name its file in `azure_federated_token_file`, as in the Spicepod at the top of this section:
