@@ -1276,7 +1276,7 @@ ORDER BY k;
 
 ### `try_sum`
 
-Returns the sum of the input values. For a signed integer or `Decimal128` input, it returns `NULL` when the sum overflows its result type. A floating-point sum that overflows returns infinity, as `sum` does. It accepts signed integer, floating-point, and `Decimal128` values. A signed integer input returns `Int64`, a floating-point input returns `Float64`, and a `Decimal128(p, s)` input returns `Decimal128` with the precision raised by 10, up to 38.
+Returns the sum of the input values. For a signed integer or `Decimal128` input, it returns `NULL` when the sum overflows its result type. A floating-point sum that overflows returns infinity. It accepts signed integer, floating-point, and `Decimal128` values. A signed integer input returns `Int64`, a floating-point input returns `Float64`, and a `Decimal128(p, s)` input returns `Decimal128` with the precision raised by 10, up to 38.
 
 ```sql
 try_sum(expression)
