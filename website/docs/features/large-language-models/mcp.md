@@ -117,7 +117,7 @@ tools:
       mcp_headers: 'X-API-KEY: ${secrets:SPICE_API_KEY}'
 ```
 
-The remote instance runs every proxied tool call as that key. A read-only key can run queries through the remote `sql` tool, but the remote refuses writes. Use a key with the `:rw` suffix only when the proxied tools need to write.
+The remote instance runs every proxied tool call as that key. A read-only key can run queries through the remote `sql` tool, but the remote refuses writes. Use a key with the `:rw` suffix for the remote only when the proxied tools need to write. On the local runtime, every tool of `spice_instance` is an MCP server's tool, which is [read-write](../../api/auth/index.md#tools-that-need-a-read-write-key): when the local runtime has `runtime.auth`, a caller needs a read-write key to call any of them, including the remote `sql` tool.
 
 ### Allowed Hosts
 

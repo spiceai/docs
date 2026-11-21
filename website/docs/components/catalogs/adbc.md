@@ -27,13 +27,16 @@ The upstream driver releases, including the one `dbc install bigquery` installs,
 Failed to create ADBC database (driver='…'): the BigQuery driver does not support the `bigquery.skip_query_result_tables` option, which the catalog needs to list hidden datasets without fetching the metadata of every cached query result. Use the BigQuery ADBC driver built from https://github.com/spiceai/bigquery. Cause: …
 ```
 
-To build the driver on Linux (Go and a C compiler are required), then point `adbc_driver_path` at the library:
+To build the driver on Linux (Go and a C compiler are required) into `/opt/adbc`:
 
 ```shell
 git clone --branch spiceai https://github.com/spiceai/bigquery.git adbc-bigquery
 cd adbc-bigquery/go
-CGO_ENABLED=1 go build -tags driverlib -buildmode=c-shared -o libadbc_driver_bigquery.so ./pkg/
+sudo mkdir -p /opt/adbc && sudo chown "$USER" /opt/adbc
+CGO_ENABLED=1 go build -tags driverlib -buildmode=c-shared -o /opt/adbc/libadbc_driver_bigquery.so ./pkg/
 ```
+
+Then set `adbc_driver_path` to the library, as the BigQuery examples on this page do, so Spice loads this build rather than a driver installed by name.
 
 The BigQuery [ADBC data connector](../data-connectors/adbc) does not set this option and works with either driver build.
 
@@ -47,6 +50,7 @@ catalogs:
       - 'my_schema.*' # include all tables from my_schema
     params:
       adbc_driver: bigquery
+      adbc_driver_path: /opt/adbc/libadbc_driver_bigquery.so
       adbc_uri: "bigquery:///my-gcp-project"
 ```
 
@@ -96,6 +100,7 @@ catalogs:
       - 'my_dataset.*'
     params:
       adbc_driver: bigquery
+      adbc_driver_path: /opt/adbc/libadbc_driver_bigquery.so
       adbc_uri: "bigquery:///my-gcp-project"
       adbc_driver_options: >-
         adbc.bigquery.sql.dataset_id=my_dataset
