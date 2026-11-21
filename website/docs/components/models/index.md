@@ -87,7 +87,7 @@ In v2.4.3 and earlier, the chat clients for these providers set no connect timeo
 
 A network or load balancer can close a new connection while TLS is still being negotiated. A request is written only after the handshake completes, so the endpoint never received it, and Spice sends it again at once on a new connection, whatever its method. Spice also sends again an HTTP/2 request that the endpoint refused without processing it. Each request is sent again at most 2 times, and each client sends retries for at most 20% of its requests, with a floor of 10 retries a second, so an outage does not multiply the load on the endpoint.
 
-Spice does not send a request again after any part of it was sent, because the endpoint may have acted on it, or when the connection timed out, was refused, the host did not resolve, or the endpoint's certificate was not trusted. Those failures reach the caller as before. This applies to the providers above, Google Vertex AI, and the token exchanges for cloud credentials. In v2.4.3 and earlier, a request whose connection closed during the TLS handshake failed without a retry.
+Apart from an HTTP/2 request the endpoint refused without processing it, Spice does not send a request again after any part of it was sent, because the endpoint may have acted on it, or when the connection timed out, was refused, the host did not resolve, or the endpoint's certificate was not trusted. Those failures reach the caller as before. This applies to the providers above, Google Vertex AI, and the token exchanges for cloud credentials. In v2.4.3 and earlier, a request whose connection closed during the TLS handshake failed without a retry.
 
 ## Local GGUF Models
 
