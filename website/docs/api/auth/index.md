@@ -69,7 +69,7 @@ On a runtime with `runtime.auth`, only a request authenticated with a read-write
 {"message":"Failed to call tool 'store_memory': the tool can change data or act outside Spice, and the credentials on this request do not allow write access. Retry with a read-write API key (a `runtime.auth.api-key.keys` entry ending in `:rw`). See https://spiceai.org/docs/api/auth"}
 ```
 
-MCP returns the same message in the tool result with `isError: true`, and a model receives it as the tool's result. On a runtime without `runtime.auth`, every caller may call read-write tools.
+MCP returns the same message in the tool result with `isError: true`, and a model receives it as the tool's result. On a runtime without `runtime.auth`, the tool check refuses no caller, so a model's tool calls may use read-write tools. The [`/v1/mcp`](../../features/large-language-models/mcp.md) endpoint is separate: it rejects every request with `401 Unauthorized` when `runtime.auth` is not configured.
 
 In v2.4.3 and earlier, a read-only key could call an MCP server's tools, and `POST /v1/tools/store_memory` with a read-only key answered `500`. Give callers that need MCP tools a read-write key.
 
