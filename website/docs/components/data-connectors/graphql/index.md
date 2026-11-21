@@ -28,6 +28,7 @@ datasets:
 - The GraphQL data connector does not support variables in the query.
 - Filter pushdown, with the exclusion of `LIMIT`, is not currently supported. Using a `LIMIT` will reduce the amount of data requested from the GraphQL server.
 - The connector follows at most 10 redirects, and does not follow a redirect that leaves the endpoint's host for a private, loopback, or link-local address, including a host name that resolves to one. A redirect within the endpoint's own host is followed.
+- When `graphql_auth_header` and `graphql_auth_token` are both set, the token travels in a custom header that the HTTP client does not drop on a redirect. In this case the connector follows a redirect only when it keeps the endpoint's scheme, host, and port. Any other redirect, including an `http` to `https` redirect on the same host, fails with an error that names the redirect target. Set the dataset's `from` URL to the redirect target only when it is an `https` endpoint you trust with the token; otherwise, correct the redirect on the server. A bearer token or HTTP Basic credentials keep the redirect rule above.
 
 :::
 

@@ -195,6 +195,19 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 
 Partition pruning improves query performance by reading only the relevant files.
 
+#### `NULL` Partition Values
+
+Hive writes a `NULL` partition value to a directory named `__HIVE_DEFAULT_PARTITION__`, such as `year=__HIVE_DEFAULT_PARTITION__/`. Spice reads that partition column as `NULL` for the rows in such a directory, and reports partition columns as nullable. `WHERE year IS NULL` matches these rows, and `WHERE year = '__HIVE_DEFAULT_PARTITION__'` does not.
+
+In v2.4.2 and earlier, the column held the literal string `__HIVE_DEFAULT_PARTITION__` and was reported as `NOT NULL`. After an upgrade from those releases, an existing `mode: file` acceleration of a dataset with such a directory fails to refresh with `Invalid batch column … has null but schema specifies non-nullable`, and keeps serving its existing data. A Cayenne acceleration without `partition_by`, with `refresh_mode: full`, and with the partition column in none of `primary_key`, `indexes`, and `on_conflict` recovers in place with [`on_schema_change: sync_all_columns`](../reference/spicepod/datasets#on_schema_change), which makes the partition column nullable. Every other acceleration keeps its `NOT NULL` column under `sync_all_columns`, `drop_and_recreate`, and `mode: file_update`, because a nullability change alone does not trigger recreation, and must be rebuilt from the source. Before you rebuild one:
+
+- Change a `primary_key` that includes the partition column, or the source's `NULL` partition values: Cayenne rejects a `NULL` in a primary key column.
+- Keep a copy of rows that the source no longer holds, such as append history or writes kept only in the acceleration with `write_mode: acceleration`. A rebuild discards them.
+- Check what else shares the acceleration's storage. Datasets share one acceleration file unless each sets its own file path, and Cayenne datasets share one metastore by default, so deleting a shared file or directory, or starting with `mode: file_create` on an engine that recreates the whole file, also discards the other datasets' accelerations.
+- If the dataset restores snapshots (`snapshots: enabled` or `bootstrap_only`), a snapshot taken before the upgrade has the old `NOT NULL` column. A [`refresh_mode: snapshot`](../features/data-acceleration/snapshots) reader loads only snapshots, so it needs a snapshot that the publishing instance wrote after its own acceleration was rebuilt.
+
+Other file accelerations of Hive-partitioned datasets keep refreshing, and report partition columns as `NOT NULL` until the acceleration is rebuilt.
+
 ### Metadata Columns
 
 File-based connectors can expose per-file object store metadata as virtual columns in the dataset schema. These columns are not stored in the data files — they are derived from object store file metadata at query time.
