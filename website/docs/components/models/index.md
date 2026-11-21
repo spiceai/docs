@@ -83,6 +83,12 @@ A request that passes a limit fails with an error rather than waiting or bufferi
 
 In v2.4.3 and earlier, the chat clients for these providers set no connect timeout, no read timeout, and no response size limit.
 
+### Requests the endpoint never received
+
+A network or load balancer can close a new connection while TLS is still being negotiated. A request is written only after the handshake completes, so the endpoint never received it, and Spice sends it again at once on a new connection, whatever its method. Spice also sends again an HTTP/2 request that the endpoint refused without processing it. Each request is sent again at most 2 times, and each client sends retries for at most 20% of its requests, with a floor of 10 retries a second, so an outage does not multiply the load on the endpoint.
+
+Spice does not send a request again after any part of it was sent, because the endpoint may have acted on it, or when the connection timed out, was refused, the host did not resolve, or the endpoint's certificate was not trusted. Those failures reach the caller as before. This applies to the providers above, Google Vertex AI, and the token exchanges for cloud credentials. In v2.4.3 and earlier, a request whose connection closed during the TLS handshake failed without a retry.
+
 ## Local GGUF Models
 
 Spice serves a GGUF model on a single node, from the [`file`][file] or [`huggingface`][hf] provider, with [llama.cpp](https://github.com/ggml-org/llama.cpp). The model's file format selects the engine, so no Spicepod change is needed.
@@ -111,6 +117,14 @@ The `paged_attention` parameter has no effect on a GGUF model served by llama.cp
 ```text
 Model '<name>' sets `paged_attention: disabled`, which has no effect: GGUF models are served by llama.cpp, which manages its own KV cache. Remove the parameter to silence this message.
 ```
+
+When the GPU or another backend fails work that llama.cpp queued for a model, the request fails with an error, and no reply text is streamed from results the backend did not compute. The model's context decodes nothing more until the model is reloaded. The error names the backend's own reason after `llama.cpp reported:`, for example on Apple silicon:
+
+```text
+llama.cpp could not decode the batch: the GPU or another backend failed computing work this context queued, so its results are discarded and the context decodes nothing more; reload the model. llama.cpp reported: ggml_metal_synchronize: error: graph command buffer 1 failed with status 5; error: Invalid Resource (…)
+```
+
+In v2.4.3 and earlier, a reply could stream text built from the output buffers of a failed decode, and the error did not include the backend's reason.
 
 ### GGUF Models Split Across Nodes
 
@@ -225,6 +239,8 @@ A chat message's `content` can be a string or an array of parts, such as `[{"typ
 - A template that reads both receives each message as sent.
 - A template that reads only strings receives the text of the parts joined with newlines.
 - A template that reads only parts receives a string as one text part.
+
+Some chat templates render a system or developer message only at the start of a conversation: they leave a later one out of the prompt, or fail with an error such as `System message must be at the beginning`. Clients such as coding agents send system messages after the first user message. When a model loads, Spice also renders a system and a developer message after a user message, and for a template that does not render it with its text, such a message reaches the template as a user's. Its text is joined to the user message before it after a blank line, or becomes a user message of its own when the message before it is not a user's, such as a tool result. The message keeps its place, so the prompt before it is unchanged and a cached prompt prefix still matches. A template that renders a later system message gets it as sent. In v2.4.3 and earlier, a later system message reached every template as sent.
 
 A local model receives only text: neither engine passes images, audio, or files to the model, including a model loaded with a multimodal `model_type`. A user message that contains an `image_url`, `input_audio`, or `file` part is refused with HTTP 400, and the error names the model and the part:
 

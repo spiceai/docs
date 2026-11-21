@@ -58,7 +58,7 @@ The built-in rate controller queues and paces outbound requests to stay within t
 
 ### Retry Behavior
 
-**Chat Completions / Responses** requests rely on the rate controller for pacing; there is no application-level retry loop around the chat/responses path. Transient 429 / 5xx responses surface to the caller.
+**Chat Completions / Responses** requests rely on the rate controller for pacing; there is no application-level retry loop around the chat/responses path. Transient 429 / 5xx responses surface to the caller. A request whose connection closes before it is sent, such as during the TLS handshake, is sent again on a new connection; see [Requests the endpoint never received](../index.md#requests-the-endpoint-never-received).
 
 **Embeddings** (see the [OpenAI Embedding Deployment Guide](../../embeddings/openai/deployment)) implement an application-level retry with fibonacci backoff and a 10-retry cap.
 
