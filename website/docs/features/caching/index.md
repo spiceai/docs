@@ -111,7 +111,7 @@ In addition to the common caching parameters, `sql_results` also supports additi
 ### Choosing a `cache_key_type`
 
 - **`plan` (Default):** Uses the query's logical plan as the cache key. This approach matches semantically equivalent queries, even if their SQL syntax differs. However, it requires query parsing, which introduces some overhead.
-- **`sql`:** Uses the raw SQL string as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
+- **`sql`:** Uses the raw SQL string, together with the type and value of each bound parameter, as the cache key. This method provides faster lookups but requires exact string matches. Queries with dynamic functions, such as `NOW()`, may produce unexpected results because the cache key changes with each execution. Use `sql` only when query results are predictable and consistent.
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility and semantic matching of queries.
 
@@ -157,7 +157,7 @@ Entries written with `encoding: zstd` are exempt — they keep the serialized by
 
 When a background [stale-while-revalidate](#stale-while-revalidate) revalidation is declined for this reason it is reported as `results_cache_swr_revalidations{outcome="unboundable"}`, and the previous entry is left in place to be served stale until it expires.
 
-While a cacheable SQL result streams to the client, the runtime keeps a copy of its batches to store when the stream ends. That copy is charged to the query memory pool, [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit). When the pool cannot hold it, the copy is dropped and the result is not cached; the query still returns every row. Under memory pressure, large results therefore go uncached more often, and they compete with joins and sorts for the same pool. In v2.4.1 and earlier, the copy was not counted against the limit, so concurrent cacheable queries with large results could go over `memory_limit`. A copy dropped this way is not reported as `unboundable`; the runtime logs it at `DEBUG` level.
+While a cacheable SQL result streams to the client, the runtime keeps a copy of its batches to store when the stream ends. That copy is charged to the query memory pool, [`runtime.query.memory_limit`](../../reference/spicepod/runtime#runtimequerymemory_limit). When the pool cannot hold it, the copy is dropped and the result is not cached; the query still returns every row. Under memory pressure, large results therefore go uncached more often, and they compete with joins and sorts for the same pool. In v2.4.3 and earlier, the copy was not counted against the limit, so concurrent cacheable queries with large results could go over `memory_limit`. A copy dropped this way is not reported as `unboundable`; the runtime logs it at `DEBUG` level.
 
 ## Warming the Cache After a Restart
 
@@ -235,6 +235,7 @@ The cache is dropped wholesale — every entry, not only the affected ones — w
 - a dataset or a view is registered, updated, or removed;
 - a spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
 - a spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md) — one whose declaration changed, or one whose name a provider is already registered under. Re-registering a catalog builds a fresh provider under the same name, and a plan holds the table source it was planned against;
+- a periodic [Unity Catalog](../../components/catalogs/unity-catalog/index.md) or [Databricks](../../components/catalogs/databricks.md) catalog refresh replaces or removes a table;
 - an accelerated table's schema evolves, in place or by recreation.
 
 A reload that adds a catalog name nothing was registered under invalidates nothing — no cached plan can have resolved a table in it — and a reload that changes no catalog leaves the cache intact.
@@ -417,7 +418,8 @@ A change to a definition that cached results were computed from clears every cac
 
 - a [view](../../reference/spicepod/views.md) is updated or removed;
 - a Spicepod hot reload replaces a [`catalog`](../../reference/spicepod/catalogs.md), either one whose declaration changed or one whose name a provider is already registered under;
-- a Spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md).
+- a Spicepod hot reload changes the set of registered [`functions`](../../reference/spicepod/functions.md);
+- a periodic [Unity Catalog](../../components/catalogs/unity-catalog/index.md) or [Databricks](../../components/catalogs/databricks.md) catalog refresh replaces or removes a table.
 
 A cached result records the tables a view reads, not the view itself, so the cache cannot find the entries that read through a changed view and clears all of them. A query that started before the clear does not store its result, even when it reads no table. After a view is updated, a repeat of an earlier query returns the result of the new definition. After a view is removed, the repeat fails because the view no longer exists.
 
@@ -527,7 +529,7 @@ against the HTTP or Arrow Flight API.
 
 Set the `Spice-Cache-Key` header to add a custom key to a request's cache entry. A custom key partitions entries; it does not replace the request's own key. Spice hashes the custom key together with:
 
-- for SQL queries, the raw SQL text and the bound parameter values;
+- for SQL queries, the raw SQL text and the type and value of each bound parameter;
 - for search requests, the full search request.
 
 When the header is set, Spice looks up the entry before planning, so `caching.sql_results.cache_key_type` does not apply to that request. The raw SQL text is used as is, the same text `cache_key_type: sql` keys on.
@@ -535,9 +537,11 @@ When the header is set, Spice looks up the entry before planning, so `caching.sq
 As a result:
 
 - Requests with the same custom key, the same SQL text, and the same parameters share one entry.
-- A different query, or the same query with a different parameter value, gets its own entry, even under the same custom key.
+- A different query, or the same query with a different parameter value or parameter type, gets its own entry, even under the same custom key.
 - Queries that differ only in whitespace, formatting, or form (for example, two semantically equivalent queries) do not share an entry. To share one, send the same SQL text.
 - Entries cached with a custom key never collide with entries cached without one, and a custom key never shares entries across principals.
+
+In Spice v2.4.3 and earlier, the SQL text key covered the parameter values but not their types, so a query could be served the cached result of the same SQL text bound to a value of another type with the same bits, such as an `Int64` and a `Float64`, or to a `NULL` of another type.
 
 There is no option to make a custom key the whole cache key, so different queries cannot be made to share one result.
 

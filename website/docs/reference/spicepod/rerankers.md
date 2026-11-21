@@ -132,4 +132,4 @@ Optional. A list of components that must load before this reranker.
 
 ## Loading
 
-Spice loads rerankers at startup, before datasets, and sends one test request to each reranker. A reranker that fails to load is not retried, and a change to the `rerankers` section does not reload rerankers. Restart the runtime after you correct the configuration. See [Loading and Readiness](../../components/rerankers/index.md#loading-and-readiness).
+Spice loads rerankers at startup, before datasets, and sends one test request to each reranker. A reranker that fails to load for a reason other than its configuration is retried in the background. With the Spicepod watcher on, a change to the `rerankers` section loads, reloads, or unloads the rerankers it adds, changes, or removes. In v2.4.3 and earlier, a failed reranker was not retried, and a change to `rerankers` took effect only after a restart. See [Loading and Readiness](../../components/rerankers/index.md#loading-and-readiness).

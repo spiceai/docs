@@ -184,6 +184,7 @@ Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
 - `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write), unless the dataset is accelerated with [`acceleration.write_mode: acceleration`](#accelerationwrite_mode), which keeps writes in the acceleration.
+- `read_write_create`: Accepted, and behaves as `read_write` for a dataset. DDL statements such as `CREATE TABLE` and `DROP TABLE` are allowed by a catalog's [`access`](./catalogs.md#access), not a dataset's.
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -195,6 +196,35 @@ datasets:
     params:
       # ... connector-specific parameters
 ```
+
+## `has_metadata_table`
+
+Optional. Defaults to `false`. When `true`, Spice registers a second table, `metadata.<dataset name>`, that lists the files the dataset reads, one row per file. It applies to datasets from the object store and file connectors that list files: [S3](../../components/data-connectors/s3/index.md), [Azure BlobFS](../../components/data-connectors/abfs.md), [Google Cloud Storage](../../components/data-connectors/gcs.md), [File](../../components/data-connectors/file/index.md), [FTP and SFTP](../../components/data-connectors/ftp.md), [SMB](../../components/data-connectors/smb.md), [NFS](../../components/data-connectors/nfs.md) (Spice.ai Enterprise), and [SharePoint](../../components/data-connectors/sharepoint.md). The [Hugging Face](../../components/data-connectors/huggingface.md) connector refuses it with an error. Other connectors, including [HTTP(S)](../../components/data-connectors/https/index.md), register no metadata table.
+
+```yaml
+datasets:
+  - from: file:./data/
+    name: files
+    has_metadata_table: true
+    params:
+      file_format: csv
+```
+
+For every connector above except a SharePoint metadata-listing dataset (`sharepoint:` with a single colon), the metadata table has these columns:
+
+| Column          | Type        | Description                                                  |
+| --------------- | ----------- | ------------------------------------------------------------ |
+| `location`      | `Utf8`      | The file's path in the object store. The table's primary key. |
+| `last_modified` | `Timestamp` | When the file was last modified.                             |
+| `size`          | `UInt64`    | The file's size in bytes.                                    |
+| `e_tag`         | `Utf8`      | The file's entity tag, when the store reports one.           |
+| `version`       | `Utf8`      | The file's version, when the store reports one.              |
+
+```sql
+SELECT * FROM metadata.files;
+```
+
+A SharePoint metadata-listing dataset's metadata table lists its drive items as the [SharePoint connector](../../components/data-connectors/sharepoint.md#metadata-listing--sharepoint-single-colon) does, without the file content.
 
 ## `time_column`
 
@@ -616,7 +646,7 @@ Optional. Controls how writes to a `read_write` accelerated dataset propagate be
 Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
-- `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
+- `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported. Also requires [`replication.enabled: true`](#replicationenabled).
 - `acceleration` – Writes, including Spice Cayenne `BEGIN … COMMIT` [transactions](../../components/data-accelerators/cayenne/index.md#transactions), go only to the acceleration and never reach the federated source, which need not accept writes. Refreshes still load the source's data into the acceleration, so a `full` refresh discards rows that were written only to the acceleration. An `append` refresh keeps them, unless it reads a version of the same key that replaces the written row, but acceleration-only writes can cause it to skip source rows (see the warning below). Not valid with `refresh_mode: changes`, set explicitly or by the connector's default, because the source's changes would overwrite the writes.
 
 A `read_write` dataset whose source connector only supports reads fails to load unless it sets `write_mode: acceleration`:
@@ -1069,6 +1099,19 @@ datasets:
       mode: file
       partition_by: [block_date]
 ```
+
+## `acceleration.maintained_aggregates`
+
+Optional. Declares aggregate views that Spice Cayenne keeps up to date as change events are applied, so matching `GROUP BY` queries read the maintained state instead of scanning the table. Defaults to disabled. Supported for `engine: cayenne` with `refresh_mode: changes`. See [Maintained Aggregates](../../components/data-accelerators/cayenne/index.md#maintained-aggregates) for the syntax and the supported functions (`count`, `sum`, `avg`, `min`, and `max`).
+
+## `replication.enabled`
+
+Optional. An explicit opt-in to a source that lags the accelerator. Defaults to `false`. Spice reads it only with [`acceleration.write_mode: write_back`](#accelerationwrite_mode), where it is required, because write-back commits to the accelerator first and delivers to the source afterwards. A `write_back` dataset without it fails to load:
+
+```text
+An accelerated table for orders was configured with 'acceleration.write_mode: write_back' but 'replication.enabled' is not set. Write-back commits to the local accelerator and a delivery worker carries the write to the federated source afterwards, so the source lags the accelerator, and the source's own changes come back over the change stream. Set 'replication.enabled: true' to opt in, or use a different write_mode.
+```
+
 
 ## `columns`
 

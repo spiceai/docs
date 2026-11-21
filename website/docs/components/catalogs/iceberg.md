@@ -290,6 +290,16 @@ Inserting into partitioned Iceberg tables is supported. `DELETE FROM` is support
 
 Write operations require `s3:PutObject` permission on the target S3 bucket in addition to the read permissions listed above. When the catalog is AWS Glue, writes also require `glue:UpdateTable` permission to commit the new table snapshot. For more details, see [Data Ingestion](../../features/data-ingestion).
 
+## Tables That Fail to Load
+
+A table or namespace that fails to load does not fail the catalog. The catalog loads each namespace and table on its own, leaves out one that fails, and registers the rest:
+
+- At startup, a table that fails to load, such as one that the catalog lists but answers with `403` when Spice loads it, is not registered, and Spice logs a warning that names the table and the error. A namespace whose tables cannot be listed is not registered, with a warning that names the namespace.
+- On a refresh, a table that was registered before and now fails to load stays registered with the definition it was last loaded with. Queries against it still need the source to answer: a table whose source refuses access fails its queries until access returns. A namespace whose tables cannot be listed keeps the tables it had. Tables added to or dropped from the catalog are still picked up.
+- When every namespace, or every table, that a load tries fails, the load fails, as an error that affects the whole catalog, such as missing credentials or permissions, does. At startup, the catalog is not registered empty, and the runtime does not report ready. On a refresh, the catalog keeps the tables it has, Spice logs an error that names the catalog, and the refresh is tried again at the next interval; readiness does not change.
+
+In v2.4.3 and earlier, one table or namespace that failed to load failed the whole catalog: at startup the catalog was not registered and the runtime did not report ready, and on a running catalog every refresh failed, so added or dropped tables were not picked up.
+
 ## Secrets
 
 Spice integrates with multiple secret stores to help manage sensitive data securely. For detailed information on supported secret stores, refer to the [secret stores documentation](../secret-stores). Additionally, learn how to use referenced secrets in component parameters by visiting the [using referenced secrets guide](../secret-stores#using-secrets).

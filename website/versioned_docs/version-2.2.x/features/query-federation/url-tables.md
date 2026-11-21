@@ -142,7 +142,7 @@ runtime:
 ```sql
 -- Query a public S3 dataset
 SELECT VendorID, passenger_count, trip_distance
-FROM 's3://spiceai-public-datasets/taxi_small_samples/taxi_sample.parquet'
+FROM 's3://spice-datasets-gjezag77s0hu/taxi_small_samples/taxi_sample.parquet'
 LIMIT 5;
 ```
 

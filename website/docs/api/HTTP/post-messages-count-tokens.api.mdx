@@ -1,0 +1,71 @@
+---
+id: post-messages-count-tokens
+title: "Count tokens in a message"
+description: "Counts the input tokens of a Messages API request, as the model would be sent it, Spice's"
+sidebar_label: "Count tokens in a message"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVcFu5DYM/RWVl7147EmwBVqhKDDNpQFa7AKbnpJBRpHpWF1Z0krUJFPD/15Q9nS9SbeHAr11TgOKfHwkH+kRSD0mkLewu4Z9BS0mHU0g4x1IuPLZURLUozAuZBLkP6JLwndCiV8xJfWISezeX4uInzImqoSa3QffohVPPttWPKBI6EgYqsSHYDS+SXcunRLhIEL0QyChXCvIe5uEcdrmFttavHP2JNQZyVAvDl30gxTKUR99MPog9EKw0JJCzYY7Z5JIAbXpjBbkPzN6s/iaPzDW4qbHM/HCIGIK3iUUnbfWP5WwdZV3LmKHEZ1GKX7oiUKSTdN6nWptVW6x1n5o0DUqmGZYAjeF0mam+GMNFfiAUXGHr1uQEHyi+7PzfXG+n52hgoXdT749gRxfTGf3lRFwr3wmcRjU8wJ14LzaO0JHDKRCsEYXEs3vidFGSLrHQYEcpwrwWQ3BIptL30DCXCFUcOYK8naE6NkLcsK4zgA/o7X+G5j20zTNZZiILUiKGYth7nTiDJfb7evibr7U3DzYf11EQTq3VV5sp0Lr7dcSn0VhWI9HZU1bCR9XwtbKOU8zqUV9UADf/j3gImKVBId1PrsWmMGA1PuzCqCCoKgHCc3x4i/9NC8kkTAeMc7dz5Enw0KUTWO9Vrb3ieR32++38HKXf+Fn0eIRrQ8D7+OMVIsr7zrzmCMuW7bZMOKhhmnP6XSOhk4lnwrm/iPy/z2/Gdd5rpcMFRXE7MgM+Co1dyDx4rfis4s1Gl0q03Fq4PBdULrHzWXN5E2LjkxnMH75MlXA5c/Al/W39XaTXSL1YJHfuI+DcivUq9WMhHF8UebOvqQ5ruT7/+H7Lw4fnQJPhPCZmmCVcTyxouFxUf4tHC/WJ4b3faX+fQUscPYbxweV8Ldop4nNnzLGossKjiqaIgdWaQU9qpZFdDtCkS5czVPe3DAbdreZWb26JlN1jthpjYH+0Xe/2uX37z7cQAUPy9Hm/vNyqCc+6OoJJJSPAEeX+1dsI1jlHjPrUsKMyb8/AQwmrFo=
+sidebar_class_name: "post api-method"
+info_path: docs/api/HTTP/runtime
+custom_edit_url: null
+proxy: http://localhost:8090
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Count tokens in a message"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/v1/messages/count_tokens"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Counts the input tokens of a Messages API request, as the model would be sent it, Spice's
+system prompt and tools included. Only a model with `from: anthropic` counts tokens: a count
+is specific to the model's tokenizer. The request and response follow the Messages API
+reference: &lt;https://docs.claude.com/en/api/messages-count-tokens&gt;.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./post-messages-count-tokens.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./post-messages-count-tokens.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

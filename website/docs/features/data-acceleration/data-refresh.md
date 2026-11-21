@@ -505,6 +505,8 @@ datasets:
 
 In this example a query against `accelerated_dataset` within Spice like `SELECT * FROM accelerated_dataset WHERE city = 'Portland'` would initially query against the accelerated data, see that it returns zero results and then fallback to querying against the federated table in Databricks.
 
+The query's filters reach the accelerated scan, so a point lookup against a [Cayenne](../../components/data-accelerators/cayenne) acceleration, which applies most filters only when they reach its scan, reads only the matching rows. Filters that a join or an `ORDER BY … LIMIT` produces while the query runs are not passed to the accelerated scan, because one could empty the accelerated result and send a query to the source that the acceleration can answer. In v2.4.3 and earlier, no filter reached the accelerated scan under `use_source`, so a Cayenne lookup decoded every row of the acceleration and discarded the rows that did not match.
+
 :::warning
 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
@@ -655,7 +657,7 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 On-demand refresh always initiates a new refresh, terminating any in-progress refresh for the dataset.
 :::
 
-A request can override the refresh for that one run with `refresh_sql`, `refresh_mode`, and `refresh_jitter_max` in its JSON body, which `spice refresh --refresh-sql` and `--refresh-mode` send. Send the body with `Content-Type: application/json`; a body without it is not read, and the refresh runs with the dataset's configuration. The runtime checks the overrides before it queues the refresh and returns `400 Bad Request`, leaving the acceleration unchanged, when:
+A request can override the refresh for that one run with `refresh_sql`, `refresh_mode`, and `refresh_jitter_max` in its JSON body, which `spice refresh --refresh-sql` and `--refresh-mode` send. Send the body with `Content-Type: application/json`; a body without a `Content-Type` is not read, and the refresh runs with the dataset's configuration. A body with another `Content-Type`, such as `text/plain`, is refused with `415 Unsupported Media Type`. An empty or whitespace-only body is the same as `{}` whatever its `Content-Type`, so a proxy or client that adds `Content-Type: application/json` to a request with no body triggers a refresh with the dataset's configuration. In v2.4.2 and earlier, such a request returned `400 Bad Request` with `Failed to parse the request body as JSON`. The runtime checks the overrides before it queues the refresh and returns `400 Bad Request`, leaving the acceleration unchanged, when:
 
 - `refresh_mode` is `changes`, `caching`, `snapshot`, or `disabled`. The message contains `refresh_mode '<mode>' is not supported for an on-demand refresh. Valid modes are 'full' or 'append'.` A value that is not a refresh mode at all is refused with `422 Unprocessable Entity`.
 - `refresh_sql` does not parse, or the dataset has a [`time_column`](../../reference/spicepod/datasets#time_column) and `refresh_sql` does not select it. The message contains `Invalid refresh_sql:`.

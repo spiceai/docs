@@ -82,7 +82,7 @@ helm repo update
 
 helm upgrade --install spiceai spiceai/spiceai \
   --namespace spiceai --create-namespace \
-  --version 2.4.2 \
+  --version 2.4.3 \
   -f values.yaml
 ```
 
@@ -90,7 +90,7 @@ For declarative GitOps, swap this command for an Argo CD `Application` or a Flux
 
 #### 4. Storage and ingress
 
-For stateful acceleration (Cayenne or SQLite):
+For stateful acceleration with Cayenne (the SQLite engine is deprecated):
 
 - **Local NVMe (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on an instance-store-backed family (`i4i`, `i7ie`, `m6id`, `m7gd`, `c7gd`, `r7gd` and other `d`-suffixed instances). Provision the [NVMe local volume](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-store-volumes.html) with the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) or use [Bottlerocket's `local-volume-provisioner`](https://github.com/bottlerocket-os/bottlerocket) to expose it as a `local-storage` StorageClass. Note that local volumes do not survive node replacement, so pair with a refresh strategy or a re-hydration source. [Local NVMe Storage](kubernetes/local-nvme) walks through the EKS setup step by step — Karpenter's `instanceStorePolicy`, `nodeadm` local-storage mounting, the provisioner, the chart values, and verification.
 - **Amazon EBS io2 Block Express** — when shared / replica-attachable persistence is required and node-local capacity is insufficient, [`io2`](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html#io2-bx) delivers up to 256K IOPS and sub-millisecond latency. Use the [Amazon EBS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) and a custom StorageClass with `type: io2` and a provisioned `iops` value.
@@ -165,7 +165,7 @@ Create a task definition for the [`spiceai/spiceai` image](https://hub.docker.co
   "containerDefinitions": [
     {
       "name": "spiceai",
-      "image": "spiceai/spiceai:2.4.2",
+      "image": "spiceai/spiceai:2.4.3",
       "essential": true,
       "command": ["--http", "0.0.0.0:8090", "--flight", "0.0.0.0:50051"],
       "portMappings": [
@@ -307,13 +307,18 @@ Most AWS services that Spice connects to have explicit parameters for configurin
    - Used primarily with OpenID Connect (OIDC) and OAuth
    - Common in Kubernetes environments using IAM roles for service accounts (IRSA)
 
-4. **ECS Container Credentials**:
-   - Used when running in Amazon ECS containers
-   - Automatically uses the task's IAM role
-   - Retrieved from the ECS credential provider endpoint
-   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI` which are automatically injected by ECS.
+4. **GitHub Actions Job Identity**:
+   - Used when Spice runs in a GitHub Actions job with `permissions: id-token: write`, `AWS_ROLE_ARN` set, and no `AWS_WEB_IDENTITY_TOKEN_FILE`
+   - Requests the job's OIDC token and exchanges it with AWS STS for temporary credentials of the role that `AWS_ROLE_ARN` names
+   - Requests a new token each time the credentials are refreshed
 
-5. **AWS EC2 Instance Metadata Service (IMDSv2)**:
+5. **Container Credentials (Amazon ECS or EKS Pod Identity)**:
+   - Used when running in Amazon ECS tasks or in EKS pods with [EKS Pod Identity](https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html)
+   - Automatically uses the task's or pod's IAM role
+   - Retrieved from the container credential provider endpoint
+   - Relies on the environment variable `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` or `AWS_CONTAINER_CREDENTIALS_FULL_URI`, which ECS and EKS Pod Identity inject automatically.
+
+6. **AWS EC2 Instance Metadata Service (IMDSv2)**:
    - Used when running on EC2 instances.
    - Automatically uses the instance's IAM role.
    - Retrieved securely using [IMDSv2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).

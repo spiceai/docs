@@ -28,8 +28,8 @@ FROM debian:trixie-slim
 
 # Copy the spiced binary, and the PDFium library it loads to parse PDF documents,
 # from the spiceai/spiceai image into the custom image.
-COPY --from=spiceai/spiceai:2.4.2 /usr/local/bin/spiced /usr/local/bin/spiced
-COPY --from=spiceai/spiceai:2.4.2 /usr/local/bin/libpdfium.so /usr/local/bin/libpdfium.so
+COPY --from=spiceai/spiceai:2.4.3 /usr/local/bin/spiced /usr/local/bin/spiced
+COPY --from=spiceai/spiceai:2.4.3 /usr/local/bin/libpdfium.so /usr/local/bin/libpdfium.so
 
 # Install the packages the spiceai/spiceai image includes (TLS root certificates,
 # OpenSSL, and time zone data), and any additional dependencies needed for the image.

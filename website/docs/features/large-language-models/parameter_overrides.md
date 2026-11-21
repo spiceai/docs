@@ -40,6 +40,8 @@ Supported parameters:
 - [`top_p`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-top_p)
 - [`user`](https://platform.openai.com/docs/api-reference/chat/create#chat-create-user)
 
+For a model with Spice [tools](./tools.md) enabled, `tool_choice: none`, set in the request or as a default override, calls the model without the Spice runtime tools. When the request has no tools of its own either, Spice sends neither `tool_choice` nor `parallel_tool_calls` to the provider, because a provider can reject these fields on a request that offers no tools. In v2.4.3 and earlier, Spice sent both fields as set, including a `parallel_tool_calls` default.
+
 ### Example: Setting Default Overrides
 
 :::warning[Deprecated Default Overrides Parameters]

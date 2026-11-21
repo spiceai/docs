@@ -107,7 +107,9 @@ When using inline certificates or secrets (`certificate` / `key`), changes are n
 
 ## Handshake Timeout
 
-The Arrow Flight listener, and the cluster gRPC listeners in [distributed query](../features/distributed-query), close a connection that does not complete its TLS handshake within 10 seconds. A client that opens a connection and sends nothing cannot keep it open indefinitely, so idle or stalled connections do not stop the listener from accepting new clients. The timeout is fixed and not configurable. A client on a slow or high-latency network that cannot finish the handshake in time sees its connection closed and must reconnect.
+The HTTP, Arrow Flight, and metrics listeners, and the cluster gRPC listeners in [distributed query](../features/distributed-query), close a connection that does not complete its TLS handshake within 10 seconds. A client that opens a connection and sends nothing cannot keep it open indefinitely, so idle or stalled connections do not stop the listener from accepting new clients. The timeout is fixed and not configurable. A client on a slow or high-latency network that cannot finish the handshake in time sees its connection closed and must reconnect. The deadline applies only to the handshake: a connection that has completed it is not affected.
+
+In v2.4.2 and earlier, only the Arrow Flight and cluster gRPC listeners had this deadline. An HTTP or metrics client that connected and never completed the handshake kept its connection open, and a graceful shutdown waited for the full `shutdown_timeout`.
 
 ## Output
 

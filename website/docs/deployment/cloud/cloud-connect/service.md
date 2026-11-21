@@ -33,15 +33,15 @@ The privilege the install runs with selects the service domain, and with it the 
 
 | Command                              | Starts                         |
 | ------------------------------------ | ------------------------------ |
-| `spice cloud service install`        | when its owner logs in         |
+| `spice cloud service install`        | when its owner logs in; on Linux, also at boot once the account lingers |
 | `sudo spice cloud service install`   | at boot, with nobody logged in |
 
 Both run from the instance directory, and both install and start the service. A system service still runs `spiced` as the operator who invoked `sudo`.
 
-On Linux, a user service also reaches boot persistence once its account lingers:
+On Linux, a user service reaches boot persistence when its account lingers, and `install` asks logind for that itself: once the service passes its health check, `install` runs `loginctl enable-linger` for the installing account. The install output says which outcome the host gave. `starts: at boot, without login` means the account lingers. When the account does not linger, for example because the host's policy refused the request, or when logind cannot report it, the output reads `starts: at login only` and names the `loginctl enable-linger` command to run. On a host whose policy reserves lingering for administrators, run it with `sudo`:
 
 ```shell
-loginctl enable-linger "$USER"
+sudo loginctl enable-linger "$USER"
 ```
 
 launchd has no equivalent, so on macOS a user service starts with its owner's desktop login session and boot persistence means the `sudo` install.
@@ -95,6 +95,8 @@ INFO Spice Cloud Connect: applied the deployed spicepod (12 datasets, 1 models, 
 ```
 
 `spice cloud service restart` is what applies them.
+
+Secrets follow the same rule when one is removed. After a secret is deleted from the project with [`spice cloud secrets delete`](../../../cli/reference/cloud.md#secrets) and the project is deployed again, the running instance keeps resolving the old value and names `secrets` among the sections that take effect at the next start. When the deployment carries no secrets at all, the instance also removes its delivered-secret cache, so after the restart a `${cloud:NAME}` reference to a deleted secret no longer resolves. In v2.4.3 and earlier, a deployment with no secrets left the cache in place, and each start restored the deleted secrets.
 
 ## Removing the service
 

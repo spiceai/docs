@@ -114,7 +114,7 @@ helm repo update
 
 helm upgrade --install spiceai spiceai/spiceai \
   --namespace spiceai --create-namespace \
-  --version 2.4.2 \
+  --version 2.4.3 \
   -f values.yaml
 ```
 
@@ -122,7 +122,7 @@ For declarative GitOps, swap this command for an Argo CD `Application` or a Flux
 
 #### 4. Storage and ingress
 
-For stateful acceleration (DuckDB, SQLite, Cayenne):
+For stateful acceleration with Cayenne (the other file-based engines, DuckDB and SQLite, are deprecated in v2.4):
 
 - **Local NVMe (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on an instance family with attached NVMe ([Lsv3 / Lasv3](https://learn.microsoft.com/azure/virtual-machines/lsv3-series), [Ddsv5 / Ddsv6](https://learn.microsoft.com/azure/virtual-machines/ddv5-ddsv5-series), [Edsv5 / Edsv6](https://learn.microsoft.com/azure/virtual-machines/edv5-edsv5-series)). Expose the local NVMe through the [Local Volume Static Provisioner](https://github.com/kubernetes-sigs/sig-storage-local-static-provisioner) as a `local-storage` StorageClass, or through [Azure Container Storage](https://learn.microsoft.com/azure/storage/container-storage/use-container-storage-with-local-disk)'s `local-csi` class. Local NVMe does not survive node replacement, so pair with a refresh strategy or a re-hydration source. [Local NVMe Storage](kubernetes/local-nvme) walks through the AKS setup step by step — VM sizes, mounting the disks, the provisioner, the chart values, and verification.
 - **Premium SSD v2** — when shared / replica-attachable persistence is required, [Premium SSD v2](https://learn.microsoft.com/azure/virtual-machines/disks-types#premium-ssd-v2) delivers up to 80,000 IOPS and sub-millisecond latency with independently configurable IOPS and throughput. Use the [Azure Disks CSI driver](https://learn.microsoft.com/azure/aks/azure-disk-csi) with a custom StorageClass (`skuName: PremiumV2_LRS`).
@@ -201,7 +201,7 @@ az containerapp create \
   --name spiceai \
   --resource-group $RG \
   --environment $ENV \
-  --image spiceai/spiceai:2.4.2 \
+  --image spiceai/spiceai:2.4.3 \
   --target-port 8090 \
   --ingress external \
   --transport http \
@@ -241,7 +241,7 @@ Add `--metrics` and `0.0.0.0:9090` to the list to serve Prometheus metrics.
 
 With `--ingress external`, the app is reachable from the internet. Before deploying, configure [API key authentication](../../api/auth/index.md) (`runtime.auth`) in the Spicepod, or use private networking instead: without `runtime.auth`, any caller that reaches the runtime can query its data and call its state-changing routes.
 
-To run multiple replicas with shared file-based acceleration, define an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) and reference it from the app's revision template, then point file accelerators at the mount path (for example, `duckdb_file: /data/taxi_trips.db`).
+To run multiple replicas, give each replica its own acceleration on local storage. Do not point Cayenne at an [Azure Files storage mount](https://learn.microsoft.com/azure/container-apps/storage-mounts-azure-files) shared between replicas: its metastore is a SQLite database, and [SQLite locking is unreliable on network file systems](https://www.sqlite.org/useovernet.html) such as SMB, so replicas that share the mount can corrupt it (see [Metastore location](../components/data-accelerators/cayenne#metastore-location)). To start new replicas from a shared copy, use [acceleration snapshots](../features/data-acceleration/snapshots).
 
 #### 4. Scaling rules
 

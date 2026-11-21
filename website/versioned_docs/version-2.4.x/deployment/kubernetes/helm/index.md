@@ -135,7 +135,7 @@ By default, the Helm release installs a minimal Spice.ai setup with an empty Spi
 :::
 
 Create a `values.yaml` file and override the default values as needed.
-The full list of configurable parameters and their defaults are specified in the [values.yaml file](https://github.com/spiceai/spiceai/blob/v2.4.2/deploy/chart/values.yaml) in the `spiceai/spiceai` repository.
+The full list of configurable parameters and their defaults are specified in the [values.yaml file](https://github.com/spiceai/spiceai/blob/v2.4.3/deploy/chart/values.yaml) in the `spiceai/spiceai` repository.
 The [Common Parameters](#common-parameters) section below lists the most commonly used configurable parameters and their descriptions.
 
 ### Spicepod
@@ -175,7 +175,7 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `command` | Command for the Spice.ai container. When unset, the chart runs `/usr/local/bin/spiced --http 0.0.0.0:8090 --metrics 0.0.0.0:9090 --flight 0.0.0.0:50051`, so the HTTP, metrics, and Arrow Flight endpoints listen on every interface of the pod. A custom `command` replaces these flags. | unset |
 | `imagePullSecrets` | Image pull secrets for the pod, as a list of `name:` entries, for example `[{name: regcred}]`. | Unset |
 | `image.repository`              | The repository of the Docker image.                                                                                                                                                       | `spiceai/spiceai` |
-| `image.tag` | Replace with a specific version of Spice.ai to run. | `2.4.2` |
+| `image.tag` | Replace with a specific version of Spice.ai to run. | `2.4.3` |
 | `monitoring.podMonitor.enabled` | Enable Prometheus metrics collection for the Spice pods. Requires the [Prometheus Operator](https://prometheus-operator.dev/docs/operator/api/#monitoring.coreos.com/v1.PodMonitor) CRDs. | `false`           |
 | `nodeSelector` | Node labels the pod must match to be scheduled. See [nodeSelector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector). Omitted from the manifest when unset. | unset |
 | `replicaCount`                  | Number of Spice.ai replicas to run.                                                                                                                                                       | `1`               |
@@ -397,7 +397,7 @@ Spice accelerations are sensitive to per-I/O latency above all. Choose the Stora
 3. **Cayenne shared object storage (Cayenne only, optional)** — when Cayenne acceleration must be shared across replicas or persisted independently of pod lifecycle, [Amazon S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) provides single-digit-millisecond object storage. Configure Cayenne to use an S3 Express directory bucket — see the [Cayenne acceleration documentation](../../components/data-accelerators/cayenne).
 
 :::warning
-Network file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artefacts that must survive pod replacement.
+Network file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artifacts that must survive pod replacement.
 :::
 
 ## Update Strategy
@@ -425,7 +425,7 @@ Setting the key that does not match the current mode has no effect: `strategy` i
 ```yaml
 additionalLabels:
   environment: production
-  app: spice
+  team: data-platform
 
 image:
   repository: spiceai/spiceai

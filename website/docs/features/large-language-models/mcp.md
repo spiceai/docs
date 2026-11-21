@@ -139,8 +139,10 @@ Separately from the `Host` check, `/v1/mcp` validates the browser `Origin` heade
 
 | `runtime.cors.allowed_origins` | Effect on `/v1/mcp` |
 | --- | --- |
-| **Default** (`["*"]`) or an empty list | Expands to the localhost origins `http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms. Entries carry no port, so any port on those hosts matches. |
-| **Explicit list** | Only the listed origins are accepted. A request whose `Origin` is not on the list receives `403 Forbidden`. |
+| **Default** (`["*"]`) or an empty list | Expands to the localhost origins `http://localhost:*`, `http://127.0.0.1:*`, `http://[::1]:*` and their `https://` forms. The `:*` suffix matches any port on those hosts. |
+| **Explicit list** | Only the listed origins are accepted. A request whose `Origin` is not on the list receives `403 Forbidden`. An entry without a port, such as `https://app.example.com`, matches only the scheme's default port (443 for `https`). Append `:*`, as in `https://app.example.com:*`, to match any port. |
+
+Spice v2.4.3 and earlier do not recognize the `:*` suffix, so do not use it in an `allowed_origins` list for those releases. Their localhost defaults are written without a port and match any port.
 
 A request that sends no `Origin` header at all is accepted in every case, which is why MCP clients such as Cursor and Claude Desktop are unaffected.
 

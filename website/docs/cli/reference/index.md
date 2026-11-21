@@ -17,7 +17,7 @@ spice [command] [--help]
 
 | Command                            | Description                                                            |
 | ---------------------------------- | ---------------------------------------------------------------------- |
-| acceleration                       | Manage dataset acceleration features                                   |
+| [acceleration](reference/acceleration) | Manage dataset acceleration features                               |
 | [add](reference/add)               | Add Spicepod - adds a Spicepod to the project                          |
 | [agy](reference/coding-agents)     | Run the Antigravity CLI with the Spice runtime as its model backend |
 | catalog                            | Add or configure catalog entries in `spicepod.yaml`                    |
@@ -27,7 +27,7 @@ spice [command] [--help]
 | [codex](reference/coding-agents)   | Run Codex CLI with the Spice runtime as its model backend |
 | [completions](reference/completions) | Generate shell completions for the Spice CLI                         |
 | [cloud](reference/cloud)           | Manage Spice Cloud resources                                           |
-| cluster                            | Cluster operations for the Spice runtime                               |
+| [cluster](reference/cluster)       | Cluster operations for the Spice runtime                               |
 | [connect](reference/connect)       | Deprecated alias for adding a Spicepod dependency                      |
 | [copilot](reference/coding-agents) | Run GitHub Copilot CLI with the Spice runtime as its model backend |
 | [cursor](reference/coding-agents)  | Run Cursor CLI with the Spice runtime as its model backend |
@@ -80,7 +80,12 @@ spice <component> add <name> [body flags]        # add a new entry; fails if it 
 spice <component> configure <name> [body flags]  # add or update an entry in place
 ```
 
-`runtime`, `management`, and `snapshots` edit singleton sections, so they expose only `configure`. `extension` edits the `extensions:` map (`add` and `configure`), and `metadata` edits the `metadata:` map (`add`, `configure`, and `set <KEY> <VALUE>`).
+`runtime`, `management`, and `snapshots` edit singleton sections, so they expose only `configure`. Besides `--manifest`, `--file`, `--stdin`, `--set`, and `--param`, they accept two section-specific flags:
+
+- `--api-key <KEY>` For `spice management configure` only: sets `management.api_key`. Pass a secret reference, such as `--api-key '${secrets:SPICE_MANAGEMENT_KEY}'`, to keep the key out of the file. The flag shares its name with the global `--api-key`, so when the `SPICE_API_KEY` environment variable is set, `spice management configure` writes its value to `management.api_key` even without the flag. Unset `SPICE_API_KEY` before running the command.
+- `--location <URI>` For `spice snapshots configure` only: sets `snapshots.location`. The top-level `snapshots` section is deprecated; see [Migrate from the top-level `snapshots` section](../features/data-acceleration/snapshots#migrate-from-the-top-level-snapshots-section).
+
+Each command refuses the other's flag, for example `--api-key is only valid for management configure`. `extension` edits the `extensions:` map (`add` and `configure`), and `metadata` edits the `metadata:` map (`add`, `configure`, and `set <KEY> <VALUE>`).
 
 See [`spice dataset`](reference/dataset) for the shared body-flag reference. The other list editors accept the same flags, plus the type-specific ones: `--sql` / `--sql-ref` for views, `--cron` for workers, and `--body` / `--body-ref` for functions. Run `spice <command> --help` for the per-command help.
 

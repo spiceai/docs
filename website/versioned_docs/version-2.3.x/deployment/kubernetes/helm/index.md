@@ -397,7 +397,7 @@ Spice accelerations are sensitive to per-I/O latency above all. Choose the Stora
 3. **Cayenne shared object storage (Cayenne only, optional)** — when Cayenne acceleration must be shared across replicas or persisted independently of pod lifecycle, [Amazon S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) provides single-digit-millisecond object storage. Configure Cayenne to use an S3 Express directory bucket — see the [Cayenne acceleration documentation](../../components/data-accelerators/cayenne).
 
 :::warning
-Network file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artefacts that must survive pod replacement.
+Network file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artifacts that must survive pod replacement.
 :::
 
 ## Update Strategy
@@ -425,7 +425,7 @@ Setting the key that does not match the current mode has no effect: `strategy` i
 ```yaml
 additionalLabels:
   environment: production
-  app: spice
+  team: data-platform
 
 image:
   repository: spiceai/spiceai

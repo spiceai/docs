@@ -94,7 +94,7 @@ Cluster Spicepod responsibilities:
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
 - Accelerate to file-mode engines (Cayenne or SQLite) so the materialization can be exported as a snapshot.
-- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh.
+- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that writes data.
 
 ```yaml
 # cluster spicepod.yaml
@@ -108,7 +108,7 @@ datasets:
       engine: cayenne
       mode: file
       refresh_check_interval: 5m
-      snapshots: enabled # write a new snapshot after every refresh
+      snapshots: enabled # write a new snapshot after each refresh that writes data
       snapshots_location: s3://spiceai-snapshots/prod/
       snapshots_params:
         s3_auth: iam_role
@@ -324,7 +324,7 @@ spec:
               value: http://127.0.0.1:8090
 
         - name: spiceai
-          image: spiceai/spiceai:2.4.2
+          image: spiceai/spiceai:2.4.3
           args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051', '/spicepod']
           volumeMounts:
             - name: spicepod
@@ -356,7 +356,7 @@ Rough first-pass sizing rules:
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | Cluster (writer) | 3+ replicas. Memory sized for the largest accelerated dataset. Network bandwidth for source ingest.  |
 | Read instance    | 1 replica per application pod. 0.5–2 vCPU, 512Mi–4Gi memory, 10–50Gi local SSD.                      |
-| Snapshot bucket  | Standard tier, same region. Lifecycle rule sized to refresh frequency × number of datasets × 24–72h. |
+| Snapshot bucket  | Standard tier, same region. Dataset size × snapshots written in about 29 days (28 days of retention plus at least 24 hours before a dropped file is deleted), plus each dataset's current and newest snapshot at any age. No expiration rule for current objects. |
 
 Read-tier memory is dominated by the working set of the file-mode acceleration engine.
 

@@ -31,10 +31,8 @@ Both `add` and `configure` accept the same body flags, shared with the other Spi
 - `--description <TEXT>` Human-readable description
 - `--param <KEY=VALUE>` Add a `params:` entry. Repeatable. Values are stored as strings unless prefixed with `yaml:` (parsed as typed YAML) or `string:` (stored as a literal string after the prefix).
 - `--env <KEY=VALUE>` Add an `env:` entry. Repeatable. Values are always stored as strings — the `yaml:` and `string:` prefixes do not apply.
-- `--set <PATH=VALUE>` Set any schema field by dotted path, e.g. `--set acceleration.enabled=yaml:true`. Repeatable, with the same value-prefix rules as `--param`.
+- `--set <PATH=VALUE>` Set any schema field by dotted path, e.g. `--set acceleration.enabled=true`. Repeatable. The value is typed by the field's type in the Spicepod schema, as described in [Typed `--set` values](#typed---set-values).
 - `--depends-on <NAME>` Append an entry to `dependsOn:`. Repeatable.
-- `--enable` Set `enabled: true`
-- `--disable` Set `enabled: false`
 - `--file <PATH>` Read the dataset body from a YAML or JSON file
 - `--stdin` Read the dataset body from stdin
 - `--manifest <PATH>` Edit a non-default Spicepod file
@@ -51,8 +49,36 @@ Add a Parquet dataset on S3:
 Enable acceleration on an existing dataset:
 
 ```shell
->>> spice dataset configure taxi_trips --set acceleration.enabled=yaml:true
+>>> spice dataset configure taxi_trips --set acceleration.enabled=true
 ```
+
+### Typed `--set` values
+
+`--set` reads the Spicepod schema to decide how to write a value:
+
+- A boolean, integer, or number field takes the YAML scalar: `--set acceleration.enabled=true` writes `enabled: true`.
+- An object or array field takes YAML or JSON, such as `--set 'acceleration.indexes={id: unique}'`.
+- A nullable field takes `null` or `~`.
+- A string field keeps the text as written, so `--set acceleration.refresh_append_overlap=5` writes the string `"5"`.
+- A field the schema does not describe, such as an entry in a free-form map, is read as a YAML scalar. A number that would not read back the same way, such as `1.10` or `007`, stays a string.
+
+Quote the value (`--set 'description="true"'`) or prefix it with `string:` to force a string, and prefix it with `yaml:` to force YAML.
+
+Before it writes, the CLI checks the fields that `--set` changed. A value of the wrong type for its field, or a field the schema does not have, is refused with the field's path, and the manifest is left unchanged:
+
+```shell
+>>> spice dataset configure taxi_trips --set acceleration.enabled=string:true
+ERROR Invalid argument: datasets[0].acceleration.enabled: Invalid type string "true". Expected a boolean. Nothing was written; set a value of the type the field expects.
+```
+
+Datasets have no top-level `enabled` field, so `--enable` and `--disable` are refused for datasets:
+
+```shell
+>>> spice dataset configure taxi_trips --enable
+ERROR Invalid argument: dataset entries have no `enabled` field, so --enable/--disable would write a Spicepod that does not load. To toggle acceleration, use `--set acceleration.enabled=true` (or `=false`).
+```
+
+In Spice v2.4.3 and earlier, `--set` wrote values as strings unless prefixed with `yaml:`, so `--set acceleration.enabled=true` wrote `enabled: "true"`, which `spice validate` and `spiced` reject.
 
 ### Interactive example
 
