@@ -27,13 +27,13 @@ The upstream driver releases, including the one `dbc install bigquery` installs,
 Failed to create ADBC database (driver='…'): the BigQuery driver does not support the `bigquery.skip_query_result_tables` option, which the catalog needs to list hidden datasets without fetching the metadata of every cached query result. Use the BigQuery ADBC driver built from https://github.com/spiceai/bigquery. Cause: …
 ```
 
-To build the driver on Linux (Go and a C compiler are required) into `/opt/adbc`:
+To build the driver on Linux (Go and a C compiler are required) in the checkout, then install it into the root-owned `/opt/adbc`:
 
 ```shell
 git clone --branch spiceai https://github.com/spiceai/bigquery.git adbc-bigquery
 cd adbc-bigquery/go
-sudo mkdir -p /opt/adbc && sudo chown "$USER" /opt/adbc
-CGO_ENABLED=1 go build -tags driverlib -buildmode=c-shared -o /opt/adbc/libadbc_driver_bigquery.so ./pkg/
+CGO_ENABLED=1 go build -tags driverlib -buildmode=c-shared -o libadbc_driver_bigquery.so ./pkg/
+sudo install -D -m 0755 libadbc_driver_bigquery.so /opt/adbc/libadbc_driver_bigquery.so
 ```
 
 Then set `adbc_driver_path` to the library, as the BigQuery examples on this page do, so Spice loads this build rather than a driver installed by name.
