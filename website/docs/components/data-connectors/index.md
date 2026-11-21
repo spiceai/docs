@@ -205,6 +205,12 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 
 Partition pruning improves query performance by reading only the relevant files.
 
+#### `NULL` Partition Values
+
+Hive writes a `NULL` partition value to a directory named `__HIVE_DEFAULT_PARTITION__`, such as `year=__HIVE_DEFAULT_PARTITION__/`. Spice reads that partition column as `NULL` for the rows in such a directory, and reports partition columns as nullable. `WHERE year IS NULL` matches these rows, and `WHERE year = '__HIVE_DEFAULT_PARTITION__'` does not.
+
+In v2.4.2 and earlier, the column held the literal string `__HIVE_DEFAULT_PARTITION__` and was reported as `NOT NULL`. After an upgrade from those releases, an existing `mode: file` acceleration of a dataset with such a directory fails to refresh with `Invalid batch column … has null but schema specifies non-nullable`, and keeps serving its existing data. With `refresh_mode: full`, set [`on_schema_change: sync_all_columns`](../reference/spicepod/datasets#on_schema_change). With `refresh_mode: append` or `changes`, rebuild the acceleration. Other file accelerations of Hive-partitioned datasets keep refreshing, and report partition columns as `NOT NULL` until the acceleration is rebuilt.
+
 ### Metadata Columns
 
 File-based connectors can expose per-file object store metadata as virtual columns in the dataset schema. These columns are not stored in the data files — they are derived from object store file metadata at query time.

@@ -57,7 +57,21 @@ In Spice v2.4 and earlier, a key written with a literal `:admin` ending is a rea
 
 :::
 
-The built-in [`sql` tool](../../components/tools/index.md) writes data only for a request authenticated with a read-write key, or with a verified client certificate when client certificates identify callers, and only to a dataset or catalog configured with write access, such as `access: read_write`. Every other request, including a request to a runtime without `runtime.auth`, runs the tool read-only. This applies to tool calls a model makes from `/v1/chat/completions`, `/v1/responses`, [`/v1/messages`](../../features/large-language-models/messages.md), and the `ai()` SQL function, to `/v1/tools`, and to [MCP](../../features/large-language-models/mcp.md). Scheduled [worker](../../reference/spicepod/workers.md) prompts run without an API key, so their `sql` tool calls are read-only.
+The built-in [`sql` tool](../../components/tools/index.md) writes data only for a request authenticated with a read-write key, or with a verified client certificate when client certificates identify callers, and only to a dataset or catalog configured with write access, such as `access: read_write`. Every other request, including a request to a runtime without `runtime.auth`, runs the tool read-only. This applies to tool calls a model makes from `/v1/chat/completions`, `/v1/responses`, [`/v1/messages`](../../features/large-language-models/messages.md), and the `ai()` SQL function, to `/v1/tools`, and to [MCP](../../features/large-language-models/mcp.md). Scheduled [worker](../../reference/spicepod/workers.md) prompts run as the runtime acting for the operator, with write access, so their `sql` tool calls can write. In v2.4.3 and earlier, worker prompts ran without an API key, and their `sql` tool calls were read-only.
+
+### Tools that need a read-write key
+
+Every tool is either read-only or read-write. A read-write tool can change data or act outside Spice: the `store_memory` tool and every tool of an [MCP server](../../components/tools/mcp.md) are read-write, because Spice cannot verify what an MCP server's tool does. The other built-in tools are read-only, and any caller may call them.
+
+On a runtime with `runtime.auth`, only a request authenticated with a read-write key, or with a verified client certificate when client certificates identify callers, may call a read-write tool. The check applies on every path that runs a tool: `POST /v1/tools/{name}`, MCP `tools/call` and its pass-through to an MCP server, and the tool calls a model makes from `/v1/chat/completions`, `/v1/responses`, `/v1/messages`, and the `ai()` SQL function. A refused call is recorded in `runtime.task_history` as a failed `tool_use::<tool>` task. `POST /v1/tools/{name}` answers it with `403 Forbidden`:
+
+```json
+{"message":"Failed to call tool 'store_memory': the tool can change data or act outside Spice, and the credentials on this request do not allow write access. Retry with a read-write API key (a `runtime.auth.api-key.keys` entry ending in `:rw`). See https://spiceai.org/docs/api/auth"}
+```
+
+MCP returns the same message in the tool result with `isError: true`, and a model receives it as the tool's result. On a runtime without `runtime.auth`, every caller may call read-write tools.
+
+In v2.4.3 and earlier, a read-only key could call an MCP server's tools, and `POST /v1/tools/store_memory` with a read-only key answered `500`. Give callers that need MCP tools a read-write key.
 
 ### Routes that need a read-write key
 

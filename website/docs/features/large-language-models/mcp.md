@@ -99,10 +99,10 @@ runtime:
 
 Clients then authenticate with an `X-API-KEY` header.
 
-Each `tools/call` runs as the API key on its own request, on both protocol eras. A read-only key, one without the `:rw` suffix, cannot write through the `sql` or `store_memory` tools, even on a legacy session that a read-write key opened:
+Each `tools/call` runs as the API key on its own request, on both protocol eras. A read-only key, one without the `:rw` suffix, cannot write through the `sql` tool, and cannot call the `store_memory` tool or the tools of an MCP server that Spice passes through, even on a legacy session that a read-write key opened. See [Tools that need a read-write key](../../api/auth/index.md#tools-that-need-a-read-write-key). A refused call is reported in the tool result with `isError: true`, not as a JSON-RPC error. A refused `store_memory` call returns:
 
 ```json
-{"jsonrpc":"2.0","id":3,"error":{"code":-32603,"message":"Failed to store memories: the API key on this request does not allow write access. Retry with a read-write API key (a `runtime.auth.api-key.keys` entry ending in `:rw`). See https://spiceai.org/docs/api/auth"}}
+{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Failed to call tool 'store_memory': the tool can change data or act outside Spice, and the credentials on this request do not allow write access. Retry with a read-write API key (a `runtime.auth.api-key.keys` entry ending in `:rw`). See https://spiceai.org/docs/api/auth"}],"isError":true}}
 ```
 
 ### Example: Connecting to another Spice instance via MCP
