@@ -22,7 +22,7 @@ To use a language model hosted on Azure OpenAI, specify the `azure` path in the 
 | `openai_responses_tools`  | Comma-separated list of OpenAI-hosted tools exposed via the Responses API for this model. The key has no `azure_` prefix, and takes effect only when the model also sets `tools` (for example, `tools: auto`). These hosted tools are **not** available from the `/v1/chat/completions` HTTP endpoint. Supported tools: `code_interpreter`, `web_search`, `web_search_preview` (the legacy tool, for older models that do not support `web_search`). | -                           |
 
 
-A model authenticates with exactly one of `azure_api_key`, `azure_entra_token`, or [workload identity federation](#workload-identity-federation).
+A model authenticates with exactly one of `azure_api_key`, `azure_entra_token`, or [workload identity federation](#workload-identity-federation). A model that sets none of them uses an identity from its environment: a workload identity, then a managed identity, then the Azure CLI login.
 
 Example:
 
@@ -109,7 +109,7 @@ Without the label, the workload identity webhook does not set the variables or m
 
 The environment supplies a workload identity when it has a tenant, a client ID, and an identity token, from `AZURE_FEDERATED_TOKEN_FILE` or the GitHub Actions job. A model that sets `azure_api_key` or `azure_entra_token` never uses the environment's workload identity.
 
-When the environment has no workload identity, the model uses a managed identity through the Azure Instance Metadata Service, such as on an Azure VM, App Service, or Container Apps, user-assigned when `AZURE_CLIENT_ID` names one, and then the Azure CLI login from `az login`, for local development. A configured workload identity whose token exchange fails stops the model from loading; Spice does not fall back to the other identities.
+When the environment has no workload identity, the model uses a managed identity, such as on an Azure VM, App Service, Container Apps, or Functions, user-assigned when `AZURE_CLIENT_ID` names one, and then the Azure CLI login from `az login`, for local development. A configured workload identity whose token exchange fails stops the model from loading; Spice does not fall back to the other identities.
 
 ### Kubernetes Outside AKS
 
@@ -207,16 +207,16 @@ The subject must match the token's `sub` claim exactly. GitHub lists the subject
 
 When the model loads, the `info` line above shows which parameter or environment variable supplied each part of the identity. When loading fails, the error names the cause:
 
-- **The environment has a tenant and client ID but no identity token.** A model that sets no key and no federation parameter, in an environment with `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` but without `AZURE_FEDERATED_TOKEN_FILE` and outside a GitHub Actions job with `permissions: id-token: write`, fails to load with the following cause. This happens, for example, on AKS when the pod sets those variables itself but lacks the `azure.workload.identity/use: "true"` label, so the webhook does not mount the token.
+- **The environment has an identity token but no tenant or client ID.** A model in an environment with `AZURE_FEDERATED_TOKEN_FILE` but without `AZURE_TENANT_ID` or `AZURE_CLIENT_ID` fails to load. This happens, for example, on AKS when the webhook mounts the token but the service account lacks the `azure.workload.identity/client-id` annotation:
 
   ```text
-  Found `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` but no workload identity token: `AZURE_FEDERATED_TOKEN_FILE` is not set, and this is not a GitHub Actions job with `permissions: id-token: write`. On AKS, label the pod `azure.workload.identity/use: "true"` so the workload identity webhook mounts the token; elsewhere, set `azure_federated_token_file` or `azure_api_key`. See: https://spiceai.org/docs/components/models/azure
+  Found `AZURE_FEDERATED_TOKEN_FILE` for model 'gpt' (azure), but `AZURE_CLIENT_ID` is not set. On AKS, label the pod `azure.workload.identity/use: "true"` and annotate its service account with `azure.workload.identity/client-id`, so the workload identity webhook sets all three. See: https://spiceai.org/docs/components/models/azure
   ```
 
-- **The model has no credential.** A model with no key, no federation parameter, and no `AZURE_TENANT_ID` or `AZURE_CLIENT_ID` in the environment fails to load with:
+- **No identity answered.** A model with no key and no federation parameter, in an environment with no workload identity, no managed identity, and no Azure CLI login, fails to load with an error that lists what it tried:
 
   ```text
-  Azure model 'gpt' requires `azure_api_key`, `azure_entra_token`, or a Microsoft Entra workload identity: `azure_tenant_id` and `azure_client_id`, or on AKS a pod labeled `azure.workload.identity/use: "true"`. See https://spiceai.org/docs/components/models/azure for details.
+  Found no credential for model 'gpt' (azure): it sets no `azure_api_key` or `azure_entra_token`, and no Microsoft Entra identity answered. Tried …. Set `azure_api_key`, or give the workload an identity: on AKS, label the pod `azure.workload.identity/use: "true"`; on an Azure VM, App Service or Container Apps, assign it a managed identity; locally, run `az login`. See: https://spiceai.org/docs/components/models/azure
   ```
 
 - **Microsoft Entra ID refuses the exchange.** The error quotes Entra's reason. `AADSTS700213` means that no federated credential of the identity matches the token: compare the credential's issuer, subject, and audience with the token's (see [Create the Identity in Azure](#create-the-identity-in-azure)).
