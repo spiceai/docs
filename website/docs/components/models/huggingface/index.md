@@ -62,7 +62,7 @@ An entry is resolved this way when it has `type: weights` or no `type`, and is n
 When Spice picks a quantization, or resolves a name, the load log names what it loads. The default quantization is logged with the other quantizations of the repository, in this form:
 
 ```text
-Model '<name>' loads quantization <quantization> (<size> GB) from Hugging Face repo '<repo>', the quantization a model with no `files` loads: <reason>. To load another of its <count> complete GGUF quantizations, name it in the model's `files`: <quantization> (<size> GB), <quantization> (<size> GB), ...
+Model '<name>' loads quantization <quantization> (<n> files, <size> GB) from Hugging Face repo '<repo>', the quantization a model with no `files` loads: <reason>. To load another of its <count> complete GGUF quantizations, name it in the model's `files`: <quantization> (<size> GB), <quantization> (<size> GB), ...
 ```
 
 `<reason>` is `its Q4_K_M, as llama.cpp loads it`, `its Q8_0, as llama.cpp loads it when a repository has no Q4_K_M`, or `its first by path, as llama.cpp loads it when a repository has neither Q4_K_M nor Q8_0`.
@@ -70,10 +70,8 @@ Model '<name>' loads quantization <quantization> (<size> GB) from Hugging Face r
 A smaller quantization that Spice picks because the default does not fit is logged with the `files:` entry that pins it, in this form:
 
 ```text
-Model '<name>' loads quantization <quantization> (<size> GB) from Hugging Face repo '<repo>', the largest of its <count> complete GGUF quantizations whose weights fit the <memory> GiB of memory free for it with room for the context; <default> (<size> GB), which a model with no `files` loads, does not. Pin it with `files: [{path: <quantization>}]`.
+Model '<name>' loads quantization <quantization> (<n> files, <size> GB) from Hugging Face repo '<repo>', the largest of its <count> complete GGUF quantizations whose weights fit the <memory> GiB of memory free for it with room for the context; <default> (<size> GB), which a model with no `files` loads, does not. Pin it with `files: [{path: <quantization>}]`.
 ```
-
-A quantization of several files is logged as `<quantization> (<n> files)`.
 
 When no quantization fits, the model fails to load with an error that names the smallest quantization; name one in `files` to load it anyway. A model split across machines with `nodes` loads the default quantization and does not compare it with the memory of a machine, so that every machine loads the same weights.
 
