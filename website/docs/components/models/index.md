@@ -124,8 +124,6 @@ When the GPU or another backend fails work that llama.cpp queued for a model, th
 llama.cpp could not decode the batch: the GPU or another backend failed computing work this context queued, so its results are discarded and the context decodes nothing more; reload the model. llama.cpp reported: ggml_metal_synchronize: error: graph command buffer 1 failed with status 5; error: Invalid Resource (…)
 ```
 
-In v2.4.3 and earlier, a reply could stream text built from the output buffers of a failed decode, and the error did not include the backend's reason.
-
 ### GGUF Models Split Across Nodes
 
 Multi-node inference with `distributed_backend: ring` is a [Spice.ai Enterprise](https://spice.ai/docs/enterprise/getting-started/distributions) feature. Every node runs `spiced` with the same model definition, the same rank-ordered `nodes` list, and its own `node_rank`. Each node reads `general.architecture` from the header of the model's first GGUF file and asks the pinned llama.cpp whether it splits that architecture by tensor. When it does, llama.cpp serves the model split tensor-parallel across one or more GPUs on every node. Otherwise, mistral.rs's ring serves it, as in v2.4.0 and earlier.
@@ -240,7 +238,7 @@ A chat message's `content` can be a string or an array of parts, such as `[{"typ
 - A template that reads only strings receives the text of the parts joined with newlines.
 - A template that reads only parts receives a string as one text part.
 
-Some chat templates render a system or developer message only at the start of a conversation: they leave a later one out of the prompt, or fail with an error such as `System message must be at the beginning`. Clients such as coding agents send system messages after the first user message. When a model loads, Spice also renders a system and a developer message after a user message, and for a template that does not render it with its text, such a message reaches the template as a user's. Its text is joined to the user message before it after a blank line, or becomes a user message of its own when the message before it is not a user's, such as a tool result. The message keeps its place, so the prompt before it is unchanged and a cached prompt prefix still matches. A template that renders a later system message gets it as sent. In v2.4.3 and earlier, a later system message reached every template as sent.
+Some chat templates render a system or developer message only at the start of a conversation: they leave a later one out of the prompt, or fail with an error such as `System message must be at the beginning`. Clients such as coding agents send system messages after the first user message. When a model loads, Spice also renders a system and a developer message after a user message, and for a template that does not render it with its text, such a message reaches the template as a user's. Its text is joined to the user message before it after a blank line, or becomes a user message of its own when the message before it is not a user's, such as a tool result. The message keeps its place, so the prompt before it is unchanged and a cached prompt prefix still matches. A template that renders a later system message gets it as sent.
 
 A local model receives only text: neither engine passes images, audio, or files to the model, including a model loaded with a multimodal `model_type`. A user message that contains an `image_url`, `input_audio`, or `file` part is refused with HTTP 400, and the error names the model and the part:
 
