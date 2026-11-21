@@ -7,31 +7,31 @@ export type UseCaseData = {
 
 export const dataUseCases: UseCaseData[] = [
   {
-    title: 'Agentic AI Applications',
+    title: 'Agent data serving',
     description:
-      'Build data-grounded AI apps and agents with local or hosted models, LLM memory, evals, and observability.',
-    buttonText: 'Try using the OpenAI SDK',
-    buttonLink: 'https://github.com/spiceai/cookbook/blob/trunk/openai_sdk/README.md'
+      'Give each agent accelerated, isolated access to only the data it needs, with search and tools built in. Agents query a replica kept current through CDC, not production databases.',
+    buttonText: 'Agent data serving',
+    buttonLink: 'https://docs.spiceai.org/docs/use-cases/ai/agentic-apps'
   },
   {
-    title: 'Retrieval-Augmented Generation (RAG)',
+    title: 'Query across sources without ETL',
     description:
-      'Ensure AI is grounded in data with high-performance search and text-to-SQL, across a semantic knowledge layer.',
-    buttonText: 'Try Text-to-SQL',
-    buttonLink: 'https://github.com/spiceai/cookbook/blob/trunk/text-to-sql/README.md'
+      'Federated SQL across operational databases, warehouses, APIs, and more. Accelerate the hot path with fewer pipelines to build and maintain.',
+    buttonText: 'Query without ETL',
+    buttonLink: 'https://docs.spiceai.org/docs/use-cases/data/etl-free-workflows'
   },
   {
-    title: 'Database CDN',
+    title: 'Real-time analytics on operational data',
     description:
-      'Co-locate working sets of data in Arrow, SQLite, and DuckDB with applications for fast, sub-second query.',
-    buttonText: 'Try accelerating data with DuckDB',
-    buttonLink: 'https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md'
+      'Replicate changes from operational databases to an isolated analytics replica via high-throughput CDC, so agents run large analytical queries against near real-time data.',
+    buttonText: 'Real-time analytics',
+    buttonLink: 'https://spiceai.org/docs/features/cdc'
   },
   {
-    title: 'Distributed Data Mesh',
+    title: 'Per-tenant agent standardization',
     description:
-      'Use SQL to query across databases, data warehouses, and data lakes with advanced federation.',
-    buttonText: 'Try federated SQL Query',
-    buttonLink: 'https://github.com/spiceai/cookbook/blob/trunk/federation/README.md'
+      'Standardize deployments for every tenant, so adding a customer is a configuration change instead of new data infrastructure, with configurable isolation per tenant.',
+    buttonText: 'Per-tenant standardization',
+    buttonLink: 'https://docs.spiceai.org/docs/use-cases/ai/multi-tenant-agents'
   }
 ]
