@@ -103,6 +103,10 @@ File types include:
   - Usually a `tokenizer_config.json` file
   - Contains additional configuration for the tokenizer
 
+- `generationConfig`: Generation configuration
+  - Usually a `generation_config.json` file
+  - Contains the model's default text generation settings, in the [Hugging Face `GenerationConfig`](https://huggingface.co/docs/transformers/main_classes/text_generation#transformers.GenerationConfig) format
+
 The system attempts to automatically determine the file type based on the file name and extension. If the type cannot be determined automatically, you can explicitly specify it in the configuration.
 
 ### `params`

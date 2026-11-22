@@ -12,7 +12,7 @@ Editing a Spicepod on disk reloads it into the running process, but **most of `r
 
 **Applied when `spiced` starts — a reload logs a warning and the previous value stays in effect:**
 
-`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.mode` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
+`runtime.auth` · `runtime.caching` · `runtime.cors` · `runtime.cpu` · `runtime.dataset_load_parallelism` · `runtime.mcp` · `runtime.metrics` · `runtime.output_level` · `runtime.query` · `runtime.ready_state` · `runtime.scheduler` · `runtime.state` · `runtime.task_history` · `runtime.telemetry` · `runtime.tls` · `runtime.tracing`
 
 **Applied when `spiced` starts, except for components the same reload recreates** — a connector rebuilt by the reload reads the new value, while the process-wide use of it does not change until a restart:
 
@@ -60,26 +60,6 @@ API key authentication supports the following configuration parameters:
 ## `runtime.dataset_load_parallelism`
 
 This setting specifies the maximum number of datasets that can be loaded in parallel during startup. By default, the number of parallel datasets is unlimited.
-
-## `runtime.mode`
-
-Selects the runtime's deployment profile: `server` (the default) or `sidecar`. Any other value fails to load with `Invalid runtime.mode '<value>'. Use 'server' (default) or 'sidecar'.`
-
-```yaml
-runtime:
-  mode: sidecar
-```
-
-Set `sidecar` when Spice runs next to an application, in the same pod or on the same host, and reads its data from an upstream Spice runtime through the [Spice.ai Data Connector](../../components/data-connectors/spiceai/index.md). In sidecar mode:
-
-- Queries on `spice.ai` datasets are planned in the sidecar, and the parts the upstream can run are sent to it as [Substrait](https://substrait.io/) plans instead of SQL text. See [Sidecar mode](../../components/data-connectors/spiceai/index.md#sidecar-mode).
-- When `runtime.query.target_partitions` is not set, queries run with one target partition, so concurrent application queries share the CPU budget. In `server` mode the default is the [CPU entitlement](#runtimecpu) in whole cores. An explicit `runtime.query.target_partitions` applies in both modes.
-
-A sidecar cannot also be a cluster scheduler or executor. Starting `spiced` with `--role` or `--scheduler-address` and `runtime.mode: sidecar` fails with `runtime.mode: sidecar cannot run as a cluster scheduler or executor. Remove --role and --scheduler-address, or set runtime.mode: server.`
-
-The mode is applied when `spiced` starts. A Spicepod reload that changes it logs a warning and keeps the current mode until `spiced` restarts.
-
-`runtime.mode` is not available in v2.4.1 and earlier.
 
 ## `runtime.caching`
 
@@ -165,7 +145,7 @@ In addition to the common cache configuration parameters, `sql_results` also sup
 
 Use `sql` for the lowest latency with identical queries that do not include dynamic functions. Use `plan` for greater flexibility.
 
-A Flight SQL request that carries a Substrait plan, as a [sidecar](#runtimemode) sends, has no SQL text. With `cache_key_type: plan`, it is cached under a hash of its serialized plan, so identical plan bytes share an entry within the caller's cache namespace. With `cache_key_type: sql`, or with a client-supplied `Spice-Cache-Key` header, the request bypasses the results cache. In v2.4.1 and earlier, a Substrait request is cached under its logical plan with `plan`, and under a key derived from the plan bytes with `sql`.
+A Flight SQL request that carries a Substrait plan, as a [sidecar](../../cli/reference/spiced.md#sidecar-role) sends, has no SQL text. With `cache_key_type: plan`, it is cached under a hash of its serialized plan, so identical plan bytes share an entry within the caller's cache namespace. With `cache_key_type: sql`, or with a client-supplied `Spice-Cache-Key` header, the request bypasses the results cache. In v2.4.1 and earlier, a Substrait request is cached under its logical plan with `plan`, and under a key derived from the plan bytes with `sql`.
 
 ### Choosing a `hashing_algorithm`
 
@@ -629,7 +609,7 @@ Enables or disables CORS for the HTTP endpoint. Defaults to `false`.
 
 A list of allowed origins for CORS requests. Defaults to `["*"]`, which permits all origins.
 
-This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; a request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
+This list is also the source for the MCP Streamable HTTP `Origin` check on `/v1/mcp`, where `["*"]` behaves differently: it is not a valid origin, so it expands to the localhost defaults (`http://localhost:*`, `http://127.0.0.1:*`, `http://[::1]:*` and their `https://` forms, where `:*` matches any port) instead of accepting every origin. An empty list expands the same way. A concrete list rejects a mismatched `Origin` with `403 Forbidden`; an entry without a port matches only the scheme's default port, and an entry ending in `:*` matches any port. Spice v2.4.3 and earlier do not recognize the `:*` suffix, so do not use it in an `allowed_origins` list for those releases. Their localhost defaults are written without a port and match any port. A request with no `Origin` header always passes. See [Allowed Origins](../../features/large-language-models/mcp#allowed-origins).
 
 Example:
 
@@ -644,7 +624,7 @@ This configuration permits requests only from the `https://example.com` origin.
 
 ## `runtime.cpu`
 
-The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, DuckDB's per-instance `threads`, and a cluster executor's concurrent-task advertisement.
+The CPU section states how many CPUs the runtime should behave as though it has. That single entitlement sizes every CPU-derived pool coherently — the tokio runtimes' worker threads, DataFusion's query fan-out (`runtime.query.target_partitions`) and query admission bound (`runtime.query.max_concurrent_queries`), the Cayenne encode, compaction, upload and file-scan concurrency defaults, the Cayenne SQLite metastore pool, the embedding inference pool, and a cluster executor's concurrent-task advertisement.
 
 The entitlement also sets the partition count of the DataFusion sessions the runtime builds for its own work outside the user query session: refresh and accelerator writes, Cayenne compaction and maintenance, results caching, search, and SQL user-defined functions. These sessions do not use DataFusion's default of the host's core count, so on a pod with a CPU request and no CPU limit, background work is partitioned for the entitlement rather than for the whole node.
 
@@ -732,7 +712,7 @@ CPU budget derived sizing: main_runtime_worker_threads=8, dedicated_runtime_work
 
 These two lines are the primary diagnostic: between them they name what the runtime sized for, which rung produced it, and every quantity derived from it. A pod sized differently than expected is answered here rather than by inference.
 
-The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, DuckDB's `threads`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
+The derived line reports **defaults**, not necessarily the values in force: several are overridable by their own setting (`runtime.query.target_partitions`, `runtime.query.max_concurrent_queries`, a model's parallelism), and the line is logged before that configuration is resolved. Each overridable consumer separately logs the value it used and where that value came from.
 
 The following warnings identify CPU configuration issues and remedies:
 
@@ -747,9 +727,9 @@ The `spiced_cpu_budget_cores`, `spiced_cpu_budget_millicores`, `spiced_cpu_limit
 
 ## `runtime.query.memory_limit`
 
-The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options, such as `duckdb_memory_limit`. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
+The `memory_limit` parameter sets a memory usage cap for the Spice runtime query engine. This limit applies **only** to the query engine and should be used in addition to other memory configuration options. When the limit is reached, DataFusion spills intermediate data to disk using the directory configured in `runtime.query.temp_directory`.
 
-If not specified, defaults to **90% of the memory the process may use** — its cgroup memory limit when one binds, otherwise total system memory. The limit is read from the process's own cgroup path (cgroup v2 `memory.max`, cgroup v1 `memory.limit_in_bytes`), taking the smallest limit found at any level of that path, so a container limit, a `systemd` unit's `MemoryMax=`, a capped parent slice, and a Kubernetes pod cgroup all size the default. When a cgroup limit binds, the runtime logs the figure it sized from at startup. When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier. When DuckDB accelerators are configured, that default is reduced further so the query pool and the DuckDB instance ceilings together fit within available memory — see [Coordinated memory budget](../../components/data-accelerators/duckdb#coordinated-memory-budget). An explicitly configured `memory_limit` is always honored verbatim and is never reduced.
+If not specified, defaults to **90% of the memory the process may use** — its cgroup memory limit when one binds, otherwise total system memory. The limit is read from the process's own cgroup path (cgroup v2 `memory.max`, cgroup v1 `memory.limit_in_bytes`), taking the smallest limit found at any level of that path, so a container limit, a `systemd` unit's `MemoryMax=`, a capped parent slice, and a Kubernetes pod cgroup all size the default. When a cgroup limit binds, the runtime logs the figure it sized from at startup. When Cayenne acceleration is active, the default is reduced to **70%** to reserve headroom for Cayenne's dedicated compaction memory pool and its in-memory CDC tier. An explicitly configured `memory_limit` is always honored verbatim and is never reduced.
 
 ```yaml
 runtime:
@@ -775,7 +755,7 @@ Behavior:
 
 - Applies to ordinary queries, DDL/DML, and `EXECUTE`. Lightweight session-state statements (`PREPARE`, `DEALLOCATE`, `SET`) are not gated.
 - A permit is held for the plan's full execution and result-streaming lifetime. A results-cache hit is never gated.
-- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
+- If not set, the bound is sized from the CPU entitlement at **four concurrent plans per core** — `16` on a 4-core budget. A runtime started with [`--role sidecar`](../../cli/reference/spiced.md#sidecar-role) admits sixteen per core, `64` on its 4-core maximum, because each sidecar plan runs on one target partition and mostly waits on the upstream. Above one per core so a query blocked on I/O does not idle its core, and low enough that the query memory pool is shared between a countable number of plans. See [`runtime.cpu`](#runtimecpu).
 - `max_concurrent_queries: 0` opts out and leaves concurrency **unbounded**. Every other configured value is a limit, applied verbatim.
 
 :::warning Behavior change
@@ -824,7 +804,7 @@ This setting controls the trade-off between disk space usage and query performan
 <!-- Backwards compatibility anchor for older versioned docs -->
 <a id="runtimetemp_directory"></a>
 
-The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. It is used by DataFusion query execution (spill for sorts, aggregations, and sort-merge joins that exceed `runtime.query.memory_limit`), by Spice Cayenne's dedicated compaction runtime, by every DuckDB accelerator instance (passed through as DuckDB's own `temp_directory`), and by cluster-mode executors as their local working directory. When unset, DataFusion spills to the operating system's temporary directory (`$TMPDIR`, otherwise `/tmp`) and DuckDB to a `.tmp` directory beside its database file; when Cayenne acceleration is active and the setting is unset, the runtime logs a reminder at startup.
+The path to a temporary directory that Spice uses for query and acceleration operations that spill to disk. It is used by DataFusion query execution (spill for sorts, aggregations, and sort-merge joins that exceed `runtime.query.memory_limit`), by Spice Cayenne's dedicated compaction runtime, and by cluster-mode executors as their local working directory. When unset, DataFusion spills to the operating system's temporary directory (`$TMPDIR`, otherwise `/tmp`); when Cayenne acceleration is active and the setting is unset, the runtime logs a reminder at startup.
 
 ```yaml
 runtime:
@@ -832,7 +812,7 @@ runtime:
     temp_directory: /nvme/spice/tmp
 ```
 
-Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, the [Managing Memory Usage documentation](../memory), and the [DuckDB Data Accelerator documentation](../../components/data-accelerators/duckdb#temporary-directory).
+Set it to a directory on **local NVMe or SSD** with ample free space — not the root volume, a network file system, or a RAM-backed mount, whose files count against the process's memory. Each spilled batch is a synchronous write the query waits on, so the directory's per-I/O latency lands directly on query time. DataFusion caps total spill at 100 GB per runtime environment; the cap is not configurable — there is no `runtime.query` setting for it, and `SET datafusion.runtime.max_temp_directory_size` is rejected because the query APIs do not accept `SET` statements. For more details, see [Spill-to-Disk and the Temporary Directory](../performance-tuning#spill-to-disk-and-the-temporary-directory) and [Storage](../performance-tuning#storage) in the Performance Tuning guide, and the [Managing Memory Usage documentation](../memory).
 
 ## `runtime.query.prefer_hash_join`
 
@@ -1189,6 +1169,8 @@ runtime:
 | `batch_size`                | Yes      | `mode: adaptive`, `max: 131072` | Record batch size of Arrow Flight and Flight SQL query responses. With `mode: adaptive`, Spice raises the batch size of a response whose planner estimate is large, up to `max` rows. With `mode: default`, every response uses the query engine's configured batch size. |
 | `ipc_compression`           | Yes      | `none`  | Compression of the Arrow IPC record batches in Arrow Flight and Flight SQL responses: `none`, `lz4_frame`, or `zstd`. The client must support the codec to read the response. |
 
+Spice sends each record batch of an Arrow Flight or Flight SQL response, and of a `DoExchange` change stream, as one or more Flight messages of about 2 MiB at most. A batch over that size is split into row slices, each sent as its own message, so a client that keeps gRPC's default 4 MiB receive limit can read wide rows, such as lists, structs, or large JSON strings. A single row is never split, so a row over 4 MiB still needs a client with a larger receive limit, and so does a dictionary over 4 MiB, which is sent in its own message. In v2.4.x and earlier, each record batch is one message, and a batch of wide rows can exceed 4 MiB; a client then fails with an error such as `decoded message length too large: found 7604497 bytes, the limit is 4194304` until its receive limit is raised.
+
 The `DoPut` rate limit admits 100 writes per minute, shared by all clients of the runtime. Arrow Flight data writes, Flight SQL bulk ingestion (`CommandStatementIngest`), and Flight SQL statement updates (`CommandStatementUpdate`, sent by a Flight SQL client's execute-update call) count against it. Prepared statement calls, including parameter binding, do not. A write over the limit fails with the gRPC status `RESOURCE_EXHAUSTED`.
 
 Spice refuses a compressed Arrow IPC batch that a client sends, such as a `DoPut` write, Flight SQL bulk ingestion, or bound prepared statement parameters, when the decompressed size its buffers declare is more than 64 MiB and more than 100 times the size of its compressed body. The request fails with the gRPC status `INVALID_ARGUMENT` and a message that contains `compressed Arrow IPC message declares`. Compressed data under either bound decodes as before, and uncompressed messages are not checked. The [Spice.ai](../../components/data-connectors/spiceai) and [Flight SQL](../../components/data-connectors/flightsql) data connectors apply the same check to the batches a remote server returns. v2.4.x and earlier do not check the declared size.
@@ -1259,6 +1241,26 @@ runtime:
 | ------------------- | ----------------------------------------------------------------------------------------------------- |
 | `on_load` (default) | The runtime reports ready after all components (datasets, models, etc.) have loaded successfully.     |
 | `on_registration`   | The runtime reports ready as soon as all components have been registered, before they finish loading. |
+
+### Serve healthy components when one fails to load
+
+Under `on_load`, one component that fails to load, such as a dataset whose secret reference does not resolve, keeps `/v1/ready` at `503`, so a readiness probe keeps the runtime out of service even though its other datasets can be queried. Request `/v1/ready?allow_unhealthy=true` instead to report ready once every component that has not failed has loaded:
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /v1/ready?allow_unhealthy=true
+    port: 8090
+```
+
+With `allow_unhealthy=true`:
+
+- A component whose status is `Error` does not block readiness.
+- Every other component must have been ready at least once. A component still on its first load blocks readiness, as it does without the parameter.
+- When the Spicepod has at least one dataset and every dataset is in `Error`, the runtime stays not ready, because it has nothing to serve.
+- Under `ready_state: on_registration`, the result is the same as `/v1/ready`.
+
+`/v1/ready` without the parameter keeps reporting full readiness. Spice v2.4.3 and earlier ignore the parameter and answer as `/v1/ready` does.
 
 ## `runtime.scheduler`
 

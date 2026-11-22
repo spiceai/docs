@@ -227,4 +227,5 @@ All SQL Warehouse spans include a `warehouse_id` field. Unity Catalog spans incl
 How authentication tokens are managed depends on the authentication method:
 
 - **Service Principal (M2M OAuth)**: A background task refreshes the OAuth2 token 5 minutes before expiry. Refresh failures use fibonacci backoff capped at 5 minutes.
+- **Workload identity federation**: A background task exchanges the identity token for a new OAuth token one minute before expiry, or after three quarters of the lifetime of a token that lasts less than four minutes. Failed exchanges keep the current token and retry, waiting at most 15 seconds between attempts.
 - **Personal Access Token**: Used as-is with no automatic refresh.

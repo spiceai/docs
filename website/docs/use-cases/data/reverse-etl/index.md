@@ -19,7 +19,7 @@ graph LR
 
 - **Unified Query Layer**: Federated SQL queries span Databricks, Snowflake, PostgreSQL, and other sources through a single endpoint, removing the need for separate connectors or pipeline orchestration.
 - **Real-Time Sync**: Change Data Capture (CDC) keeps local replicas in sync with upstream sources, so operational systems always reflect the latest warehouse data without scheduled batch jobs.
-- **Local Acceleration**: Materializes working sets of warehouse data into fast local engines like DuckDB or SQLite, providing sub-millisecond query latency for application workloads.
+- **Local Acceleration**: Materializes working sets of warehouse data into fast local engines like Spice Cayenne or SQLite, providing sub-millisecond query latency for application workloads.
 - **Governance**: Integrates with Databricks Unity Catalog for role-based access control and credential vendoring across federated sources.
 
 ## Example
@@ -34,13 +34,13 @@ datasets:
     name: customer_metrics
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       refresh_check_interval: 10s
 ```
 
-This configuration federates the `customer_metrics` table from Databricks and accelerates it locally in DuckDB. The `refresh_mode: changes` setting uses CDC to sync only changed rows, keeping operational data current. The [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) provides a practical guide to materializing datasets for such workflows.
+This configuration federates the `customer_metrics` table from Databricks and accelerates it locally in Spice Cayenne. The `refresh_mode: changes` setting uses CDC to sync only changed rows, keeping operational data current. The [Cayenne Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md) provides a practical guide to materializing datasets for such workflows.
 
 ## Benefits
 
@@ -51,5 +51,5 @@ This configuration federates the `customer_metrics` table from Databricks and ac
 ### Learn More
 
 - **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md).
 - **Observability**: [Documentation](../../features/observability).

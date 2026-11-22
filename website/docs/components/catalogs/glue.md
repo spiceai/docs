@@ -143,7 +143,11 @@ Regardless of the credential source, the IAM role or user must have appropriate 
 
 ### Required IAM Permissions
 
-The IAM role or user needs the following permissions to access Iceberg tables in S3/Glue:
+Scope each policy to the Glue catalog, database, and table ARNs and the S3 prefixes of the tables the Spicepod uses. Keep `glue:UpdateTable` and `s3:PutObject` out of the read policy, and attach the write policy only to a role that runs a Spicepod with `access: read_write`.
+
+#### Read IAM Permissions
+
+The following policy grants read access to the `my_table` table in the `my_database` database, stored under the `my_database/my_table/` prefix of the `company-bucketname-datasets` bucket. Replace the region, account ID, bucket, prefix, database, and table with the values for each table the Spicepod queries. To read every table in a database, use `table/my_database/*` as the table ARN and the database's S3 prefix for `s3:GetObject`.
 
 ```json
 {
@@ -156,8 +160,8 @@ The IAM role or user needs the following permissions to access Iceberg tables in
       },
       {
         "Effect": "Allow",
-        "Action": ["s3:GetObject", "s3:PutObject"],
-        "Resource": "arn:aws:s3:::company-bucketname-datasets/*"
+        "Action": ["s3:GetObject"],
+        "Resource": "arn:aws:s3:::company-bucketname-datasets/my_database/my_table/*"
       },
       {
         "Effect": "Allow",
@@ -166,10 +170,39 @@ The IAM role or user needs the following permissions to access Iceberg tables in
           "glue:GetDatabases",
           "glue:GetDatabase",
           "glue:GetTable",
-          "glue:GetTables",
-          "glue:UpdateTable"
+          "glue:GetTables"
         ],
-        "Resource": "*"
+        "Resource": [
+          "arn:aws:glue:us-east-1:123456789012:catalog",
+          "arn:aws:glue:us-east-1:123456789012:database/my_database",
+          "arn:aws:glue:us-east-1:123456789012:table/my_database/my_table"
+        ]
+      }
+    ]
+}
+```
+
+#### Write IAM Permissions
+
+Writes need the following policy in addition to the read policy. It permits new snapshot commits for `my_table` only, and object writes only under that table's S3 prefix. List each table that accepts writes by its own table ARN and S3 prefix. A wildcard such as `table/my_database/*`, `company-bucketname-datasets/*`, or `"Resource": "*"` gives the role write access to every matching table.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": ["s3:PutObject"],
+        "Resource": "arn:aws:s3:::company-bucketname-datasets/my_database/my_table/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": ["glue:UpdateTable"],
+        "Resource": [
+          "arn:aws:glue:us-east-1:123456789012:catalog",
+          "arn:aws:glue:us-east-1:123456789012:database/my_database",
+          "arn:aws:glue:us-east-1:123456789012:table/my_database/my_table"
+        ]
       }
     ]
 }
@@ -181,13 +214,13 @@ The IAM role or user needs the following permissions to access Iceberg tables in
 | ------------------- | -------------------------------------------------------------- |
 | `s3:ListBucket`     | Required. Allows scanning all objects from the bucket          |
 | `s3:GetObject`      | Required. Allows fetching objects                              |
-| `s3:PutObject`      | Required for write operations. Allows writing objects          |
+| `s3:PutObject`      | Write policy only. Writes objects under the table prefix.      |
 | `glue:GetCatalog`   | Required. Retrieve metadata about the specified catalog.       |
 | `glue:GetDatabases` | Required. List the databases available in the current catalog. |
 | `glue:GetDatabase`  | Required. Retrieve metadata about the specified database.      |
 | `glue:GetTable`     | Required. Retrieve metadata about the specified table.         |
 | `glue:GetTables`    | Required. List the tables available in the current database.   |
-| `glue:UpdateTable`  | Required for write operations. Commits new table snapshots.    |
+| `glue:UpdateTable`  | Write policy only. Commits new table snapshots.                |
 
 ## Write Support
 
@@ -216,20 +249,30 @@ SELECT * FROM staging_table;
 
 Inserting into partitioned Iceberg tables is supported. `UPDATE` and `DELETE` operations are not currently supported.
 
-Write operations require `s3:PutObject` permission on the target S3 bucket and `glue:UpdateTable` permission to commit the new table snapshot to the Glue Data Catalog, in addition to the read permissions listed above. For more details, see [Data Ingestion](../../features/data-ingestion).
+Write operations require the [write policy](#write-iam-permissions) in addition to the read policy: `s3:PutObject` on the target table's S3 prefix, and `glue:UpdateTable` on the target table, its database, and the catalog to commit the new table snapshot to the Glue Data Catalog. For more details, see [Data Ingestion](../../features/data-ingestion).
 
 ## Limitations
 
 :::warning
 
 - This catalog connector is limited to tables that use the S3 data source. Kinesis and Kafka data sources are not currently supported.
-- The location of a Parquet, ORC, or CSV table must be an `s3://` URL. A table whose location uses another scheme, including `s3a://`, `http://`, `https://`, or `file://`, is refused before any request is sent, with an error that names the table and its location. See [AWS Glue Data Connector limitations](../data-connectors/glue#limitations).
+- The location of a Parquet, ORC, or CSV table must be an `s3://` URL. The catalog skips a table whose location uses another scheme, including `s3a://`, `http://`, `https://`, or `file://`, before any request is sent, and names it in the skipped-tables warning below. A dataset that reads the same table through the [AWS Glue Data Connector](../data-connectors/glue#limitations) fails to load with an error that names the table and its location.
 - This catalog connector is limited to Iceberg tables and tables whose data format is Parquet, ORC, or CSV. A Hive ACID/transactional ORC table (the Glue table property `transactional` set to `true`, `yes`, or `1`) is refused at registration — Spice does not implement Hive ACID snapshot semantics (`base_*`, `delta_*`, `delete_delta_*`). Export or materialize the current snapshot to a non-transactional ORC location and register that instead.
 
 :::
 
-Tables with unsupported formats are skipped. A warning summarizes skipped tables per database;
+Tables with unsupported formats or locations are skipped. A warning summarizes skipped tables per database;
 debug logs provide each reason. Warnings are rate-limited unless the set of skipped tables changes.
+
+### Tables That Fail to Load
+
+A table or database that fails to load does not fail the catalog. The catalog loads each database and table on its own, leaves out one that fails, and registers the rest:
+
+- At startup, a table that fails to load is not registered. The skipped-tables warning names it and quotes the error of a failed load. A database whose tables cannot be listed is not registered, with a warning that names the database and the error.
+- On a refresh, a table that was registered before and now fails to load stays registered with the definition it was last loaded with. Queries against it still need the source to answer: a table whose source refuses access fails its queries until access returns. A warning per database names the tables that kept their earlier definition. A database whose tables cannot be listed on a refresh keeps the tables it had. Tables added to or dropped from Glue are still picked up.
+- When every database, or every table, that a load tries fails, the load fails, as an error that affects the whole catalog, such as missing credentials or permissions, does. At startup, the catalog is not registered empty, and the runtime does not report ready. On a refresh, the catalog keeps the tables it has, Spice logs an error that names the catalog, and the refresh is tried again at the next interval; readiness does not change.
+
+In v2.4.3 and earlier, one table or database that failed to load, such as a table at an `s3a://` location, failed the whole catalog: at startup the catalog was not registered and the runtime did not report ready, and on a running catalog every refresh failed, so tables added or dropped in Glue were not picked up.
 
 ## Cookbook
 

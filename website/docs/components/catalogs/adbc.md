@@ -17,6 +17,29 @@ Connect to any database via [ADBC](https://arrow.apache.org/adbc/) (Arrow Databa
 
 An ADBC-compatible driver must be installed on the system where Spice runs. See the [ADBC Data Connector](../data-connectors/adbc#prerequisites) for driver installation instructions.
 
+### BigQuery driver
+
+A BigQuery catalog needs the BigQuery ADBC driver built from [spiceai/bigquery](https://github.com/spiceai/bigquery). Spice sets the driver option `bigquery.skip_query_result_tables` on a BigQuery catalog, so the driver leaves out the tables of cached query results (the `anon…` tables in BigQuery's hidden datasets) before it fetches any table metadata. Without this option, discovery fetched the metadata of every cached query result one table at a time, and startup time grew with the number of queries the project ran in the last day. Tables in hidden datasets you create, such as `_staging`, are still listed.
+
+The upstream driver releases, including the one `dbc install bigquery` installs, do not have this option yet. With such a driver, the catalog fails to load with an error that names the option and the driver build to use:
+
+```text
+Failed to create ADBC database (driver='…'): the BigQuery driver does not support the `bigquery.skip_query_result_tables` option, which the catalog needs to list hidden datasets without fetching the metadata of every cached query result. Use the BigQuery ADBC driver built from https://github.com/spiceai/bigquery. Cause: …
+```
+
+To build the driver on Linux (Go and a C compiler are required) in the checkout, then install it into the root-owned `/opt/adbc`:
+
+```shell
+git clone --branch spiceai https://github.com/spiceai/bigquery.git adbc-bigquery
+cd adbc-bigquery/go
+CGO_ENABLED=1 go build -tags driverlib -buildmode=c-shared -o libadbc_driver_bigquery.so ./pkg/
+sudo install -D -m 0755 libadbc_driver_bigquery.so /opt/adbc/libadbc_driver_bigquery.so
+```
+
+Then set `adbc_driver_path` to the library, as the BigQuery examples on this page do, so Spice loads this build rather than a driver installed by name.
+
+The BigQuery [ADBC data connector](../data-connectors/adbc) does not set this option and works with either driver build.
+
 ## Configuration
 
 ```yaml
@@ -27,6 +50,7 @@ catalogs:
       - 'my_schema.*' # include all tables from my_schema
     params:
       adbc_driver: bigquery
+      adbc_driver_path: /opt/adbc/libadbc_driver_bigquery.so
       adbc_uri: "bigquery:///my-gcp-project"
 ```
 
@@ -41,6 +65,8 @@ The `name` field specifies the name of the catalog in Spice. Tables from the ADB
 ### `include`
 
 Use the `include` field to specify which tables to include from the catalog. The `include` field supports glob patterns to match multiple tables. For example, `*.my_table_name` would include all tables with the name `my_table_name` from any schema. Multiple `include` patterns are OR'ed together and can be specified to include multiple tables.
+
+When `include` is set, Spice lists the tables only of schemas that an `include` pattern can match. A schema that no pattern can reach is still registered in the catalog, with no tables, and the driver is not asked for its tables. On a database with many schemas, a narrow `include`, such as `'my_schema.*'`, shortens discovery at startup.
 
 ### `exclude`
 
@@ -74,6 +100,7 @@ catalogs:
       - 'my_dataset.*'
     params:
       adbc_driver: bigquery
+      adbc_driver_path: /opt/adbc/libadbc_driver_bigquery.so
       adbc_uri: "bigquery:///my-gcp-project"
       adbc_driver_options: >-
         adbc.bigquery.sql.dataset_id=my_dataset

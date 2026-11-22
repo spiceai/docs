@@ -14,6 +14,8 @@ spice upgrade [target_version] [flags]
 
 `target_version` - an optional release version to install, including the leading `v` (e.g. `v1.8.3`). A version without the leading `v` is rejected. When omitted, the latest release is used.
 
+Each download is checked against the sha256 its release records before the CLI or runtime is replaced, as [`spice install`](./install#download-verification) does. A download that cannot be verified is not installed.
+
 #### Flags
 
 - `-f`, `--force`   Reinstall the CLI and runtime even when the target version is already installed

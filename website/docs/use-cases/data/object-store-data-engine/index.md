@@ -27,7 +27,7 @@ Unlike traditional data platforms (e.g., Snowflake, BigQuery) that rely on costl
 
 ## Example
 
-A finserv platform queries transaction logs stored in S3, combines them with real-time market data from PostgreSQL, and materializes high-frequency trading datasets for low-latency portfolio analysis. This approach avoids moving data to a centralized warehouse, reducing costs and ensuring compliance with regulatory requirements, unlike ETL-heavy platforms that introduce delays and complexity. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) and [DuckDB Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md) provide practical guidance for implementing federated queries and data materialization.
+A finserv platform queries transaction logs stored in S3, combines them with real-time market data from PostgreSQL, and materializes high-frequency trading datasets for low-latency portfolio analysis. This approach avoids moving data to a centralized warehouse, reducing costs and ensuring compliance with regulatory requirements, unlike ETL-heavy platforms that introduce delays and complexity. The [Federated SQL Query recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md) and [Cayenne Data Accelerator recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md) provide practical guidance for implementing federated queries and data materialization.
 
 ## Benefits
 
@@ -38,5 +38,5 @@ A finserv platform queries transaction logs stored in S3, combines them with rea
 ### Learn More
 
 - **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md).
 - **Observability**: [Documentation](../../features/observability).

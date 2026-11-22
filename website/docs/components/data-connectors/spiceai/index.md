@@ -218,6 +218,8 @@ datasets:
 
 Append streams are **append-only** — deletes and updates from the upstream are not propagated. Stream reconnection is automatic; persistent loss of connection causes the dataset to enter `Error` state if the lag exceeds the configured acceptable window. See [Data Refresh](../../features/data-acceleration/data-refresh) for the full append-mode reference.
 
+An upstream dataset accelerated with `refresh_mode: append` and no primary key or unique constraint, from the Spicepod or from the source, forwards the rows each refresh appends to the sidecar. When the upstream ends a subscription with `DATA_LOSS`, for example after an append refresh larger than 128 MiB, the sidecar resubscribes and reloads the dataset from a fresh snapshot. When the upstream marks its snapshot, the sidecar reports the dataset `Ready` only once the whole initial snapshot has arrived, and drops an append that the snapshot already holds. An upstream that does not mark its snapshot, such as one running v2.4.3 or earlier, makes the dataset ready from the first batch. See [Append Streams](./deployment.md#append-streams) for the details and the v2.4.3 behavior.
+
 ### Sidecar example
 
 A sidecar Spice running alongside an application, federating to a cluster Spice over TLS with API key auth and local in-memory acceleration:
@@ -261,15 +263,12 @@ datasets:
 
 ### Sidecar mode
 
-By default, the connector sends the upstream runtime SQL text for the part of a query it can run. A runtime that sets [`runtime.mode: sidecar`](../../../reference/spicepod/runtime.md#runtimemode) instead plans the query locally and sends that part as a [Substrait](https://substrait.io/) plan over Arrow Flight. The upstream runtime decodes the plan, creates the physical plan, and executes it.
+By default, the connector sends the upstream runtime SQL text for the part of a query it can run. A runtime started with [`spiced --role sidecar`](../../../cli/reference/spiced.md#sidecar-role) instead plans the query locally and sends that part as a [Substrait](https://substrait.io/) plan over Arrow Flight. The upstream runtime decodes the plan, creates the physical plan, and executes it.
 
 ```yaml
 version: v1
 kind: Spicepod
 name: orders-sidecar
-
-runtime:
-  mode: sidecar
 
 datasets:
   - from: spice.ai:https://upstream.cluster.svc:50051
@@ -281,14 +280,14 @@ datasets:
       engine: cayenne
 ```
 
-Sidecar mode applies to every `spice.ai` (or `spiceai`) dataset, with the same `from:` formats, authentication, and TLS parameters. It does not change refresh schedules, replicate datasets, or change a dataset's fallback policy. The [results cache](../../../features/caching) and configured accelerations serve reads as they do in `server` mode, and Substrait applies to the reads that go to the upstream.
+Start the sidecar with `spiced --role sidecar`. Sidecar mode applies to every `spice.ai` (or `spiceai`) dataset, with the same `from:` formats, authentication, and TLS parameters. It does not change refresh schedules, replicate datasets, or change a dataset's fallback policy. The [results cache](../../../features/caching) and configured accelerations serve reads as they do in the `server` role, except that a sidecar refuses a dataset that keeps data or a search index on object storage (see [Sidecar role](../../../cli/reference/spiced.md#sidecar-role)), and Substrait applies to the reads that go to the upstream.
 
 Parts of a query that Substrait cannot carry with the same meaning run in the sidecar after their inputs are read from the upstream. These include `IN` subqueries, NULL-aware joins, user-defined functions, asynchronous functions, `embed`, `rerank`, and SQL operators that have no Substrait equivalent.
 
 The upstream runtime must accept Substrait plans over Flight SQL. An upstream that cannot run the plan returns an error:
 
 ```text
-The upstream Spice runtime for dataset '<dataset>' does not support the required Substrait plan: <reason>. Upgrade the upstream runtime, or set runtime.mode: server to use SQL federation.
+The upstream Spice runtime for dataset '<dataset>' does not support the required Substrait plan: <reason>. Upgrade the upstream runtime, or restart this runtime with `--role server` to use SQL federation.
 ```
 
 On the upstream, a Substrait request is cached under a hash of its serialized plan when `runtime.caching.sql_results.cache_key_type` is `plan`, the default. It is not cached when the upstream uses `cache_key_type: sql`. See [Choosing a `cache_key_type`](../../../reference/spicepod/runtime.md#choosing-a-cache_key_type).
@@ -311,5 +310,5 @@ Sidecar mode is not available in v2.4.1 and earlier.
 :::warning Memory considerations
 Without `acceleration.enabled: true`, federated queries that join across multiple Spice instances perform the join in memory on the local runtime. Ensure the local runtime has enough memory for query workspace plus runtime overhead, especially for concurrent queries.
 
-For large workloads, accelerate hot datasets locally with a file-mode engine ([`duckdb`](../data-accelerators/duckdb) or [`sqlite`](../data-accelerators/sqlite) with `mode: file`) to spill to disk instead of RAM.
+For large workloads, accelerate hot datasets locally with a file-mode engine ([`cayenne`](../data-accelerators/cayenne) or [`sqlite`](../data-accelerators/sqlite) with `mode: file`) to spill to disk instead of RAM.
 :::

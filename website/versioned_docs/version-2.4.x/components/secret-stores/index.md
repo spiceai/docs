@@ -129,6 +129,20 @@ secrets:
     name: env
 ```
 
+## Unresolved Secret References
+
+Every secret reference in a dataset's or catalog's `params` must resolve. When a reference does not resolve, the runtime does not load that dataset or catalog: its status is `Error`, and the error names each parameter and reference that did not resolve, without any secret value. Other datasets and catalogs keep loading. For example, with `file_format: ${secrets:FMT}` and no store holding `FMT`:
+
+```text
+Unable to resolve secret reference(s): parameter `file_format`: Secret `${ secrets:FMT }` not found in any configured secret store (searched: [env]). The component was not loaded, instead of loading with an empty value. Define the secret in a configured secret store (an empty value is accepted for an intentionally optional secret), or remove the reference. Docs: https://spiceai.org/docs/components/secret-stores
+```
+
+A reference does not resolve when no configured store holds the key, when it names a store that is not configured, or when a store fails while looking it up, for example because of an expired token or a network error. The first two are configuration errors, and the runtime does not retry the load. A store failure is retried, because the key may exist in the store that failed.
+
+A secret defined with an empty value, such as an environment variable set to an empty string, resolves to that empty value. To keep a parameter optional, define its secret as empty.
+
+Only dataset and catalog `params` are checked this way. An unresolved reference elsewhere, such as in a model's `params` or an acceleration's `params`, logs an error and is replaced with an empty string. In v2.4.2 and earlier, dataset and catalog `params` behaved the same way, so a dataset could load and report ready with an empty parameter value.
+
 ## Secret Stores
 
 import DocCardList from '@theme/DocCardList';

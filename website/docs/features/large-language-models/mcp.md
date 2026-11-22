@@ -99,10 +99,10 @@ runtime:
 
 Clients then authenticate with an `X-API-KEY` header.
 
-Each `tools/call` runs as the API key on its own request, on both protocol eras. A read-only key, one without the `:rw` suffix, cannot write through the `sql` or `store_memory` tools, even on a legacy session that a read-write key opened:
+Each `tools/call` runs as the API key on its own request, on both protocol eras. A read-only key, one configured without the `:rw` or `:admin` suffix, cannot write through the `sql` tool, and cannot call the `store_memory` tool or the tools of an MCP server that Spice passes through, even on a legacy session that a read-write key opened. See [Tools that need a read-write key](../../api/auth/index.md#tools-that-need-a-read-write-key). A refused call is reported in the tool result with `isError: true`, not as a JSON-RPC error. A refused `store_memory` call returns:
 
 ```json
-{"jsonrpc":"2.0","id":3,"error":{"code":-32603,"message":"Failed to store memories: the API key on this request does not allow write access. Retry with a read-write API key (a `runtime.auth.api-key.keys` entry ending in `:rw`). See https://spiceai.org/docs/api/auth"}}
+{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Failed to call tool 'store_memory': the tool can change data or act outside Spice, and the credentials on this request do not allow write access. Retry with a read-write API key (a `runtime.auth.api-key.keys` entry ending in `:rw`). See https://spiceai.org/docs/api/auth"}],"isError":true}}
 ```
 
 ### Example: Connecting to another Spice instance via MCP
@@ -117,7 +117,7 @@ tools:
       mcp_headers: 'X-API-KEY: ${secrets:SPICE_API_KEY}'
 ```
 
-The remote instance runs every proxied tool call as that key. A read-only key can run queries through the remote `sql` tool, but the remote refuses writes. Use a key with the `:rw` suffix only when the proxied tools need to write.
+The remote instance runs every proxied tool call as that key. A read-only key can run queries through the remote `sql` tool, but the remote refuses writes. The remote also refuses a read-only key for the tools of its own MCP servers, because an MCP server's tool is [read-write](../../api/auth/index.md#tools-that-need-a-read-write-key) even when it only reads. Use a key with the `:rw` suffix for the remote when the proxied tools write, or when they include tools of the remote's MCP servers. On the local runtime, every tool of `spice_instance` is an MCP server's tool, so it is read-write too. When the local runtime has `runtime.auth`, a caller needs a read-write key, or a verified client certificate when client certificates identify callers, to call any of them, including the remote `sql` tool.
 
 ### Allowed Hosts
 
@@ -139,8 +139,10 @@ Separately from the `Host` check, `/v1/mcp` validates the browser `Origin` heade
 
 | `runtime.cors.allowed_origins` | Effect on `/v1/mcp` |
 | --- | --- |
-| **Default** (`["*"]`) or an empty list | Expands to the localhost origins `http://localhost`, `http://127.0.0.1`, `http://[::1]` and their `https://` forms. Entries carry no port, so any port on those hosts matches. |
-| **Explicit list** | Only the listed origins are accepted. A request whose `Origin` is not on the list receives `403 Forbidden`. |
+| **Default** (`["*"]`) or an empty list | Expands to the localhost origins `http://localhost:*`, `http://127.0.0.1:*`, `http://[::1]:*` and their `https://` forms. The `:*` suffix matches any port on those hosts. |
+| **Explicit list** | Only the listed origins are accepted. A request whose `Origin` is not on the list receives `403 Forbidden`. An entry without a port, such as `https://app.example.com`, matches only the scheme's default port (443 for `https`). Append `:*`, as in `https://app.example.com:*`, to match any port. |
+
+Spice v2.4.3 and earlier do not recognize the `:*` suffix, so do not use it in an `allowed_origins` list for those releases. Their localhost defaults are written without a port and match any port.
 
 A request that sends no `Origin` header at all is accepted in every case, which is why MCP clients such as Cursor and Claude Desktop are unaffected.
 
@@ -223,13 +225,15 @@ version: v1
 kind: Spicepod
 name: mcp-gateway
 
-# Required — /v1/mcp returns 401 to every request without runtime.auth
+# Required — /v1/mcp returns 401 to every request without runtime.auth.
+# The :rw suffix lets callers use the GitHub and Jira MCP tools, which need a read-write key;
+# clients send only the value of SPICE_API_KEY.
 runtime:
   auth:
     api_key:
       enabled: true
       keys:
-        - ${secrets:SPICE_API_KEY}
+        - ${secrets:SPICE_API_KEY}:rw
 
 # GitHub issues and PRs accelerated in-memory for fast SQL queries
 datasets:

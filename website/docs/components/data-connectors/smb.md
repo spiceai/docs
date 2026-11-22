@@ -227,7 +227,7 @@ datasets:
       smb_pass: ${secrets:smb_pass}
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       refresh_check_interval: 1h
 ```
 

@@ -10,7 +10,7 @@ tags:
   - cayenne
 ---
 
-Every acceleration engine other than Cayenne (`arrow`, `duckdb`, `sqlite`, `turso`, and `postgres`) is deprecated in Spice v2.4 and will be removed in v2.5, and `turso` is already removed. This guide explains how to move an acceleration to Cayenne, how to tell whether an acceleration is safe to rebuild, and which files and snapshots to delete afterwards.
+Every acceleration engine other than Cayenne (`arrow`, `duckdb`, `sqlite`, `turso`, and `postgres`) is deprecated in Spice v2.4 and will be removed in v2.5, and `turso`, `duckdb`, and `postgres` are already removed. This guide explains how to move an acceleration to Cayenne, how to tell whether an acceleration is safe to rebuild, and which files and snapshots to delete afterwards.
 
 ## What Spice reports
 
@@ -20,10 +20,10 @@ In v2.4, a Spicepod that uses a deprecated engine logs one warning at startup, n
 WARN runtime::init::dataset: Acceleration engines other than `cayenne` are deprecated and will be removed in v2.5, so these accelerations must move to `cayenne` before upgrading: `duckdb` (dataset 'orders', view 'daily'), `sqlite` (dataset 'customers'). Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
 ```
 
-In v2.5, a dataset or view that still names a removed engine fails to load, and the other components load normally. Spice never switches such an acceleration to Cayenne on its own, because a silent rebuild would discard any data the source does not have. For a dataset that sets `engine: turso`, the error reads:
+In v2.5, a dataset or view that still names a removed engine fails to load, and the other components load normally. Spice never switches such an acceleration to Cayenne on its own, because a silent rebuild would discard any data the source does not have. For a dataset that sets `engine: duckdb`, the error reads:
 
 ```text
-ERROR runtime::init::dataset: Failed to load dataset 'orders': the acceleration engine `turso` is no longer supported as of v2.5 and cannot be used. Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
+ERROR runtime::init::dataset: Failed to load dataset 'orders': the acceleration engine `duckdb` is no longer supported as of v2.5 and cannot be used. Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
 ```
 
 A view reports `Failed to load view '<name>': …` with the same cause. Because a v2.5 runtime cannot open an acceleration file of a removed engine, check [Step 1](#step-1-check-whether-the-acceleration-can-be-rebuilt) and move any data the source does not have while the runtime is still on v2.4.
@@ -72,10 +72,12 @@ datasets:
       mode: file
 ```
 
+A `postgres` acceleration kept its data across restarts whatever its `mode`, while Cayenne's default `mode` is `memory`. Set `mode: file` on a Cayenne acceleration that replaces a `postgres` one, so its data still survives a restart.
+
 An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so setting `engine: cayenne` is usually the whole change. Two configurations need one more change before the dataset loads on Cayenne:
 
 - **`partition_by` with `mode: memory`.** Cayenne partitions only in file mode, and rejects `partition_by` on an in-memory acceleration. On a single Spice instance, remove `partition_by`. In a cluster, where `partition_by` is what spreads a dataset across executors, set `mode: file` instead.
-- **A Debezium topic without message keys.** Cayenne applies Debezium updates and deletes by key, and rejects a topic whose messages carry no Kafka key; only `arrow` accepted keyless messages. Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property) so each message carries one. Declaring `primary_key` in the Spicepod does not help, because the key must be in the messages.
+- **A Debezium topic without message keys.** Cayenne applies Debezium updates and deletes by key, and rejects a topic whose messages carry no Kafka key. In v2.4.2 and earlier, `arrow` accepted keyless messages; vNext rejects them on every engine, `arrow` included. Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property) so each message carries one. Declaring `primary_key` in the Spicepod does not help, because the key must be in the messages.
 
 Datasets that load from [snapshots](../../../features/data-acceleration/snapshots) need an order. A dataset with [`refresh_mode: snapshot`](../../../features/data-acceleration/refresh-modes/snapshot), or one that reads another instance's snapshots, never loads from the source, and Cayenne skips snapshots written by another engine. A reader switched to Cayenne therefore has nothing to load until a Cayenne snapshot exists. Migrate the instance that writes the snapshots first, wait until it has published a `.cayenne` snapshot, and then migrate its readers.
 

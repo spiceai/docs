@@ -39,6 +39,16 @@ spice login [command] [flags]
 - `snowflake` Login to a Snowflake warehouse
 - `spark` Login to a Spark Connect remote
 
+#### Provider flags
+
+Each provider subcommand writes the credentials it is given to the `.env` file. The flags of `abfs`, `sharepoint`, `snowflake`, and `spark` are described on the matching [data connector](../../components/data-connectors) pages.
+
+- `dremio`: `-u`, `--username <USERNAME>` and `-p`, `--password <PASSWORD>`, both required.
+- `postgres`: `-p`, `--password <PASSWORD>`, required.
+- `s3`: `-k`, `--access-key <ACCESS_KEY>` and `-s`, `--access-secret <ACCESS_SECRET>`, both required.
+- `databricks`: `-p`, `--token <TOKEN>` for a personal access token, or `--client-id <CLIENT_ID>` and `--client-secret <CLIENT_SECRET>` for a service principal. For Delta Lake tables in cloud storage, also the storage flags listed for `delta-lake`.
+- `delta-lake`: `--aws-region <AWS_REGION>`, `--aws-access-key-id <AWS_ACCESS_KEY_ID>`, and `--aws-secret-access-key <AWS_SECRET_ACCESS_KEY>` for S3; `--azure-storage-account-name <AZURE_STORAGE_ACCOUNT_NAME>` and `--azure-storage-access-key <AZURE_STORAGE_ACCESS_KEY>` for Azure Blob Storage; `--google-service-account-path <GOOGLE_SERVICE_ACCOUNT_PATH>` for Google Cloud Storage.
+
 #### Examples
 
 ```shell
@@ -53,13 +63,21 @@ spice login --key "<API_KEY>"
 
 ### Browser Login Flow
 
-Running `spice login` without `--key` prints an auth code, opens the Spice.ai authorization page, and then polls the token exchange once per second while the browser flow is completed.
+Running `spice login` without `--key` in an interactive terminal offers the same choices as [`spice cloud login`](#spice-cloud-login). **Login with a web browser** runs `spice cloud login subscription`, which signs in to Spice Cloud with the [OAuth 2.0 authorization code flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1), [PKCE](https://datatracker.ietf.org/doc/html/rfc7636) (`S256`), and a [loopback redirect](https://datatracker.ietf.org/doc/html/rfc8252#section-7.3):
 
-- **The wait is bounded at 5 minutes.** If the authorization is not completed in that window, the command exits with `Authentication timed out. Please try again.` — followed by the last retryable error, when there was one. It does not poll indefinitely.
-- **A refusal stops immediately.** An explicitly denied authorization exits with `Access denied` without waiting out the deadline, as does a rejection the endpoint cannot answer differently on a retry (for example `400`, `401`, `403`, or `410`).
-- **Transient failures keep polling.** Server errors (`5xx`), `408`, `429`, and network failures are retried until the deadline. So is `404`, which is the normal answer while the auth code has not been authorized yet — but an endpoint that answers `404` for the whole 5 minutes (typically a `SPICE_BASE_URL` pointing at the wrong deployment) stops at the deadline and says so.
+1. On the first sign-in, the CLI registers itself with Spice Cloud as a public client, with no client secret, and stores the client ID as `SPICE_SPICEAI_CLIENT_ID`. Later sign-ins reuse it.
+2. The CLI listens on `127.0.0.1` on a random port and opens the Spice Cloud authorization page in a browser. Each sign-in uses a new PKCE verifier and `state` value.
+3. After the sign-in is approved in the browser, the browser is redirected to `http://127.0.0.1:<port>/callback`. The CLI accepts the first redirect, closes the listener, and exchanges the authorization code for an access token and a refresh token.
 
-`spice cloud login subscription` polls the same endpoint under the same 5-minute deadline.
+The CLI asks only for the scopes its Spice Cloud commands use: `apps:read apps:write apps:delete deployments:read deployments:write secrets:read secrets:write instances:write`.
+
+- **The wait is bounded at 5 minutes.** If the sign-in is not completed in that window, the command exits with `Timed out waiting for the browser sign-in. If the browser showed an error, run 'spice cloud logout', then 'spice login' again.` When a shared user credential is stored, `spice cloud logout` refuses the default `--scope active`; run `spice cloud logout --scope all` instead, which discards every stored Spice Cloud session and the stored OAuth client ID, so the next sign-in registers the CLI again.
+- **A refused or mismatched response stops the sign-in.** An `error=` redirect, such as a denied sign-in, exits with `Spice Cloud refused the sign-in: <detail>`. A redirect whose `state` does not match this sign-in is refused.
+- **A browser on another machine.** The loopback redirect only reaches a browser on the machine that runs the CLI. With `--device`, the CLI prints the authorization URL instead of opening it. After signing in on another machine, paste the address of the page the browser was redirected to, which fails to load there, into the terminal. The CLI also reads a pasted address without `--device` when stdin is a terminal.
+
+The access token is short-lived. Before each `spice cloud` command except `login` and `logout`, the CLI renews a stored sign-in whose access token has less than 15 minutes left, using the refresh token stored beside it as `SPICE_SPICEAI_REFRESH_TOKEN`.
+
+In Spice v2.4.3 and earlier, the browser login printed an auth code and polled a token exchange until the browser flow completed.
 
 ### Credentials Stay on Their Origin
 
@@ -83,7 +101,7 @@ Browser-based OAuth login flow. Automatically opens a browser for authentication
 spice cloud login subscription
 ```
 
-Use `--device` to print the URL and one-time code without opening a browser (useful for SSH/headless environments):
+Use `--device` to print the URL without opening a browser (useful for SSH/headless environments), then paste the address the browser was redirected to after signing in. See [Browser Login Flow](#browser-login-flow):
 
 ```shell
 spice cloud login subscription --device

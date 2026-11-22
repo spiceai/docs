@@ -40,4 +40,4 @@ A security IoT system processes real-time sensor data from edge devices to detec
 
 - **AI Gateway**: [Documentation](../../features/large-language-models) and [Running Llama3 Locally Recipe](https://github.com/spiceai/cookbook/blob/trunk/llama/README.md).
 - **Federated SQL Queries**: [Documentation](../../features/query-federation) and [Federated SQL Query Recipe](https://github.com/spiceai/cookbook/blob/trunk/federation/README.md).
-- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [DuckDB Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/duckdb/accelerator/README.md).
+- **Data Acceleration**: [Documentation](../../features/data-acceleration) and [Cayenne Data Accelerator Recipe](https://github.com/spiceai/cookbook/blob/trunk/cayenne/README.md).

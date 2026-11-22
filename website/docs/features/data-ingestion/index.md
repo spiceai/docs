@@ -20,7 +20,7 @@ Data ingestion is useful for scenarios such as keeping a local accelerator conti
 
 ## Ingestion via Acceleration Refresh Modes
 
-When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Arrow, DuckDB, SQLite, PostgreSQL, or Cayenne). The `refresh_mode` controls how that ingestion happens.
+When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Cayenne, Arrow, or SQLite). The `refresh_mode` controls how that ingestion happens.
 
 | Refresh Mode                                                            | What it ingests                                                                                                                                                                              | Typical source                                                                                |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
@@ -46,12 +46,12 @@ datasets:
       pg_db: myapp
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file        # Persistence so resume across restarts is cheap
       refresh_mode: changes
 ```
 
-This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to ingest every `INSERT`, `UPDATE`, and `DELETE` from `public.users` into a local DuckDB accelerator with low latency.
+This uses [PostgreSQL Logical Replication](../cdc/postgres-replication.md) to ingest every `INSERT`, `UPDATE`, and `DELETE` from `public.users` into a local Spice Cayenne accelerator with low latency.
 
 ## SQL Statements
 
@@ -318,6 +318,8 @@ The logs dataset requires Cayenne. A dataset with `otlp_logs: all` and another e
 
 - **OTLP/gRPC**: `opentelemetry.proto.collector.logs.v1.LogsService/Export` on the Flight port (default `127.0.0.1:50051`), the same port as OTLP metrics. gzip is accepted, and messages up to 128 MiB.
 - **OTLP/HTTP**: `POST /v1/logs` on the HTTP port (default `127.0.0.1:8090`), with an `application/x-protobuf` or `application/json` body, optionally `Content-Encoding: gzip`, up to 128 MiB. A JSON body has the same 4,194,304-value limit as `POST /v1/metrics`.
+
+The runtime decodes at most four OTLP/HTTP request bodies at once, counting `POST /v1/metrics` and `POST /v1/logs` together, which bounds the memory that concurrent exports use. A further export waits until a decode finishes. A gzip body stops decompressing one byte past the 128 MiB limit and gets `413 Payload Too Large`. In v2.4.3 and earlier, every request in flight decoded at once, and a gzip body could use about twice the limit before it was refused. OTLP/gRPC exports are not part of this limit.
 
 Both require write access when [API key authentication](../../api/auth/index.md) is enabled. For example, an OpenTelemetry Collector:
 

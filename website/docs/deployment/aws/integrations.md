@@ -253,7 +253,7 @@ S3 Express One Zone is available in select regions. Spice derives the region fro
 
 See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
 
-S3 Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`). [Acceleration snapshots](../../features/data-acceleration/snapshots) use a separate `snapshots.location` on standard S3, GCS, or ADLS. Keep the snapshot bucket on that standard storage so bucket or object replication and multi-region readers work. An Express directory bucket does not substitute for it. The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) is a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`. It does not accept GCS or ADLS.
+S3 Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`). [Acceleration snapshots](../../features/data-acceleration/snapshots) use a separate snapshot location on standard S3, GCS, or ADLS: the `snapshots/` folder of `runtime.state.location`, or a dataset's `acceleration.snapshots_location`. Keep the snapshot bucket on that standard storage so bucket or object replication and multi-region readers work. An Express directory bucket does not substitute for it. The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) is a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`. It does not accept GCS or ADLS.
 
 ## Secret Management
 
@@ -284,10 +284,10 @@ datasets:
 All AWS integrations support the standard AWS SDK credential chain. When credentials are not explicitly configured, Spice loads them from the following sources in order:
 
 1. **Environment Variables**: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`
-2. **Shared Credentials Files**: `~/.aws/credentials` and `~/.aws/config`
-3. **AWS SSO Sessions**: Configured via `aws configure sso`
-4. **Web Identity Token**: For OIDC/OAuth (common with EKS IRSA)
-5. **ECS Container Credentials**: Automatic IAM role for ECS tasks
+2. **AWS Profile**: `~/.aws/credentials` and `~/.aws/config`, including SSO sessions configured with `aws configure sso`
+3. **Web Identity Token**: `AWS_ROLE_ARN` and `AWS_WEB_IDENTITY_TOKEN_FILE`, as EKS IRSA sets them
+4. **GitHub Actions Job Identity**: `AWS_ROLE_ARN` in a GitHub Actions job with `permissions: id-token: write` and no token file
+5. **Container Credentials**: the IAM role of an Amazon ECS task or an EKS Pod Identity pod
 6. **EC2 Instance Metadata (IMDSv2)**: Automatic IAM role for EC2 instances
 
 ### IAM Permissions
@@ -306,18 +306,44 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
         "dynamodb:Scan",
         "dynamodb:Query",
         "dynamodb:DescribeTable",
+        "dynamodb:DescribeStream",
+        "dynamodb:GetShardIterator",
+        "dynamodb:GetRecords",
         "glue:GetTable",
         "glue:GetTables",
         "glue:GetDatabase",
         "glue:GetDatabases",
         "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:ApplyGuardrail",
         "secretsmanager:GetSecretValue"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3vectors:CreateVectorBucket",
+        "s3vectors:GetVectorBucket",
+        "s3vectors:CreateIndex",
+        "s3vectors:GetIndex",
+        "s3vectors:ListIndexes",
+        "s3vectors:PutVectors",
+        "s3vectors:GetVectors",
+        "s3vectors:ListVectors",
+        "s3vectors:QueryVectors",
+        "s3vectors:DeleteVectors"
+      ],
+      "Resource": [
+        "arn:aws:s3vectors:us-east-1:123456789012:bucket/my-s3-vector-bucket",
+        "arn:aws:s3vectors:us-east-1:123456789012:bucket/my-s3-vector-bucket/index/*"
+      ]
     }
   ]
 }
 ```
+
+Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`. The `s3vectors` actions are needed only for [S3 Vectors](#vector-stores-amazon-s3-vectors) search; Spice creates the vector bucket and index when they do not exist, which is why `CreateVectorBucket` and `CreateIndex` are listed. These actions can delete vectors, so the policy scopes them to the vector bucket and its indexes rather than `*`. See the [Amazon S3 Vectors actions](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazons3vectors.html) reference. Replace the Region, account ID, and bucket name in the scoped statement with your own.
 
 ## Deployment Options
 

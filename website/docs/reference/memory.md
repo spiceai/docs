@@ -7,7 +7,6 @@ keywords:
   - memory
   - performance
   - cayenne
-  - duckdb
   - tuning
 pagination_prev: null
 pagination_next: null
@@ -54,13 +53,7 @@ Memory requirements vary based on workload characteristics, dataset sizes, query
 
 The multiples are working-set figures. Add them to the baseline rather than using them as the total, and treat the 8 GB row as a floor that applies regardless of how small the data is.
 
-Memory requirements can be reduced by using file-based acceleration with [DuckDB](../components/data-accelerators/duckdb), [SQLite](../components/data-accelerators/sqlite), or [Spice Cayenne](../components/data-accelerators/cayenne), which store data on disk and support spilling.
-
-:::tip[Datasets 10 GB or larger]
-
-For any dataset of **10 GB or larger**, [Spice Cayenne](../components/data-accelerators/cayenne) is recommended over [DuckDB](../components/data-accelerators/duckdb), because of DuckDB's memory requirements. Cayenne typically needs **one-third to one-half** the memory of the DuckDB accelerator for the same dataset.
-
-:::
+Memory requirements can be reduced by using file-based acceleration with [Spice Cayenne](../components/data-accelerators/cayenne), which stores data on disk and supports spilling.
 
 ### What Makes Up the Baseline
 
@@ -195,38 +188,6 @@ datasets:
       mode: file
 ```
 
-### DuckDB
-
-[DuckDB](../components/data-accelerators/duckdb) manages memory through streaming execution, intermediate spilling, and buffer management. Left to itself, each DuckDB instance sizes its own limit at roughly 80% of host memory.
-
-**Memory Configuration Parameters:**
-
-| Parameter             | Default                                       | Description                            |
-| --------------------- | --------------------------------------------- | -------------------------------------- |
-| `duckdb_memory_limit` | A coordinated share of the query memory budget | Maximum memory for the DuckDB instance |
-
-When `duckdb_memory_limit` is not set, Spice does not leave the instance on DuckDB's own ~80%-of-host-RAM default. At startup it computes a [coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget) across the query pool and every DuckDB instance so their combined ceilings fit within the memory the process can use, capping each un-limited instance at an equal share and reducing the query pool to match. Explicit `duckdb_memory_limit` and `runtime.query.memory_limit` values are always honored as-is.
-
-**Memory Usage Guidelines:**
-
-- For datasets of **10 GB or larger**, prefer [Spice Cayenne](#spice-cayenne), which typically needs one-third to one-half the memory of DuckDB for the same dataset
-- Set `duckdb_memory_limit` to control memory per DuckDB instance, rather than relying on the automatic split
-- DuckDB indexes do not support spilling and may consume significant memory
-- Allocate at least 30% additional container/machine memory for the runtime process
-
-**Example Configuration:**
-
-```yaml
-datasets:
-  - from: postgres:analytics.orders
-    name: orders
-    acceleration:
-      engine: duckdb
-      mode: file
-      params:
-        duckdb_memory_limit: 4GB
-```
-
 ### SQLite
 
 [SQLite](../components/data-accelerators/sqlite) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
@@ -287,7 +248,7 @@ Both are consequences of the partition being coordinated. The practical guidance
 
 - Per-dataset accelerator caches (see [What Makes Up the Baseline](#what-makes-up-the-baseline))
 - Serialization and encode buffers for query results, Arrow IPC, and Flight responses, apart from two that the pool tracks. A streamed `/v1/sql` response chunk and an encoded Flight message are charged to the query pool while they wait to be sent, but that charge never refuses a query: when the pool is full, it waits briefly and then goes over the limit. A `/v1/sql` result that is buffered before it is written is reserved from the query pool and is refused when it does not fit, as described in [How a Memory Refusal Surfaces](#how-a-memory-refusal-surfaces)
-- Embedded engine internals that manage their own memory, such as DuckDB's pool and SQLite's page cache
+- Embedded engine internals that manage their own memory, such as SQLite's page cache
 - Results, search, and embedding caches. The copy of a cacheable SQL result that the results cache keeps while the result streams is the exception: it is charged to the query pool, and a result whose copy does not fit is returned but not cached ([Results That Cannot Be Cached](../features/caching/index.md#results-that-cannot-be-cached))
 - [Maintained aggregate](../components/data-accelerators/cayenne/index.md#memory-budget-and-recovery) state on Spice Cayenne datasets. The retraction index and the `min` and `max` distinct-value state share a per-dataset budget of 10% of the query pool, at least 8 MiB but never more than the pool, or 512 MiB when the pool has no limit. Each view's per-group keys and running aggregates are not counted toward that budget
 - Allocator retention — pages the process has freed but not returned to the operating system
@@ -343,9 +304,24 @@ When the query memory pool cannot satisfy a reservation, the query is refused ra
 | `query_failures` metric | `err_code="ResourcesExhausted"` |
 | Runtime log | Logged at `warn` level (`Query refused, out of memory: …`), so a runtime refusing queries is visible at the default `INFO` verbosity |
 
-A `/v1/sql` response that must hold the whole result before it is written, which includes every `text/plain` response, a `text/csv` response whose result has a nested column such as a list or struct, a result with a union column, and the final result of a `BEGIN … COMMIT` body, reserves that result from the same pool. For `text/plain`, it also reserves an estimate of the rendered table. A refused reservation returns `503 Service Unavailable` with a body that starts with `The query result is too large to buffer in memory for this response.` Other `application/json`, `application/vnd.spiceai.sql.v1+json`, and `text/csv` responses stream and do not hold the whole result. Changing the `Accept` header does not avoid the reservation for a result with a union column or for the final result of a transaction. CSV cannot represent nested columns, so request `application/json` for such a result. See [HTTP SQL Response Formats](../api/overview.md#http-sql-response-formats). In v2.4.1 and earlier, buffered responses are not reserved from the pool.
+A `/v1/sql` response that must hold the whole result before it is written, which includes every `text/plain` response, a `text/csv` response whose result has a nested column such as a list or struct, a result with a union column, and the final result of a `BEGIN … COMMIT` body, reserves that result from the same pool. For `text/plain`, it also reserves an estimate of the rendered table. A refused reservation returns `503 Service Unavailable` with a body that starts with `The query result is too large to buffer in memory for this response.` Other `application/json`, `application/vnd.spiceai.sql.v1+json`, and `text/csv` responses stream and do not hold the whole result. Changing the `Accept` header does not avoid the reservation for a result with a union column or for the final result of a transaction. CSV cannot represent nested columns, so request `application/json` for such a result. See [HTTP SQL Response Formats](../api/overview.md#http-sql-response-formats). In v2.4.2 and earlier, buffered responses are not reserved from the pool.
+
+A [`/v1/nsql`](../api/overview.md#http-sql-response-formats) request that runs its generated SQL holds the whole result, and reserves it from the same pool. A request with `Accept: application/sql` returns the SQL without running it, so it reserves nothing. A result that does not fit returns the same `503` response. In v2.4.3 and earlier, `/v1/nsql` results were not reserved.
+
+Data that a connector must read whole from a remote source is reserved from the same pool, by its decoded size:
+
+- An [HTTP(S)](../components/data-connectors/https/index.md#compressed-responses) dataset's response bodies, charged to the query that reads them.
+- A [GraphQL](../components/data-connectors/graphql/index.md) response, when a dataset loads and when a query reads it.
+- A JSON document that schema inference or a schema-drift probe parses whole: a single JSON object, a SODA response, or a document read with `json_pointer`. JSONL files and top-level JSON arrays are streamed and are not reserved whole.
+- The [GitHub](../components/data-connectors/github/index.md) connector's workflow log archives and the logs extracted from them.
+
+When the pool cannot hold the data, the query fails with `ResourcesExhausted`, or the dataset fails to load, and the error names the endpoint, file, or workflow run and suggests raising `runtime.query.memory_limit` or reading less data at a time. In v2.4.3 and earlier, this data is held in memory without a reservation, and a GitHub workflow run whose logs fail to download returns an empty `logs` value instead of failing the query.
+
+An object-store read (S3, Azure Blob Storage, Google Cloud Storage, or HTTP files) buffers at most 8 MiB of each response ahead of the reader. When the reader pauses, the download pauses with it.
 
 Scalar functions whose output size follows from their arguments (`repeat`, `lpad`, `rpad`, `array_repeat`, `array_resize`, `range`, and `generate_series`) reserve a lower bound of their output from the same pool before they run. When that reservation does not fit in the pool, the call is refused the same way. Because the reservation is a lower bound, it can be smaller than the actual output: for example, `lpad` and `rpad` reserve one byte per requested character, so a multibyte fill string produces more output than was reserved. The requested length is charged for every row, including with an empty fill string, which only truncates, and a negative length is charged as `0`. `array_repeat` (`list_repeat`) charges each copy by the size of the repeated element, counting the values nested in a list, map, or struct element, plus an 8-byte index for each value it copies. In v2.4.1 and earlier, `lpad` and `rpad` with an empty fill string were not charged for their output buffer, and `array_repeat` charged 1 byte per copy of a list, struct, binary, boolean, or `NULL` element, so these calls could allocate past `runtime.query.memory_limit`.
+
+A query with two or more `COUNT(DISTINCT …)` aggregates keeps a set of distinct values for each one and charges each stored value for its own bytes. In v2.4.1 and earlier, when one of those aggregates was over a list, struct, or map column, each stored value kept the whole input batch it was read from and was charged for it, so such a query could be refused with `ResourcesExhausted` even though its distinct values fit in the pool.
 
 A sustained rate of these means the deployment needs more memory, fewer concurrent queries, or fewer partitions — not that the client's SQL is malformed. Note that `/health` is served by a separate Tokio runtime and stays green while queries are being refused, so alert on `query_failures{err_code="ResourcesExhausted"}` rather than relying on health checks.
 
@@ -355,8 +331,8 @@ Concurrency is the multiplier on the working set: each executing plan holds its 
 
 | Setting                                | Default                                     | Effect on memory                                          |
 | -------------------------------------- | ------------------------------------------- | ---------------------------------------------------------- |
-| `runtime.query.max_concurrent_queries` | 4 × the CPU entitlement's cores             | Caps how many plans execute at once; excess queries wait   |
-| `runtime.query.target_partitions`      | The CPU entitlement's cores, or `1` with `runtime.mode: sidecar` | Caps per-plan fan-out and its per-partition reservations   |
+| `runtime.query.max_concurrent_queries` | 4 × the CPU entitlement's cores, or 16 × with `--role sidecar` | Caps how many plans execute at once; excess queries wait   |
+| `runtime.query.target_partitions`      | The CPU entitlement's cores, or `1` with `--role sidecar`     | Caps per-plan fan-out and its per-partition reservations   |
 
 Because the defaults follow CPU, a pod that is CPU-rich and memory-poor admits far more concurrent work than its memory can support. A pod sized for 8 cores admits 32 concurrent queries by default; one running [`runtime.cpu.cores: all`](./spicepod/runtime#runtimecpucores) on a large node admits proportionally more. Neither default consults `runtime.query.memory_limit`.
 
@@ -451,10 +427,9 @@ For time-series data, sort by timestamp. For multi-tenant data, consider sorting
 | ------------- | -------------- | ---------------------------- | --------------- | ----------------------------------------- |
 | Arrow         | Memory only    | `runtime.query.memory_limit` | Yes             | Small datasets, maximum speed             |
 | Spice Cayenne | Disk (Vortex)  | `runtime.query.memory_limit` | Yes             | Datasets 10 GB and above, scalable analytics; lowest memory footprint |
-| DuckDB        | Memory or Disk | `duckdb_memory_limit`        | Yes             | Datasets under 10 GB, complex queries     |
 | SQLite        | Memory or Disk | None                         | No              | Small-medium datasets, simple queries     |
 
-Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration. DuckDB manages its own memory pool separately via the `duckdb_memory_limit` parameter — though when that parameter is unset, the runtime sizes the two together rather than independently (see [Coordinated memory budget](../components/data-accelerators/duckdb#coordinated-memory-budget)).
+Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration.
 
 ## Memory Allocators
 
@@ -647,9 +622,7 @@ The runtime computes its memory partition at startup, before any data is loaded,
 | Startup warning (leading phrase)                                            | Meaning                                                                                                                       | Action                                                                                     |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `Cayenne CDC cache reservation exceeds what the query pool can yield`          | The per-dataset caches do not fit beside the query pool even after the pool has been reduced to its floor. The startup commitment already exceeds available memory. | Add memory, reduce dataset count, or lower per-dataset cache parameters. Expect resident memory above the budgets until then. |
-| `Cayenne in-memory CDC ingestion has limited memory available`                | The query pool, compaction pool, and any co-resident DuckDB reservations leave little room for CDC ingestion.                     | Lower `runtime.query.memory_limit` or per-dataset `duckdb_memory_limit`. Ingestion will spill to disk more often until then. |
-| `Detected potential memory over-commit from DuckDB accelerators`              | Un-limited DuckDB instances would each default to ~80% of host RAM. The runtime capped them automatically.                       | Set explicit `duckdb_memory_limit` values rather than relying on the automatic split.       |
-| `The explicit DuckDB accelerator memory limits plus the query memory limit exceed the coordinated memory budget` | Explicitly configured limits over-commit memory. These are honored as-is and **not** reduced.                                    | Lower the explicit `duckdb_memory_limit` and/or `runtime.query.memory_limit` values.        |
+| `Cayenne in-memory CDC ingestion has limited memory available`                | The query pool and compaction pool leave little room for CDC ingestion.                                                         | Lower `runtime.query.memory_limit`. Ingestion will spill to disk more often until then.                                      |
 
 The first warning is the important one for a constrained environment: it fires precisely in the situation described in [Sizing a Non-Production Environment](#sizing-a-non-production-environment) — an environment small enough that the per-dataset floors no longer fit beside a working query pool. Treat it as a statement that the environment is undersized for the dataset count, not as a tuning prompt.
 
@@ -691,7 +664,6 @@ Where a load test is impractical, mirror production traffic to a canary instance
 - [Apache DataFusion](https://datafusion.apache.org/) - Query execution engine used by Spice
 - [DataFusion Memory Usage](https://datafusion.apache.org/user-guide/configs.html#runtime-configuration-settings) - DataFusion runtime memory configuration
 - [DataFusion Tuning Guide](https://datafusion.apache.org/user-guide/configs.html#tuning-guide) - Memory-limited query optimization
-- [DuckDB Memory Management](https://duckdb.org/docs/operations_manual/limits.html) - DuckDB memory limits documentation
 - [jemalloc](https://jemalloc.net/jemalloc.3.html) - Page retention and the `dirty_decay_ms` / `muzzy_decay_ms` decay schedule
 - [`mallopt`](https://man7.org/linux/man-pages/man3/mallopt.3.html) - glibc's `M_TRIM_THRESHOLD` and when freed memory is returned to the OS
 - [cgroup v2 memory interface](https://docs.kernel.org/admin-guide/cgroup-v2.html#memory-interface-files) - What `memory.max` accounts for and how the OOM decision is made

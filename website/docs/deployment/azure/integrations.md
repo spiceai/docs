@@ -36,7 +36,7 @@ Data connectors federate SQL queries across Azure data sources without data move
 | **Apache Iceberg (ADLS)**           | Query Iceberg tables stored in ADLS Gen2 with REST or Unity Catalog metadata.                                                                                                                                             | [Iceberg Data Connector](../../components/data-connectors/iceberg)       |
 | **Delta Lake (ADLS)**               | Query Delta Lake tables stored in ADLS Gen2 or Azure Blob Storage.                                                                                                                                                        | [Delta Lake Data Connector](../../components/data-connectors/delta-lake) |
 | **Microsoft SharePoint**            | Index and query documents from SharePoint sites and OneDrive for Business with Microsoft Entra ID authentication.                                                                                                         | [SharePoint Data Connector](../../components/data-connectors/sharepoint) |
-| **Azure-hosted databases via ODBC** | Connect through ODBC drivers for additional Azure-compatible data sources.                                                                                                                                                | [ODBC Data Connector](../../components/data-connectors/odbc)             |
+| **Azure-hosted databases via ODBC** | Connect through ODBC drivers for additional Azure-compatible data sources. Available in [Spice.ai Enterprise](https://spice.ai/docs/enterprise/getting-started/distributions); the default open source build does not include it.                                                                                                                                                | [ODBC Data Connector](../../components/data-connectors/odbc)             |
 
 ### Example: Azure Blob Storage (ABFS)
 
@@ -122,7 +122,7 @@ models:
       azure_api_key: ${ secrets:SPICE_AZURE_API_KEY }
 ```
 
-For Microsoft Entra ID authentication instead of an API key, set `azure_entra_token` in place of `azure_api_key`.
+To authenticate without an API key, use [workload identity federation](../../components/models/azure#workload-identity-federation). On AKS with workload identity, a model that sets no `azure_api_key` or `azure_entra_token` uses the pod's identity and needs only `endpoint`.
 
 ## Secret Stores
 
@@ -184,7 +184,8 @@ Spice does not use the Azure Identity [`DefaultAzureCredential`](https://learn.m
 | Azure Blob Storage / ADLS Gen2 | Explicit `abfs_*` authentication parameters must name at most one method, and client credentials need all three of `abfs_client_id`, `abfs_client_secret`, and `abfs_tenant_id`, or the dataset fails to load. `abfs_*` parameters then override `AZURE_*` environment variables, and the first complete credential wins: bearer token, account key, workload identity (`AZURE_FEDERATED_TOKEN_FILE`), service principal secret, SAS token, Azure CLI (only with `abfs_use_cli: true`), then managed identity. Certificate and username/password credentials are not used. |
 | Azure Key Vault                | Chosen by `auth_method`. `default` uses a service principal when `client_secret` is set, and otherwise the Azure CLI or Azure Developer CLI login. Managed and workload identity require `auth_method: managed_identity` or `auth_method: workload_identity`.                                                                       |
 | Azure SQL Database             | A SQL Server login in `mssql_connection_string`, or `mssql_username` and `mssql_password`. Microsoft Entra ID authentication is not supported.                                                                                                                                                                                    |
-| Azure OpenAI                   | `azure_api_key` or `azure_entra_token`.                                                                                                                                                                                                                                                                                           |
+| Azure Databricks               | `databricks_token`, a Databricks service principal (`databricks_client_id` and `databricks_client_secret`), or [workload identity federation](../../components/data-connectors/databricks#workload-identity-federation) with `databricks_client_id` and `databricks_oidc_token_filepath`, such as a projected Kubernetes service account token. |
+| Azure OpenAI                   | `azure_api_key`, `azure_entra_token`, or workload identity federation with `azure_tenant_id` and `azure_client_id`. A model that sets none of them uses `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_FEDERATED_TOKEN_FILE` from the environment. |
 
 For the order in detail, see the [Authentication](../azure#authentication) section of the Azure deployment guide.
 

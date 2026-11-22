@@ -184,9 +184,15 @@ The table below shows the Delta Lake data types supported, along with the type m
 | `Variant`       | `Struct`                              |
 | `Map`           | `Map`                                 |
 
+Spark and Databricks write `Timestamp` columns as Parquet `INT96` by default. Spice reads `INT96` values at microsecond precision in UTC, the precision of the Delta `Timestamp` type, so dates outside 1677–2262, such as the `9999-12-31` often used as an open end date, read correctly and filters on them return the right rows. In v2.4.3 and earlier, `INT96` values were read at nanosecond precision, and values outside 1677–2262 came back as other dates without an error, including in accelerated copies. Upgrading does not rewrite rows that an acceleration already holds; they are corrected only when the acceleration loads them from the source again. A refresh reloads only the rows its refresh mode, `refresh_sql`, and `refresh_data_window` select, so check which rows a refresh reads before relying on it. Rebuilding an acceleration discards rows that the source no longer holds, such as append history or writes kept only in the acceleration with `write_mode: acceleration`. This applies to the Delta Lake connector and to the [Databricks connector](../databricks/index.md) with `mode: delta_lake`.
+
 ## Column Mapping
 
-Delta Lake tables that use [column mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-mapping) with `columnMapping.mode = name` or `columnMapping.mode = id` are supported. Tables in either mode store data in Parquet files under opaque physical column names (e.g., `col-b70f7585-…`) that differ from the logical names exposed by the table schema. Spice resolves logical-to-physical names at read time, including for partitions, predicate pushdown, and nested `Struct`, `List`, and `Map` field renames.
+Delta Lake tables that use [column mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-mapping) with `columnMapping.mode = name` or `columnMapping.mode = id` are supported. Tables in either mode store data in Parquet files under opaque physical column names (e.g., `col-b70f7585-…`) that differ from the logical names exposed by the table schema. Spice resolves logical-to-physical names at read time, including for partitions, predicate pushdown, and nested `Struct`, `List`, and `Map` field renames. A filter that combines a partition column and a data column, such as `part = 3 OR col1 = 5`, is supported. In v2.4.3 and earlier, such a filter failed on a column-mapped table.
+
+## Shallow Clones
+
+Spice reads [shallow clones](https://docs.databricks.com/en/delta/clone.html). A shallow clone's log refers to the source table's data files by absolute URL. Spice reads every data file through the clone's own object store, so the source table's files must be in the same object store as the clone: the same scheme and bucket, container, or host. Hadoop's alternative scheme names for the same store (`s3a` and `s3n` for `s3`, `abfs` for `abfss`) count as the same store. A data file in another store fails the scan with `Delta Lake data file '<file>' is outside the table's storage location '<table>'.` A relative data file path must stay inside the table root. In v2.4.3 and earlier, shallow clones could not be read.
 
 ## Limitations
 

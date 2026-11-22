@@ -108,25 +108,29 @@ Because these UDFs read the same metadata that source-side comment extraction po
 
 The built-in [LLM tools](../../components/tools/index.md) surface descriptions and metadata into the model's context automatically.
 
+### Dataset list in the system message
+
+A model that has the `list_datasets` tool is told which datasets it can query, with each dataset's Spicepod description, in a system message. When the list is too long for the system message, the model finds datasets with `list_datasets` instead. See [Datasets and Schemas](../../components/tools/index.md#datasets-and-schemas).
+
 ### `list_datasets`
 
-Returns every dataset, view, and catalog table visible to the runtime as JSON, with each entry's fully-qualified `table` name, `description`, `metadata`, columns, and capability flags (e.g. `can_search_documents`). Descriptions come from the Spicepod, falling back to source-side comments when no Spicepod description is set.
+Returns the datasets, views, and catalog tables the runtime can query as JSON, 50 at a time (`limit`, up to 200), with `offset` for the next page. `search` finds the datasets whose names, descriptions, columns, or column descriptions match, best match first. A catalog table matches on its columns only when the runtime has its schema at hand. Each entry has the fully qualified `table` name, plus the Spicepod `description`, `metadata`, and `can_search_documents` when they apply:
+
+```json
+{"datasets": [{"table": "spice.public.taxi_trips", "description": "NYC taxi trip rides"}], "total": 1, "has_more": false}
+```
 
 ### `table_schema`
 
-Returns one or more tables' columns as a markdown table. When called with `output: full` (the default), the rendered schema includes a `Metadata:` block at the top with the table-level `description` and any other dataset metadata keys, and a per-column `Metadata` cell containing the column's `description` and any column metadata. With `output: minimal`, only column names, types, and nullability are returned.
+Lists each table's columns, one per line, with its SQL type and `NOT NULL`. With `output: full` (the default), the first line carries the table's `description`, each column line ends with the column's `description`, and the table's keys follow the columns. Descriptions come from the Spicepod, falling back to source-side comments when no Spicepod description is set. With `output: minimal`, only column names, types, and `NOT NULL` are listed. `search` lists only the columns whose names or descriptions match.
 
 ```text
-**Table: spice.public.taxi_trips**
-Metadata:
-description: NYC taxi trip rides
-instructions: Always provide citations with reference URLs.
-
-| Column           | Sql Type  | Arrow Type             | Nullable | Metadata                                            |
-| ---------------- | --------- | ---------------------- | -------- | --------------------------------------------------- |
-| tpep_pickup_time | TIMESTAMP | Timestamp(Microsecond) | true     | description: The time the passenger was picked up   |
-| notes            | VARCHAR   | Utf8                   | true     | description: Optional notes about the trip          |
+spice.public.taxi_trips: NYC taxi trip rides
+  tpep_pickup_time TIMESTAMP -- The time the passenger was picked up
+  notes VARCHAR -- Optional notes about the trip
 ```
+
+In v2.4.x and earlier, `list_datasets` returned every dataset at once, and `table_schema` returned a Markdown table.
 
 Because both `list_datasets` and `table_schema` are part of the [`auto` and `all` tool groups](../../components/tools/index.md#tool-groups), no extra configuration is required — every model declared with `tools: auto` (or any explicit list that includes `table_schema` / `list_datasets`) gets the semantic model in its context.
 

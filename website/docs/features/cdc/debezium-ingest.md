@@ -33,7 +33,7 @@ If you already operate Debezium **over Kafka**, continue using the [`debezium:` 
   spiced   POST /v1/datasets/{name}/cdc
            │  decode → change batch
            ▼
-  accelerator (Cayenne / DuckDB / SQLite / Arrow / …)
+  accelerator (Cayenne / SQLite / Arrow / …)
 ```
 
 The Debezium plugin runs as a separate process and pushes change events into Spice. The HTTP request blocks until the batch has been applied to the accelerator (ack), so the capturer can safely commit its source offsets only after a successful response.
@@ -55,7 +55,7 @@ datasets:
         type: float64
     acceleration:
       enabled: true
-      engine: cayenne # or duckdb, sqlite, arrow, …
+      engine: cayenne # or sqlite, arrow, …
       mode: file
       refresh_mode: changes
       primary_key: id
@@ -72,7 +72,7 @@ datasets:
 - `acceleration.enabled: true`
 - `acceleration.refresh_mode: changes`
 - Explicitly declared `columns` with types — there is no upstream bus or catalog to infer the schema from.
-- `primary_key`, except for the append-only [Arrow](../../components/data-accelerators/arrow/index.md) accelerator. On Spice Cayenne, DuckDB, and SQLite, an update event or a repeated create event replaces the row with the same key.
+- `primary_key`, except for the append-only [Arrow](../../components/data-accelerators/arrow/index.md) accelerator. On Spice Cayenne and SQLite, an update event or a repeated create event replaces the row with the same key.
 
 ### Parameters
 
@@ -124,6 +124,14 @@ The `op` field maps to a row-level change: `c` create, `u` update, `d` delete, `
 | ---- | --- |
 | Confluent wire format | Body begins with the magic byte `0` and a 4-byte schema id; set `cdc_schema_registry_url` on the dataset so Spice can resolve the schema. |
 | Raw Avro | Body is a single Avro datum; provide the schema via the `cdc_avro_schema` dataset param or the `X-Avro-Schema` request header. |
+
+Spice refuses a recursive Avro schema, one whose record contains itself directly or through a union, array, map, or another record, with `400 Bad Request`. The check applies to schemas from Schema Registry, the `cdc_avro_schema` param, and the `X-Avro-Schema` header, before Spice decodes the body:
+
+```text
+Invalid Avro schema: record 'Node' contains itself, directly or through other types. CDC ingest does not accept recursive Avro schemas; send a schema without self-referencing records
+```
+
+A schema that reuses a named record in several fields, such as the Debezium `before` and `after` fields, is not recursive and is accepted. In v2.4.3 and earlier, Spice accepted recursive schemas.
 
 ### Response
 

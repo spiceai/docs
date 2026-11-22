@@ -115,7 +115,7 @@ spec:
     spec:
       chart: spiceai
       # Pin to a specific chart version for reproducible deployments
-      version: 2.4.1
+      version: 2.4.3
       sourceRef:
         kind: HelmRepository
         name: spiceai
@@ -182,7 +182,7 @@ spec:
   chart:
     spec:
       chart: spiceai
-      version: 2.4.1
+      version: 2.4.3
       sourceRef:
         kind: HelmRepository
         name: spiceai
@@ -220,10 +220,10 @@ Upgrade by changing `spec.chart.spec.version` to a newer chart version, then com
 spec:
   chart:
     spec:
-      version: 2.4.1
+      version: 2.4.3
 ```
 
-To track the latest chart version automatically, set `version: '*'` or a semver range such as `1.x`. Pinning to a specific version is recommended for production.
+To track the latest chart version automatically, set `version: '*'` or a semver range such as `2.x`. Pinning to a specific version is recommended for production.
 
 The list of published chart versions is available at [helm.spiceai.org](https://helm.spiceai.org/index.yaml).
 
@@ -347,7 +347,7 @@ Each `HelmRelease` in this directory references the shared `HelmRepository` sour
 - [Flux `HelmRelease` API reference](https://fluxcd.io/flux/components/helm/helmreleases/)
 - [Flux `HelmRepository` API reference](https://fluxcd.io/flux/components/source/helmrepositories/)
 - [Flux GitOps guides](https://fluxcd.io/flux/guides/)
-- [Spice Helm chart source](https://github.com/spiceai/helm-charts)
+- [Spice Helm chart source](https://github.com/spiceai/spiceai/tree/trunk/deploy/chart)
 
 ## Cookbook
 

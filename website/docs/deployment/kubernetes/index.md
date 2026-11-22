@@ -82,7 +82,7 @@ Because instances are evicted, preempted, and replaced during rollouts, clients 
 
 ## Storage
 
-File-mode accelerations (Cayenne, DuckDB, SQLite) and query spill run at the per-I/O latency of the volume beneath them, and the Kubernetes defaults — the node's ephemeral root disk for a plain `emptyDir`, and a network block volume for the default StorageClass — are the slow choices.
+File-mode accelerations (Cayenne, SQLite) and query spill run at the per-I/O latency of the volume beneath them, and the Kubernetes defaults — the node's ephemeral root disk for a plain `emptyDir`, and a network block volume for the default StorageClass — are the slow choices.
 
 | Data                                              | Recommendation                                                                                                                                                       |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -94,7 +94,7 @@ File-mode accelerations (Cayenne, DuckDB, SQLite) and query spill run at the per
 
 ### Confirm the mount from the main container
 
-Acceleration paths (`duckdb_file`, `cayenne_file_path`, `cayenne_metadata_dir`, a full-text `index_directory`) and `runtime.query.temp_directory` are resolved inside the **main** Spice container. A debug container or ephemeral debug sidecar that mounts the volume at a different path does not show where `spiced` writes. Exec into the Spice container and confirm those paths sit on the persistent volume.
+Acceleration paths (`cayenne_file_path`, `cayenne_metadata_dir`, `sqlite_file`, a full-text `index_directory`) and `runtime.query.temp_directory` are resolved inside the **main** Spice container. A debug container or ephemeral debug sidecar that mounts the volume at a different path does not show where `spiced` writes. Exec into the Spice container and confirm those paths sit on the persistent volume.
 
 When a reused accelerator file looks stale, point the dataset at a new empty path so the next start creates a file. That separates a mount that never received the data from a file that was reused. Keep the previous file until the new path is serving. Keep spill on that same volume — the container writable layer and a default `emptyDir` are ephemeral and are the wrong place for `temp_directory`.
 

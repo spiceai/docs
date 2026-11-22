@@ -17,7 +17,7 @@ Use `append` when:
 
 ## Configuration
 
-`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) for the one case where that comparison is inclusive instead.
+For most sources, `append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) for the one case where that comparison is inclusive instead.
 
 ```yaml
 datasets:
@@ -29,6 +29,20 @@ datasets:
       refresh_mode: append
       refresh_check_interval: 10m
 ```
+
+The [Kafka](../../../components/data-connectors/kafka.md) and [Spice.ai](../../../components/data-connectors/spiceai) connectors are the exception: they provide a stream of appended rows, and without a `time_column` Spice subscribes to that stream instead of comparing a time column. For any other source, a dataset with `refresh_mode: append` and no `time_column` fails to load on every engine except Cayenne, with this error:
+
+```text
+Acceleration mode `append` requires `time_column` parameter for source databricks:my_dataset. Configure `time_column` parameter and try again. For details, visit: https://spiceai.org/docs/reference/spicepod/datasets#time_column
+```
+
+On Cayenne, such a dataset loads only when it has a primary key, such as one set with [`primary_key`](../../../reference/spicepod/datasets#accelerationprimary_key). Without one, the load fails with:
+
+```text
+Append mode requires either `time_column` or `primary_key` to be specified in the dataset configuration. For details, visit: https://spiceai.org/docs/components/data-accelerators/data-refresh#append
+```
+
+With a primary key and no `time_column`, a refresh has no column to tell new rows from rows already stored, so each refresh reads the whole source again. Set a `time_column` to read only new rows.
 
 ## Late-Arriving Data
 
@@ -60,13 +74,16 @@ datasets:
 
 ## Append Only Modified Files
 
-For object-store sources, set `time_column` or `time_partition_column` to the special value `last_modified` to append only newly created or updated files. Spice uses file metadata to determine which files are new, dramatically reducing scan time for large datasets.
+For object-store sources, set `time_column` to `_last_modified` and `time_format` to `timestamptz` to append only newly created or updated files. Spice uses file metadata to determine which files are new, dramatically reducing scan time for large datasets.
+
+The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`.
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
-    time_column: last_modified
+    time_column: _last_modified
+    time_format: timestamptz
     params:
       file_format: parquet
     acceleration:
@@ -74,7 +91,7 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-If `last_modified` exists as a column in the data, the column value takes precedence over file metadata.
+If a data column named `_last_modified` already exists, that column value takes precedence over file metadata.
 
 This is supported for connectors that accept the [file format parameter](../../../reference/file_format), such as `s3://`, `abfs://`, and `file://`.
 

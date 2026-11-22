@@ -31,7 +31,7 @@ datasets:
 
     acceleration:
       enabled: true # Acceleration is required for the kafka connector.
-      engine: duckdb # `duckdb`, `sqlite` and `postgres` are supported acceleration engines for Kafka.
+      engine: cayenne # `cayenne`, `arrow`, and `sqlite` are supported acceleration engines for Kafka.
       refresh_mode: append # Required. Must be set to `append` for the Kafka connector.
       mode: file # Persistence is recommended to not have to fully rebuild the table each time Spice starts.
 ```
@@ -43,6 +43,8 @@ Upon startup, Spice subscribes to the specified topic using either a uniquely ge
 Schema is automatically inferred from the first available topic message in JSON format. The connector creates the appropriate table schema for acceleration based on the detected data structure.
 
 While Spice waits for the messages it infers the schema from, a transient broker error, such as a refused connection or all brokers being down, does not fail the dataset: the Kafka client tries the next broker address or reconnects, and Spice keeps waiting. If a transient error has occurred and no message arrives within 20 seconds of the start of the wait for a message, the dataset fails to load with that error. A common case is a `kafka_bootstrap_servers` of `localhost:<port>` on a host where `localhost` resolves to the IPv6 address `::1` first while the broker listens only on IPv4. The [Debezium connector](./debezium) waits the same way for its first change event. In v2.4.0 and earlier, the first transient error failed the dataset load.
+
+When its changes stream starts, Spice reads the newest offset of each partition of the topic. A dataset whose acceleration starts empty, such as a `mode: memory` acceleration after a restart, reports ready only after Spice has applied every message up to those offsets, so its first query returns the rows of every message that was on the topic when Spice started. Messages produced after the stream starts do not delay readiness. Until the broker returns those offsets, Spice retries with backoff and the dataset stays not ready. A message that fails to convert counts as applied: Spice reports it as an error rather than waiting for it. A persistent acceleration (`mode: file`) that holds data from an earlier run is reported ready when Spice starts, and serves those rows while Spice reads the messages produced since it stopped. In v2.4.2 and earlier, a dataset whose acceleration started empty reported ready after its first batch and could return a partial result while Spice read the rest of the topic.
 
 ## Consumer Group Management
 
@@ -157,9 +159,9 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`cayenne`: Use [Spice Cayenne](../data-accelerators/cayenne) as the acceleration engine.</li><li>`arrow`: Use [Arrow](../data-accelerators/arrow) as the acceleration engine (memory only).</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Required. The refresh mode to use. Must be set to `append` for the Kafka connector.                                                                                                                                                                                                                                                                        |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, so it can resume from the last known state instead of re-processing all messages.                                                             |
+| `mode`         | Optional. The persistence mode to use. When using the `cayenne` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice persists metadata about the dataset, so it can resume from the last known state instead of re-processing all messages.                                                             |
 
 ## Data Format Support
 

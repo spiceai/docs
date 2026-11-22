@@ -35,7 +35,7 @@ For the full list of parameters, see the [`runtime.task_history` reference](./sp
 
 ## Captured Context
 
-Tasks that carry user or model content — `ai_chat`, `ai_decision`, `ai_completion`, `responses`, `text_embed`, `search`, `nsql`, `scheduled_worker`, and every `tool_use::*` task — store that content in the `input` and `captured_output` columns. `captured_context` controls how much of it is written:
+Tasks that carry user or model content, such as `ai_chat`, `ai_decision`, `ai_completion`, `responses`, `text_embed`, `search`, `nsql`, `scheduled_worker`, `ai` (the `ai()` SQL function), `rerank` (the `rerank()` SQL function), and every `tool_use::*` task, store that content in the `input` and `captured_output` columns. `captured_context` controls how much of it is written:
 
 ```yaml
 runtime:
@@ -51,7 +51,11 @@ runtime:
 
 In `truncated` and `full`, a tool call whose arguments hold a statement with `CREATE`, `ALTER`, or `ATTACH` is stored without the values of the parameters the statement sets, whatever the tool's name, as [SQL DDL](./sql/ddl.md#who-can-define-datasets-and-catalogs) describes.
 
-Values are case-sensitive; an unrecognized value fails at load. Other task types (for example `sql_query` and `acceleration_refresh`) are unaffected by this setting.
+Values are case-sensitive; an unrecognized value fails at load.
+
+`captured_context` applies to every task except those whose payload is SQL text and those that record work the runtime starts on a component the Spicepod configures: `sql_query`, `plan`, `ballista_stage`, `databricks_execute_statement`, `databricks_poll_statement`, `databricks_get_schema`, `health`, `acceleration_refresh`, `accelerated_schema_evolution`, `test_connectivity`, `ai_decide`, `cluster::expand_secret`, and the Unity Catalog tasks (`uc_get_catalog`, `uc_get_effective_permissions`, `uc_get_table`, `uc_list_schemas`, `uc_list_tables`, `uc_temporary_table_credentials`). Those tasks keep their full text under every value. A task type not named here is treated as one that carries content.
+
+In Spice v2.4.3 and earlier, `captured_context` applied only to a fixed list of tasks that did not include `ai` and `rerank`, so the prompt passed to `ai()` and the query passed to `rerank()` were stored in full under every value.
 
 :::note
 `captured_context` shapes prompt, tool, and search payloads only. Whether task output is recorded at all is controlled separately by `captured_output`, which defaults to `none`.

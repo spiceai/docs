@@ -182,6 +182,8 @@ The Helm convention is to use a file called `values.yaml`, but any file name can
 | `resources`                     | Resource requests and limits for the Spice.ai container. See [Container resource examples](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#example-1).     | unset             |
 | `service.type`                  | Kubernetes service type. Can be null, ClusterIP, NodePort, or LoadBalancer.                                                                                                               | `null`            |
 | `serviceAccount.create`         | Specifies whether a ServiceAccount should be created.                                                                                                                                     | `false`           |
+| `serviceAccount.name`           | The name of the ServiceAccount the pods use. When unset, the chart generates one from its full name if `serviceAccount.create` is `true`, and uses the namespace's `default` ServiceAccount otherwise.                                                     | unset             |
+| `serviceAccount.annotations`    | Annotations added to the ServiceAccount the chart creates, such as an AWS IRSA role ARN or a GKE Workload Identity service account. Applied only when `serviceAccount.create` is `true`. | `{}`              |
 | `livenessProbe`                 | Kubernetes liveness probe configuration. Uses standard [probe shape](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).                | see `values.yaml` |
 | `readinessProbe`                | Kubernetes readiness probe configuration. Uses standard [probe shape](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).               | see `values.yaml` |
 | `startupProbe`                  | Kubernetes startup probe configuration. Uses standard [probe shape](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).                 | see `values.yaml` |
@@ -279,6 +281,8 @@ readinessProbe:
   periodSeconds: 10
   failureThreshold: 3
 ```
+
+To route traffic to the healthy datasets of a runtime where one dataset failed to load, set the readiness probe path to `/v1/ready?allow_unhealthy=true`. See [Serve healthy components when one fails to load](../../../reference/spicepod/runtime.md#serve-healthy-components-when-one-fails-to-load).
 
 #### Customizing Probes
 
@@ -395,7 +399,7 @@ Spice accelerations are sensitive to per-I/O latency above all. Choose the Stora
 3. **Cayenne shared object storage (Cayenne only, optional)** — when Cayenne acceleration must be shared across replicas or persisted independently of pod lifecycle, [Amazon S3 Express One Zone](https://aws.amazon.com/s3/storage-classes/express-one-zone/) provides single-digit-millisecond object storage. Configure Cayenne to use an S3 Express directory bucket — see the [Cayenne acceleration documentation](../../components/data-accelerators/cayenne).
 
 :::warning
-Network file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artefacts that must survive pod replacement.
+Network file systems (NFS, EFS, Azure Files / SMB, Cloud Filestore) are not recommended for acceleration storage classes. Their latency negates the benefit of using a local accelerator. Reserve them for stateless artifacts that must survive pod replacement.
 :::
 
 ## Update Strategy
@@ -423,7 +427,7 @@ Setting the key that does not match the current mode has no effect: `strategy` i
 ```yaml
 additionalLabels:
   environment: production
-  app: spice
+  team: data-platform
 
 image:
   repository: spiceai/spiceai
@@ -477,10 +481,10 @@ spicepod:
         file_format: parquet
       acceleration:
         enabled: true
-        engine: duckdb
+        engine: cayenne
         mode: file
         params:
-          duckdb_file: /data/taxi_trips.db
+          cayenne_file_path: /data/
         # Uncomment to refresh the acceleration on a schedule
         # refresh_check_interval: 1h
         # refresh_mode: full

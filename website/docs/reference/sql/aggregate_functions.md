@@ -5,7 +5,7 @@ sidebar_position: 7
 ---
 
 :::info
-Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like DuckDB, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
+Spice is built on [Apache DataFusion](https://datafusion.apache.org/) and uses the PostgreSQL dialect, even when querying datasources with different SQL dialects. When using a data accelerator like SQLite, function support is specific to each acceleration engine, and not all functions are supported by all acceleration engines.
 :::
 
 Aggregate functions operate on a set of values to compute a single result.
@@ -1223,3 +1223,83 @@ An alternative syntax is also supported:
 | 78.5                                             |
 +--------------------------------------------------+
 ```
+
+## Spark-Compatible Functions
+
+Spice registers these aggregate functions from the [`datafusion-spark`](https://crates.io/crates/datafusion-spark) crate. They follow Spark's semantics, which differ from the PostgreSQL-style functions above. See the [Spark SQL built-in function reference](https://spark.apache.org/docs/latest/api/sql/index.html) for details.
+
+- [collect_list](#collect_list)
+- [collect_set](#collect_set)
+- [try_sum](#try_sum)
+
+### `collect_list`
+
+Returns a list of the input values in a group. Unlike `array_agg`, it skips `NULL` values, and returns an empty list, not `NULL`, for a group whose values are all `NULL`.
+
+```sql
+collect_list(expression)
+```
+
+#### Arguments
+
+- **expression**: The expression to collect. Can be a column or an expression of any type.
+
+### `collect_set`
+
+Returns a list of the distinct input values in a group, in no particular order. Like `collect_list`, it skips `NULL` values and returns an empty list for a group whose values are all `NULL`.
+
+```sql
+collect_set(expression)
+```
+
+#### Arguments
+
+- **expression**: The expression to collect. Can be a column or an expression of any type.
+
+#### Example
+
+```sql
+SELECT k, collect_list(v) AS vals, collect_set(v) AS distinct_vals
+FROM (VALUES ('a', 1), ('a', 1), ('a', NULL), ('a', 2), ('b', NULL)) AS t(k, v)
+GROUP BY k
+ORDER BY k;
+```
+
+```text
++---+-----------+---------------+
+| k | vals      | distinct_vals |
++---+-----------+---------------+
+| a | [1, 1, 2] | [2, 1]        |
+| b | []        | []            |
++---+-----------+---------------+
+```
+
+### `try_sum`
+
+Returns the sum of the input values. For a signed integer or `Decimal128` input, it returns `NULL` when the sum overflows its result type. A floating-point sum that overflows returns infinity. It accepts signed integer, floating-point, and `Decimal128` values. A signed integer input returns `Int64`, a floating-point input returns `Float64`, and a `Decimal128(p, s)` input returns `Decimal128` with the precision raised by 10, up to 38.
+
+```sql
+try_sum(expression)
+```
+
+#### Arguments
+
+- **expression**: The numeric expression to sum.
+
+#### Example
+
+```sql
+SELECT try_sum(v) AS total FROM (VALUES (9223372036854775807), (1)) AS t(v);
+```
+
+```text
++-------+
+| total |
++-------+
+|       |
++-------+
+```
+
+## Metrics Functions
+
+Spice registers three aggregate functions for querying OpenTelemetry metrics: `histogram_quantile(q, explicit_bounds, bucket_counts)`, `increase(value, time)`, and `rate(value, time)`. See [Querying the metrics store](../../features/data-ingestion/index.md#querying-the-metrics-store) for their arguments and examples.

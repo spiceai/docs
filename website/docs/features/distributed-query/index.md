@@ -55,6 +55,28 @@ Each node in the cluster requires:
 
 Production deployments should use the organization's PKI infrastructure to generate certificates with proper SANs for each node.
 
+The certificate must name the address the node advertises with `--node-advertise-address`. Each node checks this at startup, before an executor registers and before a scheduler serves, and exits with an error when the certificate does not name it:
+
+```text
+Failed to start executor 'executor-1': its cluster certificate (CN=executor-1) does not name its advertise address '10.0.0.7', so other cluster nodes cannot connect to it. Issue a certificate that names it, for example `spice cluster tls add executor-1 --host 10.0.0.7`, or set `--node-advertise-address` to a name the certificate covers. See: https://spiceai.org/docs/features/distributed-query
+```
+
+The scheduler also refuses, with gRPC `PermissionDenied`, an executor registration whose advertised address the executor's certificate does not name. When a [hot-reloaded](../../api/tls/index.md#certificate-hot-reload) cluster certificate no longer names the node's advertise address, the node keeps its current certificate, logs an error, and counts the attempt as `runtime_tls_reload_total{scope="cluster",result="parse_error"}`.
+
+#### Node identity
+
+A node's identity is the issuer, subject, and Subject Alternative Names of its certificate. A renewed certificate for the same node keeps its identity. The cluster uses that identity to decide what each node may do:
+
+- An executor ID belongs to the node whose certificate registered it. Another node that names that executor ID is refused with `PermissionDenied`, and the registered executor keeps serving.
+- An executor treats a peer as the scheduler when the peer presents the certificate identity seen at the scheduler address. Only the scheduler can send writes to an executor. Requests from other cluster nodes without an API key are read-only, as a peer executor's shuffle fetch is.
+- The scheduler's cluster port serves only the calls that executors make. The calls that submit and inspect queries are refused on that port with `PermissionDenied`.
+
+Nodes that share one certificate share one identity and cannot be told apart. Issue the scheduler and the executors separate certificates. An executor that held the scheduler's certificate would be trusted as the scheduler.
+
+The scheduler's cluster port refuses a message larger than 256 MiB, and an executor's Flight server refuses one larger than 100 MiB. Responses, which carry plans and shuffle data, are not limited.
+
+Without cluster mTLS (`--allow-insecure-connections`), nodes have no identity and none of these checks apply. In v2.4.3 and earlier, a node starts whatever address its certificate names, any node with a certificate from the cluster CA can act as any executor, and cluster messages have no size limit.
+
 ### Development Certificates
 
 For local development and testing, the Spice CLI provides commands to generate self-signed certificates:

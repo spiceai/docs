@@ -30,6 +30,8 @@ Tokens must be sourced from a [secret store](../../secret-stores/) in production
 
 For long-running deployments, prefer GitHub App tokens (installation tokens) over user PATs — they have higher rate limits (15,000/hr vs 5,000/hr per authenticated user) and are not tied to a specific user account.
 
+To store no GitHub secret at all, keep the App's private key in Azure Key Vault or AWS KMS and set `github_private_key_kms` instead of `github_private_key`: the key service signs the App's JWTs, and Spice reaches it with the workload's cloud identity. See [GitHub App Private Key in Azure Key Vault or AWS KMS](./index.md#github-app-private-key-in-azure-key-vault-or-aws-kms).
+
 ## Resilience Controls
 
 ### Rate Limiting

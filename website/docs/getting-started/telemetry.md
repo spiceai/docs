@@ -42,7 +42,7 @@ cargo build --release --no-default-features --features "<other_default_features>
 i.e.
 
 ```bash
-cargo build --release --no-default-features --features "duckdb,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
+cargo build --release --no-default-features --features "adbc,postgres,sqlite,mysql,flightsql,delta_lake,databricks,dremio,clickhouse,spark,snowflake,ftp,debezium"
 ```
 
 ### Configuration Settings (Enterprise only)
