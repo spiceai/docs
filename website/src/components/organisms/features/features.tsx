@@ -67,7 +67,7 @@ export const Features = () => {
         <Feature
           icon={<InferenceIcon />}
           title='AI router and SQL functions'
-          description='An OpenAI-compatible router to local and hosted models, with AI SQL functions, MCP tools, memory, evals, and observability built into the runtime.'
+          description='An OpenAI-compatible API with AI SQL functions and decision functions that routes to local and hosted models, plus MCP tools, memory, evals, and observability built into the runtime.'
           docsLink='https://docs.spiceai.org/docs/features/large-language-models'
         />
       </div>
