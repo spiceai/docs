@@ -54,7 +54,7 @@ export const Features = () => {
         />
         <Feature
           icon={<SearchIcon />}
-          title='RAG and Agentic Retrieval'
+          title='RAG and agentic retrieval'
           description='Vector, keyword, and full-text search in SQL with vector_search and text_search, fused into ranked results that ground agents in data.'
           docsLink='https://docs.spiceai.org/docs/features/search'
         />
@@ -66,7 +66,7 @@ export const Features = () => {
         />
         <Feature
           icon={<InferenceIcon />}
-          title='AI Router and SQL functions'
+          title='AI router and SQL functions'
           description='An OpenAI-compatible gateway to local and hosted models, with AI SQL functions, MCP tools, memory, evals, and observability built into the runtime.'
           docsLink='https://docs.spiceai.org/docs/features/large-language-models'
         />
