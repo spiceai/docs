@@ -580,7 +580,7 @@ For a dynamic JSON API endpoint, Spice requests compressed responses (`Accept-En
 | `gzip`, `deflate` | 400:1 |
 | `zstd`, `br` (Brotli) | 2,000:1 |
 
-Real data compresses below these ratios, while a compression bomb exceeds them. The limits cannot be configured. In v2.4.3 and earlier, a decoded response is not checked against a compression ratio.
+Real data compresses below these ratios, while a compression bomb exceeds them. The limits cannot be configured. In v2.4.3, every codec is refused beyond 100:1, which also refuses some legitimate sparse or repetitive JSON.
 
 Every response body, compressed or not, also counts against the [query memory limit](../../../reference/memory.md#how-a-memory-refusal-surfaces) (`runtime.query.memory_limit`) of the query that reads it, including a response served from the [response cache](#response-cache). A response the query memory pool cannot hold fails the query with `ResourcesExhausted`, and the error ends with:
 
