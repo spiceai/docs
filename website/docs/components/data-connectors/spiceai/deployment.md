@@ -114,7 +114,7 @@ When the upstream marks its snapshot and the dataset is already `Ready`, the sid
 | `dataset_append_stream_stale_seconds` | Gauge | Seconds since the dataset's data last changed while a reload is refused or discarded. `0` once a reload succeeds. |
 | `dataset_append_stream_reloads_refused` | Counter | Reloads refused because the query memory pool could not hold them. |
 
-Both report `0` once the dataset's append stream starts. `/v1/datasets` does not show a stale dataset: it stays `Ready` and serves its previous data. An upstream that does not mark its snapshot, such as one running v2.4.3 or earlier, gets no staging: a new subscription's snapshot opens with a truncate and is applied as it arrives, so queries can see an empty or partly reloaded dataset until it completes.
+Both report `0` once the dataset's append stream starts, and stop being reported when the dataset's last append stream stops, so an alert on a non-zero value alone does not detect a stream that has stopped. `/v1/datasets` does not show a stale dataset: it stays `Ready` and serves its previous data. An upstream that does not mark its snapshot, such as one running v2.4.3 or earlier, gets no staging: a new subscription's snapshot opens with a truncate and is applied as it arrives, so queries can see an empty or partly reloaded dataset until it completes.
 
 Rows written to the upstream with Flight `DoPut` are not covered by this ordering: a sidecar that subscribes between a `DoPut` commit and its forwarding can still receive those rows twice.
 
@@ -196,7 +196,7 @@ datasets:
 
 ## Metrics
 
-The Flight client is not instrumented, so this connector emits no transport-level metrics, and it does not currently register Spice.ai-specific dataset-level instruments. Monitor the connector via:
+The Flight client is not instrumented, so this connector emits no transport-level metrics. Its only dataset-level instruments are the two [append stream](#append-streams) reload metrics, `dataset_append_stream_stale_seconds` and `dataset_append_stream_reloads_refused`. Monitor the connector via:
 
 - Query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - Acceleration refresh metrics when the dataset is accelerated (`dataset_acceleration_refresh_duration_ms`, `dataset_acceleration_refresh_errors`).
