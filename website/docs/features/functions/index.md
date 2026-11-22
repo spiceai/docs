@@ -371,6 +371,8 @@ curl http://localhost:8090/v1/functions
 
 Returns a JSON array of user functions only (built-ins are excluded). Each entry includes `name`, `kind`, `volatility`, `from`, and `description`. The endpoint returns an empty array when `runtime.functions.enabled` is `false`.
 
+An HTTP function's `from` can carry a credential, such as `https://user:password@host/fn` or `?token=...`. `GET /v1/functions`, `list_udfs()`, the `Registered user function` log line, and the schema context sent to a model for [NSQL](../../api/overview.md) report `from` with the user info removed and credential query values replaced with `***`, as [`GET /v1/datasets` does](../../reference/spicepod/datasets.md#from). The request is still sent to the URL as written. A failed request to a remote function reports the function's name instead of its URL, for example `remote function 'f' request failed: error sending request`. In v2.4.3 and earlier, each of these reports `from` as configured, and a failed request's error includes the URL.
+
 ## Functions as LLM tools
 
 Every declared scalar function is automatically callable from LLMs as a tool with the same name and description. This lets a model reason in natural language and then invoke `haversine_km(...)` or `classify_intent(...)` directly. Table functions (`kind: table`) are always SQL-only and are not surfaced as LLM tools.

@@ -167,7 +167,7 @@ The connector supports authentication, timeout, connection pooling, and retry co
 | `request_header_filters`   | Optional. Set to `enabled` to allow `request_headers` filters to push down dynamic HTTP request headers. Default: `disabled`. Requires `request_header_allowlist`.
 | `request_header_allowlist` | Comma-separated list of HTTP header names that `request_headers` filters may set (e.g., `x-sandbox-id, x-region`). **Required** when `request_header_filters` is enabled. The `authorization` header cannot be allowlisted when HTTP authentication is configured.
 | `max_request_headers_length` | Optional. Maximum size in bytes for `request_headers` filter values. Default: `16384` (16 KiB).
-| `max_request_partitions`   | Optional. Maximum number of HTTP request partitions created from the cross product of `request_path`, `request_query`, `request_body`, and `request_headers` filters. If unset, partition count is unlimited.                                                                                                                                                                                                                                                                                                                   |
+| `max_request_partitions`   | Optional. Maximum number of HTTP request partitions created from the cross product of `request_path`, `request_query`, `request_body`, and `request_headers` filters. Defaults to `1000`. A query that would send more requests fails with an error that names the limit. The value must be a positive integer; any other value fails the dataset at load. In v2.4.3 and earlier, the default is unlimited, and a value that is not a positive integer is ignored.                                                                                                                                                                                                                                                                                                                   |
 | `response_cache_max_size_bytes` | Optional. Byte budget for the responses this dataset retains in its [response cache](#response-cache), counting response bodies and the request keys they are held under. Once reached, entries are evicted to stay inside it. Set `0` to disable the response cache. Default: `67108864` (64 MiB), applied **per dataset**. Applies to dynamic JSON API endpoints only; structured HTTP file datasets do not use this cache. |
 | `response_cache_fallback_ttl` | Optional. How long to retain a response whose origin sent no `Cache-Control` header at all (e.g. `5m`, `30s`). An origin that did send `Cache-Control` is always honored instead, including its refusals. Unset by default, which keeps such responses uncached. |
 | `health_probe`             | Optional. Custom health probe path for endpoint validation during initialization (e.g., `/health`, `/api/status`). The endpoint must return a 2xx status code to pass validation. If not set, a random path is used and any status (including 404) is accepted. Must start with `/`.                                                                                                                                                      |
@@ -573,15 +573,30 @@ Before this parameter existed, the connector recorded every response as a row, i
 
 ### Compressed Responses
 
-For a dynamic JSON API endpoint, Spice requests compressed responses (`Accept-Encoding: zstd,gzip,deflate,br`) and decodes the body itself. Once a decoded body passes 64 MiB, Spice refuses it if it has expanded to more than 100 times the bytes received for it. Dense JSON, such as rows of typical records or search hits, compresses well below that ratio, while a compression bomb exceeds it. Very sparse or highly repetitive JSON can also exceed it: the [source change](https://github.com/spiceai/spiceai/pull/15327) measured such rows at 130:1 to 438:1, so a large response of that data is refused even though it is legitimate. An uncompressed response is not limited, and the limit cannot be configured.
+For a dynamic JSON API endpoint, Spice requests compressed responses (`Accept-Encoding: zstd,gzip,deflate,br`) and decodes the body itself. Once a decoded body passes 64 MiB, Spice refuses it if it has expanded past a ratio that depends on its codec:
 
-A refused response fails the request without retries, because the origin returns the same body each time. The error names the endpoint and the dataset, and ends with:
+| Codec | Refused beyond |
+| ----- | -------------- |
+| `gzip`, `deflate` | 400:1 |
+| `zstd`, `br` (Brotli) | 2,000:1 |
+
+Real data compresses below these ratios, while a compression bomb exceeds them. The limits cannot be configured. In v2.4.3 and earlier, a decoded response is not checked against a compression ratio.
+
+Every response body, compressed or not, also counts against the [query memory limit](../../../reference/memory.md#how-a-memory-refusal-surfaces) (`runtime.query.memory_limit`) of the query that reads it, including a response served from the [response cache](#response-cache). A response the query memory pool cannot hold fails the query with `ResourcesExhausted`, and the error ends with:
 
 ```text
-Ask the endpoint for an uncompressed response by adding `Accept-Encoding: identity` to `http_headers`, or request less data per call.
+Raise `runtime.query.memory_limit`, or request less data per call with filters or pagination. See: https://spiceai.org/docs/reference/memory
 ```
 
-To read an endpoint whose responses compress that well, request uncompressed responses. An uncompressed response has no size limit and is held in memory while it is read, so use this only with an endpoint you trust, and prefer requesting less data per call where the endpoint supports it:
+In v2.4.3 and earlier, a response is held in memory whatever its size.
+
+A response refused for its compression ratio fails the request without retries, because the origin returns the same body each time. The error names the endpoint, the dataset, the codec, and the sizes, for example:
+
+```text
+Failed to read the response from https://api.example.com for dataset 'records': the gzip-compressed response expanded more than 400:1 (64.1 MiB from 156.3 KiB received), far past what real data compresses to, so it was refused as a compression bomb. If the data is genuine, have the origin serve it uncompressed or at a lower compression level. See: https://spiceai.org/docs/components/data-connectors/https
+```
+
+To read an endpoint whose responses compress that well, request uncompressed responses. An uncompressed response has no ratio limit, and the query memory limit still applies to it. Prefer requesting less data per call where the endpoint supports it:
 
 ```yaml
 datasets:
