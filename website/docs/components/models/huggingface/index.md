@@ -65,7 +65,13 @@ When Spice picks a quantization, or resolves a name, the load log names what it 
 Model '<name>' loads quantization <quantization> (<n> files, <size> GB) from Hugging Face repo '<repo>', the quantization a model with no `files` loads: <reason>. To load another of its <count> complete GGUF quantizations, name it in the model's `files`: <quantization> (<size> GB), <quantization> (<size> GB), ...
 ```
 
-`<reason>` is `its Q4_K_M, as llama.cpp loads it`, `its Q8_0, as llama.cpp loads it when a repository has no Q4_K_M`, or `its first by path, as llama.cpp loads it when a repository has neither Q4_K_M nor Q8_0`. The list names the quantizations largest first, and at most 40 of them. A repository that offers more ends the list with `and <n> more`.
+`<reason>` is `its Q4_K_M, as llama.cpp loads it`, `its Q8_0, as llama.cpp loads it when a repository has no Q4_K_M`, or `its first by path, as llama.cpp loads it when a repository has neither Q4_K_M nor Q8_0`. The list names the quantizations largest first, and at most 40 of them. A repository that offers more ends the list with `and <n> more`. A repository that offers one complete quantization ends the line with `It is the only complete GGUF quantization the repo offers.` in place of the list, and a cache that holds one with `The cache holds no other complete GGUF quantization of the repo.`
+
+When Spice cannot read the Hub's listing, because `HF_HUB_OFFLINE` is set or the Hub is out of reach, it chooses among the quantizations the cache holds, which can be another quantization than it loads with the Hub. The line then says so, before the list of the quantizations in the cache:
+
+```text
+`HF_HUB_OFFLINE` is set, so Spice chose among what the Hugging Face cache holds, and a load that reads the Hub may choose another. To load another of the <count> complete GGUF quantizations in the cache, name it in the model's `files`: <quantization> (<size> GB), ...
+```
 
 A smaller quantization that Spice picks because the default does not fit is logged with the `files:` entry that pins it, in this form:
 
@@ -73,7 +79,7 @@ A smaller quantization that Spice picks because the default does not fit is logg
 Model '<name>' loads quantization <quantization> (<n> files, <size> GB) from Hugging Face repo '<repo>', the largest of its <count> complete GGUF quantizations whose weights fit the <memory> GiB of memory free for it with room for the context; <default> (<size> GB), which a model with no `files` loads, does not. Pin it with `files: [{path: <quantization>}]`.
 ```
 
-When no quantization fits, the model fails to load with an error that names the smallest quantization; name one in `files` to load it anyway. A model split across machines with `nodes` loads the default quantization and does not compare it with the memory of a machine, so that every machine loads the same weights.
+When no quantization fits, the model fails to load with an error that names the smallest quantization; name one in `files` to load it anyway. A model split across machines with `nodes` loads the default quantization and does not compare it with the memory of a machine, so that the choice depends on the repository's listing alone. With the Hub not read, each machine chooses from its own cache, so give every machine the same files in its cache, for example with `hf download` on each while online.
 
 The choice compares only the size of the weights with the free memory. A quantization that fits only by placing some of its weights in system memory is not picked, but naming it in `files` loads it. Fitting a model to its hardware with the engine's own estimate is tracked in [spiceai/spiceai#15577](https://github.com/spiceai/spiceai/issues/15577).
 
@@ -166,6 +172,8 @@ Each load resolves the revision (`main` by default) to a commit, and downloads o
 With `HF_HUB_OFFLINE=1` (or `TRANSFORMERS_OFFLINE=1`), Spice never contacts the Hub, and loads each repository from the cache. A repository the cache lacks fails to load, with an error that names the cache and the `hf download` command that fills it.
 
 When the Hub cannot be reached, or fails for any reason but a missing repository, revision or file, Spice loads the revision from the cache and logs a warning. Changes to the revision are not seen until the Hub is reachable again.
+
+Offline or in an outage, a model whose files the cache lacks, or holds only part of, fails to load with an error that says only the cache was read, and how to fill it. Spice retries the load, so the model loads once `hf download` fills the cache or the Hub is reachable again.
 
 ### Downloads
 
