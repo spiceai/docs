@@ -206,7 +206,7 @@ For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and 
 Model '<name>' can't combine a `json_schema` or `json_object` `response_format` with `tools`: its chat template's tool-call format can't be enforced alongside a schema. Send one or the other.
 ```
 
-`tool_choice: none` offers no tool, so the reply is the schema's JSON in any template. `tool_choice: required`, or a named function, takes precedence over `response_format`: the turn is a tool call, and `response_format` applies to a later turn. Where the chat template uses `<tool_call>`, the call is forced through a grammar. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
+`tool_choice: none` offers no tool, so the reply is the schema's JSON in any template. `tool_choice: required`, or a named function, takes precedence over `response_format`: the turn is a tool call, and `response_format` applies to a later turn. Where the chat template uses `<tool_call>`, or writes [Harmony](#gpt-oss) or [Inkling](#inkling-2) messages, the call is forced through a grammar. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
 
 ### GGUF architectures
 
@@ -240,7 +240,7 @@ Inkling 2 and Inkling 2 Mini GGUFs (architectures `inkling2` and `inkling2_loop`
 - A text block (`<|content_text|>`) is returned as `content`.
 - A tool-call block (`<|content_invoke_tool_json|>`) whose header names a tool the request offers, and whose body is exactly `{"name": <that tool>, "args": <an object>}`, is returned as a `tool_calls` entry with `args` as its arguments, and `finish_reason` is `tool_calls`. Any other call block is dropped. With `parallel_tool_calls: false`, the reply ends at the first call.
 
-A GGUF whose chat template writes Inkling messages loads only when its vocabulary holds each Inkling marker as a single token. Otherwise it is refused at load with the `is not supported by this Spice release` message above. Inkling does not write tool calls as `<tool_call>`, so [Structured Output and Tool Choice](#structured-output-and-tool-choice) applies to it as to other tool-call formats: a request that sets both `response_format` and `tools` and leaves the model to choose is refused with HTTP 400. A required or named call, and a `response_format` alone, are enforced with a grammar over the Inkling markers.
+A GGUF whose chat template writes Inkling messages loads only when its vocabulary holds each Inkling marker as a single token. Otherwise it is refused at load with the `is not supported by this Spice release` message above. Inkling does not write tool calls as `<tool_call>`, so a request that sets both `response_format` and `tools` and leaves the model to choose is refused with HTTP 400, as [Structured Output and Tool Choice](#structured-output-and-tool-choice) describes for other tool-call formats. Unlike those formats, a required or named call on an Inkling model is forced through a grammar over the Inkling markers, as with `<tool_call>` templates, and so is a `response_format` without tools.
 
 ## Message Content Parts for Local Models
 
