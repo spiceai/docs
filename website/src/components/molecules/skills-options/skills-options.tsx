@@ -52,6 +52,15 @@ export const SkillsOptions = () => {
   const snippetId = useId()
   const activeTabIndexRef = useRef(activeTabIndex)
   activeTabIndexRef.current = activeTabIndex
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const setTabPosition = () => {
@@ -93,6 +102,10 @@ export const SkillsOptions = () => {
                 isActive && 'bg-alpha-100 md:bg-transparent md:hover:bg-transparent'
               )}
               onClick={() => {
+                if (copyTimeoutRef.current) {
+                  clearTimeout(copyTimeoutRef.current)
+                  copyTimeoutRef.current = null
+                }
                 setActiveTabIndex(index)
                 setCopied(false)
               }}
@@ -112,9 +125,13 @@ export const SkillsOptions = () => {
             .writeText(activeTab.copy)
             .then(() => {
               if (activeTabIndexRef.current !== copyIndex) return
+              if (copyTimeoutRef.current) {
+                clearTimeout(copyTimeoutRef.current)
+              }
               setCopied(true)
-              setTimeout(() => {
+              copyTimeoutRef.current = setTimeout(() => {
                 setCopied(false)
+                copyTimeoutRef.current = null
               }, 2300)
             })
             .catch(() => {})
