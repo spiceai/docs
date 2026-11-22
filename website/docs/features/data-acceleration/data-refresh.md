@@ -249,8 +249,8 @@ datasets:
 
 A dataset is served from its existing acceleration this way when its configuration meets every one of these conditions ([`waits_for_source_reason`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/init/dataset.rs#L1184-L1224)):
 
-- The acceleration persists across restarts: the `postgres` engine, or another engine with `mode: file` or `mode: file_update`. With engines other than `postgres`, `mode: memory` keeps no data across restarts.
-- For every engine, including `postgres`, `mode` is not `file_create`, and `mode: file_update` is used only with `refresh_mode: disabled`.
+- The acceleration persists across restarts: `mode: file` or `mode: file_update`. `mode: memory` keeps no data across restarts.
+- `mode` is not `file_create`, and `mode: file_update` is used only with `refresh_mode: disabled`.
 - The acceleration checkpoint records the acceleration's primary key. Checkpoints written by Spice v2.3 and earlier do not; see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions).
 - The dataset is read-only: `access` is not `read_write`.
 - `refresh_mode` is not `changes` or `caching`, and `append` is used only with a `time_column`. An unset `refresh_mode` resolves to `changes` for the `debezium` and `cdc` connectors.

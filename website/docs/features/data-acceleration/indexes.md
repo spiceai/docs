@@ -44,7 +44,7 @@ There are two types of indexes that can be specified in a Spicepod:
 
 :::warning[Limitations]
 
-Traditional indexes are not supported for the in-memory Arrow acceleration engine. Use [SQLite](../../components/data-accelerators/sqlite) or [PostgreSQL](../../components/data-accelerators/postgres) as the acceleration engine to enable indexing.
+Traditional indexes are not supported for the in-memory Arrow acceleration engine. Use [Spice Cayenne](../../components/data-accelerators/cayenne) or [SQLite](../../components/data-accelerators/sqlite) as the acceleration engine to enable indexing.
 
 [Spice Cayenne](../../components/data-accelerators/cayenne) reads `indexes` and builds a secondary index per entry, but the index is a read-path structure rather than a database index — a `unique` entry does not constrain writes. See [Secondary indexes](../../components/data-accelerators/cayenne#secondary-indexes).
 

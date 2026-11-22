@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / sqlite / postgres
+      engine: cayenne # / arrow / sqlite
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / sqlite / postgres
+      engine: cayenne # / arrow / sqlite
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -321,7 +321,7 @@ In-place evolution is supported by `sqlite` and non-partitioned Spice Cayenne
 (`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
 while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
 see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
-Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow` and PostgreSQL, log an
+Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow`, log an
 unsupported message and apply additive changes on restart. Constraint and primary-key columns
 cannot be widened in place.
 
@@ -512,10 +512,9 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).
-- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
 
-The `duckdb` and `turso` engines are removed: a dataset that sets either one fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
+The `duckdb`, `turso`, and `postgres` engines are removed: a dataset that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 ## `acceleration.mode`
 
