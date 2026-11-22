@@ -72,6 +72,8 @@ datasets:
       mode: file
 ```
 
+A `postgres` acceleration kept its data across restarts whatever its `mode`, while Cayenne's default `mode` is `memory`. Set `mode: file` on a Cayenne acceleration that replaces a `postgres` one, so its data still survives a restart.
+
 An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so setting `engine: cayenne` is usually the whole change. Two configurations need one more change before the dataset loads on Cayenne:
 
 - **`partition_by` with `mode: memory`.** Cayenne partitions only in file mode, and rejects `partition_by` on an in-memory acceleration. On a single Spice instance, remove `partition_by`. In a cluster, where `partition_by` is what spreads a dataset across executors, set `mode: file` instead.
