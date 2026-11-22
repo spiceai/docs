@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / duckdb / sqlite / postgres
+      engine: cayenne # / arrow / sqlite
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / duckdb / sqlite / postgres
+      engine: cayenne # / arrow / sqlite
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -103,7 +103,7 @@ Where:
 
 [`GET /v1/datasets`](../../api/HTTP/get-datasets) and [`GET /v1/catalogs`](../../api/HTTP/get-catalogs) remove the credentials of a URL from `from`, in JSON and in CSV. When the URL at the start of `from`, or right after its connector prefix, carries user info, such as `https://user:password@host/file.csv` or `iceberg:https://user:password@host/v1/...`, the response omits the `user:password@` part. The values of query parameters whose names identify a credential, such as `token`, `api_key`, `sig`, `password`, or `X-Amz-Signature`, are replaced with `***`. The `error_message` that `GET /v1/datasets?status=true` returns gets the same redaction for every URL it contains, because connectors often build the error from the source URL. A `from` without credentials, such as `postgres:public.orders` or `s3://bucket/key`, is returned unchanged, and so is the part before `@` in `abfs`, `abfss`, `wasb`, `wasbs`, and `file` URLs, which names a container or a file. In v2.4.1 and earlier, both endpoints return `from` as configured and `GET /v1/datasets` returns `error_message` as the connector wrote it, including any credentials.
 
-Credentials outside a URL are returned as written: the password in a keyword-form PostgreSQL connection string, such as `ducklake:postgres:dbname=mydb password=...`, appears in `GET /v1/catalogs` unchanged (see [DuckLake `from`](../../components/catalogs/ducklake.md#from)). The redaction applies to these API responses only. Pass credentials as connector parameters that reference a [secret store](../../components/secret-stores/index.md) rather than in the `from` URL.
+Credentials outside a URL are returned as written: the password in a keyword-form PostgreSQL connection string, such as `ducklake:postgres:dbname=mydb password=...`, appears in `GET /v1/catalogs` unchanged (see [DuckLake `from`](../../components/catalogs/ducklake.md#from)). The same redaction applies to the `Dataset <name> registered (<from>)` line in the runtime log, and to the `base_url` that `EXPLAIN` prints for an HTTP(S) dataset. In v2.4.3 and earlier, both print the URL as configured. Other connectors' errors and logs are not covered. Pass credentials as connector parameters that reference a [secret store](../../components/secret-stores/index.md) rather than in the `from` URL.
 
 :::info[Identifier Case Sensitivity]
 Unquoted identifiers in the `<path>` are normalized to lowercase. To reference a table or schema with mixed-case or uppercase characters, wrap each case-sensitive part in double quotes:
@@ -184,6 +184,7 @@ Optional. Specifies the access level for the dataset. Supported values are:
 
 - `read` (default): Read-only access.
 - `read_write`: Enables both read and write operations. Only supported for [write-capable connectors](../../tags/write), unless the dataset is accelerated with [`acceleration.write_mode: acceleration`](#accelerationwrite_mode), which keeps writes in the acceleration.
+- `read_write_create`: Accepted, and behaves as `read_write` for a dataset. DDL statements such as `CREATE TABLE` and `DROP TABLE` are allowed by a catalog's [`access`](./catalogs.md#access), not a dataset's.
 
 To enable write operations, configure your dataset with `read_write` access:
 
@@ -195,6 +196,35 @@ datasets:
     params:
       # ... connector-specific parameters
 ```
+
+## `has_metadata_table`
+
+Optional. Defaults to `false`. When `true`, Spice registers a second table, `metadata.<dataset name>`, that lists the files the dataset reads, one row per file. It applies to datasets from the object store and file connectors that list files: [S3](../../components/data-connectors/s3/index.md), [Azure BlobFS](../../components/data-connectors/abfs.md), [Google Cloud Storage](../../components/data-connectors/gcs.md), [File](../../components/data-connectors/file/index.md), [FTP and SFTP](../../components/data-connectors/ftp.md), [SMB](../../components/data-connectors/smb.md), [NFS](../../components/data-connectors/nfs.md) (Spice.ai Enterprise), and [SharePoint](../../components/data-connectors/sharepoint.md). The [Hugging Face](../../components/data-connectors/huggingface.md) connector refuses it with an error. Other connectors, including [HTTP(S)](../../components/data-connectors/https/index.md), register no metadata table.
+
+```yaml
+datasets:
+  - from: file:./data/
+    name: files
+    has_metadata_table: true
+    params:
+      file_format: csv
+```
+
+For every connector above except a SharePoint metadata-listing dataset (`sharepoint:` with a single colon), the metadata table has these columns:
+
+| Column          | Type        | Description                                                  |
+| --------------- | ----------- | ------------------------------------------------------------ |
+| `location`      | `Utf8`      | The file's path in the object store. The table's primary key. |
+| `last_modified` | `Timestamp` | When the file was last modified.                             |
+| `size`          | `UInt64`    | The file's size in bytes.                                    |
+| `e_tag`         | `Utf8`      | The file's entity tag, when the store reports one.           |
+| `version`       | `Utf8`      | The file's version, when the store reports one.              |
+
+```sql
+SELECT * FROM metadata.files;
+```
+
+A SharePoint metadata-listing dataset's metadata table lists its drive items as the [SharePoint connector](../../components/data-connectors/sharepoint.md#metadata-listing--sharepoint-single-colon) does, without the file content.
 
 ## `time_column`
 
@@ -224,7 +254,7 @@ For an accelerated dataset, Spice checks `time_format` against the data type of 
 | `iso8601`                                   | String types (`Utf8`, `LargeUtf8`, `Utf8View`)      |
 | `date`                                      | `Date32`, `Date64`                                  |
 
-Because `timestamp` is the default, a string, integer, floating-point, date, or timezone-aware `time_column` needs an explicit `time_format`. A pair that does not match fails the dataset with an error that names the column's data type and the value to set. For example, `time_format: unix_seconds` on a `Timestamp(s)` column named `ts` in a dataset named `events` fails with:
+Because `timestamp` is the default, a string, integer, floating-point, date, or timezone-aware `time_column` needs an explicit `time_format`. The exception is the object-store `_last_modified` metadata column, or a legacy `last_modified` that Spice resolves to it: when its format is unset, Spice uses `timestamptz` and logs a warning. This applies to `time_partition_column` and `time_partition_format` too. In v2.4.2 and earlier, `_last_modified` also needs `time_format: timestamptz`. A pair that does not match fails the dataset with an error that names the column's data type and the value to set. For example, `time_format: unix_seconds` on a `Timestamp(s)` column named `ts` in a dataset named `events` fails with:
 
 ```text
 `time_column` 'ts' in dataset 'events' has data type 'Timestamp(s)', but `time_format` is configured as 'unix_seconds'. Set `time_format` to `timestamp`, or remove `time_format` if the column is already a timestamp. See: https://spiceai.org/docs/reference/spicepod/datasets#time_format
@@ -280,18 +310,18 @@ datasets:
     name: events
     on_schema_change: drop_and_recreate
     acceleration:
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: full
 ```
 
 :::note
 
-In-place evolution is supported by `duckdb`, `sqlite`, and non-partitioned Spice Cayenne
+In-place evolution is supported by `sqlite` and non-partitioned Spice Cayenne
 (`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
 while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
 see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
-Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow` and PostgreSQL, log an
+Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow`, log an
 unsupported message and apply additive changes on restart. Constraint and primary-key columns
 cannot be widened in place.
 
@@ -482,29 +512,29 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).
-- [`duckdb`](../../components/data-accelerators/duckdb) - Accelerated by an embedded DuckDB database.
-- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
+
+The `duckdb`, `turso`, and `postgres` engines are removed: a dataset that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
-- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
-- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`), `duckdb`, and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
+- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
 
 ## `acceleration.storage_profile`
 
-Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (`duckdb`, `sqlite`, and Spice Cayenne); memory-mode accelerators ignore this setting.
+Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (Spice Cayenne and `sqlite`); memory-mode accelerators ignore this setting.
 
 Supported values:
 
 - `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. NFS and SMB/CIFS mounts (`nfs`, `nfs4`, `cifs`, `smbfs`, `smb3`) are classified as `ebs`, the network-attached tier. Network block devices that are not EBS or Azure disks — GCP Persistent Disk and Hyperdisk, SAN and Ceph volumes — are not recognized by name: when they present as NVMe or non-rotational devices they resolve to `local_ssd`, otherwise to unknown, so set `ebs` explicitly for them. On other platforms, detection returns unknown and the engine defaults apply.
 - `local_ssd` (aliases: `ssd`, `nvme`) – Treat the acceleration file location as local SSD/NVMe (for example, EC2 instance store or Azure temporary/NVMe local storage). Uses the engine defaults for connection pool size and checkpoint thresholds.
-- `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Reduces connection-pool size and raises DuckDB's checkpoint threshold so per-IO latency is amortized across larger flushes. Spice Cayenne uses smaller per-file targets to reduce write amplification.
-- `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Raises DuckDB's checkpoint threshold so steady-state workloads don't pay checkpoint cost on small amounts of dirty data; Spice Cayenne uses larger per-file targets to improve scan throughput.
+- `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Raises SQLite's page cache and lock wait and enables memory-mapped I/O. Spice Cayenne uses smaller per-file targets to reduce write amplification.
+- `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Spice Cayenne uses larger per-file targets to improve scan throughput.
 
 Example:
 
@@ -513,18 +543,18 @@ datasets:
   - from: s3://bucket/data/
     name: analytics
     acceleration:
-      engine: duckdb
+      engine: cayenne
       mode: file
       storage_profile: ebs
       params:
-        duckdb_file: /mnt/ebs/analytics.db
+        cayenne_file_path: /mnt/ebs/spice/data/
 ```
 
 For the per-engine adjustments each profile applies, and for guidance on choosing local NVMe over network block storage and network file systems, see [Storage](../performance-tuning#storage) in the Performance Tuning guide.
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `duckdb`, `sqlite`, or `cayenne`, and `mode: file` with a dataset-specific file path (for example `acceleration.params.duckdb_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `cayenne` or `sqlite`, and `mode: file`. On `sqlite`, use a dataset-specific file path (for example `acceleration.params.sqlite_file: /nvme/my_dataset.db`).
 
 Supported values:
 
@@ -566,13 +596,11 @@ Not applicable when `snapshots_trigger: refresh_complete`.
 
 ## `acceleration.snapshots_compaction`
 
-Optional. Enable database compaction before uploading snapshots. Only supported for the `duckdb` acceleration engine. Defaults to `disabled`.
-
-When enabled, Spice uses DuckDB's internal compaction mechanism (`COPY DATABASE`) to optimize the database file before uploading, reducing snapshot size and improving bootstrap performance.
+Optional. Has no effect: snapshot compaction applied only to the `duckdb` acceleration engine, which v2.5 removes, and no remaining engine supports it. A dataset that sets `enabled` logs `Snapshot compaction enabled but engine does not support it`. Defaults to `disabled`. See [Snapshot compaction and expiry reset](../../features/data-acceleration/snapshots.md#snapshot-compaction-and-expiry-reset).
 
 Supported values:
 
-- `enabled` – Compact the database before creating each snapshot.
+- `enabled` – Accepted, but compacts nothing; Spice logs the warning above.
 - `disabled` (default) – Upload snapshots without compaction.
 
 ## `acceleration.snapshots_creation_policy`
@@ -586,12 +614,7 @@ Supported values:
 
 ## `acceleration.snapshots_reset_expiry_on_load`
 
-Optional. Controls whether the snapshot expiry timer is reset when loading from a snapshot during bootstrap. Defaults to `disabled`.
-
-Supported values:
-
-- `disabled` (default) – Snapshot expiry is not reset on load; the original expiry time is preserved.
-- `enabled` – Reset the snapshot expiry when it is loaded during bootstrap.
+Optional. Has no effect: resetting the expiry of cached data on snapshot load applied only to the `duckdb` acceleration engine, which v2.5 removes. A dataset that sets `enabled` logs ``Resetting expiry on load is not supported by the `<engine>` acceleration engine. Ignoring snapshots_reset_expiry_on_load.`` Defaults to `disabled`.
 
 ## `acceleration.snapshots_location`
 
@@ -613,7 +636,7 @@ Optional. How to refresh the dataset. The following values are supported:
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
-- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (DuckDB, SQLite, or Cayenne). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
+- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (Cayenne or SQLite). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
 
 ## `acceleration.write_mode`
 
@@ -622,7 +645,7 @@ Optional. Controls how writes to a `read_write` accelerated dataset propagate be
 Supported values:
 
 - `write_through` (default) – Writes are sent to the federated source synchronously. The client receives an ACK only after the source commits the change, providing ACID guarantees. The local accelerator is updated through the configured refresh path (for example, the WAL stream when `refresh_mode: changes`).
-- `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported.
+- `write_back` – Writes commit to the local accelerator before asynchronous delivery to the source. This provides eventual consistency at the source. [Durable write-back](../../components/data-accelerators/cayenne/#transactions) requires Cayenne over PostgreSQL, a single-column `primary_key`, `mode: file`, and no acceleration retention. Writes must be transactional; `DELETE` is unsupported. Also requires [`replication.enabled: true`](#replicationenabled).
 - `acceleration` – Writes, including Spice Cayenne `BEGIN … COMMIT` [transactions](../../components/data-accelerators/cayenne/index.md#transactions), go only to the acceleration and never reach the federated source, which need not accept writes. Refreshes still load the source's data into the acceleration, so a `full` refresh discards rows that were written only to the acceleration. An `append` refresh keeps them, unless it reads a version of the same key that replaces the written row, but acceleration-only writes can cause it to skip source rows (see the warning below). Not valid with `refresh_mode: changes`, set explicitly or by the connector's default, because the source's changes would overwrite the writes.
 
 A `read_write` dataset whose source connector only supports reads fails to load unless it sets `write_mode: acceleration`:
@@ -700,7 +723,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       params:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
@@ -730,7 +753,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
@@ -765,7 +788,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -793,7 +816,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -817,7 +840,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -984,7 +1007,7 @@ Optional. Specify the primary key constraint on the locally accelerated table. O
 
 The `primary_key` field is a string that represents the column reference that should be used as the primary key. The column reference can be a single column name or a multicolumn key. A multicolumn key is a comma-separated list of column names, and the enclosing parentheses are optional. A column name may be double-quoted the way SQL writes it, and a column whose name contains `,`, `;`, `:`, `(`, `)` or `"` cannot be referenced — see [Column names](../../features/data-acceleration/constraints#column-names).
 
-On DuckDB this creates a real `PRIMARY KEY` (unique index) usable for full-key point lookups. A filter on only a leading column of a composite key needs a secondary [`indexes`](#accelerationindexes) entry. See [Primary keys and point lookups](../../features/data-acceleration/indexes#primary-keys-and-point-lookups).
+On Spice Cayenne the primary key does not create an index; to index the key, add an [`indexes`](#accelerationindexes) entry on the same columns. See [Primary keys and point lookups](../../features/data-acceleration/indexes#primary-keys-and-point-lookups).
 
 See [Constraints](../../features/data-acceleration/constraints)
 
@@ -1050,7 +1073,7 @@ The following values are supported:
 
 The fallback check runs at the accelerator's scan, so a subquery predicate (`IN (SELECT …)`, `EXISTS (…)`, `ANY`/`ALL`, a correlated column reference, or `UNNEST`) does not take part in the zero-results decision. See [Behavior on Zero Results](../../features/data-acceleration/data-refresh#behavior-on-zero-results) for what that means for a partially-populated acceleration.
 
-When `on_zero_results: use_source` is set with `retention_sql` or `retention_period`, the fallback query applies the inverse of the retention policy, so rows that retention removes from the acceleration are not read back from the source. A dataset whose retention policy cannot be evaluated as a filter on the source columns fails to load. In `refresh_mode: caching`, `on_zero_results` is ignored, so neither the filter nor this check applies. See [Fallback with a Retention Policy](../../features/data-acceleration/data-refresh#fallback-with-a-retention-policy).
+When `on_zero_results: use_source` is set with `retention_sql` or `retention_period`, the fallback query applies the inverse of the retention policy, so rows that retention removes from the acceleration are not read back from the source. A dataset whose retention policy cannot be evaluated as a filter on the source columns fails to load, as does one whose `retention_sql` compares a string column with a value of another type, which needs a cast that fails on values it cannot convert. In `refresh_mode: caching`, `on_zero_results` is ignored, so neither the filter nor this check applies. See [Fallback with a Retention Policy](../../features/data-acceleration/data-refresh#fallback-with-a-retention-policy).
 
 ```yaml
 datasets:
@@ -1075,6 +1098,19 @@ datasets:
       mode: file
       partition_by: [block_date]
 ```
+
+## `acceleration.maintained_aggregates`
+
+Optional. Declares aggregate views that Spice Cayenne keeps up to date as change events are applied, so matching `GROUP BY` queries read the maintained state instead of scanning the table. Defaults to disabled. Supported for `engine: cayenne` with `refresh_mode: changes`. See [Maintained Aggregates](../../components/data-accelerators/cayenne/index.md#maintained-aggregates) for the syntax and the supported functions (`count`, `sum`, `avg`, `min`, and `max`).
+
+## `replication.enabled`
+
+Optional. An explicit opt-in to a source that lags the accelerator. Defaults to `false`. Spice reads it only with [`acceleration.write_mode: write_back`](#accelerationwrite_mode), where it is required, because write-back commits to the accelerator first and delivers to the source afterwards. A `write_back` dataset without it fails to load:
+
+```text
+An accelerated table for orders was configured with 'acceleration.write_mode: write_back' but 'replication.enabled' is not set. Write-back commits to the local accelerator and a delivery worker carries the write to the federated source afterwards, so the source lags the accelerator, and the source's own changes come back over the change stream. Set 'replication.enabled: true' to opt in, or use a different write_mode.
+```
+
 
 ## `columns`
 

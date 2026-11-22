@@ -15,9 +15,9 @@ For details on tool specifications, see the [Tools Spicepod Reference](../refere
 
 | Name                      | Description                                                       | Default Group |
 | ------------------------- | ----------------------------------------------------------------- | ------------- |
-| `list_datasets`           | List all available datasets in the runtime.                       | `auto`        |
+| `list_datasets`           | List the datasets the runtime can query, 50 at a time, optionally searched by name, description, and columns. | `auto`        |
 | `sql`                     | Execute SQL queries on the runtime. Write statements (`INSERT`/`UPDATE`/`DELETE`/DDL) are accepted only when the request is authenticated with a ReadWrite API key and the target dataset is configured `access: read_write`; otherwise the tool runs as read-only. | `auto`        |
-| `table_schema`            | Get the schema of a specific SQL table.                           | `auto`        |
+| `table_schema`            | List a table's columns with their SQL types, descriptions, and keys, optionally only the columns matching a search. | `auto`        |
 | `search`                  | Searches a configured dataset based on an input query.            | `auto`        |
 | `get_readiness`           | Report the readiness state of every runtime component (datasets, accelerators, models, embeddings, catalogs). | `auto`        |
 | `get_current_datetime`    | Return the current UTC date and time as an ISO 8601 timestamp.    | `auto`        |
@@ -59,15 +59,73 @@ models:
 [mcp]: tools/mcp
 
 
-### Result Size Limit
+### Results
 
-The `sql` tool fails when its result, written as JSON, is larger than 16 MiB, and the sampling tools (`sample_distinct_columns`, `random_sample`, `top_n_sample`) fail when the rows they collect take more than 16 MiB of memory. The limit is fixed and has no setting. The error tells the model how to ask for less, for example:
+The `sql` tool and the sampling tools (`sample_distinct_columns`, `random_sample`, `top_n_sample`) return a result sized for a model's context window:
 
-```text
-The result is larger than 16 MiB, the size limit for this request. Add a LIMIT clause, select fewer columns, or aggregate the rows.
+```json
+{"columns": ["d_year", "net_paid"], "rows": [[1998, 1234567.89], [1999, 1301122.07]]}
 ```
 
-Tools served by an MCP server have the same [16 MiB limit](./mcp.md#tool-result-size-limit). In v2.4.1 and earlier, the `sql` and sampling tools returned results of any size.
+Each row is an array of values in `columns` order. Numbers are JSON numbers, NULL is `null`, a decimal with more than 15 significant digits is a string so that no digit is lost, and `NaN` and `±Infinity` are the strings `"NaN"`, `"Infinity"` and `"-Infinity"`.
+
+A result holds at most 100 rows and at most 10% of the calling model's context window, taken as 4 bytes per token, between 4 KiB and 32 KiB. A call without a model, such as from an MCP client or `POST /v1/tools/{name}`, gets 32 KiB. A result with more rows shows the rows that fit, and says so. This example shows 2 of its 100 rows:
+
+```json
+{
+  "columns": ["ss_item_sk", "ss_net_paid"],
+  "rows": [[1, 12.5], [2, 8.0]],
+  "truncated": true,
+  "message": "Showing the first 100 rows; the result has more. Do not compute totals, counts, or averages from these rows. Run an aggregate query instead, or narrow the query with a WHERE clause."
+}
+```
+
+A text value longer than 1,024 characters keeps its first 1,024 followed by `…[+N chars]`, and a list or map longer than 16 elements keeps 16 followed by `"…[+N items]"` or `"…[+N entries]"`. The `message` then says to read the rest with `substr(column, 1025, 1024)` or `array_slice(column, 17, 32)`. A binary value is shown as `"<binary N bytes>"`, and the `message` says to read it with `encode(column, 'hex')`. A map is a list of `[key, value]` pairs. A result never exceeds its budget, column names included: a result whose column names alone do not fit lists the names that fit, then `…[+N columns]`, and no rows.
+
+Over MCP, these tools declare an `outputSchema` and return the result as `structuredContent`, with the same JSON as text. Programs that need every row use [`/v1/sql`](../api/HTTP/post-sql) instead.
+
+In v2.4.x and earlier, the `sql` tool returned a JSON array of row objects, and the sampling tools a text table, with no size limit.
+
+### Datasets and Schemas
+
+A model that has the `list_datasets` tool is told which datasets it can query in a system message, after the Spicepod `system_prompt` and the client's own system messages. A model without `list_datasets`, such as one with `tools: memory, sql`, gets no list:
+
+```text
+Datasets (use these names in sql, search, and table_schema):
+- spice.public.orders: Customer orders
+- spice.docs.pages: Product docs [searchable]
+```
+
+On `/v1/responses`, the list goes at the end of the request's `instructions` instead, after the client's. A response that continues a conversation with `previous_response_id` does not carry instructions over, so the conversation holds one copy of the list, not one per turn.
+
+When the list would take more than about 2,000 tokens (8 KiB), the message instead says how many datasets there are and to find them with `list_datasets`:
+
+```text
+992 datasets are available. Call list_datasets with search to find the ones relevant to the question.
+```
+
+`list_datasets` takes optional `search`, `limit` (default 50, at most 200), and `offset`. `search` matches dataset names, descriptions, column names, and column descriptions, best match first. A catalog table matches on its columns only when the runtime has its schema at hand:
+
+```json
+{"datasets": [{"table": "spice.docs.pages", "description": "Product docs", "can_search_documents": true}], "total": 992, "has_more": true}
+```
+
+`can_search_documents` appears only when `search` can query the dataset, and `description` and `metadata` only when the dataset has them.
+
+`table_schema` lists each table's columns, one per line, with its SQL type and `NOT NULL`. With `output: full` (the default), it adds column descriptions and the table's keys:
+
+```text
+spice.tpcds.store_sales: TPC-DS store_sales table
+  ss_item_sk BIGINT NOT NULL
+  ss_net_paid DECIMAL(7,2) -- Net paid
+  primary key (ss_item_sk, ss_ticket_number)
+```
+
+A column name that SQL must quote, such as one with capitals or spaces, is listed in double quotes, as a query writes it: `"Net Paid" DOUBLE`.
+
+For a wide table, `search` lists only the columns whose names or descriptions match, followed by a count of the others. `output: minimal` lists names, types, and `NOT NULL` only.
+
+In v2.4.x and earlier, Spice added a `list_datasets` call and its result to every chat request, `list_datasets` returned every dataset at once, and `table_schema` returned a Markdown table.
 
 ### Loading and Reloading Tools
 

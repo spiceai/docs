@@ -101,6 +101,25 @@ The connector supports long-lived append streams for real-time CDC. The upstream
 
 Append streams are append-only — deletes and updates from the upstream are **not** propagated. Use `refresh_mode: full` for datasets that mutate.
 
+When the upstream dataset is itself accelerated with `refresh_mode: append`, the rows each upstream refresh appends reach the sidecar after the upstream write commits. The upstream forwards them only for an acceleration with no primary key or unique constraint, since a constraint can make the accelerator drop or replace rows on write. A constraint can come from the Spicepod (`primary_key`, or a `unique` entry in `indexes`) or from the source: a document dataset read from object storage, for example, has a primary key on `location`. For an upstream acceleration with a constraint, the sidecar receives the initial snapshot and then no refresh-driven appends, with no error ([spiceai/spiceai#16426](https://github.com/spiceai/spiceai/issues/16426)). To keep such a dataset current on the sidecar, set `refresh_mode: full` with a [`refresh_check_interval`](../../../features/data-acceleration/data-refresh#refresh-interval), such as `1m`, on the sidecar. Without an interval, a full refresh does not run on a schedule.
+
+The upstream marks where the initial snapshot ends, and numbers each later append. The sidecar keeps the dataset not ready until the whole snapshot has arrived, then reports it `Ready`. It drops an append that the snapshot already holds, so a sidecar that subscribes while an upstream append refresh commits receives those rows once. When the end of the snapshot does not arrive within 300 seconds, the sidecar logs an error that names the dataset, and the dataset stays not ready. An upstream that does not mark its snapshot, such as one running v2.4.3 or earlier, is read as before: the dataset is ready from the first batch.
+
+The upstream holds up to 128 MiB of one append refresh for its subscribers. A larger append refresh, or a subscriber that falls behind, ends the subscription with the gRPC status `DATA_LOSS`, and the sidecar resubscribes. When the upstream marks its snapshot, the sidecar also resubscribes when the stream fails or ends, such as when the upstream restarts. Other stream errors from an upstream that does not mark its snapshot are not handled by resubscribing. A new subscription opens with a full snapshot of the upstream dataset. The sidecar resubscribes at most 10 times in a row, waiting 250 milliseconds before the first attempt and doubling the wait each time, up to 30 seconds. A subscription that completes its snapshot and lasts 60 seconds resets the count.
+
+When the upstream marks its snapshot and the dataset is already `Ready`, the sidecar loads the new snapshot to the side and replaces the dataset's data with it in one write once the snapshot ends, so queries see the old data or the new data, never a partial reload. Staging the reload is reserved from the [query memory pool](../../../reference/memory.md#how-a-memory-refusal-surfaces) and needs about twice the size of the new snapshot. While a reload is staged, the acceleration also needs room for both the old and the new data. When the pool cannot hold the reload, or the reload does not finish, the sidecar keeps serving the old data, logs an error that names the dataset and how long ago its data last changed, and retries a refused reload after 30 seconds, doubling the wait up to 15 minutes. Two metrics report this, with the sidecar's dataset name as the `dataset` label:
+
+| Metric | Type | Description |
+| ------ | ---- | ----------- |
+| `dataset_append_stream_stale_seconds` | Gauge | Seconds since the dataset's data last changed while a reload is refused or discarded. `0` once a reload succeeds. |
+| `dataset_append_stream_reloads_refused` | Counter | Reloads refused because the query memory pool could not hold them. |
+
+Both report `0` once the dataset's append stream starts, and stop being reported when the dataset's last append stream stops, so an alert on a non-zero value alone does not detect a stream that has stopped. `/v1/datasets` does not show a stale dataset: it stays `Ready` and serves its previous data. An upstream that does not mark its snapshot, such as one running v2.4.3 or earlier, gets no staging: a new subscription's snapshot opens with a truncate and is applied as it arrives, so queries can see an empty or partly reloaded dataset until it completes.
+
+Rows written to the upstream with Flight `DoPut` are not covered by this ordering: a sidecar that subscribes between a `DoPut` commit and its forwarding can still receive those rows twice.
+
+In v2.4.3 and earlier, rows appended by an upstream `refresh_mode: append` acceleration never reached the sidecar: it received the initial snapshot and then nothing, while the dataset stayed `Ready`. The sidecar also wrote an upstream table without a primary key one row per write, and stopped its stream on `DATA_LOSS` instead of resubscribing. A sidecar could report the dataset `Ready` before the whole snapshot arrived.
+
 ## Capacity & Sizing
 
 ### Message Sizing
@@ -177,7 +196,7 @@ datasets:
 
 ## Metrics
 
-The Flight client is not instrumented, so this connector emits no transport-level metrics, and it does not currently register Spice.ai-specific dataset-level instruments. Monitor the connector via:
+The Flight client is not instrumented, so this connector emits no transport-level metrics. Its only dataset-level instruments are the two [append stream](#append-streams) reload metrics, `dataset_append_stream_stale_seconds` and `dataset_append_stream_reloads_refused`. Monitor the connector via:
 
 - Query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - Acceleration refresh metrics when the dataset is accelerated (`dataset_acceleration_refresh_duration_ms`, `dataset_acceleration_refresh_errors`).

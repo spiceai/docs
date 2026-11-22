@@ -67,7 +67,29 @@ A load that fails with a recognized configuration error is not retried, because 
 
 After correcting the Spicepod, a runtime that watches it for changes loads the model again. `spice run` enables the watcher, while `spiced` enables it only with [`--pods-watcher-enabled`](../../cli/reference/spiced); without the watcher, restart the runtime to load the corrected model.
 
+A model's `from` can be a URL that carries a credential, such as `https://user:password@host/model` or `?token=...`. The `Loading model [<name>] from <from>...` log line, an unknown-source load error, and the [`/v1/models`](../../api/HTTP/get-models) `owned_by` and `error_message` fields report `from` with the user info removed and credential query values replaced with `***`, as [`GET /v1/datasets` does](../../reference/spicepod/datasets.md#from). In v2.4.3 and earlier, they report `from` as configured.
+
 In v2.4.0-rc.2 and earlier, a model that fails to load is not retried in the background. It loads again only when the runtime restarts, or when a change to the model's Spicepod definition reaches a runtime that watches the Spicepod; until then, the runtime stays not ready.
+
+## Hosted Model Endpoint Timeouts and Response Limits
+
+Spice holds hosted model endpoints to fixed timeouts and a response size limit, so an endpoint that stops answering cannot hang a request, and an oversized answer cannot exhaust the runtime's memory. The limits apply to [OpenAI](./openai/index.md) and OpenAI-compatible endpoints, [Azure OpenAI](./azure.md), [Anthropic](./anthropic.md) (including the [Messages API](../../features/large-language-models/messages.md)), [Databricks](./databricks.md), [xAI](./xai.md), and [Spice.ai](./spiceai.md) models, and to the model listings Spice requests from OpenAI, xAI, and Spice.ai. They are not configurable.
+
+| Limit | Value | What it covers |
+| --- | --- | --- |
+| Connect timeout | 10 seconds | Time for the endpoint to accept a connection. |
+| Read timeout | 10 minutes | Time for the endpoint to start its response, and then each gap between two parts of it. There is no limit on the total time, so a streamed response continues for as long as data keeps arriving. |
+| Response size | 256 MiB | A response that is not streamed is read whole, up to 256 MiB after decompression. For a streamed response (a request with `"stream": true` that the endpoint answers successfully), each server-sent event is held to 256 MiB instead. |
+
+A request that passes a limit fails with an error rather than waiting or buffering further. A streamed response that sends an event larger than the limit ends with the error `one server-sent event is larger than 268435456 bytes`. A compressed response that expands to more than 256 MiB fails too.
+
+In v2.4.3 and earlier, the chat clients for these providers set no connect timeout, no read timeout, and no response size limit.
+
+### Requests the endpoint never received
+
+A network or load balancer can close a new connection while TLS is still being negotiated. A request is written only after the handshake completes, so the endpoint never received it, and Spice sends it again at once on a new connection, whatever its method. Spice also sends again an HTTP/2 request that the endpoint refused without processing it. Each request is sent again at most 2 times, and each client sends retries for at most 20% of its requests, with a floor of 10 retries a second, so an outage does not multiply the load on the endpoint.
+
+Apart from an HTTP/2 request the endpoint refused without processing it, Spice does not send a request again after any part of it was sent, because the endpoint may have acted on it, or when the connection timed out, was refused, the host did not resolve, or the endpoint's certificate was not trusted. Those failures reach the caller as before. This applies to the providers above, Google Vertex AI, and the token exchanges for cloud credentials. In v2.4.3 and earlier, a request whose connection closed during the TLS handshake failed without a retry.
 
 ## Local GGUF Models
 
@@ -82,10 +104,26 @@ Spice serves a GGUF model on a single node, from the [`file`][file] or [`hugging
 
 The OpenAI-compatible API works the same way on both engines: streaming, `usage`, `finish_reason`, `reasoning_effort` and `reasoning_content` are unchanged, and so are the GGUF's own chat template and the `chat_template` and `context_length` parameters. Prompts are rendered and tool calls are parsed with the same code as on mistral.rs, so a GLM-5.3 tool call, which that parser does not read, stays unparsed on both engines. Each streamed tool call carries its own `index`.
 
+On one node, llama.cpp decodes up to 8 requests to a model at once. When llama.cpp cannot create a context for 8 requests, or creating it would leave less than 2 GiB of memory free, the model serves fewer: 4, 2, or 1. The model logs how many it serves when it loads:
+
+```text
+Model '<name>' serves up to 8 requests at once from 8192 tokens of shared context memory; one request can use all of it. See: https://spiceai.org/docs/components/models
+```
+
+For most architectures, the requests running together share one context of `context_length` tokens, so their prompts and replies must fit it together. A request that does not fit waits until running requests finish. When a model is idle, any request whose prompt fits the context starts.
+
+A conversation's prompt is kept between requests, so its next turn does not read the prompt again. When a request with a different prompt starts, the idle prompt moves from the model's cache to host memory, and the conversation's next turn restores it. Idle prompts take up to 8 GiB of host memory, and no more than half the memory the process can still use.
+
 The `paged_attention` parameter has no effect on a GGUF model served by llama.cpp, which manages its own KV cache. It still applies to a GGUF model with `distributed_backend: ring` that mistral.rs serves. The parameter is read only for `from: file:` models, and a `from: file:` GGUF model on one node that sets `paged_attention: disabled` logs this once at load, at info level:
 
 ```text
 Model '<name>' sets `paged_attention: disabled`, which has no effect: GGUF models are served by llama.cpp, which manages its own KV cache. Remove the parameter to silence this message.
+```
+
+When the GPU or another backend fails work that llama.cpp queued for a model, the request fails with an error, and no reply text is streamed from results the backend did not compute. The model's context decodes nothing more until the model is reloaded. The error names the backend's own reason after `llama.cpp reported:`, for example on Apple silicon:
+
+```text
+llama.cpp could not decode the batch: the GPU or another backend failed computing work this context queued, so its results are discarded and the context decodes nothing more; reload the model. llama.cpp reported: ggml_metal_synchronize: error: graph command buffer 1 failed with status 5; error: Invalid Resource (…)
 ```
 
 ### GGUF Models Split Across Nodes
@@ -98,8 +136,26 @@ For a model llama.cpp splits, the nodes take two roles:
 - **Every other node** serves its GPU and holds its share of the model for the head. Its load completes once it serves its GPU, and it refuses chat requests with:
 
   ```text
-  Model '<name>' is served by the first machine in 'nodes' (<head>); this machine holds part of it.
+  Model '<name>' is served by the first machine in 'nodes' (<head>); this machine holds part of it. Set `head_url` to the address clients reach the head at to name it here.
   ```
+
+The addresses in `nodes` are the ones the nodes reach each other at, which can be a private network that clients cannot reach. Set the `head_url` parameter to the `http` or `https` URL that clients reach the head at, and every other node names it when it refuses a request. For example, the model `params` on the node with `node_rank: 1`:
+
+```yaml
+params:
+  distributed_backend: ring
+  nodes: 10.42.9.100,10.42.2.102,10.42.0.101
+  node_rank: 1
+  head_url: http://192.168.1.100:8090
+```
+
+```text
+Model '<name>' is served by the head at http://192.168.1.100:8090; this machine holds part of it, so send requests there.
+```
+
+`head_url` must be an `http` or `https` URL with a host; another value fails the model's load with an error that names `head_url`. Like `nodes` and `node_rank`, it is refused without `distributed_backend: ring`.
+
+On every node, each [`/v1/models`](../../api/HTTP/get-models) entry for a model split across nodes includes `node_rank`: `0` on the head, which serves the model's requests, and the node's position in `nodes` on every other node. Clients can use it to find the node that serves the model before sending requests. A model that runs on one node, or that failed to load, has no `node_rank`, and the CSV format (`?format=csv`) omits the field.
 
 The node at `node_rank` _r_ serves its GPU on port `12345` plus _r_, at its own address in `nodes`, and llama.cpp's connections between nodes use the ports 1000 above those. Each node needs a GPU that llama.cpp can use. These connections are neither authenticated nor encrypted, so every node must run `spiced` with [`--allow-insecure-connections`](../../cli/reference/spiced.md). Run the nodes only on a trusted private network: any host that reaches a node's GPU server can use that GPU. Without the flag, the model fails to load with:
 
@@ -142,7 +198,7 @@ Model '<name>' loaded without its MTP layer, so it decodes without drafting: the
 
 ### Structured Output and Tool Choice
 
-A `response_format` of type `json_schema` or `json_object` is enforced with a grammar, so the reply is JSON that follows the schema, or a JSON object for `json_object`. llama.cpp builds the grammar from [a subset of JSON Schema](https://github.com/spiceai/llama.cpp/blob/b11999-spiceai.1/grammars/README.md#json-schemas--gbnf) and skips the rest without an error: for example, `minimum` and `maximum` apply only to an `integer`, not a `number`, and `uniqueItems` is not enforced. Validate such constraints in the application. For a reasoning model, the grammar applies after the reasoning block.
+A `response_format` of type `json_schema` or `json_object` is enforced with a grammar, so the reply is JSON that follows the schema, or a JSON object for `json_object`. llama.cpp builds the grammar from [a subset of JSON Schema](https://github.com/spiceai/llama.cpp/blob/b12600-spiceai.1/grammars/README.md#json-schemas--gbnf) and skips the rest without an error: for example, `minimum` and `maximum` apply only to an `integer`, not a `number`, and `uniqueItems` is not enforced. Validate such constraints in the application. For a reasoning model, the grammar applies after the reasoning block.
 
 For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and Hermes templates do, a request that sets both `response_format` and `tools` is answered with either a tool call or the schema's JSON. For other tool-call formats, a request that leaves the model to choose between a tool call and a reply (`tool_choice` unset or `auto`) is refused with HTTP 400:
 
@@ -150,15 +206,15 @@ For a model whose chat template writes tool calls as `<tool_call>`, as Qwen and 
 Model '<name>' can't combine a `json_schema` or `json_object` `response_format` with `tools`: its chat template's tool-call format can't be enforced alongside a schema. Send one or the other.
 ```
 
-`tool_choice: none` offers no tool, so the reply is the schema's JSON in any template. `tool_choice: required`, or a named function, takes precedence over `response_format`: the turn is a tool call, and `response_format` applies to a later turn. Where the chat template uses `<tool_call>`, the call is forced through a grammar. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
+`tool_choice: none` offers no tool, so the reply is the schema's JSON in any template. `tool_choice: required`, or a named function, takes precedence over `response_format`: the turn is a tool call, and `response_format` applies to a later turn. Where the chat template uses `<tool_call>`, or writes [Harmony](#gpt-oss) or [Inkling](#inkling-2) messages, the call is forced through a grammar. For other tool-call formats, generation cannot end until the model makes a call. A reply with no call fails with `Tool choice was required but no tools were called.`, as on mistral.rs.
 
 ### GGUF architectures
 
-A GGUF model loads when llama.cpp supports its architecture, the `general.architecture` value in the file. For Spice releases that pin llama.cpp b11999, these are the supported architectures:
+A GGUF model loads when llama.cpp supports its architecture, the `general.architecture` value in the file. For Spice releases that pin llama.cpp b12600, these are the supported architectures:
 
-`afmoe`, `apertus`, `arcee`, `arctic`, `arwkv7`, `baichuan`, `bailingmoe`, `bailingmoe2`, `bailingmoe3`, `beam`, `bitnet`, `bloom`, `chameleon`, `chatglm`, `codeshell`, `cogvlm`, `cohere2`, `cohere2moe`, `command-r`, `dbrx`, `deci`, `deepseek`, `deepseek2`, `deepseek2-ocr`, `deepseek32`, `deepseek4`, `deepseek41`, `dots1`, `dots3note`, `ernie4_5`, `ernie4_5-moe`, `exaone`, `exaone-moe`, `exaone4`, `falcon`, `falcon-h1`, `flint`, `gemma`, `gemma2`, `gemma3`, `gemma3n`, `gemma4`, `glm-dsa`, `glm4`, `glm4moe`, `glm5-next`, `gpt-oss`, `gpt2`, `gptj`, `gptneox`, `granite`, `granite_swa`, `granitehybrid`, `granitemoe`, `graniteswitch`, `grok`, `grovemoe`, `hrm_text`, `hunyuan-dense`, `hunyuan-moe`, `hunyuan_vl`, `hy_v3`, `hy_v4`, `internlm2`, `jais`, `jais2`, `jamba`, `k2-horizon`, `kimi-k3`, `kimi-linear`, `kolibri1`, `laguna`, `lfm2`, `lfm2moe`, `lfm3`, `limite`, `llama`, `llama4`, `maincoder`, `maion-coder`, `mamba`, `mamba2`, `maple`, `mellum`, `mimo2`, `minicpm`, `minicpm3`, `minimax-01`, `minimax-m2`, `minimax-m3`, `mistral-large4`, `mistral3`, `mistral4`, `mpt`, `muse-glimmer`, `muse-spark`, `nanbeige`, `nemotron`, `nemotron_h`, `nemotron_h_moe`, `olmo`, `olmo2`, `olmoe`, `openelm`, `orion`, `paddleocr`, `pangu-embedded`, `phi2`, `phi3`, `phimoe`, `plamo`, `plamo2`, `plamo3`, `plm`, `qwen`, `qwen2`, `qwen2moe`, `qwen2vl`, `qwen3`, `qwen35`, `qwen35moe`, `qwen3moe`, `qwen3next`, `qwen3vl`, `qwen3vlmoe`, `qwen4exp`, `refact`, `rwkv6`, `rwkv6qwen2`, `rwkv7`, `seed_oss`, `sensenova_u1`, `smallthinker`, `smollm3`, `spark2_5`, `stablelm`, `starcoder`, `starcoder2`, `step35`, `talkie`, `xverse`.
+`afmoe`, `apertus`, `arcee`, `arctic`, `arwkv7`, `baichuan`, `bailingmoe`, `bailingmoe2`, `bailingmoe3`, `beam`, `bitnet`, `bloom`, `chameleon`, `chatglm`, `clover_moe`, `codeshell`, `cogvlm`, `cohere2`, `cohere2moe`, `command-r`, `dbrx`, `deci`, `deepseek`, `deepseek2`, `deepseek2-ocr`, `deepseek32`, `deepseek4`, `deepseek41`, `domynedge`, `dots1`, `dots3note`, `ernie4_5`, `ernie4_5-moe`, `exaone`, `exaone-moe`, `exaone4`, `falcon`, `falcon-h1`, `flint`, `gemma`, `gemma2`, `gemma3`, `gemma3n`, `gemma4`, `glm-dsa`, `glm4`, `glm4moe`, `glm5-next`, `gpt-oss`, `gpt2`, `gptj`, `gptneox`, `granite`, `granite_swa`, `granitehybrid`, `granitemoe`, `graniteswitch`, `grok`, `grovemoe`, `hrm_text`, `hunyuan-dense`, `hunyuan-moe`, `hunyuan_vl`, `hy_v3`, `hy_v4`, `inkling2`, `inkling2_loop`, `internlm2`, `jais`, `jais2`, `jamba`, `k2-horizon`, `kimi-k3`, `kimi-k31`, `kimi-linear`, `kolibri1`, `laguna`, `lfm2`, `lfm2moe`, `lfm3`, `limite`, `llama`, `llama4`, `maincoder`, `maion-coder`, `mamba`, `mamba2`, `maple`, `mellum`, `metis16`, `mimo2`, `minicpm`, `minicpm3`, `minimax-01`, `minimax-m2`, `minimax-m3`, `mistral-large4`, `mistral3`, `mistral4`, `mpt`, `muse-glimmer`, `muse-spark`, `nanbeige`, `nemotron`, `nemotron_h`, `nemotron_h_moe`, `olmo`, `olmo2`, `olmoe`, `openelm`, `orion`, `paddleocr`, `pangu-embedded`, `phi2`, `phi3`, `phimoe`, `plamo`, `plamo2`, `plamo3`, `plm`, `qwen`, `qwen2`, `qwen2moe`, `qwen2vl`, `qwen3`, `qwen35`, `qwen35moe`, `qwen3moe`, `qwen3next`, `qwen3vl`, `qwen3vlmoe`, `qwen4exp`, `refact`, `ricursive`, `rwkv6`, `rwkv6qwen2`, `rwkv7`, `seed_oss`, `sensenova_u1`, `smallthinker`, `smollm3`, `spark2_5`, `stablelm`, `starcoder`, `starcoder2`, `step35`, `talkie`, `xing4_0`, `xverse`, `zaya1`.
 
-The list omits the architectures llama.cpp provides for embedding, audio, scoring and speculative-draft models, which are not chat models. It omits `t5`, an encoder-decoder architecture, and the diffusion architectures `dream`, `llada`, `llada-moe` and `rnd1`: the engine generates one token at a time with a decoder alone, and runs no encoder pass and no diffusion sampling. A GGUF of an encoder-decoder or diffusion architecture is refused at load with the message below. A GGUF whose architecture llama.cpp does not know fails to load with:
+The list omits the architectures llama.cpp provides for embedding, audio, speech, scoring and speculative-draft models, which are not chat models, such as `kokoro`, `zonos3`, and `tiny-voca`. It omits `t5`, an encoder-decoder architecture, and the diffusion architectures `dream`, `llada`, `llada-moe` and `rnd1`: the engine generates one token at a time with a decoder alone, and runs no encoder pass and no diffusion sampling. A GGUF of an encoder-decoder or diffusion architecture is refused at load with the message below. A GGUF whose architecture llama.cpp does not know fails to load with:
 
 ```text
 Architecture '<architecture>' in <file> is not supported by this Spice release. Upgrade Spice, or use a GGUF of a supported architecture: https://spiceai.org/docs/components/models#gguf-architectures
@@ -175,6 +231,34 @@ gpt-oss models write their replies in OpenAI's [Harmony format](https://cookbook
 - A message addressed to `functions.<name>`, a tool the request offers, is returned as a `tool_calls` entry with the message body as its JSON arguments, and `finish_reason` is `tool_calls`. A message addressed to a tool the request does not offer, such as gpt-oss's built-in `browser.search`, is dropped.
 
 A GGUF whose chat template writes Harmony loads only when its vocabulary holds each Harmony marker (`<|start|>`, `<|channel|>`, `<|message|>`, `<|end|>`, `<|return|>`, `<|call|>`, and `<|constrain|>`) as a single token. Otherwise it is refused at load with the `is not supported by this Spice release` message above. In v2.4.1 and earlier, every gpt-oss GGUF was refused with that message.
+
+#### Inkling 2
+
+Inkling 2 and Inkling 2 Mini GGUFs (architectures `inkling2` and `inkling2_loop`) write each reply as a run of blocks marked by special tokens. The llama.cpp engine reads those blocks token by token, as llama.cpp's own server does, and returns them through the same OpenAI-compatible fields as other models:
+
+- A thinking block (`<|content_thinking|>`) is returned as `reasoning_content`.
+- A text block (`<|content_text|>`) is returned as `content`.
+- A tool-call block (`<|content_invoke_tool_json|>`) whose header names a tool the request offers, and whose body is exactly `{"name": <that tool>, "args": <an object>}`, is returned as a `tool_calls` entry with `args` as its arguments, and `finish_reason` is `tool_calls`. Any other call block is dropped. With `parallel_tool_calls: false`, the reply ends at the first call.
+
+A GGUF whose chat template writes Inkling messages loads only when its vocabulary holds each Inkling marker as a single token. Otherwise it is refused at load with the `is not supported by this Spice release` message above. Inkling does not write tool calls as `<tool_call>`, so a request that sets both `response_format` and `tools` and leaves the model to choose is refused with HTTP 400, as [Structured Output and Tool Choice](#structured-output-and-tool-choice) describes for other tool-call formats. Unlike those formats, a required or named call on an Inkling model is forced through a grammar over the Inkling markers, as with `<tool_call>` templates, and so is a `response_format` without tools.
+
+## Message Content Parts for Local Models
+
+A chat message's `content` can be a string or an array of parts, such as `[{"type": "text", "text": "..."}]`. A model served locally from the [`file`][file] or [`huggingface`][hf] provider, on llama.cpp or mistral.rs, renders text parts the way [llama-server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) does, for every role. When a model loads, Spice checks whether its chat template reads `content` as a string, as an array of text parts, or both, and fits each message to it:
+
+- A template that reads both receives each message as sent.
+- A template that reads only strings receives the text of the parts joined with newlines.
+- A template that reads only parts receives a string as one text part.
+
+Some chat templates render a system or developer message only at the start of a conversation: they leave a later one out of the prompt, or fail with an error such as `System message must be at the beginning`. Clients such as coding agents send system messages after the first user message. When a model loads, Spice also renders a system and a developer message after a user message, and for a template that does not render it with its text, such a message reaches the template as a user's. Its text is joined to the user message before it after a blank line, or becomes a user message of its own when the message before it is not a user's, such as a tool result. The message keeps its place, so the prompt before it is unchanged and a cached prompt prefix still matches. A template that renders a later system message gets it as sent.
+
+A local model receives only text: neither engine passes images, audio, or files to the model, including a model loaded with a multimodal `model_type`. A user message that contains an `image_url`, `input_audio`, or `file` part is refused with HTTP 400, and the error names the model and the part:
+
+```text
+Model '<name>' reads only text, so it cannot take the `image_url` part of a user message. Send the message's content as text, or use a model that accepts image input.
+```
+
+In v2.4.1 and earlier, a user message's text parts reached the chat template as a single value that held only the last part, and a chat template that reads typed parts, such as Qwen3.5's, failed the request with `Unexpected item type in content`. A system, developer, tool, or assistant message's parts were rendered into the prompt as JSON text.
 
 ## Model Provider Prefix
 
@@ -239,6 +323,8 @@ Not every template can honor every value. When a model loads, Spice renders its 
   ```
 
 A template with no reasoning control, such as Llama 3's, takes any value.
+
+A streamed chat completion from a local model carries the reasoning as the model generates it, in `choices[].delta.reasoning_content`, the streamed counterpart of the `message.reasoning_content` that a non-streamed response returns. A chunk without reasoning has no `reasoning_content` field. In v2.4.2 and earlier, a streamed reply carried no reasoning.
 
 To set a default for every request, use the [model provider prefix](#model-provider-prefix): `file_reasoning_effort` or `hf_reasoning_effort`. A request's own `reasoning_effort` still takes precedence. A default the chat template cannot honor fails the model's load with the same message.
 

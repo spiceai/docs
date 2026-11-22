@@ -24,7 +24,7 @@ graph LR
 - **Two-Layer Caching**: The HTTP connector caches raw responses based on upstream `Cache-Control: max-age` headers. Dataset-level caching adds TTL, stale-while-revalidate, and stale-if-error on top, providing application-controlled cache behavior independent of upstream headers.
 - **SQL-Queryable API Data**: Cached HTTP responses are stored as structured tables, queryable with standard SQL including filters, joins, and aggregations.
 - **Request Filtering**: Controls which request paths, query parameters, and body content are cacheable via `allowed_request_paths`, `request_query_filters`, and `request_body_filters`, preventing unbounded cache growth.
-- **Durable Cache**: File-backed accelerators (Cayenne, DuckDB, SQLite) persist cached responses to disk for fast restarts without re-fetching.
+- **Durable Cache**: File-backed accelerators (Cayenne, SQLite) persist cached responses to disk for fast restarts without re-fetching.
 
 ## Example
 
@@ -80,7 +80,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 1m

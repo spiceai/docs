@@ -47,7 +47,7 @@ Tier selection governs the internal rate controller's concurrency + per-minute b
 | `tier4`     | 125             | 10,000            |
 | `tier5`     | 125             | 10,000            |
 
-Override tier defaults per model via global model parameters:
+These model parameters set the budget for requests from the [`ai` SQL function](../../../reference/sql/ai.md), the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions), and the `POST /v1/decisions` endpoint. They do not change the tier budget for chat and responses requests:
 
 | Parameter                      | Description                                         |
 | ------------------------------ | --------------------------------------------------- |
@@ -58,7 +58,7 @@ The built-in rate controller queues and paces outbound requests to stay within t
 
 ### Retry Behavior
 
-**Chat Completions / Responses** requests rely on the rate controller for pacing; there is no application-level retry loop around the chat/responses path. Transient 429 / 5xx responses surface to the caller.
+**Chat Completions / Responses** requests rely on the rate controller for pacing; there is no application-level retry loop around the chat/responses path. Transient 429 / 5xx responses surface to the caller. A request whose connection closes before it is sent, such as during the TLS handshake, is sent again on a new connection; see [Requests the endpoint never received](../index.md#requests-the-endpoint-never-received).
 
 **Embeddings** (see the [OpenAI Embedding Deployment Guide](../../embeddings/openai/deployment)) implement an application-level retry with fibonacci backoff and a 10-retry cap.
 
@@ -80,7 +80,7 @@ Note: Responses API hosted tools are **not** available from the `/v1/chat/comple
 ## Capacity & Sizing
 
 - **Context window**: Driven by the selected model (e.g., `gpt-4o-mini`: 128k). Spice does not enforce context trimming — prompt and history management is the caller's responsibility.
-- **Concurrency**: Set by `openai_usage_tier` or explicit `max_concurrency`. For high-throughput workloads, upgrade the OpenAI tier rather than over-subscribing the rate limiter.
+- **Concurrency**: Chat and responses requests use the `openai_usage_tier` budget. SQL function and decisions requests use `max_concurrency` when it is set. For high-throughput workloads, upgrade the OpenAI tier rather than over-subscribing the rate limiter.
 - **Latency**: Bounded by OpenAI's server-side latency plus network RTT. Streaming (`stream=true`) begins emitting tokens quickly and is preferred for chat interfaces.
 
 ## Metrics
@@ -114,7 +114,7 @@ Chat and Responses operations emit these [task history](../../../reference/task_
 ## Known Limitations
 
 - **No automatic token counting for rate limiting**: The rate controller counts requests, not tokens. Token-level rate limits imposed by OpenAI (TPM) are not pre-checked; excess requests surface as 429 errors.
-- **No chat/responses application retry**: Retries for chat/responses are not implemented at the Spice layer. Pace via `max_concurrency`/`requests_per_minute_limit` to stay under rate limits.
+- **No chat/responses application retry**: Retries for chat/responses are not implemented at the Spice layer. Pace chat and responses requests with `openai_usage_tier` to stay under rate limits.
 - **OpenAI-compatible providers vary**: Not every OpenAI-compatible provider implements every parameter (e.g., `responses_api`, `openai_reasoning_effort`). Test against your specific provider.
 
 ## Troubleshooting

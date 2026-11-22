@@ -12,7 +12,7 @@ The `caching` refresh mode provides intelligent caching for HTTP-based datasets 
 The caching mode supports two key paradigms:
 
 1. **Stale-While-Revalidate (SWR)** - Serves cached data immediately while refreshing in the background, optimizing for low latency and reduced API costs
-2. **Cache Persistence** - Stores cached data to disk using file-based accelerators (DuckDB, SQLite, or Cayenne) for fast cold starts and durability
+2. **Cache Persistence** - Stores cached data to disk using file-based accelerators (Cayenne or SQLite) for fast cold starts and durability
 
 ## Overview
 
@@ -66,7 +66,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 30s
       params:
@@ -91,7 +91,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -125,7 +125,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 10s
@@ -152,7 +152,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 10s
@@ -222,7 +222,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       params:
         caching_ttl: 10s # Data is fresh for 10 seconds
@@ -257,7 +257,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       params:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
@@ -283,9 +283,8 @@ The `caching` mode supports persisting cached data to disk using file-based acce
 
 ### File-Based Accelerators
 
-Three acceleration engines support file persistence for caching mode:
+Two acceleration engines support file persistence for caching mode:
 
-- **DuckDB** - High-performance analytical database with excellent compression
 - **SQLite** - Lightweight, reliable database ideal for embedded scenarios
 - **Cayenne** - Spice's native accelerator optimized for analytical workloads
 
@@ -304,7 +303,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb # or sqlite, cayenne
+      engine: cayenne # or sqlite
       mode: file # Enable file persistence
       params:
         caching_ttl: 10s
@@ -314,34 +313,6 @@ datasets:
         SELECT * FROM shows_persistent_cache
         WHERE request_path IN ('/shows/82', '/shows/169')
            OR (request_path = '/search/shows' AND request_query = 'q=game+of+thrones')
-```
-
-### DuckDB Persistence Example
-
-DuckDB provides excellent performance for analytical queries on cached data:
-
-```yaml
-datasets:
-  - from: https://api.tvmaze.com
-    name: tv_shows_duckdb
-    params:
-      file_format: json
-      allowed_request_paths: '/shows/*,/shows/*/episodes'
-      request_query_filters: enabled
-    acceleration:
-      enabled: true
-      refresh_mode: caching
-      engine: duckdb
-      mode: file
-      params:
-        caching_ttl: 10s
-        caching_stale_while_revalidate_ttl: 10s
-        duckdb_file: tv_shows_cache.db # Specify custom file location
-      refresh_check_interval: 30s
-      refresh_sql: |
-        SELECT * FROM tv_shows_duckdb
-        WHERE request_path IN ('/shows/82', '/shows/169')
-           OR (request_path = '/shows/82/episodes' AND request_query = 'season=1')
 ```
 
 ### SQLite Persistence Example
@@ -418,7 +389,7 @@ Choose between in-memory and file-based caching based on your requirements:
 | **Capacity**    | Limited by available memory       | Limited by disk space         |
 | **Cold start**  | Slow - must refetch all data      | Fast - loads from disk        |
 | **Best for**    | Small, frequently changing caches | Large, stable caches          |
-| **Engines**     | `cayenne` (default), `arrow` | `duckdb`, `sqlite`, `cayenne` |
+| **Engines**     | `cayenne` (default), `arrow` | `cayenne`, `sqlite`           |
 
 ### Combining SWR and Persistence
 
@@ -435,7 +406,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist to disk
       params:
         caching_ttl: 15s # Cache data is fresh for 15 seconds
@@ -481,7 +452,7 @@ This behavior differs from other modes:
 
 An origin that answers a cached request with no rows, such as `[]`, has retracted the rows it returned before. On the `cayenne` engine, that empty response replaces the entry: the stored rows for that request are deleted, so a later [`caching_stale_if_error`](#stale-if-error-behavior) fallback or [stale-while-revalidate](#stale-while-revalidate-pattern) read does not serve the retracted rows. The replacement is scoped to the one request the lookup names. A request part the lookup does not name is matched as empty, the value the HTTP connector stores for a part it does not send, so an empty answer to a GET leaves a POST response or a response to another `request_query` under the same path in place. When the lookup's filters do not name a single request, the empty response is not written and the earlier entry is kept.
 
-On `duckdb`, `sqlite`, and `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
+On `sqlite` and `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
 
 ### Concurrent Cache Misses
 
@@ -490,6 +461,22 @@ Concurrent cache misses for the same cache key share one origin fetch. The first
 A waiting request shares the fetch only when that fetch returns enough rows for it. An unbounded fetch serves any request. A fetch bounded by `LIMIT n` serves only requests whose own limit is `n` or lower, so a `LIMIT 3` miss that arrives during a `LIMIT 1` fetch queries the origin itself, and does not write. A stale-while-revalidate refresh shares its fetch with misses on the same key in the same way.
 
 A waiting request makes its own origin request when the shared fetch fails, is cancelled, or returns a `429` or `5xx` response, or when it has waited 30 seconds. [`caching_stale_if_error`](#transient-error-handling) then applies to that request as it does to any other.
+
+### Partial Cache Hits
+
+A query can name several cache keys with `IN` or with an `OR` over one request column, such as `request_path IN ('/shows/82', '/shows/169')`. When the accelerator holds some of those keys and not others, Spice returns the cached rows for the keys it holds, fetches only the missing keys from the origin, stores them, and returns their rows with the cached ones. [Stale-while-revalidate](#stale-while-revalidate-pattern) applies to the cached keys as it does on any hit.
+
+When an HTTP dataset sets [`max_request_partitions`](../../../components/data-connectors/https#params), a partial hit counts every request key the query names, cached or not, against the limit before it fetches anything, as a cache miss does. A query over the limit fails with the error a miss returns, and sends no request to the origin. The error includes:
+
+```text
+The HTTP connector would create 6 request partitions, which exceeds max_request_partitions=3. Reduce the number of request_path, request_query, request_body, or request_headers filter values, or increase max_request_partitions.
+```
+
+A query whose keys are all cached is served from the cache without this check.
+
+Spice does not compare the requested keys with the cached ones when the query's filters name no request column, use `NOT IN` on a request column, or combine different request columns in one `OR`, such as `(request_path = '/a' AND request_query = 'p') OR (request_path = '/b' AND request_query = 'q')`. For those queries, any cached rows answer the whole query, as they did before.
+
+In v2.4.2 and earlier, any cached rows answered the whole query, so a query that named a cached key and an uncached key returned only the cached key's rows and did not request the uncached key from the origin.
 
 ### Cache Key Behavior
 
@@ -540,7 +527,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       primary_key: '(id, season, number)' # stored rows are unique per episode
       params:
@@ -583,7 +570,7 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
 | `on_zero_results`        | **Ignored in caching mode.** Caching mode always queries the source on a cache miss, regardless of this setting. | `return_empty` |
-| `engine`                 | Acceleration engine (`arrow`, `duckdb`, `sqlite`, `cayenne`)          | `cayenne` |
+| `engine`                 | Acceleration engine (`cayenne`, `arrow`, `sqlite`)                    | `cayenne` |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
 
 ### Cache TTL (Time-to-Live)
@@ -613,7 +600,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file # Persist cache to disk
       refresh_check_interval: 30s # Periodic check for stale data
       params:
@@ -674,6 +661,8 @@ A finite duration such as `10m` serves the cached entry only while its staleness
 
 `caching_ttl: 0s` on its own does not mean "always use the accelerator." With stale-while-revalidate at `0s` (or omitted) and `caching_stale_if_error` left `disabled`, every read waits on the origin, and an origin failure is returned to the caller.
 
+In that configuration no stored entry could ever be served, so Spice does not use the accelerator for a query with any filter, including one only on response columns such as `response_status`: it does not scan or write the accelerator, and it does not store the origin's response. The acceleration gets no new entries, so a query with no filter, which reads every cached entry, returns no rows unless an earlier configuration stored some. This differs from [Cache Key Behavior](#cache-key-behavior), where a query with predicates only on response columns reads cached entries. In v2.4.2 and earlier, Spice stored the origin's response in this configuration too.
+
 These rules describe the accelerator. The [SQL results cache](../../caching) sits in front of it and is on by default with an `item_ttl` of `1s`: an identical query inside that window returns the earlier result, including a fallback served during an outage, without a new origin request. When every query must reach the origin, send it with [`Cache-Control: no-cache`](../../caching#cache-control) or set `runtime.caching.sql_results.enabled: false`. The HTTP connector's [response cache](../../../components/data-connectors/https#response-cache) is not involved, because an accelerated dataset skips it whatever `Cache-Control` the origin sends.
 
 `caching_stale_if_error: enabled` keeps expired entries as fallback material and does not derive an eviction deadline from age. Pair that unbounded setting with `caching_max_size`, `caching_max_items`, or a `retention_period` / `retention_sql` rule so stale entries do not grow without a bound. A finite `caching_stale_if_error` duration already supplies an eviction deadline. See [Cache Size and Item Limits](#cache-size-and-item-limits).
@@ -697,7 +686,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -753,7 +742,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: duckdb
+      engine: cayenne
       mode: file
       params:
         caching_ttl: 15s
@@ -819,5 +808,5 @@ Choose one approach:
 - [Refresh SQL](../data-refresh#refresh-sql) - Using SQL to control refresh behavior
 - [Special Metadata Fields](../../../components/data-connectors/https#special-metadata-fields) - HTTP request metadata fields
 - [Data Accelerators](../../../components/data-accelerators) - Acceleration engines for cache persistence
-- [DuckDB Accelerator](../../../components/data-accelerators/duckdb) - DuckDB acceleration engine
+- [Spice Cayenne Accelerator](../../../components/data-accelerators/cayenne) - Spice Cayenne acceleration engine
 - [SQLite Accelerator](../../../components/data-accelerators/sqlite) - SQLite acceleration engine

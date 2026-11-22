@@ -102,8 +102,6 @@ SELECT COUNT(*) FROM cool_dataset;
 
 The connection to PostgreSQL can be configured by providing the following `params`:
 
-<!-- When making changes to this list, also update components/data-accelerators/postgres/index.md -->
-
 | Parameter Name                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `pg_connection_string`        | Optional. The connection string to use to connect to the PostgreSQL server. This can be used instead of providing individual connection parameters.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -127,7 +125,7 @@ The following parameters configure PostgreSQL [logical replication](https://www.
 | `pg_publication`                   | Optional. Name of the publication to create/reuse. Defaults to `spice_<dataset>_<dataset-hash>_pub`, or `<slot>_pub` when `pg_replication_slot` is set. Shared across replicas for the same dataset. |
 | `pg_replication_initial_snapshot`  | Optional. When `refresh_mode: changes` first loads the table's existing rows: `auto` (default) snapshots a freshly-created replication slot and resumes an existing one without a snapshot; `disabled` streams WAL changes only; `always` snapshots on every start, including slot resume. The legacy booleans `true`/`false` map to `auto`/`disabled`. Default: `auto`. |
 | `pg_replication_temporary_slot`    | **Deprecated and ignored.** The replication slot is always durable. Setting it logs a deprecation warning and has no other effect. To stop an unused slot retaining WAL on the source, drop it with `SELECT pg_drop_replication_slot('<slot_name>')`. |
-| `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`.                                                               |
+| `pg_replication_status_interval`   | Optional. How often to send StandbyStatusUpdate to Postgres (e.g. `10s`). Default: `10s`. Spice asks the server to reply once per interval, so Postgres sends a keepalive at least once per interval even when the source writes no WAL.                                                               |
 | `pg_replication_ready_lag`         | Optional. For `refresh_mode: changes`, the dataset is marked Ready once its replication lag (now minus the newest applied commit's source time) falls below this. Default: `2s`. |
 | `pg_replication_bootstrap_batch_size` | Optional. Number of rows per emitted batch during the initial replication snapshot. Default: `8192`. Maximum: `1048576`.                              |
 | `pg_replication_member_channel_capacity` | Optional. Shared-slot only: envelopes buffered per member table before the shared replication pump back-pressures. Default: `1024`. Maximum: `1048576`. |
@@ -250,7 +248,7 @@ datasets:
       pg_publication: spice_pub
       pg_replication_slot: spice_slot
     acceleration:
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
       write_mode: write_through # default; use write_back for fast async writes
@@ -288,30 +286,6 @@ datasets:
       pg_pass: ${secrets:my_pg_pass}
       pg_sslmode: verify-ca
       pg_sslrootcert: ./custom_cert.pem
-```
-
-### Separate dataset/accelerator secrets
-
-Specify different secrets for a PostgreSQL source and acceleration:
-
-```yaml
-datasets:
-  - from: postgres:my_schema.my_table
-    name: my_dataset
-    params:
-      pg_host: localhost
-      pg_port: 5432
-      pg_db: my_database
-      pg_user: my_user
-      pg_pass: ${secrets:pg1_pass}
-    acceleration:
-      engine: postgres
-      params:
-        pg_host: localhost
-        pg_port: 5433
-        pg_db: acceleration
-        pg_user: two_user_two_furious
-        pg_pass: ${secrets:pg2_pass}
 ```
 
 ## Secrets

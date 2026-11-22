@@ -567,6 +567,16 @@ const config: Config = {
             from: '/docs/next/features/large-language-models/evaluate',
             to: '/docs/next/features/large-language-models/decisions'
           },
+          // The duckdb acceleration engine is removed in v2.5 (spiceai/spiceai#16124).
+          {
+            from: '/docs/next/components/data-accelerators/duckdb/deployment',
+            to: '/docs/next/components/data-accelerators/duckdb'
+          },
+          // The postgres acceleration engine is removed in v2.5 (spiceai/spiceai#16294).
+          {
+            from: '/docs/next/components/data-accelerators/postgres/deployment',
+            to: '/docs/next/components/data-accelerators/postgres'
+          },
           // Linked from the runtime's Bedrock reasoning_effort messages (spiceai/spiceai#15422).
           // The reasoning guidance is on the vNext page until a release ships it.
           {

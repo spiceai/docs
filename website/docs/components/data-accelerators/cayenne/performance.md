@@ -189,6 +189,17 @@ The time-based targets accept a duration string (e.g. `5s`, `1m`, `250ms`); `tar
 
 Goal-seeking runs only where the closed loop runs, so it needs `runtime.adaptive_tuning: enabled` and a non-zero `cayenne_compaction_background_interval_ms`. A goal the environment cannot meet is reported rather than chased indefinitely: `cayenne_goal_slo_infeasible` is `1` for a table whose configured SLO is out of reach within the tuner's bounds.
 
+To watch convergence, compare each measured gauge with its target on the `/metrics` endpoint:
+
+| Measured | Target | Unit | Label |
+| --- | --- | --- | --- |
+| `cayenne_ingest_replication_lag_seconds` | `cayenne_goal_replication_lag_seconds` | seconds | `table` |
+| `cayenne_ingest_freshness_seconds` | `cayenne_goal_freshness_seconds` | seconds | `table` |
+| `cayenne_query_latency_p99_ms` | `cayenne_goal_query_latency_ms` | milliseconds | `table` |
+| `cayenne_query_throughput_qph` | `cayenne_goal_query_throughput_qph` | queries per hour | none, because throughput is measured system-wide |
+
+A measured gauge is omitted while its value is unavailable, and a target gauge is omitted while its `target_*` parameter is unset, rather than reporting `0`. `cayenne_ingest_freshness_seconds` is the worst commit-to-queryable lag over about the last 60 seconds, not an instantaneous value, and falls back to the time since the last apply for sources whose changes carry no commit timestamp.
+
 `target_freshness` also bounds how long a read-only `refresh_mode: changes` dataset reuses a cached scan view: one eighth of the goal, capped at 1 second. See [Visibility of applied changes](./index.md#visibility-of-applied-changes).
 
 ```yaml

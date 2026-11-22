@@ -94,16 +94,10 @@ Cluster Spicepod responsibilities:
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
 - Accelerate to file-mode engines (Cayenne, DuckDB, SQLite, or Turso) so the materialization can be exported as a snapshot.
-- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh.
+- Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that writes data.
 
 ```yaml
 # cluster spicepod.yaml
-snapshots:
-  enabled: true
-  location: s3://spiceai-snapshots/prod/
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: s3://my-lake/orders/
     name: orders
@@ -111,14 +105,16 @@ datasets:
       file_format: parquet
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_check_interval: 5m
-      snapshots: enabled # write a new snapshot after every refresh
+      snapshots: enabled # write a new snapshot after each refresh that writes data
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
       snapshots_trigger: refresh_complete
-      snapshots_compaction: enabled
       params:
-        duckdb_file: /data/orders.db
+        cayenne_file_path: /data/
 
   - from: postgres:public.customers
     name: customers
@@ -128,14 +124,17 @@ datasets:
       pg_pass: ${ secrets:PG_PASS }
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes # CDC
       snapshots: enabled
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
       snapshots_trigger: time_interval
       snapshots_trigger_threshold: 10m
       params:
-        duckdb_file: /data/customers.db
+        cayenne_file_path: /data/
 ```
 
 Snapshots are partitioned by date and dataset (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>/...`), and the publishing instance keeps each dataset's snapshots of the last 28 days. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention), and [Snapshots](../features/data-acceleration/snapshots) for the full configuration reference.
@@ -152,13 +151,6 @@ Read Spicepod responsibilities:
 
 ```yaml
 # read instance spicepod.yaml
-snapshots:
-  enabled: true
-  location: s3://spiceai-snapshots/prod/
-  bootstrap_on_failure_behavior: fallback # try older snapshots if the newest fails
-  params:
-    s3_auth: iam_role
-
 datasets:
   - from: s3://my-lake/orders/ # same source URL, but never used at runtime
     name: orders
@@ -166,25 +158,33 @@ datasets:
       file_format: parquet
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot # reload from the snapshot store; never query the source
       refresh_check_interval: 1m # poll the snapshot store every minute
       snapshots: bootstrap_only # download only; never write back
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
+      snapshots_bootstrap_on_failure_behavior: fallback # try older snapshots if the newest fails
       params:
-        duckdb_file: /local/orders.db
+        cayenne_file_path: /local/
 
   - from: postgres:public.customers
     name: customers
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot
       refresh_check_interval: 1m
       snapshots: bootstrap_only
+      snapshots_location: s3://spiceai-snapshots/prod/
+      snapshots_params:
+        s3_auth: iam_role
+      snapshots_bootstrap_on_failure_behavior: fallback
       params:
-        duckdb_file: /local/customers.db
+        cayenne_file_path: /local/
 ```
 
 Two settings make the read tier read-only. `snapshots: bootstrap_only` means read instances **read** snapshots but never **write** them, so multiple replicas don't race to upload. `refresh_mode: snapshot` makes every steady-state refresh a snapshot reload — the federated source is never queried, so a read instance stays functional with no source credentials at all. `refresh_mode: snapshot` also rejects `INSERT`, `UPDATE`, `DELETE`, and `TRUNCATE` against the accelerated table.
@@ -213,14 +213,14 @@ The application sees a single SQL surface — accelerated tables and delegated t
 
 When a read instance starts:
 
-1. For each accelerated dataset, Spice checks for the local file (`duckdb_file` / `sqlite_file`).
+1. For each accelerated dataset, Spice checks for the local acceleration data (the Cayenne data directory, or the `duckdb_file` or `sqlite_file`).
 2. If absent and snapshots are enabled, Spice lists the snapshot prefix, downloads the newest snapshot for that dataset, and the dataset goes ready immediately.
-3. If no snapshot is found, behavior is governed by `bootstrap_on_failure_behavior`:
+3. If no snapshot is found, behavior is governed by the dataset's `acceleration.snapshots_bootstrap_on_failure_behavior`:
    - `warn` (default) — boot empty and refresh from the source. Avoid in read-tier instances that should not have source access.
    - `fallback` — try older snapshots until one loads.
    - `retry` — keep retrying the newest snapshot.
 
-For zero-source-credentials read instances, set `bootstrap_on_failure_behavior: fallback` or `retry` and ensure the dataset is **never** configured with usable source credentials.
+For zero-source-credentials read instances, set `snapshots_bootstrap_on_failure_behavior: fallback` or `retry` and ensure the dataset is **never** configured with usable source credentials.
 
 Steady-state refresh on read instances is configured per dataset:
 
@@ -239,15 +239,15 @@ Snapshots are written to Hive-partitioned paths so retention is straightforward:
 
 ```text
 s3://spiceai-snapshots/prod/
-  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z_019de368f9537198907799402bf53e23.duckdb
-  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.duckdb
+  month=2026-05/day=2026-05-01/dataset=orders/orders_20260501T120000Z_019de368f9537198907799402bf53e23.cayenne
+  month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.cayenne
 ```
 
 The extension names the engine that wrote the snapshot (`.duckdb`, `.sqlite`, `.cayenne`, or `.turso`), so the cluster and read tiers must accelerate a dataset with the same engine.
 
 The publishing instance deletes snapshots older than 28 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
 
-The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network. When read instances run in another region, replicate this standard bucket. Keep `snapshots.location` on standard S3, GCS, or ADLS for that replication. Cayenne's S3 Express One Zone settings (`cayenne_file_path`, `cayenne_s3_*`) store the Cayenne data tier in one zone and do not substitute for the snapshot bucket. See [Snapshot location and the Cayenne data tier](../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
+The snapshot bucket is the only shared dependency between the tiers, so keep it in the same region as the read instances and apply VPC endpoints / Private Google Access to keep traffic on the private network. When read instances run in another region, replicate this standard bucket. Keep `snapshots_location` on standard S3, GCS, or ADLS for that replication. Cayenne's S3 Express One Zone settings (`cayenne_file_path`, `cayenne_s3_*`) store the Cayenne data tier in one zone and do not substitute for the snapshot bucket. See [Snapshot location and the Cayenne data tier](../features/data-acceleration/snapshots#snapshot-location-and-the-cayenne-data-tier).
 
 ### Full copies and incremental replication
 
@@ -324,7 +324,7 @@ spec:
               value: http://127.0.0.1:8090
 
         - name: spiceai
-          image: spiceai/spiceai:2.4.1
+          image: spiceai/spiceai:2.4.3
           args: ['--http', '0.0.0.0:8090', '--flight', '0.0.0.0:50051', '/spicepod']
           volumeMounts:
             - name: spicepod
@@ -356,7 +356,7 @@ Rough first-pass sizing rules:
 | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | Cluster (writer) | 3+ replicas. Memory sized for the largest accelerated dataset. Network bandwidth for source ingest.  |
 | Read instance    | 1 replica per application pod. 0.5–2 vCPU, 512Mi–4Gi memory, 10–50Gi local SSD.                      |
-| Snapshot bucket  | Standard tier, same region. Lifecycle rule sized to refresh frequency × number of datasets × 24–72h. |
+| Snapshot bucket  | Standard tier, same region. Dataset size × snapshots written in about 29 days (28 days of retention plus at least 24 hours before a dropped file is deleted), plus each dataset's current and newest snapshot at any age. No expiration rule for current objects. |
 
 Read-tier memory is dominated by the working set of the file-mode acceleration engine. DuckDB compaction (`snapshots_compaction: enabled`) typically reduces snapshot size by 30–60%.
 

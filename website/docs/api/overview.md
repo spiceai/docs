@@ -22,6 +22,14 @@ Spice provides high-performance, industry-standard APIs:
 
 - **HTTP APIs**: `POST /v1/messages` is compatible with Anthropic SDKs and tools such as Claude Code, and is served by any chat model in the Spicepod. For details, see the [Messages API documentation](../features/large-language-models/messages.md).
 
+### Gemini API
+
+- **HTTP APIs**: `/v1beta/models` serves the Gemini API's `models.list`, `models.get`, `generateContent`, and `streamGenerateContent` methods with any chat model in the Spicepod, for Gemini clients such as the Antigravity CLI. For details, see the [Gemini API documentation](../features/large-language-models/gemini.md).
+
+### OpenTelemetry Ingest APIs
+
+- **HTTP APIs**: `POST /v1/metrics` and `POST /v1/logs` accept OTLP/HTTP exports from OpenTelemetry SDKs and Collectors and store them in the datasets configured to receive them. For details, see [OpenTelemetry Data Ingestion](../features/data-ingestion/index.md#opentelemetry-data-ingestion).
+
 ### Iceberg Catalog REST APIs
 
 - **HTTP APIs**: Unified API for consuming Apache Iceberg catalogs in data lake architectures.
@@ -60,7 +68,9 @@ HTTP, Arrow Flight, and Flight SQL requests accept a `spice-trace-id` header (gR
 
 JSON object keys are unordered, so clients that parse the response as an object, including the Spice SDKs, are unaffected. Clients that read the body as text or match on key positions should parse it as JSON instead. Starting in v2.5, `DECIMAL` values in this format keep their exact digits and scale, the same as `application/json`. Earlier versions converted them to floating-point numbers.
 
-`application/json`, `application/vnd.spiceai.sql.v1+json`, and `text/csv` responses stream. A `text/plain` response, a `text/csv` response whose result has a nested column such as a list or struct, a response in any format whose result has a union column, and the final result of a `BEGIN … COMMIT` [transaction](../components/data-accelerators/cayenne/index.md#transactions) body are buffered: the whole result is collected before the body is written. A buffered result, and for `text/plain` an estimate of the rendered table, is reserved from the query memory pool that [`runtime.query.memory_limit`](../reference/memory.md#memory-limit-configuration) bounds. When the pool cannot hold it, the request fails with `503 Service Unavailable` and a body that starts with `The query result is too large to buffer in memory for this response.`, and a transaction is aborted before any of its writes are committed. For a large result, request `application/json` or `text/csv` rather than `text/plain`, and `application/json` when the result has nested columns, which CSV cannot represent. In v2.4.1 and earlier, buffered results are not reserved from the pool and can use memory beyond `runtime.query.memory_limit`.
+`application/json`, `application/vnd.spiceai.sql.v1+json`, and `text/csv` responses stream. A `text/plain` response, a `text/csv` response whose result has a nested column such as a list or struct, a response in any format whose result has a union column, and the final result of a `BEGIN … COMMIT` [transaction](../components/data-accelerators/cayenne/index.md#transactions) body are buffered: the whole result is collected before the body is written. A buffered result, and for `text/plain` an estimate of the rendered table, is reserved from the query memory pool that [`runtime.query.memory_limit`](../reference/memory.md#memory-limit-configuration) bounds. When the pool cannot hold it, the request fails with `503 Service Unavailable` and a body that starts with `The query result is too large to buffer in memory for this response.`, and a transaction is aborted before any of its writes are committed. For a large result, request `application/json` or `text/csv` rather than `text/plain`, and `application/json` when the result has nested columns, which CSV cannot represent. In v2.4.2 and earlier, buffered results are not reserved from the pool and can use memory beyond `runtime.query.memory_limit`.
+
+`POST /v1/nsql` buffers the result of the SQL it generates and reserves it from the same pool, in every format except `Accept: application/sql`, which returns the generated SQL without running it. A result that does not fit returns the same `503` response, and the model is not asked for another query. In v2.4.3 and earlier, `/v1/nsql` results were not reserved from the pool.
 
 ### Text-to-SQL Context
 

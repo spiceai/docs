@@ -92,11 +92,17 @@ datasets:
 
 Spice can automatically detect and append only newly created or updated files from object-store data sources. This is useful for append-only datasets where only new files are added to the source and existing files are not modified or deleted.
 
-Enable this feature by setting either `time_column` or `time_partition_column` to the special value `last_modified`. When configured this way with `refresh_mode: append`, Spice will use the file/object's metadata to determine which files are new or have been updated.
+Enable this feature by setting `time_column` to `_last_modified` and `time_format` to `timestamptz`. When configured this way with `refresh_mode: append`, Spice will use the file/object's metadata to determine which files are new or have been updated.
+
+The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`. `refresh_mode: append` still requires a `time_column` or a `primary_key`; `time_partition_column` alone is not enough.
+
+In vNext, a Spicepod that still sets `time_column: last_modified` (or `time_partition_column: last_modified`) loads when the source has no data column named `last_modified`: Spice reads `_last_modified` instead and logs a deprecation warning. When `time_column` or `time_partition_column` resolves to `_last_modified` and the matching `time_format` or `time_partition_format` is unset, Spice uses `timestamptz` when the column carries a time zone, as the metadata column does. An explicit format is kept. In v2.4.2 and earlier, `time_column: last_modified` on such a source fails dataset setup with `time_column 'last_modified' was not found in dataset <name>`.
 
 This approach can drastically speed up incremental updates for large datasets, as Spice only needs to process the new files rather than scanning the entire dataset for changes to a column. This optimization is particularly valuable for datasets with many files or large file sizes.
 
-If `last_modified` already exists as a column in the parquet data, that column will take precedence over the metadata value from the file itself.
+If a data column named `_last_modified` already exists, that column value takes precedence over the metadata value from the file itself.
+
+This mode is for append-only datasets where only new files are added. Overwriting an existing file re-reads the whole file and appends its rows, which can duplicate rows. A `primary_key` prevents those duplicates when the accelerator resolves keys. Spice Cayenne does this by default, with the exceptions in [One row per primary key on Spice Cayenne](./constraints.md#one-row-per-primary-key-on-spice-cayenne): key resolution can be disabled, and a partitioned acceleration stores a key once per partition if the key spans partitions. Deleting a file does not remove rows already loaded into the acceleration.
 
 Example using `time_column`:
 
@@ -104,7 +110,8 @@ Example using `time_column`:
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
-    time_column: last_modified
+    time_column: _last_modified
+    time_format: timestamptz
     params:
       file_format: parquet
     acceleration:
@@ -112,14 +119,15 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-Example using `time_partition_column`:
+Example using `time_partition_column` together with a `time_column`:
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
     time_column: created_at
-    time_partition_column: last_modified
+    time_partition_column: _last_modified
+    time_partition_format: timestamptz
     params:
       file_format: parquet
     acceleration:
@@ -151,20 +159,20 @@ datasets:
     name: my_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot
       refresh_check_interval: 30s  # Poll interval; defaults to 1m
       snapshots: enabled
       snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
-        duckdb_file: /nvme/my_table.db
+        cayenne_file_path: /nvme/
 ```
 
 **Requirements:**
 
 - `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
-- The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, or **Cayenne**
+- The acceleration engine must be a snapshot-capable file-based engine: **Cayenne** or **SQLite**
 
 **Behavior:**
 
@@ -241,8 +249,8 @@ datasets:
 
 A dataset is served from its existing acceleration this way when its configuration meets every one of these conditions ([`waits_for_source_reason`](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/runtime/src/init/dataset.rs#L1184-L1224)):
 
-- The acceleration persists across restarts: the `postgres` engine, or another engine with `mode: file` or `mode: file_update`. With engines other than `postgres`, `mode: memory` keeps no data across restarts.
-- For every engine, including `postgres`, `mode` is not `file_create`, and `mode: file_update` is used only with `refresh_mode: disabled`.
+- The acceleration persists across restarts: `mode: file` or `mode: file_update`. `mode: memory` keeps no data across restarts.
+- `mode` is not `file_create`, and `mode: file_update` is used only with `refresh_mode: disabled`.
 - The acceleration checkpoint records the acceleration's primary key. Checkpoints written by Spice v2.3 and earlier do not; see [Upgrading from Earlier Versions](#upgrading-from-earlier-versions).
 - The dataset is read-only: `access` is not `read_write`.
 - `refresh_mode` is not `changes` or `caching`, and `append` is used only with a `time_column`. An unset `refresh_mode` resolves to `changes` for the `debezium` and `cdc` connectors.
@@ -274,7 +282,7 @@ Query availability and source health are reported separately: a dataset can serv
 
 #### Logs and Error Messages
 
-While the source cannot be reached, the dataset status is `Error` with the cause in `error_message` from [`GET /v1/datasets?status=true`](../../api/HTTP/get-datasets). Spice logs a warning on the first failure and then at most every five minutes while the connection is retried:
+While the source cannot be reached and the dataset is served from its existing acceleration, the dataset status is `Error` with the cause in `error_message` from [`GET /v1/datasets?status=true`](../../api/HTTP/get-datasets). Spice logs a warning on the first failure and then at most every five minutes while the connection is retried:
 
 ```text
 WARN Failed to connect to the source for dataset orders. Serving data from the existing acceleration for orders while retrying the connection. <cause>
@@ -285,6 +293,8 @@ In these messages, `orders` is the dataset name and `<cause>` is the connector's
 ```text
 ERROR Dataset 'orders' cannot connect to its source because of its configuration, so it is served from its existing acceleration and will not refresh until the configuration is fixed. <cause>
 ```
+
+When a dataset's load fails before it is served, for example because its acceleration cannot be opened without the source, its status keeps that load error while the source is retried. The messages above are still logged. In v2.4.2 and earlier, each retry replaced the load error in the status with the connection message within a few seconds.
 
 When a dataset with data on disk waits for its source because of its configuration (the `access`, `refresh_mode`, search column, Drasi, `file` connector, `mode`, or `on_schema_change` conditions above), Spice logs the configuration that requires it when the first load attempt fails, and the dataset's `error_message` starts with `Not served`. The log message is not emitted for a snapshot reader whose first snapshot download is pending:
 
@@ -327,7 +337,7 @@ Acceleration checkpoints written by Spice v2.3 and earlier do not record the acc
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (DuckDB, SQLite, or Cayenne) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based acceleration engines (Cayenne or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 
@@ -495,6 +505,8 @@ datasets:
 
 In this example a query against `accelerated_dataset` within Spice like `SELECT * FROM accelerated_dataset WHERE city = 'Portland'` would initially query against the accelerated data, see that it returns zero results and then fallback to querying against the federated table in Databricks.
 
+The query's filters reach the accelerated scan, so a point lookup against a [Cayenne](../../components/data-accelerators/cayenne) acceleration, which applies most filters only when they reach its scan, reads only the matching rows. Filters that a join or an `ORDER BY … LIMIT` produces while the query runs are not passed to the accelerated scan, because one could empty the accelerated result and send a query to the source that the acceleration can answer. In v2.4.3 and earlier, no filter reached the accelerated scan under `use_source`, so a Cayenne lookup decoded every row of the acceleration and discarded the rows that did not match.
+
 :::warning
 
 - It is possible that even though an accelerated table returns some results, it may not contain all the data that would be returned by the federated table. `on_zero_results` only controls the behavior in the simple case where no data is returned by the acceleration for a given query.
@@ -531,6 +543,14 @@ Failed to register dataset 'user_events' (mysql): `on_zero_results: use_source` 
 ```
 
 To resolve it, remove `on_zero_results: use_source`, or use a `retention_sql` or `retention_period` policy that can be evaluated as a filter on the source columns.
+
+A `retention_sql` predicate that compares a string column with a value of another type also fails to load with `use_source`. For example, `DELETE FROM t WHERE status > 5` on a `Utf8` `status` column plans only because SQL type coercion casts `status` to `Int64`, and that cast fails on every row whose value is not a number, such as `'active'`. The error names the column and both types:
+
+```text
+the retention predicate does not type-check against the source schema: `status` is Utf8 but is compared with a Int64 value, so it is implicitly cast to Int64, and that cast fails at execution on any row whose value does not convert. Compare against a value of the column's type (for example a quoted string), or write the conversion explicitly with TRY_CAST
+```
+
+Only a cast that coercion adds is refused. A predicate that compares with a value of the column's own type, such as `status = 'archived'`, loads, and so does one that writes the conversion itself with `TRY_CAST` or `CAST`. `TRY_CAST` returns `NULL` for a value it cannot convert, so the predicate is not true for that row and retention keeps it, while an explicit `CAST` still fails on a value it cannot convert. Without `use_source`, the dataset still loads, and the runtime logs a warning at load time that begins ``Dataset t: `retention_sql` will fail when retention runs on rows it cannot convert``. Spice v2.4.0-rc.2 through v2.4.1 load such a dataset with `use_source` too, and its fallback queries fail with a cast error.
 
 Spice v2.4.0-rc.1 and earlier releases do not apply the retention policy to the fallback query, so on those releases `on_zero_results: use_source` can return soft-deleted and expired rows from the source.
 
@@ -637,7 +657,7 @@ date: Thu, 11 Apr 2024 20:11:18 GMT
 On-demand refresh always initiates a new refresh, terminating any in-progress refresh for the dataset.
 :::
 
-A request can override the refresh for that one run with `refresh_sql`, `refresh_mode`, and `refresh_jitter_max` in its JSON body, which `spice refresh --refresh-sql` and `--refresh-mode` send. Send the body with `Content-Type: application/json`; a body without it is not read, and the refresh runs with the dataset's configuration. The runtime checks the overrides before it queues the refresh and returns `400 Bad Request`, leaving the acceleration unchanged, when:
+A request can override the refresh for that one run with `refresh_sql`, `refresh_mode`, and `refresh_jitter_max` in its JSON body, which `spice refresh --refresh-sql` and `--refresh-mode` send. Send the body with `Content-Type: application/json`; a body without a `Content-Type` is not read, and the refresh runs with the dataset's configuration. A body with another `Content-Type`, such as `text/plain`, is refused with `415 Unsupported Media Type`. An empty or whitespace-only body is the same as `{}` whatever its `Content-Type`, so a proxy or client that adds `Content-Type: application/json` to a request with no body triggers a refresh with the dataset's configuration. In v2.4.2 and earlier, such a request returned `400 Bad Request` with `Failed to parse the request body as JSON`. The runtime checks the overrides before it queues the refresh and returns `400 Bad Request`, leaving the acceleration unchanged, when:
 
 - `refresh_mode` is `changes`, `caching`, `snapshot`, or `disabled`. The message contains `refresh_mode '<mode>' is not supported for an on-demand refresh. Valid modes are 'full' or 'append'.` A value that is not a refresh mode at all is refused with `422 Unprocessable Entity`.
 - `refresh_sql` does not parse, or the dataset has a [`time_column`](../../reference/spicepod/datasets#time_column) and `refresh_sql` does not select it. The message contains `Invalid refresh_sql:`.

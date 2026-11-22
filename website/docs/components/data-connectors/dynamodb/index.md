@@ -660,7 +660,7 @@ datasets:
     name: orders_stream
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: changes
 ```
@@ -725,7 +725,7 @@ datasets:
         scan_interval: 100ms                # Poll for new stream records every 100 milliseconds
      acceleration:
         enabled: true
-        engine: duckdb
+        engine: cayenne
         mode: file
         refresh_mode: changes
         snapshots: enabled

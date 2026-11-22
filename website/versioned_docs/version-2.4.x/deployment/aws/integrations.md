@@ -253,7 +253,7 @@ S3 Express One Zone is available in select regions. Spice derives the region fro
 
 See AWS documentation for the complete list of [S3 Express One Zone availability zones](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-Regions-and-Zones.html).
 
-S3 Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`). [Acceleration snapshots](../../features/data-acceleration/snapshots) use a separate `snapshots.location` on standard S3, GCS, or ADLS. Keep the snapshot bucket on that standard storage so bucket or object replication and multi-region readers work. An Express directory bucket does not substitute for it. The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) is a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`. It does not accept GCS or ADLS.
+S3 Express One Zone is the Cayenne data tier (`cayenne_file_path`, `cayenne_s3_*`). [Acceleration snapshots](../../features/data-acceleration/snapshots) use a separate snapshot location on standard S3, GCS, or ADLS: the `snapshots/` folder of `runtime.state.location`, or a dataset's `acceleration.snapshots_location`. Keep the snapshot bucket on that standard storage so bucket or object replication and multi-region readers work. An Express directory bucket does not substitute for it. The Cayenne [cold tier](../../components/data-accelerators/cayenne#cold-object-store-tier) is a general-purpose S3 or S3-compatible bucket, set by `cayenne_datalake_location`. It does not accept GCS or ADLS.
 
 ## Secret Management
 
@@ -306,18 +306,49 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
         "dynamodb:Scan",
         "dynamodb:Query",
         "dynamodb:DescribeTable",
+        "dynamodb:DescribeStream",
+        "dynamodb:GetShardIterator",
+        "dynamodb:GetRecords",
         "glue:GetTable",
         "glue:GetTables",
         "glue:GetDatabase",
         "glue:GetDatabases",
         "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:ApplyGuardrail",
         "secretsmanager:GetSecretValue"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3vectors:CreateVectorBucket",
+        "s3vectors:GetVectorBucket",
+        "s3vectors:CreateIndex",
+        "s3vectors:GetIndex",
+        "s3vectors:ListIndexes",
+        "s3vectors:PutVectors",
+        "s3vectors:GetVectors",
+        "s3vectors:ListVectors",
+        "s3vectors:QueryVectors",
+        "s3vectors:DeleteVectors"
+      ],
+      "Resource": [
+        "arn:aws:s3vectors:us-east-1:123456789012:bucket/my-s3-vector-bucket",
+        "arn:aws:s3vectors:us-east-1:123456789012:bucket/my-s3-vector-bucket/index/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3express:CreateBucket", "s3express:CreateSession"],
+      "Resource": "arn:aws:s3express:us-west-2:123456789012:bucket/my-bucket--usw2-az1--x-s3"
     }
   ]
 }
 ```
+
+Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`. The `s3vectors` actions are needed only for [S3 Vectors](#vector-stores-amazon-s3-vectors) search; Spice creates the vector bucket and index when they do not exist, which is why `CreateVectorBucket` and `CreateIndex` are listed. These actions can delete vectors, so the policy scopes them to the vector bucket and its indexes rather than `*`. See the [Amazon S3 Vectors actions](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazons3vectors.html) reference. The `s3express` actions are needed only for Cayenne data in an [S3 Express One Zone](#data-accelerators-s3-express-one-zone) directory bucket: `CreateSession` authorizes requests to a directory bucket, and `CreateBucket` lets Spice create the bucket when it does not exist. A session that `CreateSession` opens can read, write, and delete objects in the bucket, so the policy scopes both actions to the one directory bucket. See [Authorizing Regional endpoint APIs with IAM](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-express-security-iam.html). Replace the Region, account ID, and bucket names in the scoped statements with your own.
 
 ## Deployment Options
 

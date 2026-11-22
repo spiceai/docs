@@ -263,7 +263,7 @@ kind: Spicepod
 name: hive_data
 
 datasets:
-  - from: s3://spiceai-public-datasets/hive_partitioned_data/
+  - from: s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/
     name: hive_data_infer
     params:
       file_format: parquet
@@ -287,7 +287,7 @@ Use `schema_source_path` to speed up dataset registration by specifying a URL to
 Metadata columns expose per-file S3 object metadata (`_location`, `_last_modified`, `_size`) as virtual columns in query results. See [Metadata Columns](./#metadata-columns) for full details.
 
 ```yaml
-- from: s3://spiceai-public-datasets/hive_partitioned_data/
+- from: s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/
   name: hive_data
   params:
     file_format: parquet
@@ -308,22 +308,22 @@ LIMIT 5;
 ```
 
 ```shell
-+----+---------+-------------------------------------------------------------------------------------------+-------+----------------------+
-| id | value   | _location                                                                                 | _size | _last_modified       |
-+----+---------+-------------------------------------------------------------------------------------------+-------+----------------------+
-| 0  | value_0 | s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
-| 1  | value_1 | s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
-| 2  | value_2 | s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
-| 3  | value_3 | s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
-| 4  | value_4 | s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
-+----+---------+-------------------------------------------------------------------------------------------+-------+----------------------+
++----+---------+-----------------------------------------------------------------------------------------------+-------+----------------------+
+| id | value   | _location                                                                                     | _size | _last_modified       |
++----+---------+-----------------------------------------------------------------------------------------------+-------+----------------------+
+| 0  | value_0 | s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
+| 1  | value_1 | s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
+| 2  | value_2 | s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
+| 3  | value_3 | s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
+| 4  | value_4 | s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 2317  | 2024-10-10T05:36:59Z |
++----+---------+-----------------------------------------------------------------------------------------------+-------+----------------------+
 ```
 
 Filter by specific file:
 
 ```sql
 SELECT id, value FROM hive_data
-WHERE _location = 's3://spiceai-public-datasets/hive_partitioned_data/year=2023/month=2/day=2/data_1.parquet'
+WHERE _location = 's3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2023/month=2/day=2/data_1.parquet'
 ORDER BY id;
 ```
 
@@ -354,15 +354,15 @@ ORDER BY _location;
 ```
 
 ```shell
-+-------------------------------------------------------------------------------------------+-----------+-------+
-| _location                                                                                 | row_count | _size |
-+-------------------------------------------------------------------------------------------+-----------+-------+
-| s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 10        | 2317  |
-| s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=1/day=2/data_4.parquet | 10        | 2319  |
-| s3://spiceai-public-datasets/hive_partitioned_data/year=2022/month=3/day=3/data_2.parquet | 10        | 2319  |
-| s3://spiceai-public-datasets/hive_partitioned_data/year=2023/month=2/day=2/data_1.parquet | 10        | 2319  |
-| s3://spiceai-public-datasets/hive_partitioned_data/year=2023/month=4/day=1/data_3.parquet | 10        | 2319  |
-+-------------------------------------------------------------------------------------------+-----------+-------+
++-----------------------------------------------------------------------------------------------+-----------+-------+
+| _location                                                                                     | row_count | _size |
++-----------------------------------------------------------------------------------------------+-----------+-------+
+| s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=1/data_0.parquet | 10        | 2317  |
+| s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=1/day=2/data_4.parquet | 10        | 2319  |
+| s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2022/month=3/day=3/data_2.parquet | 10        | 2319  |
+| s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2023/month=2/day=2/data_1.parquet | 10        | 2319  |
+| s3://spice-datasets-gjezag77s0hu/hive_partitioned_data/year=2023/month=4/day=1/data_3.parquet | 10        | 2319  |
++-----------------------------------------------------------------------------------------------+-----------+-------+
 ```
 
 ## Secrets

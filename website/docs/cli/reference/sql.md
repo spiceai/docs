@@ -15,6 +15,7 @@ spice sql [flags]
 
 #### Flags
 
+- `--query <SQL>` Run one SQL query and exit instead of opening the interactive REPL. `spice -sql <query>` is a shortcut for it.
 - `--endpoint <endpoint>` Specifies the remote Spice instance endpoint. Supports `http://`, `https://`, `grpc://`, or `grpc+tls://` schemes. If not provided, uses the local spiced runtime.
 - `--flight-endpoint <endpoint>` (Deprecated) Specifies the remote Spice instance Flight endpoint (treated as gRPC endpoint). If not provided, uses the local spiced runtime.
 - `--cache-control <value>` Control whether the results cache is used for queries. Default: `cache`.

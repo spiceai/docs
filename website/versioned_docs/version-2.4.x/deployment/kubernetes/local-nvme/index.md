@@ -225,7 +225,7 @@ spicepod:
   kind: Spicepod
   runtime:
     query:
-      temp_directory: /data/tmp # query, compaction, and DuckDB spill on the same NVMe
+      temp_directory: /data/tmp # query and compaction spill on the same NVMe
   datasets:
     - from: postgres:public.orders
       name: orders
@@ -240,10 +240,11 @@ spicepod:
     - from: postgres:public.customers
       name: customers
       acceleration:
-        engine: duckdb
+        engine: cayenne
         mode: file
         params:
-          duckdb_file: /data/customers.duckdb
+          cayenne_file_path: /data/customers/
+          cayenne_metadata_dir: /data/metadata
 ```
 
 ```bash
@@ -279,12 +280,6 @@ A local volume lives exactly as long as its node. Decide up front how a replacem
 - **Bootstrap from snapshots** (Spice.ai Enterprise) — the pattern this storage was designed for. Each refresh uploads the acceleration file to object storage, and a pod that starts with an empty `/data` downloads the newest snapshot instead of refreshing:
 
   ```yaml
-  snapshots:
-    enabled: true
-    location: s3://my-bucket/spice-snapshots/
-    params:
-      s3_auth: iam_role
-
   datasets:
     - from: postgres:public.orders
       name: orders
@@ -292,6 +287,9 @@ A local volume lives exactly as long as its node. Decide up front how a replacem
         engine: cayenne
         mode: file
         snapshots: enabled
+        snapshots_location: s3://my-bucket/spice-snapshots/
+        snapshots_params:
+          s3_auth: iam_role
         params:
           cayenne_file_path: /data/orders/
   ```
@@ -368,7 +366,7 @@ Create the `local-storage` StorageClass from Step 3, apply this PersistentVolume
 | `permission denied` writing to `/data`                                  | `hostPath` volume, or a directory owned by root on a volume that does not apply `fsGroup`.      | Use a `local` PersistentVolume, or `chown 65534:65534` the directory on the node.                                                |
 | PersistentVolume stuck in `Released`                                    | Cleanup is running, or the disk is gone (node replaced).                                       | Wait for the provisioner to republish it; if the node is gone, delete the PersistentVolume object.                                |
 | `cayenne_data_storage_class` reports `3` (unknown) on an NVMe node      | The container cannot read the block-device metadata under `/sys`.                              | Set `storage_profile: local_ssd` on the acceleration.                                                                            |
-| Volume fills during large queries                                       | Spill (`/data/tmp`) sharing the volume with the data, sized without spill headroom.            | Size the volume for data plus 2–4× the largest spillable input; a spill that runs out of space fails the query with `ResourcesExhausted`. |
+| Volume fills during large queries                                       | Spill (`/data/tmp`) sharing the volume with the data, sized without spill headroom.            | Size the volume for data plus 2–4× the largest spillable input; a spill that runs out of space fails the query with an I/O error, such as `No space left on device`. DataFusion also limits the spill files of each execution environment to 100 GB, and a spill past that limit fails with `The used disk space during the spilling process has exceeded the allowable limit`. Queries and Cayenne compaction can spill at the same time, so their spill can add up to more than 100 GB. |
 | Data gone after a cluster upgrade                                       | Expected: upgrades replace nodes and their NVMe.                                               | Enable snapshots, or accept a refresh; on GKE, schedule upgrades deliberately.                                                   |
 
 ## Related Documentation

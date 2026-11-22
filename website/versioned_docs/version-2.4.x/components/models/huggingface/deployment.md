@@ -65,7 +65,7 @@ Add ~20–30% headroom for KV cache and working memory during inference.
 
 ### Concurrency
 
-The runtime rate limiter defaults to **`max_concurrency=1`** for local models (HuggingFace, filesystem) — local inference is compute-bound and benefits little from request-level parallelism on a single accelerator. Override via `max_concurrency` for multi-GPU / large-core CPU hosts.
+`max_concurrency` limits the requests that the [`ai` SQL function](../../../reference/sql/ai.md), the [SQL decision functions](../../../features/large-language-models/decisions.md#sql-decision-functions), and the `POST /v1/decisions` endpoint send to the model. It defaults to **1** for local models. `requests_per_minute_limit` limits the same requests and has no default for local models. Neither parameter limits requests to the chat endpoints. Raise `max_concurrency` to let these paths send more requests at once.
 
 ## Metrics
 

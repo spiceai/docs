@@ -20,7 +20,7 @@ keywords:
   ]
 ---
 
-Spice.ai runs on Google Cloud Platform (GCP) on Kubernetes, serverless containers, or virtual machines. The container image and Helm chart are the same artefacts used in every other environment, so the choice of GCP service is a matter of operational fit rather than packaging.
+Spice.ai runs on Google Cloud Platform (GCP) on Kubernetes, serverless containers, or virtual machines. The container image and Helm chart are the same artifacts used in every other environment, so the choice of GCP service is a matter of operational fit rather than packaging.
 
 For a complete list of GCP-compatible data connectors, AI models, and supported services, see [GCP Integrations](gcp/integrations).
 
@@ -64,7 +64,7 @@ For burst or low-utilization workloads, use [GKE Autopilot](https://cloud.google
 
 #### 2. Configure Workload Identity for GCP access
 
-Most Spice connectors (Cloud Storage via the [S3 connector](../components/data-connectors/s3) with HMAC, BigQuery via [ADBC](../components/data-connectors/adbc), Cloud SQL via [PostgreSQL](../components/data-connectors/postgres) or [MySQL](../components/data-connectors/mysql)) accept GCP credentials from [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Use Workload Identity so pods receive scoped, short-lived tokens without static keys:
+The [GCS connector](../components/data-connectors/gcs) with `gcs_application_default_credentials: true` and BigQuery through [ADBC](../components/data-connectors/adbc) accept GCP credentials from [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Cloud SQL through the [PostgreSQL](../components/data-connectors/postgres) or [MySQL](../components/data-connectors/mysql) connector does not read them: it signs in with a database user and password (`pg_user` and `pg_pass`, or `mysql_user` and `mysql_pass`). Use Workload Identity so pods receive scoped, short-lived tokens without static keys:
 
 ```bash
 # 1. Create a Google service account and grant it the roles the Spicepod needs
@@ -117,7 +117,7 @@ For stateful acceleration (DuckDB, SQLite, Cayenne):
 - **Local SSD (recommended)** — Spice acceleration is latency- and IOPS-sensitive, so the lowest-latency option is a node-local NVMe SSD on a machine type with attached [Local SSD](https://cloud.google.com/compute/docs/disks/local-ssd) (`n2-standard-*-lssd`, `c3-standard-*-lssd`, `z3` series). Expose Local SSDs through GKE's [Local SSD raw block / ephemeral storage](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/local-ssd) provisioner. Local SSDs do not survive node replacement, so pair with a refresh strategy or a re-hydration source. [Local NVMe Storage](kubernetes/local-nvme) walks through the GKE setup step by step — the `--local-nvme-ssd-block` node pool, Google's provisioner manifests, the `nvme-ssd-block` class in the chart values, and verification.
 - **Hyperdisk Extreme / Balanced** — when shared, replica-attachable persistence is required, [Hyperdisk](https://cloud.google.com/compute/docs/disks/hyperdisk) provides high IOPS and configurable throughput. Use the [Compute Engine persistent disk CSI driver](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/gce-pd-csi-driver) with a custom StorageClass (`type: hyperdisk-balanced` or `hyperdisk-extreme`).
 - **Persistent Disk SSD (`pd-ssd`, `premium-rwo`)** — use the built-in `premium-rwo` storage class only when Hyperdisk is unavailable in a region.
-- **Filestore (`filestore-csi`) — not recommended for acceleration** — use only for stateless shared artefacts that need `ReadWriteMany`. NFS latency negates the benefit of using a local accelerator.
+- **Filestore (`filestore-csi`) — not recommended for acceleration** — use only for stateless shared artifacts that need `ReadWriteMany`. NFS latency negates the benefit of using a local accelerator.
 - Set `stateful.enabled: true` and `stateful.storageClass: <chosen-class>` in `values.yaml`.
 
 :::tip[Spice.ai Enterprise]
@@ -186,7 +186,7 @@ To run multiple replicas with shared file-based acceleration, mount [Cloud Stora
 
 #### 3. Scaling rules
 
-Cloud Run scales by concurrent requests per instance ([default 80](https://cloud.google.com/run/docs/about-concurrency)). For background workloads (refresh schedules, ingestion) that should not scale to zero, set `--min-instances 1`. For workloads with long-running connections (Arrow Flight, streaming refresh), set `--no-cpu-throttling` and tune `--concurrency` to match the runtime's request profile.
+Cloud Run scales by concurrent requests per instance ([default 80](https://cloud.google.com/run/docs/about-concurrency)). For background workloads (refresh schedules, streaming refresh, ingestion), set `--min-instances 1` so the service does not scale to zero, and `--no-cpu-throttling` so the instance keeps its CPU between requests ([background activity](https://cloud.google.com/run/docs/configuring/billing-settings)). For long-running HTTP requests, tune `--concurrency` to match the runtime's request profile. The deployment above serves the HTTP API only: it sets `--http` and not `--flight`, so `spiced` listens for Arrow Flight on `127.0.0.1:50051`, which Cloud Run ingress cannot reach. Run Arrow Flight clients against a deployment on GKE or Compute Engine.
 
 #### 4. Health probes and revisions
 

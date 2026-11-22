@@ -2,127 +2,25 @@
 type: docs
 title: 'PostgreSQL Data Accelerator'
 sidebar_label: 'PostgreSQL Data Accelerator'
-description: 'PostgreSQL Data Accelerator Documentation'
+description: 'The PostgreSQL data accelerator is deprecated in v2.4 and removed in v2.5. Migrate PostgreSQL accelerations to Spice Cayenne.'
 sidebar_position: 5
+tags:
+  - postgres
+  - data-accelerators
 ---
 
-:::info Spice.ai Enterprise
-The PostgreSQL Data Accelerator is available only in [Spice.ai Enterprise](https://docs.spice.ai/docs/enterprise).
-:::
+> **Deprecated in v2.4**: The `postgres` acceleration engine was deprecated in v2.4 and removed in v2.5. See the [v2.4 docs](https://github.com/spiceai/docs/blob/trunk/website/versioned_docs/version-2.4.x/components/data-accelerators/postgres/index.md) for documentation of this feature.
 
-:::warning[Deprecated]
+A dataset or view that sets `acceleration.engine: postgres`, or its alias `postgresql`, fails to load, and the other components in the Spicepod load normally:
 
-The `postgres` acceleration engine is deprecated in v2.4 and will be removed in v2.5. A Spicepod with a dataset or view that uses it logs one warning at startup, and one on each hot reload that adds or changes such a component, naming those datasets and views. A cluster executor does not log it. Runtimes up to and including v2.4.0-rc.3 do not log this warning. Move these accelerations to [Spice Cayenne](../cayenne/index.md) before upgrading to v2.5; see [Migrating to Spice Cayenne](../cayenne/migration.md).
-
-:::
-
-To use PostgreSQL as Data Accelerator, specify `postgres` as the `engine` for acceleration.
-
-```yaml
-datasets:
-  - from: spice.ai:path.to.my_dataset
-    name: my_dataset
-    acceleration:
-      engine: postgres
+```text
+Failed to load dataset 'orders': the acceleration engine `postgres` is no longer supported as of v2.5 and cannot be used. Set `acceleration.engine: cayenne`, or remove `engine` to use the default, which is `cayenne`, then delete the old engine's acceleration files and snapshots. See: https://spiceai.org/docs/components/data-accelerators/cayenne/migration
 ```
 
-## Configuration
+Tagged open-source `spiced` releases never included the PostgreSQL data accelerator; it was built into Spice.ai Enterprise, nightly builds, and `make install-data-only`. On a v2.4 release build without it, a dataset that set `engine: postgres` already failed to load, with an error saying the engine is not available in this build.
 
-The connection to PostgreSQL can be configured by providing the following `params`:
+Spice does not switch a PostgreSQL acceleration to Cayenne on its own, and Cayenne does not read the accelerated tables in the PostgreSQL database. To migrate, set `acceleration.engine: cayenne` (or remove `engine`, since Cayenne is the default) and remove the `pg_*` parameters from `acceleration.params`. A PostgreSQL acceleration kept its data across restarts whatever its `mode`, but a Cayenne acceleration with no `mode` is in memory and starts empty on every restart. To keep the data on disk, also set `mode: file`. The dataset then loads its data again from its source. Spice does not drop the old accelerated table in PostgreSQL; drop it there once no runtime reads it.
 
-<!-- When making changes to this list, also update components/data-connectors/postgres/index.md -->
+A PostgreSQL acceleration can hold data its source does not have: writes made with `write_mode: acceleration`, `write_back` writes not yet delivered, or append history the source no longer keeps. A v2.5 runtime cannot read a PostgreSQL acceleration, so move that data while still on v2.4. [Migrating to Spice Cayenne](../cayenne/migration.md) covers each step.
 
-- `pg_host`: The hostname of the PostgreSQL server.
-- `pg_port`: The port of the PostgreSQL server.
-- `pg_db`: The name of the database to connect to.
-- `pg_user`: The username to connect with.
-- `pg_pass`: The password to connect with. Use the [secret replacement syntax](../../components/secret-stores) to load the password from a secret store, e.g. `${secrets:my_pg_pass}`.
-- `pg_sslmode`: Optional. Specifies the SSL/TLS behavior for the connection, supported values:
-  - `verify-full`: (default) This mode requires an SSL connection, a valid root certificate, and the server host name to match the one specified in the certificate.
-  - `verify-ca`: This mode requires a TLS connection and a valid root certificate.
-  - `require`: This mode requires a TLS connection.
-  - `prefer`: This mode will try to establish a secure TLS connection if possible, but will connect insecurely if the server does not support TLS.
-  - `disable`: This mode will not attempt to use a TLS connection, even if the server supports it.
-- `pg_sslrootcert`: Optional. Path to a custom PEM certificate file that the connector will trust.
-- `pg_connection_pool_min`: Optional. The minimum number of connections to keep open in the pool, lazily created when requested. Default is `5`.
-- `connection_pool_size`: Optional. The maximum number of connections created in the connection pool. Default is `10`.
-
-Configuration `params` are provided in the `acceleration` section of a dataset.
-
-```yaml
-datasets:
-  - from: spice.ai:path.to.my_dataset
-    name: my_dataset
-    acceleration:
-      engine: postgres
-      params:
-        pg_host: localhost
-        pg_port: 5432
-        pg_db: my_database
-        pg_user: my_user
-        pg_pass: ${secrets:my_pg_pass}
-        pg_sslmode: require
-```
-
-Specify different secrets for a PostgreSQL source and acceleration:
-
-```yaml
-datasets:
-  - from: spice.ai:path.to.my_dataset
-    name: my_dataset
-    params:
-      pg_host: localhost
-      pg_port: 5432
-      pg_db: data_store
-      pg_user: my_user
-      pg_pass: ${secrets:pg1_pass}
-    acceleration:
-      engine: postgres
-      params:
-        pg_host: localhost
-        pg_port: 5433
-        pg_db: acceleration
-        pg_user: two_user_two_furious
-        pg_pass: ${secrets:pg2_pass}
-```
-
-:::warning[Limitations]
-
-- The Postgres accelerator does not support `Map` types.
-- The Postgres federated queries may result in unexpected result types due to the difference in DataFusion and Postgres size increase rules. Explicitly specify the expected output type of aggregation functions when writing queries involving Postgres tables in Spice. For example, rewrite `SUM(int_col)` into `CAST (SUM(int_col) as BIGINT)`.
-
-:::
-
-## Arrow to PostgreSQL Type Mapping
-
-The table below lists the supported [Apache Arrow data types](https://arrow.apache.org/rust/arrow/datatypes/enum.DataType.html) and their mappings to [PostgreSQL types](https://www.postgresql.org/docs/current/datatype.html) when stored
-
-| Arrow Type                             | sea_query ColumnType    | PostgreSQL Type               |
-| -------------------------------------- | ----------------------- | ----------------------------- |
-| `Int8`                                 | `TinyInteger`           | `smallint`                    |
-| `Int16`                                | `SmallInteger`          | `smallint`                    |
-| `Int32`                                | `Integer`               | `integer`                     |
-| `Int64`                                | `BigInteger`            | `bigint`                      |
-| `UInt8`                                | `TinyUnsigned`          | `smallint`                    |
-| `UInt16`                               | `SmallUnsigned`         | `smallint`                    |
-| `UInt32`                               | `Unsigned`              | `bigint`                      |
-| `UInt64`                               | `BigUnsigned`           | `numeric`                     |
-| `Decimal128` / `Decimal256`            | `Decimal`               | `decimal`                     |
-| `Float32`                              | `Float`                 | `real`                        |
-| `Float64`                              | `Double`                | `double precision`            |
-| `Utf8 / LargeUtf8`                     | `Text`                  | `text`                        |
-| `Boolean`                              | `Boolean`               | `bool`                        |
-| `Binary / LargeBinary`                 | `VarBinary`             | `bytea`                       |
-| `FixedSizeBinary`                      | `Binary`                | `bytea`                       |
-| `Timestamp` (no Timezone)              | `Timestamp`             | `timestamp` without time zone |
-| `Timestamp` (with Timezone)            | `TimestampWithTimeZone` | `timestamp` with time zone    |
-| `Date32` / `Date64`                    | `Date`                  | `date`                        |
-| `Time32` / `Time64`                    | `Time`                  | `time`                        |
-| `Interval`                             | `Interval`              | `interval`                    |
-| `Duration`                             | `BigInteger`            | `bigint`                      |
-| `List` / `LargeList` / `FixedSizeList` | `Array`                 | `array`                       |
-| `Struct`                               | `N/A`                   | `Composite` (Custom type)     |
-
-## Cookbook
-
-- A cookbook recipe to configure PostgreSQL as a data accelerator in Spice. [PostgreSQL Data Accelerator](https://github.com/spiceai/cookbook/tree/trunk/postgres/accelerator#readme)
+The [PostgreSQL data connector](../../data-connectors/postgres/index.md) (`from: postgres:`), the [PostgreSQL catalog connector](../../catalogs/postgres.md), and [PostgreSQL logical replication](../../../features/cdc/postgres-replication.md) are not affected.

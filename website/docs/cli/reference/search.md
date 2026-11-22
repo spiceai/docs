@@ -17,7 +17,7 @@ The command takes no query argument. It opens an interactive `search>` prompt: t
 
 #### Flags
 
-- `--limit`, `-l` Limit number of search results. Default: `10`.
+- `--limit`, `-l` Maximum number of results to return from each dataset. Default: `10`. A search over three datasets returns up to 30 results.
 - `--cache-control <value>` Control whether the results cache is used for searches. Values: `cache` (default), `no-cache`.
 - `--model <string>` Model to use for search.
 - `--endpoint <endpoint>` Specifies the remote Spice instance HTTP endpoint (e.g., `http://localhost:8090`).

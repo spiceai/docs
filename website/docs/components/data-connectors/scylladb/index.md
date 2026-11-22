@@ -224,7 +224,7 @@ datasets:
       scylladb_keyspace: catalog
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       refresh_check_interval: 1h
 ```
 

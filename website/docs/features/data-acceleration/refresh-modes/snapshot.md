@@ -25,14 +25,14 @@ datasets:
     name: my_table
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       mode: file
       refresh_mode: snapshot
       refresh_check_interval: 30s # Poll interval; defaults to 1m
       snapshots: enabled
       snapshots_location: s3://my-bucket/spice/snapshots/ # The writer's snapshot folder
       params:
-        duckdb_file: /nvme/my_table.db
+        cayenne_file_path: /nvme/
 ```
 
 This reader sets [`acceleration.snapshots_location`](../snapshots#override-the-snapshot-location-per-dataset) to the folder the writer publishes to, so it needs only read access to the snapshots. It could instead set [`runtime.state`](../../../reference/spicepod/runtime#runtimestate) to the writer's state location, whose `snapshots/` folder holds the snapshots. An instance with `runtime.state` checks the location at startup, which needs write access under `_spice/`, and does not report ready until the [check](../../../reference/spicepod/runtime#startup-check-of-the-state-location) passes, even though snapshot reads do not wait for it.
@@ -40,7 +40,7 @@ This reader sets [`acceleration.snapshots_location`](../snapshots#override-the-s
 ## Requirements
 
 - `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
-- The acceleration engine must be a snapshot-capable file-based engine: **DuckDB**, **SQLite**, or **Cayenne**.
+- The acceleration engine must be a snapshot-capable file-based engine: **Cayenne** or **SQLite**.
 
 ## Behavior
 

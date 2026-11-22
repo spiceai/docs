@@ -33,7 +33,7 @@ datasets:
 
     acceleration:
       enabled: true # Acceleration is required for the debezium connector.
-      engine: duckdb # `duckdb`, `sqlite` and `postgres` are supported acceleration engines for Debezium.
+      engine: cayenne # `cayenne`, `arrow`, and `sqlite` are supported acceleration engines for Debezium.
       refresh_mode: changes # Optional. If specified, this is required to be set to `changes` - any other value is an error.
       mode: file # Persistence is recommended to not have to rebuild the table each time Spice starts.
 ```
@@ -41,6 +41,8 @@ datasets:
 ## Overview
 
 Upon startup, Spice subscribes to the specified Debezium-managed Kafka topic using either a uniquely generated consumer group or a custom one specified via `kafka_consumer_group_id`. If a persistent acceleration engine is used (with `mode: file`), data is fetched starting from the last processed record, so Spice can resume without reprocessing all historical change events.
+
+When its changes stream starts, Spice reads the newest offset of each partition of the topic, and reports the dataset ready only after it has applied every change event up to those offsets. After a restart with a persistent acceleration, the first query after the dataset is ready therefore returns each row's state as of the latest change event on the topic when Spice started, not an older version. Change events produced after the stream starts do not delay readiness. Until the broker returns those offsets, Spice retries with backoff and the dataset stays not ready. A change event that fails to convert counts as applied: Spice reports it as an error rather than waiting for it. In v2.4.2 and earlier, the dataset reported ready after its first batch and could serve older rows while it applied the rest of the topic.
 
 ## Consumer Group Management
 
@@ -148,9 +150,41 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`duckdb`: Use [DuckDB](../data-accelerators/duckdb) as the acceleration engine.</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li><li>`postgres`: Use [PostgreSQL](../data-accelerators/postgres) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`cayenne`: Use [Spice Cayenne](../data-accelerators/cayenne) as the acceleration engine.</li><li>`arrow`: Use [Arrow](../data-accelerators/arrow) as the acceleration engine (memory only).</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li></ul> |
 | `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
-| `mode`         | Optional. The persistence mode to use. When using the `duckdb` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
+| `mode`         | Optional. The persistence mode to use. When using the `cayenne` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
+
+### Kafka message keys
+
+Every acceleration engine applies Debezium updates and deletes by the Kafka message key, so each message on the topic must carry one. A dataset whose messages carry no key fails to load with this error:
+
+```text
+The Debezium messages for this dataset carry no Kafka message key, so updates and deletes cannot be applied to its acceleration. Give the source table a primary key, or set `message.key.columns` in the Debezium connector, so that each message carries a key. For details, visit: https://spiceai.org/docs/components/data-connectors/debezium
+```
+
+Give the source table a primary key, or set `message.key.columns` in the Debezium connector (see the [PostgreSQL connector's property](https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-property-message-key-columns); other Debezium connectors have the same property). Declaring `acceleration.primary_key` in the Spicepod does not help, because the key must be in the messages.
+
+Spice checks for a key when the dataset loads. A topic with no messages at that point loads only when the dataset declares typed `columns` and `acceleration.primary_key`; without `acceleration.primary_key`, it fails with the error above. Spice then applies later changes by those key columns, read from each message's value, and does not check whether each message carries a Kafka key.
+
+With a persistent acceleration (`mode: file`), the first load stores the dataset's Debezium metadata, including its key columns, before the key check runs, and later loads reuse the stored metadata. A dataset that failed the check therefore keeps failing after the source is fixed, or after `acceleration.primary_key` is added, until its acceleration starts again from empty state.
+
+In v2.4.2 and earlier, the `arrow` engine loaded a keyless topic and applied updates and deletes by matching whole rows.
+
+## Timestamp Columns
+
+A column declared in `columns` with `type: timestamptz` or `type: timestamp` holds nanoseconds, and a column declared as `Timestamp(Microsecond)` or `Timestamp(Millisecond)` holds that unit. Spice converts each change event's timestamp value into the declared column's unit:
+
+- An ISO 8601 string with `Z` or a UTC offset, such as Debezium's `io.debezium.time.ZonedTimestamp` value `2026-11-18T21:00:00.123456Z`, is converted for a column declared with or without a time zone. A string without `Z` or an offset, such as `2026-11-18T21:00:00`, is not a timestamp and fails the change event.
+- An integer is read in the unit of its Debezium type in the event's schema: milliseconds for `io.debezium.time.Timestamp` and Kafka Connect's `org.apache.kafka.connect.data.Timestamp`, microseconds for `io.debezium.time.MicroTimestamp`, and nanoseconds for `io.debezium.time.NanoTimestamp`.
+- An integer with no Debezium type in the schema is read in the column's own unit when the column is declared in milliseconds or microseconds.
+
+A change event fails, with an error that names the column, instead of loading a wrong value when a value does not fit the column's unit (a nanosecond column holds 1677 through 2262), when a value is not a timestamp, when an integer has a Debezium type that is not a timestamp, such as `io.debezium.time.Date`, or when an integer in a second or nanosecond column has no Debezium type:
+
+```text
+Failed to ingest a change event: the integer value 1795035600123456 of column 'at' has no Debezium timestamp type, so its unit is unknown. Send change events with their schema, or declare the column with the unit of its values, such as `Timestamp(Microsecond)` or `Timestamp(Microsecond, UTC)`. See: https://spiceai.org/docs/components/data-connectors/debezium
+```
+
+In v2.4.3 and earlier, a column declared `timestamptz` or `timestamp` failed every change event with `Timestamp type (Nanosecond, …) not supported yet`, and an integer timestamp was read in the column's unit whatever its Debezium type, so a millisecond value in a microsecond column loaded as a wrong timestamp.
 
 ## JSON Nesting
 
@@ -168,7 +202,7 @@ datasets:
           json_object: '*'
     acceleration:
       enabled: true
-      engine: duckdb
+      engine: cayenne
       refresh_mode: changes
 ```
 

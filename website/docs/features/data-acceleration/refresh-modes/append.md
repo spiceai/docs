@@ -17,7 +17,7 @@ Use `append` when:
 
 ## Configuration
 
-`append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) and [ISO 8601 String Time Columns](#iso-8601-string-time-columns) for the two cases where that comparison is inclusive instead.
+For most sources, `append` mode requires a [`time_column`](../../../reference/spicepod/datasets#time_column) that identifies new rows by comparing the local maximum value to the source. Data is incrementally refreshed where `time_column` in the source is greater than `max(time_column)` in the acceleration — see [Day-Granular Time Columns](#day-granular-time-columns) and [ISO 8601 String Time Columns](#iso-8601-string-time-columns) for the two cases where that comparison is inclusive instead.
 
 ```yaml
 datasets:
@@ -29,6 +29,20 @@ datasets:
       refresh_mode: append
       refresh_check_interval: 10m
 ```
+
+The [Kafka](../../../components/data-connectors/kafka.md) and [Spice.ai](../../../components/data-connectors/spiceai) connectors are the exception: they provide a stream of appended rows, and without a `time_column` Spice subscribes to that stream instead of comparing a time column. For any other source, a dataset with `refresh_mode: append` and no `time_column` fails to load on every engine except Cayenne, with this error:
+
+```text
+Acceleration mode `append` requires `time_column` parameter for source databricks:my_dataset. Configure `time_column` parameter and try again. For details, visit: https://spiceai.org/docs/reference/spicepod/datasets#time_column
+```
+
+On Cayenne, such a dataset loads only when it has a primary key, such as one set with [`primary_key`](../../../reference/spicepod/datasets#accelerationprimary_key). Without one, the load fails with:
+
+```text
+Append mode requires either `time_column` or `primary_key` to be specified in the dataset configuration. For details, visit: https://spiceai.org/docs/components/data-accelerators/data-refresh#append
+```
+
+With a primary key and no `time_column`, a refresh has no column to tell new rows from rows already stored, so each refresh reads the whole source again. Set a `time_column` to read only new rows.
 
 ## Late-Arriving Data
 
@@ -95,7 +109,7 @@ The high-water mark is the stored value that sorts last as text, read as an inst
 
 :::warning[Known limitation]
 
-De-duplication compares the re-read rows with the rows currently stored. On a DuckDB or SQLite acceleration with a `primary_key` and [`on_conflict` set to `upsert`](../constraints.md#handling-conflicts), when the source holds two versions of a key at the same instant, a refresh can store one version and the next refresh, with no source change, swap the other back in. A Cayenne acceleration whose `primary_key` does not include `time_column` orders versions by time instead, as described in [Combining with Upserts](#combining-with-upserts). Tracked in [spiceai/spiceai#15542](https://github.com/spiceai/spiceai/issues/15542).
+De-duplication compares the re-read rows with the rows currently stored. On a SQLite acceleration with a `primary_key` and [`on_conflict` set to `upsert`](../constraints.md#handling-conflicts), when the source holds two versions of a key at the same instant, a refresh can store one version and the next refresh, with no source change, swap the other back in. A Cayenne acceleration whose `primary_key` does not include `time_column` orders versions by time instead, as described in [Combining with Upserts](#combining-with-upserts). Tracked in [spiceai/spiceai#15542](https://github.com/spiceai/spiceai/issues/15542).
 
 :::
 
@@ -119,13 +133,18 @@ datasets:
 
 ## Append Only Modified Files
 
-For object-store sources, set `time_column` or `time_partition_column` to the special value `last_modified` to append only newly created or updated files. Spice uses file metadata to determine which files are new, dramatically reducing scan time for large datasets.
+For object-store sources, set `time_column` to `_last_modified` and `time_format` to `timestamptz` to append only newly created or updated files. Spice uses file metadata to determine which files are new, dramatically reducing scan time for large datasets.
+
+The metadata column was renamed from `last_modified` to `_last_modified` in v2.0. Set `time_format: timestamptz` because the column is `Timestamp(µs, "UTC")`.
+
+In vNext, a Spicepod that still sets `time_column: last_modified` (or `time_partition_column: last_modified`) loads when the source has no data column named `last_modified`: Spice reads `_last_modified` instead and logs a deprecation warning. When `time_column` or `time_partition_column` resolves to `_last_modified` and the matching `time_format` or `time_partition_format` is unset, Spice uses `timestamptz` when the column carries a time zone, as the metadata column does. An explicit format is kept. In v2.4.2 and earlier, `time_column: last_modified` on such a source fails dataset setup with `time_column 'last_modified' was not found in dataset <name>`.
 
 ```yaml
 datasets:
   - from: s3://my_bucket/my_dataset
     name: accelerated_dataset
-    time_column: last_modified
+    time_column: _last_modified
+    time_format: timestamptz
     params:
       file_format: parquet
     acceleration:
@@ -133,7 +152,9 @@ datasets:
       refresh_check_interval: 10m
 ```
 
-If `last_modified` exists as a column in the data, the column value takes precedence over file metadata.
+If a data column named `_last_modified` already exists, that column value takes precedence over file metadata.
+
+This mode is for append-only datasets where only new files are added. Overwriting an existing file re-reads the whole file and appends its rows, which can duplicate rows. A `primary_key` prevents those duplicates when the accelerator resolves keys. Spice Cayenne does this by default, with the exceptions in [One row per primary key on Spice Cayenne](../constraints.md#one-row-per-primary-key-on-spice-cayenne): key resolution can be disabled, and a partitioned acceleration stores a key once per partition if the key spans partitions. Deleting a file does not remove rows already loaded into the acceleration.
 
 This is supported for connectors that accept the [file format parameter](../../../reference/file_format), such as `s3://`, `abfs://`, and `file://`.
 

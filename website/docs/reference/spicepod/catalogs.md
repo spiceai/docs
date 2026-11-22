@@ -84,6 +84,11 @@ Optional. Specifies the access level for the catalog. Supported values are:
 
 - `read` (default): Read-only access.
 - `read_write`: Enables both read and write operations. Only supported for [write-capable catalogs](../../tags/write).
+- `read_write_create`: Enables read and write operations and DDL statements such as `CREATE TABLE` and `DROP TABLE`. Each catalog's page lists the access levels it supports, such as [DuckLake](../../components/catalogs/ducklake.md).
+
+A Spicepod reload that lowers a catalog's `access` withdraws what the new level does not include at once: a change from `read_write_create` to `read_write` refuses DDL and keeps writes, and a change to `read` refuses writes and DDL. Removing the catalog from the Spicepod refuses writes and DDL, and its tables stay readable until Spice restarts. Access that a reload adds takes effect once the catalog has loaded with the new configuration. A reload does not wait for catalogs to load, so a catalog whose source does not answer does not hold back the reload's other changes or later reloads.
+
+In v2.4.3 and earlier, a reload never withdrew write access, so writes reached the catalog until Spice restarted, and a reload that added a catalog whose source did not answer never finished.
 
 ## `params`
 
@@ -108,6 +113,8 @@ catalogs:
 
 - `engine`: Optional. The accelerator engine used for every table. Defaults to `cayenne`, currently the only supported value.
 - `refresh_mode`: Required. The only supported value is `changes` (CDC); there is no catalog-level `full` mode.
+- `mode`: Optional. The storage mode for every table the catalog accelerates, with the same values and meaning as a dataset's [`acceleration.mode`](./datasets.md#accelerationmode). Defaults to `memory`, which is not durable: the accelerator starts empty on every restart, and each table runs its initial snapshot from the source again. Use `mode: file` or `mode: file_update`, with `params.cayenne_file_path`, to keep the acceleration across restarts and resume from the replication slot. `mode: file_create` deletes the acceleration on every startup, so like `memory` it snapshots each table again.
+- `params`: Optional. Engine parameters applied to every table the catalog accelerates, with the same meaning as a dataset's [`acceleration.params`](./datasets.md#accelerationparams). With `cayenne_file_path`, each table gets its own subdirectory under that path.
 
 Per-table-only acceleration settings (`primary_key`, `on_conflict`, `indexes`, and other per-dataset overrides) are not configurable at the catalog level — they remain on an individual [dataset's `acceleration` block](../../components/data-accelerators).
 

@@ -59,7 +59,7 @@ The `-models` image tags were removed in Spice v2.0 — AI/ML support is now par
 Pin to a specific version in production to avoid unexpected upgrades:
 
 ```bash
-docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.4.1 --http 0.0.0.0:8090
+docker run -p 127.0.0.1:8090:8090 spiceai/spiceai:2.4.3 --http 0.0.0.0:8090
 ```
 
 ## Run with Docker Compose
@@ -97,7 +97,7 @@ For deployments that ship a Spicepod and data with the runtime, build a custom i
 ```dockerfile
 # AI features are included in the default image as of Spice v2.0.
 # See https://hub.docker.com/r/spiceai/spiceai/tags for all tags.
-FROM spiceai/spiceai:2.4.1
+FROM spiceai/spiceai:2.4.3
 
 WORKDIR /app
 
@@ -153,7 +153,7 @@ Common runtime variables:
 
 ## Persistence
 
-For workloads that use file-based acceleration (for example, DuckDB or SQLite), mount a host directory or named volume so data survives container restarts:
+For workloads that use file-based acceleration (for example, Cayenne with `mode: file`), mount a host directory or named volume so data survives container restarts:
 
 ```bash
 docker run --rm -p 127.0.0.1:8090:8090 \
@@ -163,7 +163,7 @@ docker run --rm -p 127.0.0.1:8090:8090 \
   --http 0.0.0.0:8090
 ```
 
-In the Spicepod, configure the accelerator to write under the mount path, for example `duckdb_file: /data/taxi_trips.db`.
+In the Spicepod, configure the accelerator to write under the mount path, for example `cayenne_file_path: /data`, which stores each dataset's files under `/data/<dataset>/`.
 
 ## Temporary files
 

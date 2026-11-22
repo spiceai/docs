@@ -27,7 +27,7 @@ Iceberg delete files are not a CDC stream. `refresh_mode: changes` does not appl
 
 :::
 
-Any accelerator engine that supports writes can be a `changes` sink — `arrow`, `duckdb`, `sqlite`, and `cayenne`. [Spice Cayenne](../../../components/data-accelerators/cayenne) is recommended for large-scale CDC (incremental materialized views, in-memory CDC tier, and replication-lag/freshness SLOs).
+Any accelerator engine that supports writes can be a `changes` sink — `cayenne`, `arrow`, and `sqlite`. [Spice Cayenne](../../../components/data-accelerators/cayenne) is recommended for large-scale CDC (incremental materialized views, in-memory CDC tier, and replication-lag/freshness SLOs).
 
 ```yaml
 datasets:
@@ -36,7 +36,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: changes
-      engine: duckdb
+      engine: cayenne
       mode: file
 ```
 
@@ -54,7 +54,7 @@ Use `refresh_mode: changes` when an interval [`full`](./full) or [`append`](./ap
 
 Point the dataset at a replica when that replica still exposes the log the connector reads — Postgres logical decoding (`wal_level=logical`), or the MySQL binary log — so the log read stays off the primary.
 
-[Spice Cayenne](../../../components/data-accelerators/cayenne#change-data-capture-refresh_mode-changes) is the accelerator for high-throughput CDC. `arrow`, `duckdb`, and `sqlite` can apply a change stream; they are a better fit when the table is small. An append-only acceleration still needs an application tombstone (a `deleted` or `deleted_at` column, filtered in a view) when the source does not emit deletes. `changes` applies source deletes into the accelerator.
+[Spice Cayenne](../../../components/data-accelerators/cayenne#change-data-capture-refresh_mode-changes) is the accelerator for high-throughput CDC. `arrow` and `sqlite` can apply a change stream; they are a better fit when the table is small. An append-only acceleration still needs an application tombstone (a `deleted` or `deleted_at` column, filtered in a view) when the source does not emit deletes. `changes` applies source deletes into the accelerator.
 
 Schema changes on the source are not applied silently. See [`on_schema_change`](../../../reference/spicepod/datasets#on_schema_change), [MySQL schema changes](../../cdc/mysql-replication#schema-changes), and [PostgreSQL CDC limitations](../../cdc/postgres-replication#limitations).
 

@@ -239,3 +239,9 @@ Visit the [Spice.ai Getting Started Guide](getting-started) to install Spice, co
 ## 35. How can developers contribute to Spice?
 
 Developers can contribute by submitting code, documentation, or raising issues on [GitHub](https://github.com/spiceai/spiceai). See [CONTRIBUTING.md](https://github.com/spiceai/spiceai/blob/trunk/CONTRIBUTING) for guidelines.
+
+## 36. Which Spice versions receive security updates?
+
+The open-source Spice runtime and CLI receive security fixes only in the latest release. A fix ships as a patch release of the latest minor version, or in the next release. Earlier versions, including earlier patches of the latest minor version, do not receive fixes, so upgrade to the latest release to stay protected.
+
+[Spice.ai Enterprise](https://spice.ai/docs/enterprise/getting-started/distributions) extends security support to the previous minor release line, long-term support (LTS) releases, and pre-releases of the next minor version. The [Security Policy](https://github.com/spiceai/spiceai/blob/trunk/SECURITY.md) lists the versions currently supported and how to report a vulnerability.

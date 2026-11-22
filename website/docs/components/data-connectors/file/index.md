@@ -78,6 +78,28 @@ datasets:
 
 When the file is modified, the acceleration will be refreshed and will include the latest data.
 
+For a single-file dataset, the watcher watches the file's parent directory and reacts only to events for that file name, so a file replaced atomically (written to a temporary file, then renamed over the original) still triggers a refresh, as do later writes to the replacement. For a directory dataset, it watches the directory recursively. Creating, modifying, or removing the file triggers a refresh; reading it does not.
+
+The refresh starts 400 ms after the last change event. Each new event restarts the wait, so a truncate-then-write or a burst of appends whose writes are less than 400 ms apart is loaded as one change. A writer that pauses for longer than 400 ms partway through can still have a refresh read the empty or partial file, so when a refresh must read a complete file, write a temporary file and rename it over the original. Events that arrive while a refresh runs trigger one more refresh after it finishes.
+
+Detecting an atomic replacement needs read permission on the parent directory. When the runtime cannot watch the directory, it logs a warning and watches the file only, which picks up in-place writes but not a replacement.
+
+In v2.4.2 and earlier, the watcher watched only the file path, so on Linux, writes made after an atomic replacement could go undetected. It also refreshed on the first event and ignored events that arrived within 100 ms of the previous refresh, so the trailing write of a burst could be missed.
+
+## Missing Source Files
+
+For a dataset of structured files, such as Parquet, CSV, or JSON, when the `from` path no longer exists or lists no data files, a query or full refresh that reads it fails instead of returning zero rows:
+
+```text
+No data files are yet available for dataset <name> at <path>. The source path is missing or has no matching files.
+```
+
+Spice logs the same message as a warning. A federated query returns the error, and a full refresh fails, so an accelerated dataset keeps the rows it last loaded. When the files are restored, the next refresh loads them. An existing file with no rows, such as a header-only CSV or a zero-row Parquet file, still reads as zero rows. A path with no data files when Spice starts fails the dataset load, and the runtime retries until the source data becomes available, unless `schema_source_path` names an existing file to read the schema from. An ORC directory ignores `schema_source_path` and always needs a file at the path.
+
+An [`append`](../../../features/data-acceleration/refresh-modes/append.md) refresh is not checked, because it adds rows instead of replacing them: once the dataset has loaded, an append refresh reads a path with no data files as zero rows. An append dataset whose path is empty at startup therefore needs `schema_source_path` to load and become ready before its first file arrives; without it, the load retries until a file appears. In v2.4.3, an `append` refresh of a path with no data files failed as well, so such a dataset reported an error on each refresh until its first file arrived.
+
+The same check applies to the other connectors that read files from a path or an object store prefix, such as [S3](../s3/index.md). A query that names objects with a [`_location`](../index.md#file-listing-pruning-with-metadata-columns) `=` or `IN` condition, such as a `refresh_sql` that filters on `_location`, reads those objects without listing the path and is not checked. A full refresh of such a dataset can still replace the accelerated data with an empty result when the named objects are gone. Document formats, such as `md`, `txt`, `pdf`, or `docx`, are not checked either: when their files are gone, a query returns zero rows and a full refresh replaces the accelerated documents with an empty table. In v2.4.2 and earlier, a query of a deleted path returned zero rows, and a full refresh replaced the accelerated data with an empty table.
+
 ## Types
 
 Refer to [Object Store Data Types](../../reference/datatypes/object_store) for data type mapping from object store files to arrow data type.
@@ -118,7 +140,7 @@ datasets:
 
 When using the File Data connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`duckdb`](../data-accelerators/duckdb) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
+Memory limitations can be mitigated by storing acceleration data on disk, which is supported by [`cayenne`](../data-accelerators/cayenne) and [`sqlite`](../data-accelerators/sqlite) accelerators by specifying `mode: file`.
 
 :::
 

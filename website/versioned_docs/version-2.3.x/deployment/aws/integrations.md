@@ -306,11 +306,16 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
         "dynamodb:Scan",
         "dynamodb:Query",
         "dynamodb:DescribeTable",
+        "dynamodb:DescribeStream",
+        "dynamodb:GetShardIterator",
+        "dynamodb:GetRecords",
         "glue:GetTable",
         "glue:GetTables",
         "glue:GetDatabase",
         "glue:GetDatabases",
         "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:ApplyGuardrail",
         "secretsmanager:GetSecretValue"
       ],
       "Resource": "*"
@@ -318,6 +323,8 @@ Ensure the IAM role or user has appropriate permissions for all AWS services use
   ]
 }
 ```
+
+Streaming chat with a Bedrock model calls `bedrock:InvokeModelWithResponseStream`, so a role with only `bedrock:InvokeModel` has streaming responses denied. `bedrock:ApplyGuardrail` is needed only for models that set `bedrock_guardrail_identifier`. The DynamoDB Streams actions are needed only for datasets that use `refresh_mode: changes`.
 
 ## Deployment Options
 

@@ -56,7 +56,7 @@ Primary key column 'region' has null values. Every primary key column must be no
 
 Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
 
-The [DuckDB](../../components/data-accelerators/duckdb) and [SQLite](../../components/data-accelerators/sqlite) accelerators also reject a write that carries a null in a primary key column, with an error that names the column(s), before the write reaches the engine. On SQLite, a `NaN` in a floating-point primary key column is rejected as a null, because SQLite stores a `NaN` as `NULL`. In earlier releases, including v2.4.x, SQLite stored a row with a null primary key.
+The [SQLite](../../components/data-accelerators/sqlite) accelerator also rejects a write that carries a null in a primary key column, with an error that names the column(s), before the write reaches the engine. On SQLite, a `NaN` in a floating-point primary key column is rejected as a null, because SQLite stores a `NaN` as `NULL`. In earlier releases, including v2.4.x, SQLite stored a row with a null primary key.
 
 ## One row per primary key on Spice Cayenne
 
@@ -101,9 +101,9 @@ On accelerators other than Spice Cayenne, the behavior of inserting data that vi
 :::warning
 A key can repeat within the incoming data itself, not only against a stored row.
 
-**`drop` on DuckDB and SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
+**`drop` on SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
 
-**`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)). On DuckDB, a key that a full refresh repeats across record batches does not fail the write, and which copy is kept can vary from run to run.
+**`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)).
 
 **Spice Cayenne** does not use `on_conflict` to resolve keys and keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne).
 :::
@@ -148,7 +148,7 @@ Full configuration example:
 ```yaml
 acceleration:
   enabled: true
-  engine: duckdb
+  engine: sqlite
   mode: file
   primary_key: id
   on_conflict:
@@ -261,40 +261,6 @@ acceleration:
       </div>
     </details>
 
-- **DuckDB Limitations:**
-  - DuckDB does not support `upsert` for datasets with List or Map types.
-  - Standard indexes unexpectedly act like unique indexes and block updates when `upsert` is configured.
-    - <details>
-        <summary>Standard indexes blocking updates</summary>
-        <div>
-          The following Spicepod specifies a standard index on the `number` column, which blocks updates when `upsert` is configured for the `hash` column:
-
-          ```yaml
-          datasets:
-            - from: spice.ai/eth.recent_blocks
-              name: eth.recent_blocks
-              acceleration:
-                enabled: true
-                engine: duckdb
-                primary_key: hash
-                indexes:
-                  number: enabled
-                on_conflict:
-                  hash: upsert
-          ```
-
-          The following error is returned when attempting to upsert data into the `eth.recent_blocks` table:
-
-          ```bash
-          ERROR runtime::accelerated_table::refresh: Error adding data for eth.recent_blocks: External error:
-          Unable to insert into duckdb table: Binder Error: Can not assign to column 'number' because
-          it has a UNIQUE/PRIMARY KEY constraint
-          ```
-
-          This is a limitation of DuckDB.
-
-        </div>
-      </details>
 
 ## Cookbook
 

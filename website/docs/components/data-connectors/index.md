@@ -205,6 +205,22 @@ SELECT * FROM partitioned_data WHERE year = '2024' AND month = '01';
 
 Partition pruning improves query performance by reading only the relevant files.
 
+#### `NULL` Partition Values
+
+Hive writes a `NULL` partition value to a directory named `__HIVE_DEFAULT_PARTITION__`, such as `year=__HIVE_DEFAULT_PARTITION__/`. Spice reads that partition column as `NULL` for the rows in such a directory, and reports partition columns as nullable. `WHERE year IS NULL` matches these rows, and `WHERE year = '__HIVE_DEFAULT_PARTITION__'` does not.
+
+In v2.4.2 and earlier, the column held the literal string `__HIVE_DEFAULT_PARTITION__` and was reported as `NOT NULL`. After an upgrade from those releases, an existing `mode: file` acceleration of a dataset with such a directory fails a refresh that reads a row from such a directory, with `Invalid batch column … has null but schema specifies non-nullable`, and keeps serving its existing data. An acceleration with `engine: duckdb` or `engine: turso` fails to load instead, because those engines are removed in v2.5; see [Migrating to Spice Cayenne](../data-accelerators/cayenne/migration.md). A Cayenne acceleration without `partition_by`, with `refresh_mode: full`, and with the partition column in none of `primary_key`, `indexes`, and `on_conflict` recovers in place with [`on_schema_change: sync_all_columns`](../reference/spicepod/datasets#on_schema_change), which makes the partition column nullable. Every other acceleration keeps its `NOT NULL` column under `sync_all_columns`, `drop_and_recreate`, and `mode: file_update`, because a nullability change alone does not trigger recreation, and must be rebuilt from the source. Before you rebuild one:
+
+- Change a `primary_key` that includes the partition column, or the source's `NULL` partition values: Cayenne and SQLite reject a `NULL` in a primary key column.
+- Keep a copy of the rows a rebuild does not load again: rows the source no longer holds, rows outside the dataset's `refresh_sql` or `refresh_data_window`, such as older rows an append acceleration kept, and writes kept only in the acceleration with `write_mode: acceleration`.
+- Check what else shares the acceleration's storage. Datasets share one acceleration file unless each sets its own file path, and Cayenne datasets share one metastore by default, so deleting a shared file or directory, or starting with `mode: file_create` on an engine that recreates the whole file, also discards the other datasets' accelerations.
+- If the dataset restores snapshots (`snapshots: enabled` or `bootstrap_only`), a snapshot taken before the upgrade has the old `NOT NULL` column, so a removed acceleration comes back with it. Recover the instances that publish snapshots first, then the instances that only read them:
+  - On each publisher (`snapshots: enabled`), set `snapshots: create_only` while you rebuild, so it loads from the source and publishes a corrected snapshot. Rebuild every publisher of the same snapshot location before you set any of them back to `enabled`, because a publisher that still has the old column can publish an old snapshot again.
+  - Do not set `create_only` on a reader. A `bootstrap_only` reader would then upload snapshots, which read-only snapshot-store credentials refuse, and Spice rejects `create_only` for a [`refresh_mode: snapshot`](../features/data-acceleration/snapshots) reader. Rebuild a reader only after a rebuilt publisher has published a corrected snapshot.
+  - While snapshots from before the upgrade remain in the snapshot location, set [`snapshots_bootstrap_on_failure_behavior`](../features/data-acceleration/snapshots#failure-behavior) to `retry`, not `fallback`. With `fallback`, a failed download of the corrected snapshot loads an older snapshot, which has the old column.
+
+Other file accelerations of Hive-partitioned datasets keep refreshing, and report partition columns as `NOT NULL` until the acceleration is rebuilt.
+
 ### Metadata Columns
 
 File-based connectors can expose per-file object store metadata as virtual columns in the dataset schema. These columns are not stored in the data files — they are derived from object store file metadata at query time.
@@ -373,7 +389,7 @@ A scan checks only the registered columns it reads: a query such as `SELECT SUM(
 
 JSON and NDJSON datasets are checked by reading the object keys of every record in the scanned files. A record can omit a nullable key, so a registered key that no current record carries fails an acceleration refresh only when the records also carry a key the dataset did not register, which is how a renamed key appears. Without such a key, the refresh logs a `WARN` and loads `NULL` for that column. A JSON source with no records is not treated as a change, so a full refresh of an empty file clears the accelerated table.
 
-v2.4.x and earlier check only Parquet and ORC datasets.
+v2.4.1 and earlier do not check for missing columns on any file dataset. The check is new in v2.5.0.
 
 :::tip[Recommendation]
 Pin a known-good schema version in the data source or use the [`columns`](../reference/spicepod/datasets#columns) configuration to explicitly define the expected columns. This makes schema expectations explicit and produces clear errors if the source drifts.
@@ -410,11 +426,12 @@ PDF and Office files are compressed, so a small file can expand to many gigabyte
 
 | Format             | Limit                                                                               |
 | ------------------ | ----------------------------------------------------------------------------------- |
-| DOCX, XLSX, PPTX   | 64 MiB per decompressed archive entry, and 256 MiB for all entries of one file      |
+| DOCX, XLSX         | 64 MiB per decompressed archive entry, and 256 MiB for all entries of one file      |
+| PPTX               | 64 MiB per decompressed slide (`ppt/slides/slideN.xml`), and 256 MiB for all slides of one file. Other entries, such as embedded media, are not read |
 | DOCX, XLSX, PPTX   | 64 MiB of extracted text per file                                                   |
 | PDF                | 256 MiB for all compressed streams of one file, after decompression                 |
 
-A PDF image stream that ends in an image codec (`DCTDecode`, `JPXDecode`, `CCITTFaxDecode`, or `JBIG2Decode`) is not counted toward the PDF limit, because its size is bounded by the image's dimensions. A PDF whose stream filter cannot be measured is rejected even when it is small: this includes `LZWDecode`, encrypted streams, an unrecognized filter, and a `/Filter` given as an indirect reference. Password-protected Office files and the legacy binary formats (`.doc`, `.xls`) are not supported. An XLSX worksheet that lists its cells out of row and column order fails with an error that contains, for example, `worksheet 'Sheet1' lists cell (row 2, column 1) out of order`.
+When a PDF stream's filter chain ends in an image codec (`DCTDecode`, `JPXDecode`, `CCITTFaxDecode`, or `JBIG2Decode`), the decoded image is not counted toward the PDF limit, because its size is bounded by the image's dimensions. The output of any filter before the codec, such as `ASCII85Decode` or `FlateDecode`, still counts, and a chain with an image codec anywhere but last is rejected. A PDF whose stream filter cannot be measured is rejected even when it is small: this includes `LZWDecode`, encrypted streams, an unrecognized filter, and a `/Filter` given as an indirect reference. A stream whose `/DecodeParms` declares a predictor (`/Predictor`) is measured when the predictor applies to the final stage of a filter chain that ends in `FlateDecode`, as in cross-reference streams and PNG-predicted images, because the predictor does not add bytes to the Flate output. Any other predictor is rejected: a predictor on a stage that feeds another stage, a predictor after `LZWDecode`, a single `/DecodeParms` dictionary for a chain of more than one filter, and a `/DecodeParms` given as an indirect reference, with a predictor nested inside another value, or with more than one predicting entry. Password-protected Office files and the legacy binary formats (`.doc`, `.xls`) are not supported. An XLSX worksheet that lists its cells out of row and column order fails with an error that contains, for example, `worksheet 'Sheet1' lists cell (row 2, column 1) out of order`.
 
 Reading a rejected file fails with an error that names the format and the limit it exceeded. For example, a DOCX file whose `word/document.xml` entry decompresses to 1 GiB fails with:
 
