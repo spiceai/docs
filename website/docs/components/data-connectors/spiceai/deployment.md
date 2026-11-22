@@ -195,7 +195,7 @@ The Flight client is not instrumented, so this connector emits no transport-leve
 - `dataset_append_stream_stale_seconds` (gauge): seconds since the dataset last changed, while a reload of it was refused or discarded and the dataset keeps serving its previous data. It reads `0` while the dataset is current and once a reload succeeds.
 - `dataset_append_stream_reloads_refused` (counter): reloads refused because staging them needed more memory than the query memory pool had free.
 
-Alert on a non-zero `dataset_append_stream_stale_seconds` to catch a sidecar that stopped taking reloads. Otherwise, monitor the connector via:
+Both series disappear when the dataset's last append stream stops, for example after the sidecar exhausts its resubscribe attempts, so a missing series does not mean the dataset is current. Alert on a non-zero `dataset_append_stream_stale_seconds`, on the series going missing for a dataset that should stream, and on `dataset_load_state` reporting `3` (Error). Otherwise, monitor the connector via:
 
 - Query execution metrics (`query_duration_ms`, `query_returned_rows`, `query_failures`) from `runtime.metrics`.
 - Acceleration refresh metrics when the dataset is accelerated (`dataset_acceleration_refresh_duration_ms`, `dataset_acceleration_refresh_errors`).
