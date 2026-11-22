@@ -175,7 +175,7 @@ With `HF_HUB_OFFLINE=1` (or `TRANSFORMERS_OFFLINE=1`), Spice never contacts the 
 
 When the Hub cannot be reached, or fails for any reason but a missing repository, revision or file, Spice loads the revision from the cache and logs a warning. Changes to the revision are not seen until the Hub is reachable again.
 
-Offline or in an outage, a model whose files the cache lacks, or holds only part of, fails to load with an error that says only the cache was read, and how to fill it. Spice retries the load, so the model loads once `hf download` fills the cache or the Hub is reachable again. A name in `files` that several quantizations in the cache match is not retried: the repository holds them too, so name one of them.
+Offline or in an outage, a model whose files the cache lacks, or holds only part of, fails to load with an error that says only the cache was read, and how to fill it. Spice retries the load, so the model loads once `hf download` fills the cache or the Hub is reachable again. A name in `files` that several quantizations in the cache match fails and is retried the same way, and the error says to name one of them.
 
 ### Downloads
 
