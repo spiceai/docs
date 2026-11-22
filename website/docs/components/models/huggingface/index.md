@@ -65,7 +65,7 @@ When Spice picks a quantization, or resolves a name, the load log names what it 
 Model '<name>' loads quantization <quantization> (<n> files, <size> GB) from Hugging Face repo '<repo>', the quantization a model with no `files` loads: <reason>. To load another of its <count> complete GGUF quantizations, name it in the model's `files`: <quantization> (<size> GB), <quantization> (<size> GB), ...
 ```
 
-`<reason>` is `its Q4_K_M, as llama.cpp loads it`, `its Q8_0, as llama.cpp loads it when a repository has no Q4_K_M`, or `its first by path, as llama.cpp loads it when a repository has neither Q4_K_M nor Q8_0`.
+`<reason>` is `its Q4_K_M, as llama.cpp loads it`, `its Q8_0, as llama.cpp loads it when a repository has no Q4_K_M`, or `its first by path, as llama.cpp loads it when a repository has neither Q4_K_M nor Q8_0`. The list names the quantizations largest first, and at most 40 of them. A repository that offers more ends the list with `and <n> more`.
 
 A smaller quantization that Spice picks because the default does not fit is logged with the `files:` entry that pins it, in this form:
 
