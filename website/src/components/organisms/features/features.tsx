@@ -54,19 +54,19 @@ export const Features = () => {
         />
         <Feature
           icon={<SearchIcon />}
-          title='Hybrid search'
+          title='RAG and Agentic Retrieval'
           description='Vector, keyword, and full-text search in SQL with vector_search and text_search, fused into ranked results that ground agents in data.'
           docsLink='https://docs.spiceai.org/docs/features/search'
         />
         <Feature
           icon={<AnalyticsIcon />}
-          title='Analytical query on operational data'
+          title='Analytics replica'
           description='Maintain an isolated replica of operational databases, kept current through high-throughput CDC, so agents run large analytical queries on near real-time data.'
           docsLink='https://docs.spiceai.org/docs/use-cases/data/database-cdn'
         />
         <Feature
           icon={<InferenceIcon />}
-          title='AI gateway and SQL functions'
+          title='AI Router and SQL functions'
           description='An OpenAI-compatible gateway to local and hosted models, with AI SQL functions, MCP tools, memory, evals, and observability built into the runtime.'
           docsLink='https://docs.spiceai.org/docs/features/large-language-models'
         />
