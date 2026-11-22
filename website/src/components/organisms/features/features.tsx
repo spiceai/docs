@@ -55,7 +55,7 @@ export const Features = () => {
         <Feature
           icon={<SearchIcon />}
           title='RAG and agentic retrieval'
-          description='Vector, keyword, and full-text search in SQL with vector_search and text_search, fused into ranked results that ground agents in data.'
+          description='Vector, keyword, and full-text search in SQL with vector_search and text_search, then reranked by a reranker, chat, or decision model into results that ground agents in data.'
           docsLink='https://docs.spiceai.org/docs/features/search'
         />
         <Feature
