@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / sqlite / postgres
+      engine: cayenne # / arrow / sqlite
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / sqlite / postgres
+      engine: cayenne # / arrow / sqlite
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -103,7 +103,7 @@ Where:
 
 [`GET /v1/datasets`](../../api/HTTP/get-datasets) and [`GET /v1/catalogs`](../../api/HTTP/get-catalogs) remove the credentials of a URL from `from`, in JSON and in CSV. When the URL at the start of `from`, or right after its connector prefix, carries user info, such as `https://user:password@host/file.csv` or `iceberg:https://user:password@host/v1/...`, the response omits the `user:password@` part. The values of query parameters whose names identify a credential, such as `token`, `api_key`, `sig`, `password`, or `X-Amz-Signature`, are replaced with `***`. The `error_message` that `GET /v1/datasets?status=true` returns gets the same redaction for every URL it contains, because connectors often build the error from the source URL. A `from` without credentials, such as `postgres:public.orders` or `s3://bucket/key`, is returned unchanged, and so is the part before `@` in `abfs`, `abfss`, `wasb`, `wasbs`, and `file` URLs, which names a container or a file. In v2.4.1 and earlier, both endpoints return `from` as configured and `GET /v1/datasets` returns `error_message` as the connector wrote it, including any credentials.
 
-Credentials outside a URL are returned as written: the password in a keyword-form PostgreSQL connection string, such as `ducklake:postgres:dbname=mydb password=...`, appears in `GET /v1/catalogs` unchanged (see [DuckLake `from`](../../components/catalogs/ducklake.md#from)). The redaction applies to these API responses only. Pass credentials as connector parameters that reference a [secret store](../../components/secret-stores/index.md) rather than in the `from` URL.
+Credentials outside a URL are returned as written: the password in a keyword-form PostgreSQL connection string, such as `ducklake:postgres:dbname=mydb password=...`, appears in `GET /v1/catalogs` unchanged (see [DuckLake `from`](../../components/catalogs/ducklake.md#from)). The same redaction applies to the `Dataset <name> registered (<from>)` line in the runtime log, and to the `base_url` that `EXPLAIN` prints for an HTTP(S) dataset. In v2.4.3 and earlier, both print the URL as configured. Other connectors' errors and logs are not covered. Pass credentials as connector parameters that reference a [secret store](../../components/secret-stores/index.md) rather than in the `from` URL.
 
 :::info[Identifier Case Sensitivity]
 Unquoted identifiers in the `<path>` are normalized to lowercase. To reference a table or schema with mixed-case or uppercase characters, wrap each case-sensitive part in double quotes:
@@ -321,7 +321,7 @@ In-place evolution is supported by `sqlite` and non-partitioned Spice Cayenne
 (`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
 while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
 see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
-Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow` and PostgreSQL, log an
+Partitioned Cayenne tables log a warning and use the recreate fallback where the refresh can rebuild the table; on a `refresh_mode: changes` stream, a widened change is refused before it is written. Other engines, including `arrow`, log an
 unsupported message and apply additive changes on restart. Constraint and primary-key columns
 cannot be widened in place.
 
@@ -512,10 +512,9 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).
-- [`postgres`](../../components/data-accelerators/postgres) - Accelerated by a Postgres database.
 - [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
 
-The `duckdb` and `turso` engines are removed: a dataset that sets either one fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
+The `duckdb`, `turso`, and `postgres` engines are removed: a dataset that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 ## `acceleration.mode`
 

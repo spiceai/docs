@@ -327,7 +327,7 @@ File-accelerated datasets persist resume tokens and resume from the last committ
 
 - MongoDB 4.0+ with Change Streams enabled. MongoDB requires a replica set or sharded cluster for Change Streams.
 - The MongoDB user must have `changeStream` privileges.
-- The accelerator must support upsert behavior. Use `cayenne`, `sqlite`, or `postgres`.
+- The accelerator must support upsert behavior. Use `cayenne` or `sqlite`.
 - `acceleration.primary_key: _id` is required. Delete events only include the document key, so Spice needs `_id` to route deletes.
 - On engines other than `cayenne`, `acceleration.on_conflict` must specify `upsert` on `_id` so update and replace events overwrite existing rows. Cayenne keeps one row per `_id` without it.
 
@@ -376,7 +376,7 @@ If MongoDB omits `fullDocument` for an `update` or `replace` event (for example,
 
 #### Resumability across restarts
 
-For file-accelerated datasets (acceleration `mode: file` / `file_create` / `file_update`, or `engine: postgres`), Spice persists the most recent Change Stream resume token in a sidecar table named `spice_sys_mongodb`, stored alongside the accelerator data. The token is committed only after the downstream accelerator write succeeds (at-least-once semantics).
+For file-accelerated datasets (acceleration `mode: file` / `file_create` / `file_update`), Spice persists the most recent Change Stream resume token in a sidecar table named `spice_sys_mongodb`, stored alongside the accelerator data. The token is committed only after the downstream accelerator write succeeds (at-least-once semantics).
 
 On restart with a persisted token, Spice resumes the Change Stream from that token and skips the collection snapshot. If MongoDB rejects the token (typical codes `ChangeStreamHistoryLost` 286 or `ChangeStreamFatalError` 280, e.g. when the oplog window has rolled past the token's position), the behavior is governed by `mongodb_resume_token_invalid_behavior` above. Re-snapshotting a large collection is opt-in by default.
 

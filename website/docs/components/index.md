@@ -13,7 +13,7 @@ Spice runtime components are the building blocks for configuring data access, ac
 
 **[Data Connectors](./components/data-connectors)** connect to databases, data warehouses, data lakes, and file systems for federated SQL queries. Spice supports over 40 connectors including PostgreSQL, MySQL, S3, Snowflake, Databricks, and DuckDB.
 
-**[Data Accelerators](./components/data-accelerators)** materialize datasets locally in memory or on disk for faster query performance. Spice Cayenne is the default engine; Arrow (in-memory), SQLite, and PostgreSQL are deprecated.
+**[Data Accelerators](./components/data-accelerators)** materialize datasets locally in memory or on disk for faster query performance. Spice Cayenne is the default engine; Arrow (in-memory) and SQLite are deprecated.
 
 **[Catalog Connectors](./components/catalogs)** integrate with data catalogs like Apache Iceberg, Unity Catalog, AWS Glue, and DuckLake to discover and register datasets from existing catalog infrastructure.
 

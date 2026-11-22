@@ -308,6 +308,17 @@ A `/v1/sql` response that must hold the whole result before it is written, which
 
 A [`/v1/nsql`](../api/overview.md#http-sql-response-formats) request that runs its generated SQL holds the whole result, and reserves it from the same pool. A request with `Accept: application/sql` returns the SQL without running it, so it reserves nothing. A result that does not fit returns the same `503` response. In v2.4.3 and earlier, `/v1/nsql` results were not reserved.
 
+Data that a connector must read whole from a remote source is reserved from the same pool, by its decoded size:
+
+- An [HTTP(S)](../components/data-connectors/https/index.md#compressed-responses) dataset's response bodies, charged to the query that reads them.
+- A [GraphQL](../components/data-connectors/graphql/index.md) response, when a dataset loads and when a query reads it.
+- A JSON document that schema inference or a schema-drift probe parses whole: a single JSON object, a SODA response, or a document read with `json_pointer`. JSONL files and top-level JSON arrays are streamed and are not reserved whole.
+- The [GitHub](../components/data-connectors/github/index.md) connector's workflow log archives and the logs extracted from them.
+
+When the pool cannot hold the data, the query fails with `ResourcesExhausted`, or the dataset fails to load, and the error names the endpoint, file, or workflow run and suggests raising `runtime.query.memory_limit` or reading less data at a time. In v2.4.3 and earlier, this data is held in memory without a reservation, and a GitHub workflow run whose logs fail to download returns an empty `logs` value instead of failing the query.
+
+An object-store read (S3, Azure Blob Storage, Google Cloud Storage, or HTTP files) buffers at most 8 MiB of each response ahead of the reader. When the reader pauses, the download pauses with it.
+
 Scalar functions whose output size follows from their arguments (`repeat`, `lpad`, `rpad`, `array_repeat`, `array_resize`, `range`, and `generate_series`) reserve a lower bound of their output from the same pool before they run. When that reservation does not fit in the pool, the call is refused the same way. Because the reservation is a lower bound, it can be smaller than the actual output: for example, `lpad` and `rpad` reserve one byte per requested character, so a multibyte fill string produces more output than was reserved. The requested length is charged for every row, including with an empty fill string, which only truncates, and a negative length is charged as `0`. `array_repeat` (`list_repeat`) charges each copy by the size of the repeated element, counting the values nested in a list, map, or struct element, plus an 8-byte index for each value it copies. In v2.4.1 and earlier, `lpad` and `rpad` with an empty fill string were not charged for their output buffer, and `array_repeat` charged 1 byte per copy of a list, struct, binary, boolean, or `NULL` element, so these calls could allocate past `runtime.query.memory_limit`.
 
 A query with two or more `COUNT(DISTINCT …)` aggregates keeps a set of distinct values for each one and charges each stored value for its own bytes. In v2.4.1 and earlier, when one of those aggregates was over a list, struct, or map column, each stored value kept the whole input batch it was read from and was charged for it, so such a query could be refused with `ResourcesExhausted` even though its distinct values fit in the pool.
