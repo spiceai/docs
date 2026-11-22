@@ -59,7 +59,7 @@ A quantization is one GGUF file or one complete series of shards. MTP draft head
 
 An entry is resolved this way when it has `type: weights` or no `type`, and is not a safetensors, GGML, or `.bin` file. Other entries load as listed. The files go into the same Hugging Face cache, with the same revision (`repo:revision`), `hf_token` and offline behavior as the rest of the model.
 
-When Spice picks a quantization, or resolves a name, the load log names what it loads. The default quantization is logged with the other quantizations of the repository, in this form:
+When Spice picks a quantization, or resolves a name, the load log names what it loads. A machine that holds a share of a model split across machines, which another machine loads, logs what it resolved at debug level only. The default quantization is logged with the other quantizations of the repository, in this form:
 
 ```text
 Model '<name>' loads quantization <quantization> (<n> files, <size> GB) from Hugging Face repo '<repo>', the quantization a model with no `files` loads: <reason>. To load another of its <count> complete GGUF quantizations, name it in the model's `files`: <quantization> (<size> GB), <quantization> (<size> GB), ...
