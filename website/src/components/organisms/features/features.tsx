@@ -62,7 +62,7 @@ export const Features = () => {
           icon={<AnalyticsIcon />}
           title='Analytics replica'
           description='Maintain an isolated replica of operational databases, kept current through high-throughput CDC, so agents run large analytical queries on near real-time data.'
-          docsLink='https://spiceai.org/docs/use-cases/data/database-cdn'
+          docsLink='https://spiceai.org/docs/features/cdc'
         />
         <Feature
           icon={<InferenceIcon />}
