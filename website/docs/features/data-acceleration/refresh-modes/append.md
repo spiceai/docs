@@ -50,7 +50,7 @@ When a file listing receives a new snapshot file on a schedule and leaves the ol
 
 What the acceleration keeps depends on the key. With no `primary_key`, the new file's rows are added to the rows from earlier files, so every copy stays. A Cayenne acceleration with a `primary_key` keeps one row per key: the newest by `time_column` when that column is not part of the key. Keys that are not in the new file stay. See [Duplicate primary keys in one write](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
 
-A query that needs only the latest file enables `_location`, filters to the file with the greatest `_last_modified`, and ranks inside that set. A window function over the whole table reads every historical file.
+A query that needs only the latest file enables `_location`, filters to the file with the greatest `_last_modified`, and ranks inside that set. A window function over the whole table reads every historical file. A file with no rows is skipped, so it contributes no `_last_modified` or `_location`, and the greatest `_last_modified` is still the previous file that has rows. See [Queries that read only partition or metadata columns](../../../components/data-connectors/#queries-that-read-only-partition-or-metadata-columns). This lookup assumes the newest snapshot has rows. When an empty snapshot must return no rows, record the current file's path in a separate small file and filter `_location` to that path.
 
 ## Late-Arriving Data
 
