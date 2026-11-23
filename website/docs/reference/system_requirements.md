@@ -28,6 +28,16 @@ The pre-built Spice Linux binaries (the `spice` CLI and the `spiced` runtime) re
 
 Check the glibc version with `ldd --version`. Distributions with an older glibc, such as Ubuntu 22.04, Debian 12, Amazon Linux 2, Amazon Linux 2023, and RHEL 9, cannot run the pre-built binaries and fail with an error such as ``version `GLIBC_2.39' not found``. On these systems, run Spice with the [Docker image](../deployment/docker/index.md) instead.
 
+## TLS certificate trust
+
+Outbound TLS does not use one trust store for every client.
+
+The HTTP client verifies server certificates with the operating system's CA store. On Linux that store is the `ca-certificates` bundle, read when the client is created. Arrow Flight client connections load the same system store.
+
+The PostgreSQL logical-replication client, when no CA file is configured, verifies against the Mozilla roots compiled into the `webpki-roots` crate shipped with that Spice build.
+
+When a public CA is distrusted, update the store the connection uses. Upgrade Spice for a connection that uses the compiled-in roots, so the new build's `webpki-roots` is what verifies the certificate. Rebuild a custom Docker image so it installs a current `ca-certificates` package, or update that package on the host when `spiced` runs outside Docker, for a connection that uses the system store. The runtime reads the system bundle when the client is created, so a package update applies on the next start.
+
 ## Server or Instance Hardware Requirements
 
 Recommended minimum hardware specifications:

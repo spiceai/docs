@@ -96,6 +96,14 @@ Each sidecar dataset decides where its queries run. A dataset with acceleration 
 
 Configure delegation with the [Spice.ai Data Connector](../../components/data-connectors/spiceai): point a sidecar dataset at a Spice Cloud app (`spice.ai/<org>/<app>/datasets/<name>`) or at a self-hosted cluster (`spice.ai:https://cluster.example:50051`). Combine with local acceleration to materialize the hot working set; leave acceleration off to always delegate.
 
+A sidecar can mix the two. Accelerate the smaller datasets locally, and leave a large dataset unaccelerated so its queries go to the cluster over Arrow Flight.
+
+### Sizing the cluster for sidecar misses
+
+A miss in a sidecar's results cache or local acceleration becomes a query on the cluster. Misses from every sidecar arrive together, and each one takes a query slot and CPU on the cluster node that runs it. Size each cluster node for that combined load. A node whose [CPU entitlement](../../reference/spicepod/runtime#runtimecpu) is too small runs the misses one after another, and cache-miss latency in the tail grows into seconds. Giving the node more cores — for example 8 or 16 — is the first change to make. Query fan-out defaults to that entitlement, so the extra cores let several misses run at once.
+
+Set [`runtime.query.max_concurrent_queries`](../../reference/spicepod/runtime#runtimequerymax_concurrent_queries) from the same measurement, after the nodes have the cores. The runtime does not publish a query-queue metric. [`query_active_count`](../../features/observability#available-metrics) is how many top-level queries are in flight, labeled by `protocol`. When it sits at the concurrency limit and [`query_duration_ms`](../../features/observability#available-metrics) stays well above [`query_execution_duration_ms`](../../features/observability#available-metrics), queries are waiting for a slot: `query_duration_ms` includes planning and the wait for admission, and `query_execution_duration_ms` starts at execution. If the sidecars together admit more concurrent misses than the cluster's limit, those waits show up as tail latency. Raise the cluster limit to the aggregate miss load, or lower each sidecar's limit. Changing the limits on a node that still cannot run the admitted misses in parallel leaves the tail where it was.
+
 Kubernetes is the most common place to run this topology, but it is not required. The architecture needs only a network path from each sidecar to the cluster. Sidecars run wherever the application runs — Kubernetes, a VPC, on-prem, or at the edge.
 
 ### Acceleration snapshots

@@ -398,6 +398,8 @@ An accelerated dataset refresh does not invalidate cached SQL results. This appl
 
 A result can therefore reflect the data from before a refresh for up to `item_ttl` as a `HIT`, and for up to `item_ttl + stale_while_revalidate_ttl` as `STALE`. Set `item_ttl` to how long a result may be served after it was computed. To have results follow each refresh closely, set `item_ttl` to about the refresh interval or less.
 
+For a lookup that reads an accelerated dataset through the results cache, the worst case is about one refresh interval, plus the time that refresh takes, plus `item_ttl`. With `stale_while_revalidate_ttl` set, a stale result can add that duration as well. The acceleration can be as old as the interval plus the refresh, and the cache can keep a result computed from that data until `item_ttl` expires. Shorten the refresh interval, which reads the source more often, or lower `item_ttl`, when that bound is too loose.
+
 :::warning[Migrating from earlier releases]
 In earlier releases, including v2.3.x and `v2.4.0-rc.1`, each accelerated refresh, CDC batch, and retention pass invalidated the cached SQL results that read the dataset: it evicted them, or, with a non-zero `stale_while_revalidate_ttl`, marked them stale as of the refresh. A deployment that set a long `item_ttl` (for example `48h`) and relied on refreshes to keep results current now serves results up to `item_ttl` old. Lower `item_ttl` to the staleness the application can accept. The default `item_ttl` of `1s` is unaffected in practice.
 :::

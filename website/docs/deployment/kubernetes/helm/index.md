@@ -304,6 +304,8 @@ startupProbe:
   periodSeconds: 5
 ```
 
+The chart's startup probe uses `/health`, which reports that the process is up. When startup time varies with the acceleration load, point a startup probe at `/v1/ready` instead of putting a long `initialDelaySeconds` on the readiness probe. Use a short `initialDelaySeconds` and `periodSeconds`, and a `failureThreshold` large enough that `failureThreshold` × `periodSeconds` covers the slowest acceptable start. The readiness probe can then use a short period and no long initial delay. Leave the liveness probe on `/health`, so a slow load is not treated as a dead process. A startup probe that never sees `/v1/ready` return 200 restarts the container once the failure threshold is reached.
+
 :::note
 For more information on how Kubernetes uses probes to determine the health of a pod, see [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes).
 :::

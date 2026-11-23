@@ -44,6 +44,12 @@ Append mode requires either `time_column` or `primary_key` to be specified in th
 
 With a primary key and no `time_column`, a refresh has no column to tell new rows from rows already stored, so each refresh reads the whole source again. Set a `time_column` to read only new rows.
 
+## Periodically written snapshot files
+
+When a file listing receives a new snapshot file on a schedule and leaves the older files in place, set `refresh_mode: append` and `time_column: _last_modified` with `time_format: timestamptz`. Each refresh reads files newer than the watermark and does not reopen files already loaded. See [File listing pruning](../../../components/data-connectors/#file-listing-pruning-with-metadata-columns).
+
+Those new files' rows are added to the rows from earlier files. When each file is a full copy of a table, the acceleration keeps every copy. A query that needs the latest file filters to that file — the rows whose `_location` is the file with the greatest `_last_modified` — and ranks inside that set. A window function over the whole table reads every historical file.
+
 ## Late-Arriving Data
 
 To account for clock skew or late-arriving rows, configure an overlap window with [`acceleration.refresh_append_overlap`](../../../reference/spicepod/datasets#accelerationrefresh_append_overlap). Rows within the overlap are re-read on each refresh. A row that arrives later than the overlap, with a `time_column` value older than the window, is not loaded by any later `append` refresh; a `full` refresh loads it.

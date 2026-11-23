@@ -106,6 +106,32 @@ Cayenne runs well on network block storage, and it is the right choice when the 
 - **Let the tuner amortize.** The slow-tier bias, the `O_DIRECT` compaction writer, and the encode-concurrency cap all engage automatically on the `ebs` tier; the startup log reports `Capping global encode-concurrency budget to the instance EBS write-bandwidth ceiling` when the instance's bandwidth binds. Pinning `cayenne_write_concurrency` or `cayenne_target_file_size_mb` on a network volume removes these protections for that knob.
 - **Watch the volume.** Rising `vortex_write` and `publish_commit` phases in `cayenne_write_phase_duration_ms` on an unchanged workload, and a growing EBS `VolumeQueueLength` or a falling `EBSIOBalance%`, mean the storage — not Cayenne — is the bottleneck.
 
+A second Cayenne acceleration in memory can flatten lookup latency on this storage. Keep the durable copy as a `mode: file` dataset on the network volume, and accelerate a view of the rows the lookups need with `mode: memory`. The view reloads from the file acceleration on each refresh and on restart. It only helps the rows it holds. Measure the lookup on the volume you run.
+
+```yaml
+datasets:
+  - from: postgres:public.events
+    name: events
+    time_column: event_time
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: file
+      storage_profile: ebs
+      refresh_check_interval: 5m
+      params:
+        cayenne_file_path: /mnt/ebs/spice/data/events/
+
+views:
+  - name: recent_events
+    sql: SELECT * FROM events WHERE event_time > now() - INTERVAL '1 day'
+    acceleration:
+      enabled: true
+      engine: cayenne
+      mode: memory
+      refresh_check_interval: 30s
+```
+
 ### Network file systems: NFS, SMB, EFS, Azure Files
 
 Network file systems are **not recommended** for Cayenne. Auto-detection classifies `nfs`, `nfs4`, `cifs`, `smbfs`, and `smb3` mounts as the network-attached tier, so the same amortizing behaviors apply, but two problems remain:
