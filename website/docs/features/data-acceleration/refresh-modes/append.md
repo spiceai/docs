@@ -46,9 +46,11 @@ With a primary key and no `time_column`, a refresh has no column to tell new row
 
 ## Periodically written snapshot files
 
-When a file listing receives a new snapshot file on a schedule and leaves the older files in place, set `refresh_mode: append` and `time_column: _last_modified` with `time_format: timestamptz`. Each refresh reads files newer than the watermark and does not reopen files already loaded. See [File listing pruning](../../../components/data-connectors/#file-listing-pruning-with-metadata-columns).
+When a file listing receives a new snapshot file on a schedule and leaves the older files in place, set `refresh_mode: append` and `time_column: _last_modified` with `time_format: timestamptz`. Using `_last_modified` as `time_column` enables that metadata column. `_location` stays off until the dataset sets `metadata._location: enabled`. Each refresh reads files newer than the watermark and does not reopen files already loaded. See [File listing pruning](../../../components/data-connectors/#file-listing-pruning-with-metadata-columns).
 
-Those new files' rows are added to the rows from earlier files. When each file is a full copy of a table, the acceleration keeps every copy. A query that needs the latest file filters to that file — the rows whose `_location` is the file with the greatest `_last_modified` — and ranks inside that set. A window function over the whole table reads every historical file.
+What the acceleration keeps depends on the key. With no `primary_key`, the new file's rows are added to the rows from earlier files, so every copy stays. A Cayenne acceleration with a `primary_key` keeps one row per key: the newest by `time_column` when that column is not part of the key. Keys that are not in the new file stay. See [Duplicate primary keys in one write](../../../components/data-accelerators/cayenne/index.md#duplicate-primary-keys-in-one-write).
+
+A query that needs only the latest file enables `_location`, filters to the file with the greatest `_last_modified`, and ranks inside that set. A window function over the whole table reads every historical file.
 
 ## Late-Arriving Data
 
