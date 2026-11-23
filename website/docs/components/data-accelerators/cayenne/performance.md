@@ -1,7 +1,7 @@
 ---
 title: 'Spice Cayenne Performance Tuning'
 sidebar_label: 'Performance Tuning'
-description: 'Tuning Spice Cayenne: storage tier and NVMe placement, self-tuning and goal-driven SLOs, cache sizing, compression strategy, sorted data, write-path and compaction tuning, and file-size tuning.'
+description: 'Tuning Spice Cayenne: storage tier and NVMe placement, self-tuning and goal-driven SLOs, cache sizing, compression strategy, sorted data, indexes, write-path and compaction tuning, and file-size tuning.'
 sidebar_position: 5
 pagination_prev: null
 pagination_next: null
@@ -315,7 +315,7 @@ Compression also decides how much the storage has to deliver: a `btrblocks` file
 
 Cayenne prunes without any explicit index. Each Vortex segment carries `min`, `max`, `null_count`, `is_sorted`, and `is_constant` statistics per column, and a query prunes every segment whose range cannot match its predicate before reading it.
 
-Pruning is what makes a *selective* query cheap; it is not a row address. When a query pins an exact key that the data is not clustered on, statistics leave most files as candidates and the scan still opens them. That is the case [`indexes`](./index.md#secondary-indexes) exists for.
+Pruning is what makes a *selective* query cheap; it is not a row address. When a query pins an exact key that the data is not clustered on, statistics leave most files as candidates and the scan still opens them. That lookup is what an [index](#indexes) is for.
 
 The persisted `min`/`max` bounds cover decimal, binary, `Time32`/`Time64`, `Float16` and dictionary-encoded columns as well as the ordinary numeric and string types. Widening a decimal column's **scale** drops the persisted bounds for that table, which are rebuilt from the file footers — until then pruning is conservative, reading files it could have skipped, never skipping ones it should read.
 
@@ -344,6 +344,26 @@ datasets:
 ```
 
 Sorting has a cost at write time — sorted refreshes and the sort-and-rewrite compaction path write through a single writer, because fanning a sorted stream out across shards hands every file the whole key range back and forfeits the pruning the sort exists for — so it pays back on tables that are read far more often than they are written.
+
+## Indexes
+
+Set [`indexes`](../../../features/data-acceleration/indexes.md) on the columns a point lookup filters by equality when those columns are not the ones the table is clustered on. Segment statistics skip files that cannot match, and a lookup on a clustered column is often served by those statistics alone. They are not a row address. A lookup on some other column still opens most files. Cayenne builds one secondary index for each `indexes` entry, in `mode: file` and in `mode: memory`.
+
+`primary_key` does not build this index. It names the key used for upserts and deletes. A lookup on the primary key needs its own `indexes` entry.
+
+```yaml
+datasets:
+  - from: s3://bucket/events/
+    name: events
+    acceleration:
+      engine: cayenne
+      mode: file
+      primary_key: id
+      indexes:
+        id: enabled
+```
+
+The index is used when the query pins every column of one entry to a literal, with `=`, `IN`, or an `OR` of equalities. A range such as `BETWEEN` reads the table as before. `enabled` and `unique` build the same index, and `unique` does not reject duplicate rows. Column types, persistence, memory, and the `EXPLAIN` fields are in [Secondary indexes](./index.md#secondary-indexes).
 
 ## Write Path Tuning
 
@@ -417,6 +437,7 @@ Cayenne query execution is DataFusion-native and bounded by `runtime.query.memor
 ## Related Documentation
 
 - [Spice Cayenne Data Accelerator](./index.md) - Parameter reference, S3 Express One Zone, cold tier, and deletion vectors
+- [Indexes](../../../features/data-acceleration/indexes.md) - `indexes` entries on an accelerated table
 - [Cayenne Deployment Guide](./deployment.md) - Metastore durability, metrics, and troubleshooting
 - [Performance Tuning](../../../reference/performance-tuning.md) - Cross-engine tuning, including the [Storage](../../../reference/performance-tuning.md#storage) guide
 - [Managing Memory Usage](../../../reference/memory.md) - Memory partitioning and validation

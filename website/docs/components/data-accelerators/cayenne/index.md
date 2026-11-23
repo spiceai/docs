@@ -256,7 +256,7 @@ The check reads file metadata only. It skips tables stored in S3 Express One Zon
 
 ## Performance Tuning
 
-Spice Cayenne is self-tuning by default and rarely needs manual tuning. For the full tuning reference — [self-tuning and goal-driven SLOs](./performance.md#self-tuning), [cache sizing](./performance.md#cache-tuning), [compression strategy](./performance.md#compression-strategy), and [file-size tuning](./performance.md#file-size-tuning) — see the dedicated **[Performance Tuning](./performance.md)** page.
+Spice Cayenne is self-tuning by default and rarely needs manual tuning. For the full tuning reference — [self-tuning and goal-driven SLOs](./performance.md#self-tuning), [cache sizing](./performance.md#cache-tuning), [compression strategy](./performance.md#compression-strategy), [indexes](./performance.md#indexes), and [file-size tuning](./performance.md#file-size-tuning) — see the dedicated **[Performance Tuning](./performance.md)** page.
 
 ## Features
 
