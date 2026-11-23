@@ -355,6 +355,8 @@ Set [`indexes`](../../../features/data-acceleration/indexes.md) on the columns a
 datasets:
   - from: s3://bucket/events/
     name: events
+    params:
+      file_format: parquet
     acceleration:
       engine: cayenne
       mode: file
