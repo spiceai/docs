@@ -34,9 +34,9 @@ Outbound TLS does not use one trust store for every client.
 
 The HTTP client verifies server certificates with the operating system's CA store. On Linux that store is the `ca-certificates` bundle, read when the client is created. Arrow Flight client connections load the same system store.
 
-The PostgreSQL logical-replication client, when no CA file is configured, verifies against the Mozilla roots compiled into the `webpki-roots` crate shipped with that Spice build.
+The PostgreSQL logical-replication client checks the server certificate only when [`pg_sslmode`](../features/cdc/postgres-replication.md#pg_sslmode-for-wal-streaming) is `verify-ca` or `verify-full`. With no `pg_sslrootcert`, those modes use the Mozilla roots compiled into the `webpki-roots` crate shipped with that Spice build. `require` encrypts the stream and does not check the certificate. `disable`, and `prefer` on the replication transport, send plaintext. An unset `pg_sslmode` is `prefer` when the connection uses discrete parameters, and `verify-full` when a `pg_connection_string` omits `sslmode`.
 
-When a public CA is distrusted, update the store the connection uses. Upgrade Spice for a connection that uses the compiled-in roots, so the new build's `webpki-roots` is what verifies the certificate. Rebuild a custom Docker image so it installs a current `ca-certificates` package, or update that package on the host when `spiced` runs outside Docker, for a connection that uses the system store. The runtime reads the system bundle when the client is created, so a package update applies on the next start.
+When a public CA is distrusted, update the store that connection uses. For `verify-ca` or `verify-full` with no CA file, upgrade Spice so the new build's `webpki-roots` verifies the certificate. For the HTTP client and Arrow Flight, rebuild a custom Docker image so it installs a current `ca-certificates` package, or update that package on the host when `spiced` runs outside Docker. The runtime reads the system bundle when the client is created, so a package update applies on the next start.
 
 ## Server or Instance Hardware Requirements
 
