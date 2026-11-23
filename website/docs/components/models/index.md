@@ -167,8 +167,8 @@ Model '<name>' is split across nodes over connections that are neither authentic
 
 A multi-token prediction (MTP) draft head proposes the next tokens, and one forward pass of the model verifies them, so the model decodes more tokens per pass. Spice finds the draft head without configuration:
 
-- A GGUF listed in `files` whose name starts with `mtp-` is a draft head for the model. Every other GGUF listed is a shard of the model.
-- With no `mtp-` file listed, a GGUF that carries its own NextN layer drafts for itself. GLM-5.3-Flash is an example.
+- A GGUF listed in `files` whose name starts with `mtp-` is a draft head for the model. So is a GGUF whose header says it is a DFlash or DSpark drafter, whatever its file name. The other GGUFs listed are the model's shards, except vision projectors, importance matrices and files whose names mark them as drafters (`mmproj`, `imatrix`, `dflash-`, `eagle3-` or `dspark-` in the file name), unless only such files are listed beside the draft head.
+- With no draft head listed, a GGUF that carries its own NextN layer drafts for itself. GLM-5.3-Flash is an example.
 - A Hugging Face model that names a quantization instead of a file, or names no `files`, also loads the repository's draft head. See [Hugging Face `files`](huggingface/index.md#files).
 
 This Qwen3.8-Flash-Next model drafts with its separate head:
