@@ -93,6 +93,8 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 
 ### CDC Apply Metrics
 
+Each CDC apply series carries a `dataset` label. A series whose description names a `phase`, `path`, or `reason` also carries that attribute. The [ingestion tuning parameters](../../../features/cdc/#tuning-ingestion) set the prefetch capacity, the linger window, and the coalescing caps these series measure.
+
 | Metric | Type | Unit | Description |
 | ------ | ---- | ---- | ----------- |
 | `dataset_acceleration_cdc_apply_burst_duration_ms` | Histogram | ms | Duration to apply one coalesced CDC burst. |
@@ -100,6 +102,19 @@ Generic acceleration metrics are available with the `dataset_acceleration_` pref
 | `dataset_acceleration_cdc_apply_burst_envelopes` | Histogram | envelopes | Number of source envelopes in one coalesced CDC apply burst. |
 | `dataset_acceleration_cdc_apply_fixed_cost_ms` | Histogram | ms | Duration for fixed-cost phases of CDC apply (with `phase` label: `finalize_wait`, `commit_wait`, etc.). |
 | `dataset_acceleration_cdc_source_recv_wait_ms` | Histogram | ms | Duration the CDC apply loop waited to receive the next batch from the source-reader channel. High values indicate the apply loop is source-bound (slot read / WAL decode can't keep up); near-zero indicates it is apply-bound. |
+| `dataset_acceleration_cdc_apply_burst_rows_total` | Counter | rows | Rows in applied coalesced CDC bursts. |
+| `dataset_acceleration_cdc_apply_cycle_ms` | Histogram | ms | Wall-clock period between successive CDC burst applies, measured from one receive start to the next. A cycle near [`cdc_max_coalesce_age_ms`](../../../features/cdc/#tuning-ingestion) can come from the linger timer or from applies that take about as long as the window, so compare it with `dataset_acceleration_cdc_linger_wait_ms`, `dataset_acceleration_cdc_apply_burst_duration_ms`, and `dataset_acceleration_cdc_source_recv_wait_ms` before attributing the cadence to the timer. |
+| `dataset_acceleration_cdc_apply_path_total` | Counter | — | CDC apply sub-batches by `path`: `inmem_append`, `inmem_delete`, `durable_append`, or `durable_delete`. The `durable_*` paths take the synchronous commit and maintenance and cost far more. |
+| `dataset_acceleration_cdc_coalesce_batch_age_ms` | Histogram | ms | Time from receiving the first envelope of a coalesced CDC burst until the burst is flushed to the accelerator. |
+| `dataset_acceleration_cdc_coalesce_flush_total` | Counter | bursts | Applied coalesced CDC bursts by flush `reason`: `deadline`, `envelope_cap`, `byte_cap`, `buffer_drained`, `channel_closed`, or `shutdown`. `deadline` also counts bursts whose linger window had already passed when the source ran dry, as happens when an apply takes longer than the window, so read a high `deadline` share together with `dataset_acceleration_cdc_linger_wait_ms` and `dataset_acceleration_cdc_apply_burst_duration_ms` before attributing latency to the linger window. |
+| `dataset_acceleration_cdc_delete_absorb_fallthrough_total` | Counter | bursts | CDC delete sub-batches that could not be absorbed in memory and took the durable delete path, by `reason`: `no_capability`, `no_advancer`, `inextractable_keys` (a delete row carried no primary key), or `budget` (the memory tier refused the write). |
+| `dataset_acceleration_cdc_keys_per_delete_burst` | Histogram | keys | Primary keys in one CDC delete sub-batch, before any per-plan chunking. |
+| `dataset_acceleration_cdc_linger_wait_ms` | Histogram | ms | Time the CDC apply loop spent in the linger window collecting envelopes before applying a coalesced burst. |
+| `dataset_acceleration_cdc_prefetch_buffer_bytes` | Gauge | By | Estimated size of the backlog in the source-reader-to-apply prefetch channel, from the same per-envelope estimate the `cdc_max_coalesced_bytes` budget uses. It is an estimate, not measured resident memory. |
+| `dataset_acceleration_cdc_prefetch_buffer_capacity` | Gauge | envelopes | Capacity of the source-reader-to-apply prefetch channel (the `cdc_prefetch_buffer` setting). |
+| `dataset_acceleration_cdc_prefetch_buffer_occupancy` | Gauge | envelopes | Envelopes in the prefetch channel when the apply loop last woke. It is a single sample of the backlog: an occupancy that stays near capacity, together with high `dataset_acceleration_cdc_reader_send_wait_ms`, points to the accelerator write; an occupancy near zero, together with high `dataset_acceleration_cdc_source_recv_wait_ms`, points to the source. |
+| `dataset_acceleration_cdc_reader_send_wait_ms` | Histogram | ms | Time the CDC source reader waited to reserve a slot in the prefetch channel. Every send is timed, so an uncontended send still records a small value. Sustained high values while `dataset_acceleration_cdc_prefetch_buffer_occupancy` sits near capacity mean the apply loop is not draining fast enough. |
+| `dataset_acceleration_cdc_source_arrival_lag_ms` | Histogram | ms | Staleness of a burst's first envelope when the apply loop receives it: the current time minus the source commit timestamp. This is lag present before the accelerator acts. |
 
 ### Scan-Path Metrics
 

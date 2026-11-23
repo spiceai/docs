@@ -102,8 +102,6 @@ SELECT COUNT(*) FROM cool_dataset;
 
 The connection to PostgreSQL can be configured by providing the following `params`:
 
-<!-- When making changes to this list, also update components/data-accelerators/postgres/index.md -->
-
 | Parameter Name                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `pg_connection_string`        | Optional. The connection string to use to connect to the PostgreSQL server. This can be used instead of providing individual connection parameters.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -288,30 +286,6 @@ datasets:
       pg_pass: ${secrets:my_pg_pass}
       pg_sslmode: verify-ca
       pg_sslrootcert: ./custom_cert.pem
-```
-
-### Separate dataset/accelerator secrets
-
-Specify different secrets for a PostgreSQL source and acceleration:
-
-```yaml
-datasets:
-  - from: postgres:my_schema.my_table
-    name: my_dataset
-    params:
-      pg_host: localhost
-      pg_port: 5432
-      pg_db: my_database
-      pg_user: my_user
-      pg_pass: ${secrets:pg1_pass}
-    acceleration:
-      engine: postgres
-      params:
-        pg_host: localhost
-        pg_port: 5433
-        pg_db: acceleration
-        pg_user: two_user_two_furious
-        pg_pass: ${secrets:pg2_pass}
 ```
 
 ## Secrets

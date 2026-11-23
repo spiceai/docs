@@ -42,7 +42,6 @@ Consider a high-volume e-trading frontend application backed by an AWS RDS datab
 | ---------- | -------------------------------------------------- | ------------------------------------------------- |
 | `arrow`    | Read-heavy analytics, in-memory speed              | `memory`                                          |
 | `sqlite`   | OLTP-style point lookups, concurrent reads/writes  | `memory`, `file`, `file_create`, or `file_update` |
-| `postgres` | When a full SQL database is needed as accelerator  | External                                          |
 | `cayenne`  | Default engine; datasets 10 GB and above, high-performance columnar | `memory`, `file`, `file_create`, or `file_update` |
 
 ## Example

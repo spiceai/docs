@@ -10,7 +10,7 @@ tags:
   - cayenne
 ---
 
-Every acceleration engine other than Cayenne (`arrow`, `duckdb`, `sqlite`, `turso`, and `postgres`) is deprecated in Spice v2.4 and will be removed in v2.5, and `turso` and `duckdb` are already removed. This guide explains how to move an acceleration to Cayenne, how to tell whether an acceleration is safe to rebuild, and which files and snapshots to delete afterwards.
+Every acceleration engine other than Cayenne (`arrow`, `duckdb`, `sqlite`, `turso`, and `postgres`) is deprecated in Spice v2.4 and will be removed in v2.5, and `turso`, `duckdb`, and `postgres` are already removed. This guide explains how to move an acceleration to Cayenne, how to tell whether an acceleration is safe to rebuild, and which files and snapshots to delete afterwards.
 
 ## What Spice reports
 
@@ -71,6 +71,8 @@ datasets:
       engine: cayenne
       mode: file
 ```
+
+A `postgres` acceleration kept its data across restarts whatever its `mode`, while Cayenne's default `mode` is `memory`. Set `mode: file` on a Cayenne acceleration that replaces a `postgres` one, so its data still survives a restart.
 
 An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so setting `engine: cayenne` is usually the whole change. Two configurations need one more change before the dataset loads on Cayenne:
 
