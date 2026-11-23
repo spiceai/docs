@@ -11,7 +11,7 @@ export const dataUseCases: UseCaseData[] = [
     description:
       'Give each agent accelerated, isolated access to only the data it needs, with search and tools built in. Agents query a replica kept current through CDC, not production databases.',
     buttonText: 'Agent data serving',
-    buttonLink: 'https://spiceai.org/docs/use-cases/ai/agentic-apps'
+    buttonLink: 'https://spiceai.org/docs/use-cases/data/object-store-data-engine'
   },
   {
     title: 'Query across sources without ETL',
