@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { Paragraph } from '../../atoms/paragraph/paragraph';
 import { Title } from '../../atoms/title/title';
 import { Link } from '../../atoms/link/link';
@@ -6,14 +8,16 @@ export const Feature = ({
   title,
   description,
   docsLink,
+  icon,
 }: {
   title: string;
   description: string;
   docsLink?: string;
+  icon?: ReactNode;
 }) => {
   return (
     <div className='flex flex-col items-start gap-4 rounded-sm border border-alpha-150 px-6 py-10 md:gap-10 md:px-10 bg-neutral shadow-box'>
-      <Squares />
+      {icon ?? <Squares />}
       <Title as='h3' variant={'small'} className='line-clamp-2'>
         {title}
       </Title>

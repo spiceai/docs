@@ -10,6 +10,7 @@ import { Articles } from '../components/organisms/articles/articles'
 import { UseCases } from '../components/organisms/use-cases/use-cases'
 import { BeforeAndAfter } from '../components/organisms/before-and-after/before-and-after'
 import { HeroPlayground } from '../components/organisms/hero-playground/hero-playground'
+import { Skills } from '../components/organisms/skills/skills'
 
 export default function LandingPage() {
   const [articles, setArticles] = React.useState<ProcessedFile[]>([])
@@ -41,6 +42,7 @@ export default function LandingPage() {
 
         <Container>
           <Install />
+          <Skills />
           <Articles data={articles} />
         </Container>
 

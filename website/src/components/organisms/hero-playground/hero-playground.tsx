@@ -15,16 +15,13 @@ export const HeroPlayground = () => {
             variant={'large'}
             className='mx-auto mb-6 mt-7 md:mt-0 md:text-center xl:max-w-[1020px]'
           >
-            Build <span className='text-primary'>AI apps and agents</span>
-            <br /> that work.
+            The portable <span className='text-primary'>data lakehouse</span>
+            <br /> for every agent.
           </Title>
 
           <Paragraph className='mb-6 md:text-center'>
-            Build with confidence, knowing your AI  is accurate and grounded in fast, relevant data.
-          </Paragraph>
-
-          <Paragraph className='mb-6 md:text-center'>
-            Spice is an open-source SQL query and AI-inference engine, built in Rust, for developers.
+            Spice gives each app and agent fast, sandboxed access to only the data it needs through a
+            single SQL endpoint for query, acceleration, search, and LLM inference. Built in Rust.
           </Paragraph>
 
           <div className='mb-14 grid grid-cols-2 items-center justify-center gap-3 md:flex'>
@@ -53,21 +50,36 @@ export const HeroPlayground = () => {
             <Paragraph variant={'large'} className='mb-4 text-center font-bold'>
               Powered by
             </Paragraph>
-            <div className='flex items-center justify-center gap-10'>
+            <div className='flex flex-wrap items-center justify-center gap-x-10 gap-y-6'>
               <img
                 src={'/img/apache-arrow.svg'}
                 alt='Apache Arrow Logo'
-                className='h-20 w-auto object-contain'
+                className='h-9 w-auto object-contain dark:invert'
               />
               <img
                 src={'/img/apache-datafusion.svg'}
                 alt='Apache DataFusion Logo'
-                className='h-10 w-auto object-contain'
+                className='h-8 w-auto object-contain dark:invert'
               />
               <img
-                src={'/img/duckdb.svg'}
-                alt='DuckDB Logo'
-                className='h-20 w-auto object-contain'
+                src={'/img/apache-ballista.svg'}
+                alt='Apache Ballista Logo'
+                className='h-6 w-auto object-contain dark:invert'
+              />
+              <img
+                src={'/img/apache-iceberg.svg'}
+                alt='Apache Iceberg Logo'
+                className='h-7 w-auto object-contain dark:invert'
+              />
+              <img
+                src={'/img/vortex.svg'}
+                alt='Vortex Logo'
+                className='h-7 w-auto object-contain dark:invert'
+              />
+              <img
+                src={'/img/delta-lake.svg'}
+                alt='Delta Lake Logo'
+                className='h-7 w-auto object-contain dark:invert'
               />
             </div>
           </div>
