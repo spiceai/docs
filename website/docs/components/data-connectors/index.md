@@ -335,13 +335,15 @@ Files with no rows are skipped in both cases, so an empty partition does not app
 
 #### Applicable Connectors
 
-Metadata columns are supported by all file-based connectors:
+Metadata columns are supported by file-listing connectors:
 
 | Connector Type               | Connectors                        |
 | ---------------------------- | --------------------------------- |
-| **Object Stores**            | S3, Azure Blob (ABFS), HTTP/HTTPS |
+| **Object Stores**            | S3, Azure Blob (ABFS), Google Cloud Storage, HTTP/HTTPS, Hugging Face |
 | **Network-Attached Storage** | FTP, SFTP, SMB, NFS               |
 | **Local Storage**            | File                              |
+
+These columns come from the file listing. The [Delta Lake](./data-connectors/delta-lake) connector reads a table through its transaction log and does not add them. A `delta_lake` dataset has no `_location`, `_last_modified`, or `_size` column from this mechanism, and `metadata._location: enabled` does not create one.
 
 ## Schema Inference
 

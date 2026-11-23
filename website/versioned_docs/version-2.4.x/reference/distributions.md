@@ -51,7 +51,7 @@ Windows support is CLI (`spice`) only. The runtime daemon (`spiced`) is not supp
 | NFS connector | — | Local build only | ❌ | ✅ |
 | Metal (macOS) | — | Local build only | ✅ | ✅ |
 | CUDA (Linux) | `latest-cuda` | Local build only | ✅ | ✅ |
-| Allocator variants | `latest-{jemalloc,mimalloc,sysalloc}` | Local build only | ✅ | ✅ |
+| Allocator variants | Open source `latest` uses snmalloc. Enterprise tags are below. | Local build | ✅ | ✅ |
 | ODBC connector | — | Local build only | ✅ | ✅ |
 | ScyllaDB connector | — | Local build only | ✅ | ✅ |
 | Elasticsearch connector | — | Local build only | ✅ | ✅ |
@@ -199,17 +199,19 @@ make install-nfs
 
 Different memory allocators can significantly impact performance depending on workload characteristics.
 
-:::note
-Allocator variants are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing). Open source users can build locally for development and testing.
-:::
+Open source `spiced`, including the `spiceai/spiceai` image, links snmalloc. The default Cargo feature set includes `alloc-snmalloc`.
 
-### snmalloc (Default)
+Enterprise images, which the [Spice Cloud Platform](https://spice.ai/pricing) runs, are tagged `<version>-enterprise`, with an optional variant suffix. From v2.4, the default image (`2.4.3-enterprise`, `latest`) uses jemalloc, and the system-allocator image tag ends in `-sysalloc` (`2.4.3-enterprise-sysalloc`, `latest-sysalloc`). On v2.3, the default image uses the system allocator (glibc `malloc`), and the jemalloc image tag ends in `-jemalloc`, for example `2.3.7-enterprise-jemalloc`.
 
-The default allocator, optimized for concurrent workloads.
+Open source users can build another allocator locally. `mimalloc` is a local-build feature (`alloc-mimalloc`), not a tag on the Enterprise images described above.
+
+### snmalloc (open source default)
+
+The open source default, optimized for concurrent workloads.
 
 ### jemalloc
 
-Alternative allocator that may perform better for certain memory allocation patterns.
+Enterprise default from v2.4. On open source builds it is an alternative allocator, selected with the `alloc-jemalloc` feature. It can perform better for some allocation patterns. On v2.3 Enterprise images, use the `<version>-enterprise-jemalloc` tag.
 
 **Heap profiling**: the shipped jemalloc build has the heap profiler compiled out, so `_RJEM_MALLOC_CONF=prof:true` is silently ignored. Build with the `alloc-jemalloc-profiling` feature to turn it on — it implies `alloc-jemalloc` and adds jemalloc's `--enable-prof`. jemalloc is built under the `_rjem_` prefix, so it reads `_RJEM_MALLOC_CONF`, not `MALLOC_CONF`:
 
@@ -226,7 +228,7 @@ Microsoft's mimalloc allocator, designed for performance and security.
 
 ### System Allocator
 
-Uses the system's default allocator (glibc malloc on Linux).
+Uses the system's default allocator (glibc malloc on Linux). It is the Enterprise default on v2.3, and the `-sysalloc` Enterprise image from v2.4.
 
 ## Platform Support
 
