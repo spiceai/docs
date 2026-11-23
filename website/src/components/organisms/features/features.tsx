@@ -50,25 +50,25 @@ export const Features = () => {
           icon={<FederationIcon />}
           title='SQL federation and acceleration'
           description='One SQL endpoint federates across databases, warehouses, data lakes, and APIs, with materialized, auto-refreshed datasets that accelerate the hot path.'
-          docsLink='https://docs.spiceai.org/docs/features/query-federation'
+          docsLink='https://spiceai.org/docs/features/query-federation'
         />
         <Feature
           icon={<SearchIcon />}
           title='RAG and agentic retrieval'
           description='Vector, keyword, and full-text search in SQL with vector_search and text_search, then reranked by a reranker, chat, or decision model into results that ground agents in data.'
-          docsLink='https://docs.spiceai.org/docs/features/search'
+          docsLink='https://spiceai.org/docs/features/search'
         />
         <Feature
           icon={<AnalyticsIcon />}
           title='Analytics replica'
           description='Maintain an isolated replica of operational databases, kept current through high-throughput CDC, so agents run large analytical queries on near real-time data.'
-          docsLink='https://docs.spiceai.org/docs/use-cases/data/database-cdn'
+          docsLink='https://spiceai.org/docs/use-cases/data/database-cdn'
         />
         <Feature
           icon={<InferenceIcon />}
           title='AI router and SQL functions'
           description='An OpenAI-compatible API with AI SQL functions and decision functions that routes to local and hosted models, plus MCP tools, memory, and observability built into the runtime.'
-          docsLink='https://docs.spiceai.org/docs/features/large-language-models'
+          docsLink='https://spiceai.org/docs/features/large-language-models'
         />
       </div>
     </section>
