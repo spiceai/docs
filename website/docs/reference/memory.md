@@ -442,7 +442,7 @@ The Spice runtime supports multiple memory allocators that affect how the proces
 | mimalloc              | Microsoft's allocator, designed for performance and security | Performance-sensitive deployments             |
 | System (glibc malloc) | Uses the OS default allocator                                | Compatibility testing, debugging              |
 
-The open source distribution uses snmalloc. Enterprise images use jemalloc by default from v2.4, and a `-jemalloc` image tag on v2.3. See [Allocator Variants](./distributions#allocator-variants).
+The open source distribution uses snmalloc. Enterprise images use jemalloc by default from v2.4. On v2.3, the Enterprise default uses the system allocator, and jemalloc ships as the `-jemalloc` image. See [Allocator Variants](./distributions#allocator-variants).
 
 :::note
 Allocator variants are available with the [Spice Cloud Platform and Spice.ai Enterprise](https://spice.ai/pricing). Open source users can build locally for development and testing.

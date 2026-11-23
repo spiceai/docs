@@ -118,7 +118,7 @@ datasets:
       pg_pass: ${secrets:pg_pass}
       pg_db: myapp
       pg_sslmode: verify-full      # or: disable | prefer | require | verify-ca
-      pg_sslrootcert: /etc/ssl/pg-ca.pem   # optional; omit to use the Mozilla roots shipped with Spice
+      pg_sslrootcert: /etc/ssl/pg-ca.pem   # optional; omit to use the Mozilla roots shipped with Spice for the WAL stream and the system CA store for setup
     acceleration:
       enabled: true
       engine: cayenne          # or: arrow | sqlite

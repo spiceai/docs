@@ -201,7 +201,7 @@ Different memory allocators can significantly impact performance depending on wo
 
 Open source `spiced`, including the `spiceai/spiceai` image, links snmalloc. The default Cargo feature set includes `alloc-snmalloc`.
 
-Enterprise images, which the [Spice Cloud Platform](https://spice.ai/pricing) runs, use jemalloc for the default image from v2.4. That tag has no allocator suffix (`2.4.3`, `latest`). On v2.3 Enterprise images the default image does not use jemalloc; the jemalloc image tag ends in `-jemalloc`, for example `2.3.4-jemalloc`. From v2.4, the system-allocator image tag ends in `-sysalloc`.
+Enterprise images, which the [Spice Cloud Platform](https://spice.ai/pricing) runs, are tagged `<version>-enterprise`, with an optional variant suffix. From v2.4, the default image (`2.4.3-enterprise`, `latest`) uses jemalloc, and the system-allocator image tag ends in `-sysalloc` (`2.4.3-enterprise-sysalloc`, `latest-sysalloc`). On v2.3, the default image uses the system allocator (glibc `malloc`), and the jemalloc image tag ends in `-jemalloc`, for example `2.3.7-enterprise-jemalloc`.
 
 Open source users can build another allocator locally. `mimalloc` is a local-build feature (`alloc-mimalloc`), not a tag on the Enterprise images described above.
 
@@ -211,7 +211,7 @@ The open source default, optimized for concurrent workloads.
 
 ### jemalloc
 
-Enterprise default from v2.4. On open source builds it is an alternative allocator, selected with the `alloc-jemalloc` feature. It can perform better for some allocation patterns. On v2.3 Enterprise images, use the `-jemalloc` tag.
+Enterprise default from v2.4. On open source builds it is an alternative allocator, selected with the `alloc-jemalloc` feature. It can perform better for some allocation patterns. On v2.3 Enterprise images, use the `<version>-enterprise-jemalloc` tag.
 
 **Heap profiling**: the shipped jemalloc build has the heap profiler compiled out, so `_RJEM_MALLOC_CONF=prof:true` is silently ignored. Build with the `alloc-jemalloc-profiling` feature to turn it on — it implies `alloc-jemalloc` and adds jemalloc's `--enable-prof`. jemalloc is built under the `_rjem_` prefix, so it reads `_RJEM_MALLOC_CONF`, not `MALLOC_CONF`:
 
@@ -228,7 +228,7 @@ Microsoft's mimalloc allocator, designed for performance and security.
 
 ### System Allocator
 
-Uses the system's default allocator (glibc malloc on Linux).
+Uses the system's default allocator (glibc malloc on Linux). It is the Enterprise default on v2.3, and the `-sysalloc` Enterprise image from v2.4.
 
 ## Platform Support
 
