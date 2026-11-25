@@ -9,5 +9,5 @@ The `websearch` tool is no longer supported and was deprecated in [spiceai/spice
 
 For web search functionality, use [OpenAI's hosted web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses) via the [OpenAI Responses API](/docs/features/web-search#web-search-through-openai-hosted-tools).
 
-For documentation on the websearch tool in previous versions, see the [v1.11.x websearch documentation](https://docs.spiceai.org/docs/1.11.x/components/tools/websearch).
+For documentation on the websearch tool in previous versions, see the [v1.11.x websearch documentation](https://spiceai.org/docs/v1.11/components/tools/websearch).
 :::
