@@ -359,7 +359,7 @@ The `schema_inference` dataset field was removed. Schema inference is now **alwa
 
 For connectors that expose catalog metadata — [PostgreSQL](../../components/data-connectors/postgres), [MySQL](../../components/data-connectors/mysql), and [MongoDB](../../components/data-connectors/mongodb) — inference additionally detects the source's primary key (and, where the source exposes them, secondary indexes and sort/clustering columns) and applies them to any acceleration settings left unset. It degrades gracefully — with info-level logs — when the connection role lacks catalog read access. Other connectors infer the base column schema (names, types, nullability) only.
 
-For the previous opt-in `standard` / `extended` behavior, see the [v2.1.x documentation](https://docs.spiceai.org/docs/2.1.x/reference/spicepod/datasets#schema_inference).
+For the previous opt-in `standard` / `extended` behavior, see the [v2.1.x documentation](https://spiceai.org/docs/v2.1/reference/spicepod/datasets#schema_inference).
 
 :::
 

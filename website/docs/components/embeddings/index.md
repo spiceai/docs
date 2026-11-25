@@ -29,6 +29,7 @@ Spice supports a variety of embedding model sources and formats:
 | [`databricks`][databricks] | Models deployed to Databricks Mosaic AI | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`bedrock`][bedrock]       | Models deployed on Amazon Bedrock       | Alpha             | OpenAI-compatible HTTP endpoint |
 | [`model2vec`][model2vec]   | Model2Vec static word embeddings        | Alpha             | Model2Vec format                |
+| [`spiceai`][spiceai]       | Spice.ai Cloud Platform or another Spice runtime | Alpha    | OpenAI-compatible HTTP endpoint |
 
 [file]: embeddings/local
 [hf]: embeddings/huggingface
@@ -38,6 +39,7 @@ Spice supports a variety of embedding model sources and formats:
 [google]: embeddings/google
 [databricks]: embeddings/databricks
 [bedrock]: embeddings/bedrock
+[spiceai]: embeddings/spiceai
 
 ## Overview
 
