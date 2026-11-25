@@ -133,6 +133,14 @@ Invalid Avro schema: record 'Node' contains itself, directly or through other ty
 
 A schema that reuses a named record in several fields, such as the Debezium `before` and `after` fields, is not recursive and is accepted. In v2.4.3 and earlier, Spice accepted recursive schemas.
 
+Spice also limits how much memory an Avro body can claim while it is decoded. A body can decode to at most 64 MiB of values, or 256 bytes per byte of the body when that is more, and never more than 512 MiB. Spice counts the lengths an array, map, string, bytes, or `fixed` value declares against that limit before it decodes the items, and refuses a body that declares more with `400 Bad Request`:
+
+```text
+Failed to decode CDC body for dataset 'orders': Failed to decode Avro datum: a 96-byte datum can decode to at most 67108864 bytes, and this one declares more. Check that its array, map, bytes, string and fixed lengths match the data it carries. For details, visit: https://spiceai.org/docs/features/cdc
+```
+
+In v2.4.3 and earlier, a small body that declared large arrays or maps could make Spice reserve gigabytes of memory while it decoded.
+
 ### Response
 
 On success the endpoint returns the number of applied changes:
