@@ -284,7 +284,7 @@ An Iceberg REST catalog can return storage settings with a table, such as `s3.en
 The Iceberg catalog for dataset 'my_table' directs storage requests to a host that is not allowed: "<host>" is or resolves to a private, loopback, or link-local address, so the request is not sent and the table cannot be read. If this endpoint is trusted, set the `s3_endpoint` parameter to it, or set `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS=true`. See: https://spiceai.org/docs/components/data-connectors/iceberg
 ```
 
-When storage redirects a request from a catalog-supplied endpoint, Spice refuses a redirect to an internal address, and drops the `Authorization`, `Cookie`, and `Proxy-Authorization` headers when the redirect changes origin.
+When storage redirects a request from a catalog-supplied endpoint, Spice refuses a redirect to an internal address, and drops the `Authorization`, `Cookie`, and `Proxy-Authorization` headers when the redirect changes origin. Because every such request is signed, Spice also refuses a redirect chain that continues on a host it moved to: storage can redirect a request to another host once, but a further redirect on that host fails with an error that contains `continues a redirect chain on another host`. In v2.4.3 and earlier, such a chain was followed.
 
 An endpoint or region is checked only when its value differs from the one set in the Spicepod. A private S3-compatible store, such as MinIO served alongside a local REST catalog, keeps working when the Spicepod sets its endpoint and region:
 
@@ -304,6 +304,16 @@ The Iceberg catalog for dataset 'my_table' set `s3.endpoint` to "http://localhos
 ```
 
 In the Spicepod, the `s3_endpoint` and `s3_region` parameters the message names are written `iceberg_s3_endpoint` and `iceberg_s3_region`. Setting the `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` environment variable to `1`, `true`, `yes`, or `on` turns these checks off for every Iceberg dataset and catalog in the runtime, as it does for [URL tables](../../features/query-federation/url-tables.md).
+
+## Catalog endpoints supplied by a REST catalog
+
+A REST catalog's `GET /v1/config` response can replace the catalog URL (`uri`) or the OAuth2 token endpoint (`oauth2-server-uri`), through its `overrides`, or through its `defaults` for a setting the Spicepod leaves unset. Every later catalog request, and the bearer token or client credentials that go with it, then goes to the replacement. Spice refuses a replacement that is a private, loopback, or link-local address, a host name that resolves to one, or a value that is not an `http` or `https` URL. The dataset or catalog fails to load with an error such as:
+
+```text
+The Iceberg catalog for dataset 'my_table' answered `GET /v1/config` with `uri` set to an endpoint on "http://10.0.0.5:8181", but it is a private, loopback, or link-local address, so no catalog request or credential is sent to it and the catalog cannot be read. If this endpoint is trusted, make its full URL the part before `/v1/` in the Spicepod's catalog URL, or set `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS=true`. See: https://spiceai.org/docs/components/data-connectors/iceberg
+```
+
+The error names only the origin of the refused endpoint. A replacement on the same scheme, host, and port as the configured catalog URL or `iceberg_oauth2_server_url` is accepted, so a catalog on an internal host that moves to a sub-path of itself keeps working. To trust a refused token endpoint, set `iceberg_oauth2_server_url` to its full URL. Setting `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` to `1`, `true`, `yes`, or `on` turns this check off too. In v2.4.3 and earlier, Spice used the replacement without a check.
 
 ## Read a table without a catalog
 

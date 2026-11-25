@@ -190,6 +190,18 @@ Spark and Databricks write `Timestamp` columns as Parquet `INT96` by default. Sp
 
 Delta Lake tables that use [column mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-mapping) with `columnMapping.mode = name` or `columnMapping.mode = id` are supported. Tables in either mode store data in Parquet files under opaque physical column names (e.g., `col-b70f7585-…`) that differ from the logical names exposed by the table schema. Spice resolves logical-to-physical names at read time, including for partitions, predicate pushdown, and nested `Struct`, `List`, and `Map` field renames. A filter that combines a partition column and a data column, such as `part = 3 OR col1 = 5`, is supported. In v2.4.3 and earlier, such a filter failed on a column-mapped table.
 
+## Schema Changes While Spice Runs
+
+Spice plans queries with the table schema it loaded when it registered the dataset, and each scan reads the latest Delta snapshot. Before a scan, Spice checks each loaded column the query reads against the latest schema. A query that reads a column that was dropped, renamed, dropped and added again, changed to another type, or that lost its `NOT NULL` constraint fails with an error such as:
+
+```text
+The Delta Lake table '<table>' changed column '<column>' after Spice loaded it: <change>. The query is refused because Spice planned it with the column as it was loaded. Restart Spice to load the new schema.
+```
+
+The check applies to fields nested inside structs, arrays, and maps too. A dropped `NOT NULL` constraint on a loaded column fails every scan of the table, including one that does not read the column. A table with an added column, or a field added inside a struct or an array of structs, keeps serving the loaded columns, and the new ones appear after a restart. An accelerated dataset whose refresh hits the error keeps the rows it holds and logs a warning until a restart. This applies to the Delta Lake connector and to the [Databricks connector](../databricks/index.md) with `mode: delta_lake`.
+
+A query with `WHERE c IS NULL` on a column whose `NOT NULL` constraint was dropped after Spice loaded the table returns no rows without an error, because the query planner answers it without a scan. In v2.4.3 and earlier, a column dropped and added again returned its old values, a filter on a renamed column failed, and a column that lost its `NOT NULL` constraint failed with an Arrow error.
+
 ## Shallow Clones
 
 Spice reads [shallow clones](https://docs.databricks.com/en/delta/clone.html). A shallow clone's log refers to the source table's data files by absolute URL. Spice reads every data file through the clone's own object store, so the source table's files must be in the same object store as the clone: the same scheme and bucket, container, or host. Hadoop's alternative scheme names for the same store (`s3a` and `s3n` for `s3`, `abfs` for `abfss`) count as the same store. A data file in another store fails the scan with `Delta Lake data file '<file>' is outside the table's storage location '<table>'.` A relative data file path must stay inside the table root. In v2.4.3 and earlier, shallow clones could not be read.

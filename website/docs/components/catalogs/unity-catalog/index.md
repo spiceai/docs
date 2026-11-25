@@ -111,6 +111,8 @@ One of the following auth values must be provided for Azure Blob:
 
 - With `unity_catalog_credential_vending: enabled`, the catalog does not register a [catalog-managed Delta table](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#catalog-managed-tables), a table with a `delta.feature.catalogManaged` or `delta.feature.catalogOwned` property, and logs a warning that contains `is a catalog-managed Delta table and is not registered`. Queries against the table do not resolve.
 
+- The catalog reads a table only when Unity Catalog stores it in object storage: its storage location must use one of the schemes `s3`, `s3a`, `abfss`, `abfs`, `az`, `azure`, `wasbs`, `wasb`, or `gs`. The catalog does not register a table at any other location, such as a `file://` URL or a bare path on the Unity Catalog server's disk, with or without `unity_catalog_credential_vending`. It logs a warning that names the table and contains `catalog tables are only read from object storage`, and queries against the table do not resolve. The storage location comes from the catalog, not from the Spicepod. In v2.4.3 and earlier, the catalog read a table at a local location from the Spice host's filesystem.
+
 ## Cookbook
 
 - A cookbook recipe to configure an open-source Unity Catalog as a catalog connector in Spice. [Unity Catalog Connector](https://github.com/spiceai/cookbook/tree/trunk/catalogs/unity_catalog#readme)

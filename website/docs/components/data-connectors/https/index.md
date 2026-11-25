@@ -437,6 +437,22 @@ The check covers the hosts that a redirect introduces. The host in `from` and a 
 
 A structured HTTP file dataset, such as `csv` or `parquet`, applies the same rule. The host in `from` is read whatever address it resolves to, and so is a redirect that stays on that host. A redirect to a different host that is a private, loopback, or link-local address, or resolves to one, fails the load with the error above. Through a proxy from the `HTTP_PROXY`, `HTTPS_PROXY`, or `ALL_PROXY` environment variables, Spice cannot see the address the proxy resolves a redirect's host to, so only a redirect to an internal IP address or a well-known internal host name, such as `localhost`, is refused; configure the proxy to refuse internal destinations, as for [URL tables](../../../features/query-federation/url-tables.md#internal-hosts-are-blocked). To read through such a redirect on purpose, set the `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` environment variable to `1`, `true`, `yes`, or `on`. It turns the check off for every HTTP file dataset in the runtime, and also turns off the internal-host checks for [URL tables](../../../features/query-federation/url-tables.md) and the [Iceberg connector](../iceberg.md). In v2.4.1 and earlier, an HTTP file dataset followed a redirect to any host.
 
+#### Redirects and credentials
+
+A dataset that sends credentials keeps them on its endpoint's origin across a redirect chain. For a JSON API dataset, credentials are any [OAuth2](#oauth2-authentication) parameter, `http_headers`, enabled `request_header_filters`, or user info in the `from` URL. For a structured HTTP file dataset, they are [Basic authentication](#using-basic-authentication) credentials. Such a dataset follows a redirect from its endpoint to another host, but once the chain is on another host and port, it does not follow a further redirect on that same host and port. The query fails with an error that names only the redirect target's origin:
+
+```text
+Refused to connect to https://cdn.example.com: a request that carries credentials does not follow a redirect chain that continues on another host. Configure the endpoint URL as the redirect target directly.
+```
+
+A JSON API dataset that sets `http_headers`, sets `request_header_filters: enabled`, or sets `auth_header_name` to a header other than `Authorization` sends a header that the HTTP client does not remove on a redirect. Such a dataset follows a redirect only when it keeps the endpoint's scheme, host, and port, even when the headers hold no secret. Any other redirect fails with:
+
+```text
+Refused to connect to https://other.example.com: a request that carries a custom credential header follows a redirect only to its own scheme, host, and port. Configure the endpoint URL as the redirect target directly.
+```
+
+To read through such a redirect, set `from` to the redirect target, if it is an endpoint you trust with the credentials. A dataset without credentials keeps the redirect rules above. For a structured HTTP file dataset, setting `SPICE_URL_TABLE_ALLOW_PRIVATE_HOSTS` also turns off the redirect-chain check. In v2.4.3 and earlier, a dataset with credentials followed these redirects.
+
 ### Special Metadata Fields
 
 The HTTP connector supports special metadata fields that provide fine-grained control over HTTP requests. These fields can be included in your dataset schema to dynamically construct request URLs and payloads.

@@ -318,6 +318,14 @@ catalogs:
 
   To query these tables, use `mode: sql_warehouse` or `mode: spark_connect`. In v2.4.x and earlier, reading such a table failed with a Delta Lake reader error.
 
+- In `mode: delta_lake`, the catalog reads a table only when its storage location is in object storage, with one of the schemes `s3`, `s3a`, `abfss`, `abfs`, `az`, `azure`, `wasbs`, `wasb`, or `gs`. It does not register a table at any other location, such as a `file://` URL or a bare path, and logs a warning such as:
+
+  ```text
+  Table '<catalog>.<schema>.<table>' is not registered, so queries against it will not resolve: its storage location uses the 'file' scheme, and catalog tables are only read from object storage (s3, s3a, abfss, abfs, az, azure, wasbs, wasb, gs).
+  ```
+
+  `mode: sql_warehouse` and `mode: spark_connect` read through Databricks and do not check the storage location. In v2.4.3 and earlier, a table at a local location was read from the Spice host's filesystem.
+
 :::warning[Memory Considerations]
 
 When using the Databricks (mode: delta_lake) Catalog connector without acceleration, data is loaded into memory during query execution. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
