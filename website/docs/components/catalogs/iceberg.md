@@ -156,6 +156,8 @@ catalogs:
 
 A REST catalog can return storage endpoints and regions with each table. Spice refuses a catalog-supplied endpoint that resolves to a private, loopback, or link-local address, so a REST catalog that points tables at a local or private S3-compatible store, such as MinIO, needs `iceberg_s3_endpoint` and `iceberg_s3_region` set in the Spicepod. See [Storage endpoints supplied by a REST catalog](../data-connectors/iceberg#storage-endpoints-supplied-by-a-rest-catalog).
 
+The same applies to a catalog URL or OAuth2 token endpoint that the catalog's `GET /v1/config` response substitutes for the configured one: Spice refuses a private, loopback, or link-local address, and a value that is not an `http` or `https` URL. See [Catalog endpoints supplied by a REST catalog](../data-connectors/iceberg#catalog-endpoints-supplied-by-a-rest-catalog).
+
 ### AWS Authentication
 
 If AWS credentials are not explicitly provided in the configuration, the connector will automatically load credentials from the following sources in order. These credentials will be used to connect to the S3 bucket as well as the Glue catalog (if configured).
