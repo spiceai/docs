@@ -42,6 +42,20 @@ Spice provides high-performance, industry-standard APIs:
 
 HTTP, Arrow Flight, and Flight SQL requests accept a `spice-trace-id` header (gRPC metadata for Flight) carrying a 32-character hexadecimal trace ID. The runtime records the ID in [`runtime.task_history`](../reference/task_history#correlating-requests-with-spice-trace-id) and prefixes the query's log records with it. SQL query responses return the ID in a `spice-trace-id` header.
 
+### HTTP SQL Request Bodies
+
+`POST /v1/sql` reads the request body as JSON when the `Content-Type` is `application/json`, compared without regard to case and ignoring parameters such as `charset`, so `application/json; charset=utf-8` and `Application/JSON` are also JSON. Any other `Content-Type`, or none, sends the body as SQL text.
+
+A JSON body holds the SQL in `sql` and, for a [parameterized query](../features/query-federation/parameterized-queries.mdx), its values in `parameters`. Omit `parameters`, or set it to `null`, when the SQL has no placeholders:
+
+```bash
+curl -X POST http://localhost:8090/v1/sql \
+  -H "Content-Type: application/json; charset=utf-8" \
+  -d '{"sql": "SELECT 1 AS one"}'
+```
+
+In v2.4.3 and earlier, a JSON body without `parameters` was refused with `400 Bad Request` (``Invalid JSON: missing field `parameters` ``), and a JSON body sent with a `charset` parameter or another letter case was read as SQL text and failed to parse.
+
 ### HTTP SQL Response Formats
 
 `POST /v1/sql` returns results in the format named by the `Accept` header: `application/json` (default), `application/vnd.spiceai.sql.v1+json`, `text/csv`, or `text/plain`. `POST /v1/nsql` accepts the same formats.

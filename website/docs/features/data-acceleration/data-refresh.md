@@ -661,12 +661,15 @@ A request can override the refresh for that one run with `refresh_sql`, `refresh
 
 - `refresh_mode` is `changes`, `caching`, `snapshot`, or `disabled`. The message contains `refresh_mode '<mode>' is not supported for an on-demand refresh. Valid modes are 'full' or 'append'.` A value that is not a refresh mode at all is refused with `422 Unprocessable Entity`.
 - `refresh_sql` does not parse, or the dataset has a [`time_column`](../../reference/spicepod/datasets#time_column) and `refresh_sql` does not select it. The message contains `Invalid refresh_sql:`.
+- `refresh_mode` is `append`, the dataset is not configured with `refresh_mode: append`, and it has neither a `time_column` nor a primary key. Without either, an append reads the whole source and inserts every row again. The message is the one Spice gives at startup for an `append` dataset with neither: ``Append mode requires either `time_column` or `primary_key` to be specified in the dataset configuration.`` In v2.4.3 and earlier, such an override returned `201 Created` and duplicated the dataset's rows.
 
 ```bash
 curl -i -XPOST 127.0.0.1:8090/v1/datasets/eth_recent_blocks/acceleration/refresh \
   -H 'Content-Type: application/json' \
   -d '{"refresh_sql": "SELECT * FROM eth_recent_blocks WHERE number > 100", "refresh_mode": "full"}'
 ```
+
+A [deferred dataset](../../reference/spicepod/datasets#deferred-dataset-initialization) that no query has initialized yet returns `409 Conflict` instead of refreshing. Query the dataset to initialize it, then refresh.
 
 In v2.4.1 and earlier, these overrides returned `201 Created`. A `refresh_mode` override that cannot run on demand then failed in the refresh worker, and an override `refresh_sql` that left out the `time_column` on an `append` dataset loaded its rows with a `NULL` time, and the next append refresh loaded them again.
 

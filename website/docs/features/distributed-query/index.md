@@ -728,6 +728,7 @@ Each scheduler deletes, with their result chunks, the jobs whose results have ex
 - Result TTL is not yet configurable per-query (fixed at 12 hours)
 - Chunk size is not yet configurable per-query (fixed at 10,000 rows)
 - Async queries reject locally accelerated datasets, Cayenne catalog tables, and `runtime.task_history` (including `runtime.local_task_history`), because task history is read only on the scheduler. Run these queries through `/v1/sql` or Flight SQL. A rejected query fails with the error code `EXECUTION_FAILED`.
+- Async queries cannot read a file whose rows a per-file filter removes, such as a [Delta Lake](../../components/data-connectors/delta-lake/index.md) data file with a deletion vector, because executors cannot apply the filter. Such a query fails with an error that names the first such file, and asks you to run it through `/v1/sql` or Flight SQL instead. Files without deletion vectors are still read by executors. In v2.4.3 and earlier, an async query returned the rows that a deletion vector had removed.
 
 ## High Availability
 

@@ -477,8 +477,18 @@ datasets:
 When deferred initialization is active, the runtime:
 - Registers the dataset immediately with the declared schema — queries can reference the table in planning before the source is contacted.
 - On the first query that references the dataset, initializes the connector and loads the real data transparently.
-- Coordinates concurrent triggers so the dataset is only initialized once.
+- Coordinates concurrent triggers so they share one initialization attempt, and keeps the result once initialization succeeds.
 - Supports acceleration — after deferred initialization, the acceleration table, refresh loop, and health monitor are set up normally.
+
+When initialization fails because the source is unavailable, a later query initializes the dataset again. Spice waits 1 second after the first failure before it tries again, and doubles the wait after each further failure, up to 30 seconds. A query that arrives during the wait returns the last error without contacting the source. Only queries start an attempt, so a dataset that no query references stays uninitialized. A configuration error, such as a missing or invalid parameter or a connector the build does not include, is kept for the life of the process, because no retry clears it. In v2.4.3 and earlier, any failed initialization was kept until Spice restarted.
+
+Until a query initializes the dataset, an [on-demand refresh](../../features/data-acceleration/data-refresh#refresh-on-demand) returns `409 Conflict` with a message that starts:
+
+```text
+Dataset my_data is not initialized yet: it is initialized by a query that references it, and no query has initialized it. Query the dataset to initialize it, or to see the error that prevents it, then refresh.
+```
+
+In v2.4.3 and earlier, the refresh returned `500 Internal Server Error` with `Table my_data is not accelerated`.
 
 :::warning[Breaking change]
 `load: on_demand` has been removed. Replace it with `ready_state: on_registration` combined with explicit `columns[].type` declarations.
