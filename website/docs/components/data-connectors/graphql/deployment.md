@@ -36,7 +36,7 @@ Use HTTPS endpoints in production. Self-signed certificates require a trusted CA
 
 ### Retry Behavior
 
-Each GraphQL request is retried up to 5 times after the initial attempt, so a request fails after at most 6 tries. The retries apply to every page of a refresh and to the request the connector sends when a dataset loads to infer or validate its schema. Retries use [Fibonacci backoff](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/util/src/fibonacci_backoff.rs) of about 1, 2, 3, 5, and 8 seconds with ±30% jitter. When a retried response carries a `Retry-After` header, or a `RateLimit` reset header while no requests remain, the connector waits that long instead, and the retry still counts against the 5-retry budget. Each retry is logged at `WARN`, and the error is returned once the budget is spent.
+Each GraphQL request is retried up to 5 times after the initial attempt, so a request fails after at most 6 tries. The retries apply to every page of a refresh and to the request the connector sends when a dataset loads to infer or validate its schema. Retries use [Fibonacci backoff](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/util/src/fibonacci_backoff.rs) of about 1, 2, 3, 5, and 8 seconds with ±30% jitter. When a retried response carries a `Retry-After` header, or a `RateLimit` reset header while no requests remain, the connector waits that long instead, and the retry still counts against the 5-retry budget. Each retry is logged at `INFO`. Once the budget is spent, the connector logs a `WARN` and returns the error. In v2.4.3 and earlier, each retry was logged at `WARN`.
 
 Before decoding a response as JSON, the connector [classifies the body](https://github.com/spiceai/spiceai/blob/bccd19955b60d2271b1cf7b3816f451aaece7629/crates/data-connectors/connector-graphql/src/graphql/response.rs) from its `Content-Type` header and its first characters as JSON, HTML, text, empty, or incomplete (shorter than its `Content-Length` header). The classification and the HTTP status decide whether a failure is retried:
 
@@ -49,9 +49,16 @@ Before decoding a response as JSON, the connector [classifies the body](https://
 | Connection errors, timeouts, and errors reading the response body      | Yes     |
 | HTTP 2xx with an HTML or text body                                     | No      |
 | Other HTTP 4xx, including 401 and 403                                  | No      |
-| GraphQL `errors` returned in an HTTP 200 JSON body                     | No¹     |
+| GraphQL `errors` in an HTTP 200 JSON body that name a permanent failure | No¹     |
+| Other GraphQL `errors` in an HTTP 200 JSON body                         | Yes     |
 
-¹ Except an error whose message contains `Something went wrong while executing your query`, which the GitHub GraphQL API returns when its backend times out on a query. The connector retries that error with a smaller page, as described below.
+¹ An `errors` entry names a permanent failure when any of the following holds:
+
+- Its `extensions.code` is a query error: `GRAPHQL_VALIDATION_FAILED`, `GRAPHQL_PARSE_FAILED`, `BAD_USER_INPUT`, `BAD_REQUEST`, `PERSISTED_QUERY_NOT_FOUND`, or `PERSISTED_QUERY_NOT_SUPPORTED`.
+- Its `extensions.code` or top-level `type` is `UNAUTHENTICATED`, `FORBIDDEN`, or `UNAUTHORIZED`, or its `type` is `NOT_FOUND`.
+- It has a source `locations` entry, which points into the query, and its `extensions.code` is not one of the server failure codes `INTERNAL_SERVER_ERROR`, `SERVICE_UNAVAILABLE`, `TIMEOUT`, `GATEWAY_TIMEOUT`, or `UPSTREAM_ERROR`.
+
+Codes are compared without regard to case. Any other entry, such as a bare `message` like `upstream timeout, please retry`, is treated as a server failure and retried. When `errors` holds several entries, a permanent entry fails the request even when a retriable entry comes before it. A message that contains `Something went wrong while executing your query`, which the GitHub GraphQL API returns when its backend times out on a query, is retried with a smaller page, as described below, unless another entry names a permanent failure. When a dataset loads, a retriable error that remains after the retries leaves the dataset to the runtime's load retry, so the dataset loads once the server recovers. In v2.4.3 and earlier, every `errors` body other than the GitHub backend timeout failed without a retry, and a dataset whose first load received one stayed in the `Error` state until the runtime restarted.
 
 An HTML or text body on HTTP 200 usually means the endpoint URL is wrong or the request was redirected to a login page, so it fails without a retry. For a response that is not JSON, the error message names the HTTP status and body format and includes a short preview: for HTML, the page `<title>` (for example `502 Bad Gateway`), or, when the page has no title, its text with tags, stylesheets, and scripts removed. An empty, incomplete, or invalid JSON body on HTTP 200 is retried on a new connection, because the pooled connection is likely half-closed. The GitHub GraphQL API returns an empty HTTP 200 intermittently.
 
