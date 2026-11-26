@@ -72,7 +72,7 @@ The connector supports cursor-based pagination. Each page is a separate HTTP req
 
 ### Server Rate Limits
 
-GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate limits rather than request count. A rate limit reported with HTTP 429, or with a 4xx response whose JSON error message mentions a rate limit, is retried as described in [Retry Behavior](#retry-behavior). A cost or rate-limit error reported in the GraphQL `errors` array of an HTTP 200 response fails the request without a retry. Reduce refresh frequency or narrow the query to stay within budget.
+GraphQL APIs (GitHub, Shopify, etc.) typically enforce query-cost-based rate limits rather than request count. A rate limit reported with HTTP 429, or with a 4xx response whose JSON error message mentions a rate limit, is retried as described in [Retry Behavior](#retry-behavior). A cost or rate-limit error reported in the GraphQL `errors` array of an HTTP 200 response, such as an entry with `extensions.code: THROTTLED` and no `locations`, is retried the same way, because it names no permanent failure (see the footnote in [Retry Behavior](#retry-behavior)); each throttled page can take up to 6 tries. In v2.4.3 and earlier, such an error failed the request without a retry. Reduce refresh frequency or narrow the query to stay within budget.
 
 ## Capacity & Sizing
 
