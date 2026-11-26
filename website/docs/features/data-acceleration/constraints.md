@@ -182,7 +182,7 @@ acceleration:
 
 ## Limitations
 
-- **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop. Spice Cayenne ignores `on_conflict`, so it does not check these targets, and it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne) whatever they say.
+- **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop. Arrow applies only an `upsert` or `drop` on the primary key: for more than one `drop` target it logs `In-memory tables only support on_conflict upsert or drop on the primary key, ... Setting will be ignored.` and applies none of them, and it does not enforce a `unique` index. Spice Cayenne ignores `on_conflict`, so it does not check these targets, and it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne) whatever they say.
   - <details>
       <summary>Examples for valid/invalid `on_conflict` targets</summary>
       <div>
@@ -207,7 +207,7 @@ acceleration:
 
     :::
 
-          The following Spicepod is valid because it specifies multiple `on_conflict` targets with `drop`, which is allowed:
+          The following Spicepod is valid because it specifies a single `on_conflict` target, the primary key, which Arrow applies:
 
     :::tip[Valid]
 
@@ -219,11 +219,8 @@ acceleration:
           enabled: true
           engine: arrow
           primary_key: hash
-          indexes:
-            '(number, timestamp)': unique
           on_conflict:
             hash: drop
-            '(number, timestamp)': drop
     ```
 
     :::
