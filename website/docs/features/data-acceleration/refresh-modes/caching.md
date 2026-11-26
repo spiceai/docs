@@ -12,7 +12,7 @@ The `caching` refresh mode provides intelligent caching for HTTP-based datasets 
 The caching mode supports two key paradigms:
 
 1. **Stale-While-Revalidate (SWR)** - Serves cached data immediately while refreshing in the background, optimizing for low latency and reduced API costs
-2. **Cache Persistence** - Stores cached data to disk using file-based accelerators (Cayenne or SQLite) for fast cold starts and durability
+2. **Cache Persistence** - Stores cached data to disk using the file-based Cayenne accelerator for fast cold starts and durability
 
 ## Overview
 
@@ -283,14 +283,11 @@ The `caching` mode supports persisting cached data to disk using file-based acce
 
 ### File-Based Accelerators
 
-Two acceleration engines support file persistence for caching mode:
-
-- **SQLite** - Lightweight, reliable database ideal for embedded scenarios
-- **Cayenne** - Spice's native accelerator optimized for analytical workloads
+The Cayenne acceleration engine supports file persistence for caching mode.
 
 ### Configuring File Persistence
 
-Enable file persistence by setting `acceleration.mode: file` and specifying an acceleration engine:
+Enable file persistence by setting `acceleration.mode: file`:
 
 ```yaml
 datasets:
@@ -303,7 +300,7 @@ datasets:
     acceleration:
       enabled: true
       refresh_mode: caching
-      engine: cayenne # or sqlite
+      engine: cayenne
       mode: file # Enable file persistence
       params:
         caching_ttl: 10s
@@ -313,34 +310,6 @@ datasets:
         SELECT * FROM shows_persistent_cache
         WHERE request_path IN ('/shows/82', '/shows/169')
            OR (request_path = '/search/shows' AND request_query = 'q=game+of+thrones')
-```
-
-### SQLite Persistence Example
-
-SQLite is ideal for lightweight caching scenarios:
-
-```yaml
-datasets:
-  - from: https://api.tvmaze.com
-    name: tv_search_sqlite
-    params:
-      file_format: json
-      allowed_request_paths: '/search/shows'
-      request_query_filters: enabled
-    acceleration:
-      enabled: true
-      refresh_mode: caching
-      engine: sqlite
-      mode: file
-      params:
-        caching_ttl: 15s
-        caching_stale_while_revalidate_ttl: 10s
-        sqlite_file: tv_search_cache.db
-      refresh_check_interval: 30s
-      refresh_sql: |
-        SELECT * FROM tv_search_sqlite
-        WHERE request_path = '/search/shows'
-          AND request_query IN ('q=breaking+bad', 'q=game+of+thrones')
 ```
 
 ### Cayenne Persistence Example
@@ -389,7 +358,7 @@ Choose between in-memory and file-based caching based on your requirements:
 | **Capacity**    | Limited by available memory       | Limited by disk space         |
 | **Cold start**  | Slow - must refetch all data      | Fast - loads from disk        |
 | **Best for**    | Small, frequently changing caches | Large, stable caches          |
-| **Engines**     | `cayenne` (default), `arrow` | `cayenne`, `sqlite`           |
+| **Engines**     | `cayenne` (default), `arrow` | `cayenne`                     |
 
 ### Combining SWR and Persistence
 
@@ -452,7 +421,7 @@ This behavior differs from other modes:
 
 An origin that answers a cached request with no rows, such as `[]`, has retracted the rows it returned before. On the `cayenne` engine, that empty response replaces the entry: the stored rows for that request are deleted, so a later [`caching_stale_if_error`](#stale-if-error-behavior) fallback or [stale-while-revalidate](#stale-while-revalidate-pattern) read does not serve the retracted rows. The replacement is scoped to the one request the lookup names. A request part the lookup does not name is matched as empty, the value the HTTP connector stores for a part it does not send, so an empty answer to a GET leaves a POST response or a response to another `request_query` under the same path in place. When the lookup's filters do not name a single request, the empty response is not written and the earlier entry is kept.
 
-On `sqlite` and `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
+On `arrow`, an empty response is not written, so the entry keeps the rows it held before until it is evicted or a non-empty response replaces it. Use `engine: cayenne` when the origin can retract a response. In v2.4.0-rc.2 and earlier, an empty response to a GET lookup did not replace a `cayenne` entry either.
 
 ### Concurrent Cache Misses
 
@@ -570,7 +539,7 @@ The `caching` mode supports standard refresh configuration options. See [Stale-W
 | `refresh_sql`            | SQL query defining what data to cache                                 | None           |
 | `refresh_on_startup`     | Whether to refresh on startup (`auto` or `always`)                    | `auto`         |
 | `on_zero_results`        | **Ignored in caching mode.** Caching mode always queries the source on a cache miss, regardless of this setting. | `return_empty` |
-| `engine`                 | Acceleration engine (`cayenne`, `arrow`, `sqlite`)                    | `cayenne` |
+| `engine`                 | Acceleration engine (`cayenne`, `arrow`)                              | `cayenne` |
 | `mode`                   | Persistence mode (`memory` or `file`)                                 | `memory`       |
 
 ### Cache TTL (Time-to-Live)
@@ -809,4 +778,3 @@ Choose one approach:
 - [Special Metadata Fields](../../../components/data-connectors/https#special-metadata-fields) - HTTP request metadata fields
 - [Data Accelerators](../../../components/data-accelerators) - Acceleration engines for cache persistence
 - [Spice Cayenne Accelerator](../../../components/data-accelerators/cayenne) - Spice Cayenne acceleration engine
-- [SQLite Accelerator](../../../components/data-accelerators/sqlite) - SQLite acceleration engine

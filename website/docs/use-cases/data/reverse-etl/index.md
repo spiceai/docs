@@ -19,7 +19,7 @@ graph LR
 
 - **Unified Query Layer**: Federated SQL queries span Databricks, Snowflake, PostgreSQL, and other sources through a single endpoint, removing the need for separate connectors or pipeline orchestration.
 - **Real-Time Sync**: Change Data Capture (CDC) keeps local replicas in sync with upstream sources, so operational systems always reflect the latest warehouse data without scheduled batch jobs.
-- **Local Acceleration**: Materializes working sets of warehouse data into fast local engines like Spice Cayenne or SQLite, providing sub-millisecond query latency for application workloads.
+- **Local Acceleration**: Materializes working sets of warehouse data into fast local engines like Spice Cayenne, providing sub-millisecond query latency for application workloads.
 - **Governance**: Integrates with Databricks Unity Catalog for role-based access control and credential vendoring across federated sources.
 
 ## Example

@@ -172,7 +172,7 @@ datasets:
 **Requirements:**
 
 - `acceleration.snapshots` must be `enabled` or `bootstrap_only`. Snapshot mode is a snapshot *consumer* only, so the two behave identically here: creation is skipped for the mode entirely and the dataset never publishes new snapshots — a separate writer must produce them.
-- The acceleration engine must be a snapshot-capable file-based engine: **Cayenne** or **SQLite**
+- The acceleration engine must be a snapshot-capable file-based engine: **Cayenne**
 
 **Behavior:**
 
@@ -337,7 +337,7 @@ Acceleration checkpoints written by Spice v2.3 and earlier do not record the acc
 
 ## Fast Cold Starts with Snapshots
 
-File-based acceleration engines (Cayenne or SQLite) can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
+File-based Cayenne accelerations can rely on [acceleration snapshots](./snapshots) to download a pre-built database file on startup instead of waiting for the first refresh to finish. Configure a shared snapshot location under the top-level `snapshots` block and opt individual datasets in with `acceleration.snapshots: enabled`, `bootstrap_only`, or `create_only`. Snapshots are stored using Hive-style partitions (`month=YYYY-MM/day=YYYY-MM-DD/dataset=<name>`) and are only supported when each dataset writes to its own acceleration file.
 
 ## Filtered Refresh
 

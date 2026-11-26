@@ -7,7 +7,7 @@ description: 'Learn how to add/configure constraints on local acceleration table
 
 Constraints enforce data integrity in a database. Spice supports constraints on locally accelerated tables to ensure data quality and configure behavior for data updates that violate constraints.
 
-Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. Additional unique constraints are specified via the [`indexes`](./indexes) field with the value `unique`. Data that violates these constraints will result in a [conflict](#handling-conflicts).
+Constraints are specified using [column references](#column-references) in the Spicepod via the `primary_key` field in the acceleration configuration. An [`indexes`](./indexes) entry with the value `unique` also counts as an `on_conflict` target. On Spice Cayenne, a `unique` entry builds a read-path index and does not reject duplicate rows (see [Secondary indexes](../../components/data-accelerators/cayenne/index.md#secondary-indexes)).
 
 Spice Cayenne keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne). On other accelerators, what happens to a violating row depends on the engine and the `on_conflict` setting, as described in [Handling conflicts](#handling-conflicts).
 
@@ -19,10 +19,8 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: cayenne
       primary_key: hash # Define a primary key on the `hash` column
-      indexes:
-        '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
 ```
 
 ## Column References
@@ -55,8 +53,6 @@ Primary key column 'region' has null values. Every primary key column must be no
 ```
 
 Either populate the column in the source data, or choose a `primary_key` made only of columns that are always present.
-
-The [SQLite](../../components/data-accelerators/sqlite) accelerator also rejects a write that carries a null in a primary key column, with an error that names the column(s), before the write reaches the engine. On SQLite, a `NaN` in a floating-point primary key column is rejected as a null, because SQLite stores a `NaN` as `NULL`. In earlier releases, including v2.4.x, SQLite stored a row with a null primary key.
 
 ## One row per primary key on Spice Cayenne
 
@@ -93,15 +89,13 @@ When the dataset's refresh mode resolves to `changes` and its acceleration uses 
 Set `mode: file` to preserve CDC data across restarts and resume replication.
 ```
 
-Some datasets still require an `on_conflict` upsert on the primary key, so keep the entry on them even though they log the warning: [PostgreSQL](../cdc/postgres-replication.md), [MySQL](../cdc/mysql-replication.md), and [MongoDB](../cdc/mongodb-streams.md) change streams on engines other than Spice Cayenne and Arrow. Change streams and [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions) on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
+Change streams and [durable write-back](../../components/data-accelerators/cayenne/index.md#transactions) on Spice Cayenne need only `primary_key`. `on_conflict` no longer decides where a read-write dataset's writes go; set [`acceleration.write_mode: acceleration`](../../reference/spicepod/datasets.md#accelerationwrite_mode) to keep writes in the acceleration.
 :::
 
 On accelerators other than Spice Cayenne, the behavior of inserting data that violates the constraint can be configured via the `on_conflict` field to either `drop` the data that violates the constraint or `upsert` that data into the accelerated table (i.e. update all values other than the columns that are part of the constraint to match the incoming data).
 
 :::warning
 A key can repeat within the incoming data itself, not only against a stored row.
-
-**`drop` on SQLite:** the accelerator keeps the first copy of each key in arrival order and drops the later copies, then resolves the remaining rows against the stored rows. With more than one `drop` target, this applies to full refreshes only, and an append reaches the engine unchanged. Other accelerators do not apply this rule.
 
 **`upsert`:** a key repeated within one record batch fails the write unless `upsert_dedup_by_row_id` is set, or every copy of the key is an exact duplicate and `upsert_dedup` is set (see [advanced upsert options](#advanced-upsert-options)).
 
@@ -116,10 +110,8 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: arrow
       primary_key: hash # Define a primary key on the `hash` column
-      indexes:
-        '(number, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `number` and `timestamp` columns
       on_conflict:
         # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.
@@ -148,8 +140,7 @@ Full configuration example:
 ```yaml
 acceleration:
   enabled: true
-  engine: sqlite
-  mode: file
+  engine: arrow
   primary_key: id
   on_conflict:
     id: upsert_dedup # upsert_dedup_by_row_id
@@ -205,7 +196,7 @@ acceleration:
         name: eth.recent_blocks
         acceleration:
           enabled: true
-          engine: sqlite
+          engine: cayenne
           primary_key: hash
           indexes:
             '(number, timestamp)': unique
@@ -226,7 +217,7 @@ acceleration:
         name: eth.recent_blocks
         acceleration:
           enabled: true
-          engine: sqlite
+          engine: cayenne
           primary_key: hash
           indexes:
             '(number, timestamp)': unique
@@ -247,7 +238,7 @@ acceleration:
         name: eth.recent_blocks
         acceleration:
           enabled: true
-          engine: sqlite
+          engine: cayenne
           primary_key: hash
           indexes:
             '(number, timestamp)': unique

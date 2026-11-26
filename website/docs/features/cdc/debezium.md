@@ -22,8 +22,8 @@ For sources with a native CDC path, prefer the dedicated connector — [PostgreS
 ┌────────────────┐  Debezium connector   ┌───────────┐    Spice consumes      ┌───────────────────┐    ChangeBatch     ┌───────────────┐
 │   Source DB    │ ────────────────────▶│   Kafka   │ ────────────────────▶│   Spice runtime   │──────────────────▶│  Accelerator  │
 │   (MySQL,      │  WAL → JSON events    │   topic   │   one consumer group   │  (debezium        │  (INSERT/         │  Cayenne /    │
-│    SQL Server, │                       │           │   per Spice replica    │   connector)      │   UPDATE /        │  SQLite /     │
-│    Oracle, …)  │                       │           │                        │                   │   DELETE)         │  Postgres     │
+│    SQL Server, │                       │           │   per Spice replica    │   connector)      │   UPDATE /        │  Arrow        │
+│    Oracle, …)  │                       │           │                        │                   │   DELETE)         │               │
 └────────────────┘                       └───────────┘                        └───────────────────┘                   └───────────────┘
 ```
 
@@ -33,7 +33,7 @@ On startup, Spice subscribes to the configured Debezium-managed Kafka topic usin
 
 - A running **Debezium connector** publishing change events to a **Kafka topic** for the source table.
 - A reachable Kafka cluster (one or more `bootstrap.servers`).
-- A Spice acceleration engine that supports CDC: `cayenne`, `arrow`, or `sqlite`.
+- A Spice acceleration engine that supports CDC: `cayenne` or `arrow`.
 - Debezium messages that carry a Kafka message key. Every engine applies updates and deletes by key, so a dataset whose topic has keyless messages fails to load. See [Kafka message keys](../../components/data-connectors/debezium.md#kafka-message-keys).
 
 ## Minimal configuration
@@ -49,7 +49,7 @@ datasets:
       kafka_security_protocol: PLAINTEXT
     acceleration:
       enabled: true                     # Required.
-      engine: cayenne                   # cayenne / arrow / sqlite
+      engine: cayenne                   # cayenne / arrow
       mode: file                        # Persist Kafka offsets so restarts resume.
       refresh_mode: changes             # Required.
 ```

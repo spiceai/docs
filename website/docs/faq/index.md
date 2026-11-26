@@ -37,7 +37,6 @@ For example, deploy Spice as a sidecar alongside applications served by centrali
 ## 3. How is Spice different?
 
 - **Application-Centric Design:** Spice is designed for 1:1 or 1:N mappings between applications and Spice instances, making it flexible for tenant-specific or customer-specific configurations. Unlike traditional databases designed for many applications sharing one data system, Spice often runs one instance per application or tenant.
-- **Dual-Engine Acceleration:** Spice supports both OLAP (Cayenne/Arrow) and OLTP (SQLite) databases at the dataset level, providing flexibility for various query workloads.
 - **Separation of Materialization and Storage/Compute:** Spice enables data to remain close to its source while materializing working sets for fast access, reducing data movement and query latency.
 - **Deployment Flexibility:** Deployable across infrastructure tiers, including edge, on-prem, and cloud environments. Spice can run as a standalone instance, sidecar, microservice, or cluster.
 
@@ -79,7 +78,7 @@ Spice pushes JSON predicates down to the underlying engine (e.g. DuckDB) where s
 
 ## 11. What query engines does Spice support?
 
-Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators. Spice also supports SQLite as an acceleration engine. Developers can select engines based on workload requirements, balancing performance, concurrency, and latency.
+Spice uses [Apache DataFusion](https://datafusion.apache.org/) as its primary query execution engine, providing vectorized, multi-threaded query processing with automatic memory management and spilling. DataFusion powers the Arrow and Spice Cayenne (Vortex) accelerators.
 
 See [Performance Tuning](reference/performance-tuning) for sizing guidance and the [Memory](reference/memory) reference for how Spice manages query memory and spilling under load. For deeper context, see [How we use Apache DataFusion at Spice AI](https://spice.ai/blog/how-we-use-apache-datafusion-at-spice-ai) and [Vortex at Spice AI](https://spice.ai/blog/vortex-at-spice-ai-the-columnar-format-for-data-intensive-workloads) on the Cayenne columnar format.
 
@@ -93,7 +92,7 @@ Yes. Spice can be deployed as a CDN for databases by loading and materializing d
 
 ## 14. Can Spice be used for real-time analytics?
 
-Yes. Spice accelerates data locally using Spice Cayenne (Vortex), Apache Arrow, or SQLite, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
+Yes. Spice accelerates data locally using Spice Cayenne (Vortex) or Apache Arrow, enabling real-time analytics and sub-second query performance for data-intensive applications and dashboards.
 
 ## 15. Does Spice support Change Data Capture (CDC)?
 

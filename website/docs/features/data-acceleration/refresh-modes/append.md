@@ -115,12 +115,6 @@ A string `time_column` configured as [`time_format: iso8601`](../../../reference
 
 The high-water mark is the stored value that sorts last as text, read as an instant. When the stored values mix UTC offsets, that value can be earlier than the newest instant, and the refresh then reads the rows between the two again. De-duplication drops the ones already loaded.
 
-:::warning[Known limitation]
-
-De-duplication compares the re-read rows with the rows currently stored. On a SQLite acceleration with a `primary_key` and [`on_conflict` set to `upsert`](../constraints.md#handling-conflicts), when the source holds two versions of a key at the same instant, a refresh can store one version and the next refresh, with no source change, swap the other back in. A Cayenne acceleration whose `primary_key` does not include `time_column` orders versions by time instead, as described in [Combining with Upserts](#combining-with-upserts). Tracked in [spiceai/spiceai#15542](https://github.com/spiceai/spiceai/issues/15542).
-
-:::
-
 The high-water mark is read back as [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339) with a UTC offset, or as `YYYY-MM-DDTHH:MM:SS` with optional fractional seconds and no offset. A value without an offset that uses a space instead of `T`, such as `2026-01-01 00:00:00`, cannot be read back. The first load succeeds, and each later append refresh fails with an error that begins `Failed to parse ISO8601 timestamp`. Write such values with a `T`, or with a UTC offset.
 
 In v2.4.1 and earlier, the high-water mark was compared with the column as text and was exclusive.

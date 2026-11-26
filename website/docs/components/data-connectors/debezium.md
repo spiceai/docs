@@ -33,7 +33,7 @@ datasets:
 
     acceleration:
       enabled: true # Acceleration is required for the debezium connector.
-      engine: cayenne # `cayenne`, `arrow`, and `sqlite` are supported acceleration engines for Debezium.
+      engine: cayenne # `cayenne` and `arrow` are supported acceleration engines for Debezium.
       refresh_mode: changes # Optional. If specified, this is required to be set to `changes` - any other value is an error.
       mode: file # Persistence is recommended to not have to rebuild the table each time Spice starts.
 ```
@@ -150,9 +150,9 @@ The following settings are required:
 | Parameter Name | Description                                                                                                                                                                                                                                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `enabled`      | Required. Must be set to `true` to enable acceleration.                                                                                                                                                                                                                                                                                                    |
-| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`cayenne`: Use [Spice Cayenne](../data-accelerators/cayenne) as the acceleration engine.</li><li>`arrow`: Use [Arrow](../data-accelerators/arrow) as the acceleration engine (memory only).</li><li>`sqlite`: Use [SQLite](../data-accelerators/sqlite) as the acceleration engine.</li></ul> |
+| `engine`       | Required. The acceleration engine to use. Possible valid values: <ul><li>`cayenne`: Use [Spice Cayenne](../data-accelerators/cayenne) as the acceleration engine.</li><li>`arrow`: Use [Arrow](../data-accelerators/arrow) as the acceleration engine (memory only).</li></ul> |
 | `refresh_mode` | Optional. The refresh mode to use. If specified, this must be set to `changes`. Any other value is an error.                                                                                                                                                                                                                                               |
-| `mode`         | Optional. The persistence mode to use. When using the `cayenne` and `sqlite` engines, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
+| `mode`         | Optional. The persistence mode to use. When using the `cayenne` engine, it is recommended to set this to `file` to persist the data across restarts. Spice also persists metadata about the dataset, so it can resume from the last known state of the dataset instead of re-fetching the entire dataset.                                     |
 
 ### Kafka message keys
 

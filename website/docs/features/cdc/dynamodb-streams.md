@@ -9,16 +9,16 @@ pagination_next: null
 
 Stream every `INSERT`, `UPDATE`, and `DELETE` from an Amazon DynamoDB table directly into a Spice-accelerated dataset using [DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html).
 
-This is the recommended way to keep a Spice accelerator ([Cayenne](../../components/data-accelerators/cayenne), [SQLite](../../components/data-accelerators/sqlite)) continuously in sync with a DynamoDB source — no Kafka, no Debezium, no Lambda required.
+This is the recommended way to keep a Spice accelerator ([Cayenne](../../components/data-accelerators/cayenne)) continuously in sync with a DynamoDB source — no Kafka, no Debezium, no Lambda required.
 
 ## How it works
 
 ```
 ┌──────────────────┐    DynamoDB Streams    ┌───────────────────┐    ChangeBatch     ┌───────────────┐
 │   DynamoDB       │──────────────────────▶│   Spice runtime   │──────────────────▶│  Accelerator  │
-│   table          │   shard iterators      │  (dynamodb        │   (INSERT/        │  Cayenne /    │
-│   + stream       │                        │   connector)      │    UPDATE /       │  SQLite /     │
-│                  │                        │                   │    DELETE)        │  Postgres     │
+│   table          │   shard iterators      │  (dynamodb        │   (INSERT/        │  Cayenne      │
+│   + stream       │                        │   connector)      │    UPDATE /       │               │
+│                  │                        │                   │    DELETE)        │               │
 └──────────────────┘                        └───────────────────┘                   │               │
                                                                                     └───────────────┘
 ```
@@ -73,7 +73,7 @@ The credentials Spice uses need both table and stream actions:
 
 ### 3. Acceleration must be enabled with `refresh_mode: changes`
 
-Using DynamoDB Streams **requires** acceleration with `refresh_mode: changes`. Supported engines are `cayenne` and `sqlite`.
+Using DynamoDB Streams **requires** acceleration with `refresh_mode: changes`. The supported engine is `cayenne`.
 
 ## Minimal configuration
 

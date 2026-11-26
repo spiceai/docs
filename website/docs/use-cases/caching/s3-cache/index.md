@@ -20,7 +20,7 @@ graph LR
 
 ## Why Spice.ai?
 
-- **Local Acceleration**: Materializes S3 data into a fast local engine (Cayenne, SQLite, Arrow) so queries run at local speed instead of scanning remote storage.
+- **Local Acceleration**: Materializes S3 data into a fast local engine (Cayenne or Arrow) so queries run at local speed instead of scanning remote storage.
 - **Smart Refresh Skip**: For single-file S3 datasets, Spice checks the object's metadata before refreshing. If the file has not changed (same size, last modified timestamp, and version/ETag), the refresh is skipped entirely.
 - **Multiple File Formats**: Supports Parquet, CSV, JSON, and other formats stored in S3 or S3-compatible systems (MinIO, Cloudflare R2).
 - **Folder-Level Datasets**: Point a dataset at an S3 folder to load all files within it as a single table, with periodic refresh to pick up new files.
