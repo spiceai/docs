@@ -74,7 +74,7 @@ datasets:
 
 A `postgres` acceleration kept its data across restarts whatever its `mode`, while Cayenne's default `mode` is `memory`. Set `mode: file` on a Cayenne acceleration that replaces a `postgres` one, so its data still survives a restart.
 
-A `sqlite` acceleration with `mode: file` kept its data across restarts. Keep `mode: file` on the Cayenne acceleration that replaces it, and remove the SQLite parameters `sqlite_file` and `busy_timeout` from `acceleration.params`.
+A `sqlite` acceleration with `mode: file` kept its data across restarts. Keep `mode: file` on the Cayenne acceleration that replaces it, and remove the SQLite parameters `sqlite_file` and `busy_timeout` from `acceleration.params`. Cayenne writes its files under `.spice/data` in the working directory unless `cayenne_file_path` names another directory, so when `sqlite_file` put the database on a persistent volume, set `cayenne_file_path` to a directory on that volume. Its metastore then defaults to `{cayenne_file_path}/metadata`; set [`cayenne_metadata_dir`](./index.md#metastore-location) to keep it in one place when several datasets share the volume.
 
 An `arrow` acceleration is in memory, which is Cayenne's default `mode`, so setting `engine: cayenne` is usually the whole change. Two configurations need one more change before the dataset loads on Cayenne:
 
