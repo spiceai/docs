@@ -154,7 +154,7 @@ SQLite has no date, time, or interval types. When a connection uses the SQLite d
 
 - Date, time, timestamp, duration, and interval literals, such as `TIMESTAMP '2026-01-30 23:00:00'`, `DATE '2026-01-31'`, and `INTERVAL '1 hour'`.
 - A `CAST` into a date, time, timestamp, duration, or interval type.
-- `TRY_CAST`, and each `CAST` the SQLite accelerator also evaluates in Spice. See [Casts and Federation](../data-accelerators/sqlite#casts-and-federation). Unlike the accelerator, ODBC also keeps `DATE '1994-01-01'` in Spice.
+- `TRY_CAST`, which SQLite does not have, and every other `CAST` that SQLite does not evaluate the way Spice does. Only a cast between two string types, between two binary types, of an integer into a wider integer type, into `Float64`, or into text, or of a `Float32` into `Float64` is sent to SQLite. SQLite's `CAST` never fails, so `CAST('abc' AS BIGINT)` returns `0` in SQLite and an error in Spice.
 
 This applies to federated queries and to the filters the table scan pushes down. A filter that involves none of these expressions, such as `id >= 2`, still pushes down. Setting `sql_dialect` to a value other than `sqlite` for a SQLite database applies that dialect's handling instead.
 

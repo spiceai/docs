@@ -119,20 +119,19 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine.
-- [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
 
-The `duckdb`, `turso`, and `postgres` engines are removed: a view that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
+The `duckdb`, `turso`, `postgres`, and `sqlite` engines are removed: a view that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
-- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Supported for Spice Cayenne (`cayenne`).
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `sqlite`, and `mode: file` with a view-specific file path (for example `acceleration.params.sqlite_file: /nvme/my_view.db`).
+Optional. Controls how this view participates in managed acceleration snapshots. Requires the Spicepod to configure the top-level [`snapshots` block](.#snapshots), the acceleration engine to be `cayenne`, and `mode: file`.
 
 Supported values:
 
@@ -272,7 +271,7 @@ views:
     sql_ref: ./my_view.sql
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: cayenne
       indexes:
         number: enabled # Index the `number` column
         '(hash, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `hash` and `timestamp` columns
@@ -292,7 +291,7 @@ views:
     sql_ref: ./my_view.sql
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: cayenne
       primary_key: hash # Define a primary key on the `hash` column
 ```
 
@@ -325,10 +324,8 @@ views:
     sql_ref: ./my_view.sql
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: arrow
       primary_key: hash
-      indexes:
-        '(number, timestamp)': unique
       on_conflict:
         # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.

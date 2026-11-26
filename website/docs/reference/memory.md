@@ -188,10 +188,6 @@ datasets:
       mode: file
 ```
 
-### SQLite
-
-[SQLite](../components/data-accelerators/sqlite) is lightweight and efficient for smaller datasets but does not support intermediate spilling. Datasets must fit in memory or use application-level paging.
-
 ## Refresh Modes and Memory Implications
 
 Refresh modes affect memory usage as follows:
@@ -427,7 +423,6 @@ For time-series data, sort by timestamp. For multi-tenant data, consider sorting
 | ------------- | -------------- | ---------------------------- | --------------- | ----------------------------------------- |
 | Arrow         | Memory only    | `runtime.query.memory_limit` | Yes             | Small datasets, maximum speed             |
 | Spice Cayenne | Disk (Vortex)  | `runtime.query.memory_limit` | Yes             | Datasets 10 GB and above, scalable analytics; lowest memory footprint |
-| SQLite        | Memory or Disk | None                         | No              | Small-medium datasets, simple queries     |
 
 Spice Cayenne and Arrow both use DataFusion as the query execution engine and share the same `runtime.query.memory_limit` configuration.
 

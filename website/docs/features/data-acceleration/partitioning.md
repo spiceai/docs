@@ -63,8 +63,6 @@ Multi-entry mappings (`- year: "…", month: "…"` on one list item) are reject
 
 An acceleration with no `engine` uses Cayenne on Linux and macOS, so `partition_by` with no `engine` needs a file mode, such as `mode: file`. Set `engine: arrow` to partition in memory. See [Default Engine](../../components/data-accelerators/index.md#default-engine).
 
-The `sqlite` accelerator does **not** support `partition_by`; configuring it on that engine is rejected at load time. Use `arrow` or `cayenne` for partitioned acceleration.
-
 ## Partition transforms
 
 `partition_by` accepts any DataFusion-compatible scalar SQL expression that returns a String, integer, Boolean, or Timestamp and references exactly one column from the dataset. The most common partition transforms are:

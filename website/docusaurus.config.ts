@@ -577,6 +577,11 @@ const config: Config = {
             from: '/docs/next/components/data-accelerators/postgres/deployment',
             to: '/docs/next/components/data-accelerators/postgres'
           },
+          // The sqlite acceleration engine is removed in v2.5 (spiceai/spiceai#16745).
+          {
+            from: '/docs/next/components/data-accelerators/sqlite/deployment',
+            to: '/docs/next/components/data-accelerators/sqlite'
+          },
           // Linked from the runtime's Bedrock reasoning_effort messages (spiceai/spiceai#15422).
           // The reasoning guidance is on the vNext page until a release ships it.
           {

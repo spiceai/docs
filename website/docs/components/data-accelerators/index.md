@@ -41,12 +41,10 @@ Some configurations load on Arrow but not on Cayenne. With no `engine`, each of 
 | ---------- | ------------------------------- | ----------------- | ---------------- |
 | `cayenne`  | [Spice Cayenne][cayenne]        | Stable            | `memory`, `file`, `file_create`, `file_update` |
 | `arrow`    | In-Memory Arrow Records         | Deprecated        | `memory`         |
-| `sqlite`   | Embedded [SQLite][sqlite]       | Deprecated        | `memory`, `file`, `file_create`, `file_update` |
 
-Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. The `turso`, `duckdb`, and `postgres` engines are already removed: a dataset or view that sets `acceleration.engine: turso`, `duckdb`, or `postgres` fails to load. See [Migrating to Spice Cayenne](./cayenne/migration.md).
+Every engine other than `cayenne` is deprecated in v2.4 and will be removed in v2.5. The `turso`, `duckdb`, `postgres`, and `sqlite` engines are already removed: a dataset or view that sets `acceleration.engine: turso`, `duckdb`, `postgres`, or `sqlite` fails to load. See [Migrating to Spice Cayenne](./cayenne/migration.md).
 
 [cayenne]: ./cayenne/index.md
-[sqlite]: ./sqlite/index.md
 
 ## Choosing an Accelerator
 
@@ -57,7 +55,6 @@ Select the appropriate accelerator based on dataset size, query patterns, and re
 | Small datasets (under 1 GB), maximum speed          | `arrow`                 | In-memory storage provides lowest latency               |
 | Datasets 10 GB and above (up to 1+ TB)              | `cayenne`               | Vortex columnar format scales beyond single-file limits |
 | Point lookups on large datasets                     | `cayenne`               | Vortex provides 100x faster random access vs Parquet    |
-| Simple queries, low resource usage                  | `sqlite`                | Lightweight, minimal overhead                           |
 
 ### Moving a dataset from DuckDB to Cayenne
 
@@ -90,7 +87,7 @@ Data Accelerators may not support all possible Apache Arrow data types. For comp
 
 When accelerating a dataset using `mode: memory` (the default), some or all of the dataset is loaded into memory. Ensure sufficient memory is available, including overhead for queries and the runtime, especially with concurrent queries.
 
-In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by the [`cayenne`](data-accelerators/cayenne) and [`sqlite`](data-accelerators/sqlite) accelerators by specifying `mode: file`.
+In-memory limitations can be mitigated by storing acceleration data on disk, which is supported by the [`cayenne`](data-accelerators/cayenne) accelerator by specifying `mode: file`.
 
 :::
 
@@ -113,4 +110,4 @@ import DocCardList from '@theme/DocCardList';
 - [Performance Tuning](../reference/performance-tuning) - Comprehensive optimization guide
 - [Managing Memory Usage](../reference/memory) - Memory configuration reference
 - [Data Refresh](../features/data-acceleration/data-refresh) - Refresh mode configuration
-- [Indexes](../features/data-acceleration/indexes) - Index configuration for Spice Cayenne and SQLite
+- [Indexes](../features/data-acceleration/indexes) - Index configuration for Spice Cayenne

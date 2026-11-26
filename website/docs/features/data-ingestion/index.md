@@ -20,7 +20,7 @@ Data ingestion is useful for scenarios such as keeping a local accelerator conti
 
 ## Ingestion via Acceleration Refresh Modes
 
-When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Cayenne, Arrow, or SQLite). The `refresh_mode` controls how that ingestion happens.
+When a dataset is configured with `acceleration.enabled: true`, Spice ingests rows from the source connector into a local engine (Cayenne or Arrow). The `refresh_mode` controls how that ingestion happens.
 
 | Refresh Mode                                                            | What it ingests                                                                                                                                                                              | Typical source                                                                                |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |

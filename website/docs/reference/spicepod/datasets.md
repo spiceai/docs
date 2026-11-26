@@ -21,7 +21,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / sqlite
+      engine: cayenne # / arrow
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -37,7 +37,7 @@ datasets:
     acceleration:
       enabled: true
       mode: memory # / file
-      engine: cayenne # / arrow / sqlite
+      engine: cayenne # / arrow
       refresh_check_interval: 1h
       refresh_mode: full / append # / changes / caching / snapshot
 ```
@@ -302,7 +302,7 @@ The following values are supported:
 - `fail` - Set the dataset to an error status with an actionable message when the projected source schema diverges from the registered schema. Self-heals if the source reverts.
 - `append_new_columns` - Adopt new nullable source columns in place; type changes and relaxed/tightened nullability are treated as `block` (the dataset keeps serving on the old schema) and a warning is logged.
 - `sync_all_columns` - Adopt the full set of lossless, widening changes in place: new nullable columns, widened column types (for example `Int32`→`Int64`, an increase in decimal precision, or `Utf8`→`LargeUtf8`), and relaxed nullability. Non-widening changes (column removals, narrowing type changes) remain `block`-equivalent and are warned.
-- `drop_and_recreate` - Everything `sync_all_columns` does (adopt lossless widening changes in place), and additionally **recreate** the accelerated table for changes that cannot be applied in place — column removals, narrowing or otherwise incompatible type changes, and new non-nullable columns. Recreation is **destructive**: the accelerated data is dropped and rebuilt from the source, so it is only performed with `refresh_mode: full` (a full refresh re-fetches every row). With `refresh_mode: append` or `changes`, an incompatible change is rejected and the existing table is preserved (recreating would drop rows that cannot be re-fetched). Supported on the `duckdb`, `sqlite`, and `cayenne` engines.
+- `drop_and_recreate` - Everything `sync_all_columns` does (adopt lossless widening changes in place), and additionally **recreate** the accelerated table for changes that cannot be applied in place — column removals, narrowing or otherwise incompatible type changes, and new non-nullable columns. Recreation is **destructive**: the accelerated data is dropped and rebuilt from the source, so it is only performed with `refresh_mode: full` (a full refresh re-fetches every row). With `refresh_mode: append` or `changes`, an incompatible change is rejected and the existing table is preserved (recreating would drop rows that cannot be re-fetched). Supported on the `cayenne` engine.
 
 ```yaml
 datasets:
@@ -317,7 +317,7 @@ datasets:
 
 :::note
 
-In-place evolution is supported by `sqlite` and non-partitioned Spice Cayenne
+In-place evolution is supported by non-partitioned Spice Cayenne
 (`cayenne`). On a `refresh_mode: changes` dataset, only non-partitioned Cayenne adopts a widening
 while the stream runs, and under a policy other than `block` a non-widening type change stops a PostgreSQL CDC stream with an error;
 see [Source column type changes](../../features/cdc/postgres-replication#source-column-type-changes).
@@ -522,28 +522,27 @@ Optional. The acceleration engine to use. Defaults to `cayenne`. Spice v2.3 and 
 
 - `arrow` - Accelerated in-memory backed by Apache Arrow DataTables.
 - [`cayenne`](../../components/data-accelerators/cayenne) - Accelerated by Spice Cayenne (Vortex) engine (Stable, v1.9.0-rc.1+).
-- [`sqlite`](../../components/data-accelerators/sqlite) - Accelerated by an embedded SQLite database.
 
-The `duckdb`, `turso`, and `postgres` engines are removed: a dataset that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
+The `duckdb`, `turso`, `postgres`, and `sqlite` engines are removed: a dataset that sets any of them (or the alias `postgresql`) fails to load. See [Migrating to Spice Cayenne](../../components/data-accelerators/cayenne/migration.md).
 
 ## `acceleration.mode`
 
 Optional. The mode of acceleration. The following values are supported:
 
 - `memory` - Store acceleration data in-memory. Supported for Spice Cayenne (`cayenne`), where the acceleration is ephemeral and reloads from its source on restart.
-- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
-- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
-- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`) and `sqlite` acceleration engines.
+- `file` - Store acceleration data in a file. Reuses any existing file on startup. Supported for Spice Cayenne (`cayenne`).
+- `file_create` - Always create a new acceleration file on startup, removing any existing file. When [snapshots](../../features/data-acceleration/snapshots) are enabled, the existing file is snapshotted before deletion. Supported for Spice Cayenne (`cayenne`).
+- `file_update` - Open an existing acceleration file if it exists, then check schema compatibility on refresh. If the source schema change is additive (new columns only), the existing file is kept. If the schema change is incompatible (columns removed, renamed, or type changed), the existing acceleration is snapshotted whole (if [snapshots](../../features/data-acceleration/snapshots) are enabled), then the dataset's table is dropped and recreated with the new schema. The acceleration file itself is not deleted, so any other table in it — such as a connector's own bookkeeping sidecar — survives. Supported for Spice Cayenne (`cayenne`).
 
 ## `acceleration.storage_profile`
 
-Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode accelerators (Spice Cayenne and `sqlite`); memory-mode accelerators ignore this setting.
+Optional. The storage profile for file-backed acceleration. The runtime uses this hint to tune connection-pool sizing, checkpoint thresholds, and file-size defaults for the underlying medium. Only applies to file-mode Spice Cayenne accelerations; memory-mode accelerators ignore this setting.
 
 Supported values:
 
 - `auto` (default) – Detect the storage profile from the resolved acceleration file path. On Linux, detection reads `/proc/self/mountinfo` and inspects block-device metadata to recognize Amazon EBS, Azure Managed Disks, Amazon EC2 NVMe instance storage, `tmpfs`/`ramfs`, and generic NVMe/SSD. NFS and SMB/CIFS mounts (`nfs`, `nfs4`, `cifs`, `smbfs`, `smb3`) are classified as `ebs`, the network-attached tier. Network block devices that are not EBS or Azure disks — GCP Persistent Disk and Hyperdisk, SAN and Ceph volumes — are not recognized by name: when they present as NVMe or non-rotational devices they resolve to `local_ssd`, otherwise to unknown, so set `ebs` explicitly for them. On other platforms, detection returns unknown and the engine defaults apply. In a production Spicepod, set `local_ssd` or `ebs` to the medium the files are on rather than leaving `auto`, including when detection already reports that class. An explicit value keeps the same tuning if the mount metadata the detector reads changes.
 - `local_ssd` (aliases: `ssd`, `nvme`) – Treat the acceleration file location as local SSD/NVMe (for example, EC2 instance store or Azure temporary/NVMe local storage). Uses the engine defaults for connection pool size and checkpoint thresholds.
-- `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Raises SQLite's page cache and lock wait and enables memory-mapped I/O. Spice Cayenne uses smaller per-file targets to reduce write amplification.
+- `ebs` (aliases: `azure_disk`, `managed_disk`, `network_disk`) – Treat the acceleration file location as network-attached block storage (for example, Amazon EBS or Azure Managed Disks). Spice Cayenne uses smaller per-file targets to reduce write amplification.
 - `tmpfs` (aliases: `ram`, `ramdisk`, `ramfs`, `memory`) – Treat the acceleration file location as RAM-backed storage. Spice Cayenne uses larger per-file targets to improve scan throughput.
 
 Example:
@@ -564,7 +563,7 @@ For the per-engine adjustments each profile applies, and for guidance on choosin
 
 ## `acceleration.snapshots`
 
-Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `cayenne` or `sqlite`, and `mode: file`. On `sqlite`, use a dataset-specific file path (for example `acceleration.params.sqlite_file: /nvme/my_dataset.db`).
+Optional. Controls how this dataset participates in managed acceleration snapshots. Requires a snapshot location, from [`runtime.state.location`](./runtime.md#runtimestate), [`acceleration.snapshots_location`](#accelerationsnapshots_location), or the deprecated top-level [`snapshots.location`](./index.md#snapshotslocation), the acceleration engine to be `cayenne`, and `mode: file`.
 
 Supported values:
 
@@ -646,7 +645,7 @@ Optional. How to refresh the dataset. The following values are supported:
 - `append` - Append new data to the dataset. When `time_column` is specified, new records are fetched from the latest timestamp in the accelerated data at the `acceleration.refresh_check_interval`.
 - `changes` - Apply change data capture (CDC) events to incrementally update the dataset.
 - `caching` - Cache data based on request metadata (HTTP requests). Uses row-level replacement based on cache keys. See [Caching Mode](../../features/data-acceleration/refresh-modes/caching) for details.
-- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (Cayenne or SQLite). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
+- `snapshot` - Reload exclusively from the [snapshot store](../../features/data-acceleration/snapshots). The federated source is never queried; the runtime polls for newer snapshots at `refresh_check_interval` (default: 60s). Requires `acceleration.snapshots: enabled` or `bootstrap_only` and a snapshot-capable file-based engine (Cayenne). Writes (`INSERT INTO`) are rejected. See [Snapshot Refresh Mode](../../features/data-acceleration/data-refresh#snapshot).
 
 ## `acceleration.write_mode`
 
@@ -1005,7 +1004,7 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: cayenne
       indexes:
         number: enabled # Index the `number` column
         '(hash, timestamp)': unique # Add a unique index with a multicolumn key comprised of the `hash` and `timestamp` columns
@@ -1027,14 +1026,14 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: cayenne
       primary_key: hash # Define a primary key on the `hash` column
 ```
 
 ## `acceleration.on_conflict`
 
 :::warning Deprecated
-`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. PostgreSQL, MySQL, and MongoDB change streams on engines other than Spice Cayenne and Arrow still require an `on_conflict` upsert on the primary key, so keep the entry on those datasets. Cayenne durable write-back does not require it.
+`on_conflict` is deprecated and will be removed in Spice 3.0. Spice Cayenne does not use it to resolve keys and keeps [one row per primary key](../../features/data-acceleration/constraints.md#one-row-per-primary-key-on-spice-cayenne) without it. Other accelerators keep the behavior below. A dataset that sets `on_conflict` logs a deprecation warning at load. Cayenne durable write-back does not require it.
 :::
 
 Optional. Specify what should happen when a constraint is violated. On the in-memory Arrow acceleration engine, the `on_conflict` target must be the `primary_key`, and every strategy below is supported. On Arrow, `upsert_dedup` and `upsert_dedup_by_row_id` cannot be used on a table that has a column named `__row_num` or `__max_row_num`: a write that has duplicate keys to resolve fails with a planning error.
@@ -1062,10 +1061,8 @@ datasets:
     name: eth.recent_blocks
     acceleration:
       enabled: true
-      engine: sqlite
+      engine: arrow
       primary_key: hash
-      indexes:
-        '(number, timestamp)': unique
       on_conflict:
         # Upsert the incoming data when the primary key constraint on "hash" is violated,
         # alternatively "drop" can be used instead of "upsert" to drop the data update.

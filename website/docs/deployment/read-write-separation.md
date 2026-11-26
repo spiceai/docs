@@ -33,7 +33,7 @@ Running both on the same Spice instance forces a single hardware shape, refresh 
 
 The two tiers communicate through two channels:
 
-1. **Snapshots** in object storage — the cluster periodically writes a complete copy of each acceleration (Cayenne or SQLite) to standard S3, GCS, or ADLS. The copy is the whole accelerated dataset. Spice does not publish an incremental delta of what changed. Read instances bootstrap from the latest snapshot on startup and (optionally) refresh from snapshots on a schedule. No live network dependency on the cluster.
+1. **Snapshots** in object storage — the cluster periodically writes a complete copy of each Cayenne acceleration to standard S3, GCS, or ADLS. The copy is the whole accelerated dataset. Spice does not publish an incremental delta of what changed. Read instances bootstrap from the latest snapshot on startup and (optionally) refresh from snapshots on a schedule. No live network dependency on the cluster.
 2. **Live query delegation** — when a read instance needs data outside its materialized working set (a historical query, a cross-dataset join, a broad search), it transparently delegates to the cluster over Arrow Flight. See [Cluster-Sidecar Architecture](architectures/cluster-sidecar).
 
 Most production deployments use both: snapshots for the steady-state working set, and live delegation for the long tail.
@@ -93,7 +93,7 @@ Cluster Spicepod responsibilities:
 
 - Connect to every source: object stores, OLTP databases, lakehouses, search indices, message queues.
 - Run all refresh schedules, CDC, and stream ingest.
-- Accelerate to file-mode engines (Cayenne or SQLite) so the materialization can be exported as a snapshot.
+- Accelerate with file-mode Cayenne so the materialization can be exported as a snapshot.
 - Write [snapshots](../features/data-acceleration/snapshots) to a shared object store after each refresh that writes data.
 
 ```yaml
@@ -213,7 +213,7 @@ The application sees a single SQL surface — accelerated tables and delegated t
 
 When a read instance starts:
 
-1. For each accelerated dataset, Spice checks for the local acceleration data (the Cayenne data directory, or the `sqlite_file`).
+1. For each accelerated dataset, Spice checks for the local acceleration data (the Cayenne data directory).
 2. If absent and snapshots are enabled, Spice lists the snapshot prefix, downloads the newest snapshot for that dataset, and the dataset goes ready immediately.
 3. If no snapshot is found, behavior is governed by the dataset's `acceleration.snapshots_bootstrap_on_failure_behavior`:
    - `warn` (default) — boot empty and refresh from the source. Avoid in read-tier instances that should not have source access.
@@ -243,7 +243,7 @@ s3://spiceai-snapshots/prod/
   month=2026-05/day=2026-05-02/dataset=orders/orders_20260502T120000Z_019de88f551578938b0a2ade9bd70122.cayenne
 ```
 
-The extension names the engine that wrote the snapshot (`.cayenne` or `.sqlite`), so the cluster and read tiers must accelerate a dataset with the same engine.
+The extension names the engine that wrote the snapshot (`.cayenne`), so the cluster and read tiers must accelerate a dataset with the same engine.
 
 The publishing instance deletes snapshots older than 28 days, keeping each dataset's current and newest snapshot at any age, so the bucket needs no expiration rule for current objects. On a bucket with versioning enabled, each delete leaves a noncurrent version, so add a noncurrent-version expiration rule. A replicated destination keeps deleted files unless replication carries deletes or the destination has its own lifecycle rule. See [Snapshot retention](../features/data-acceleration/snapshots#snapshot-retention). To keep a longer archive, copy snapshots to another prefix or bucket.
 
