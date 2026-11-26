@@ -81,3 +81,25 @@ SELECT order_id, customer_id, total, order_date
 FROM orders
 WHERE order_date < '2024-01-01';
 ```
+
+## UPDATE and DELETE conditions
+
+Spice passes the `WHERE` condition of an `UPDATE` or `DELETE` to the table as a condition on each row. A statement whose condition cannot be reduced to a condition on one row of the target table is refused before it changes any row. This covers a condition with a subquery, such as `IN (SELECT ...)` or `EXISTS (...)`, a grouping or window computed across rows, and an ordering or row limit. For example:
+
+```sql
+DELETE FROM orders WHERE customer_id IN (SELECT customer_id FROM churned_customers);
+```
+
+fails with:
+
+```text
+Failed to delete from table '<table>': the statement is restricted by a subquery, which cannot be carried to the table as a row condition, so more rows would be deleted than the condition selected. Run the subquery first and give the values it returns as a literal condition. See: https://spiceai.org/docs/reference/sql
+```
+
+To delete those rows, run the subquery first and list the values it returns:
+
+```sql
+DELETE FROM orders WHERE customer_id IN (17, 42);
+```
+
+`EXPLAIN` and `EXPLAIN ANALYZE` of a refused statement return the same error. A condition that selects no row, such as `WHERE false` or `WHERE 1 = 0`, changes no row and returns a count of `0`. In v2.4.3 and earlier, such statements were not refused and could change rows the condition did not select.

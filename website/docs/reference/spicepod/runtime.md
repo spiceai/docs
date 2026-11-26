@@ -8,7 +8,7 @@ The `runtime` section specifies configuration settings for the Spice runtime.
 
 ## Reload Behavior
 
-Editing a Spicepod on disk reloads it into the running process, but **most of `runtime.*` is consumed once when `spiced` starts and cannot be rebuilt in place**. A reload installs the new value in the app while the process keeps running the old one; `spiced` logs a warning naming each start-time-only section that changed and telling you to restart. Restart `spiced` to apply them.
+Editing a Spicepod on disk reloads it into the running process, but **most of `runtime.*` is consumed once when `spiced` starts and cannot be rebuilt in place**. A reload installs the new value in the app while the process keeps running the old one; `spiced` logs a warning naming each start-time-only section that changed and telling you to restart. Restart `spiced` to apply them. A runtime started with `--pods-watcher-enabled` whose Spicepod does not load at startup binds no port until the Spicepod loads, then applies these sections from it (see [Hot reload](../../cli/reference/spiced.md#hot-reload)).
 
 **Applied when `spiced` starts — a reload logs a warning and the previous value stays in effect:**
 
