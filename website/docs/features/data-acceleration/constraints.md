@@ -182,7 +182,7 @@ acceleration:
 
 ## Limitations
 
-- **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop.
+- **Single on_conflict target supported**: Only a single `on_conflict` target can be specified, unless all `on_conflict` targets are specified with drop. Spice Cayenne ignores `on_conflict`, so it does not check these targets, and it keeps [one row per primary key](#one-row-per-primary-key-on-spice-cayenne) whatever they say.
   - <details>
       <summary>Examples for valid/invalid `on_conflict` targets</summary>
       <div>
@@ -196,7 +196,7 @@ acceleration:
         name: eth.recent_blocks
         acceleration:
           enabled: true
-          engine: cayenne
+          engine: arrow
           primary_key: hash
           indexes:
             '(number, timestamp)': unique
@@ -217,7 +217,7 @@ acceleration:
         name: eth.recent_blocks
         acceleration:
           enabled: true
-          engine: cayenne
+          engine: arrow
           primary_key: hash
           indexes:
             '(number, timestamp)': unique
@@ -238,7 +238,7 @@ acceleration:
         name: eth.recent_blocks
         acceleration:
           enabled: true
-          engine: cayenne
+          engine: arrow
           primary_key: hash
           indexes:
             '(number, timestamp)': unique
