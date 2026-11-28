@@ -64,7 +64,7 @@ datasets:
       mssql_password: ${ secrets:MSSQL_PASSWORD }
 ```
 
-The connector authenticates with a SQL Server login and encrypts the connection by default. It does not support Microsoft Entra ID authentication: an `Authentication=` keyword in `mssql_connection_string` is ignored, and the connection is attempted as a SQL Server login.
+The connector authenticates with a SQL Server login. With the individual `mssql_*` parameters shown above, it requires an encrypted connection by default, because `mssql_encrypt` defaults to `true`. A `mssql_connection_string` without `Encrypt=true` asks for encryption of the login exchange only, and the rest of the connection is encrypted only when the server requires it, so set `Encrypt=true` in a connection string (see [TLS](../../components/data-connectors/mssql/deployment.md#tls)). It does not support Microsoft Entra ID authentication: an `Authentication=` keyword in `mssql_connection_string` is ignored, and the connection is attempted as a SQL Server login.
 
 ### Example: Azure Databricks
 

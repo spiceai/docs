@@ -63,6 +63,7 @@ The following parameters are supported for configuring the connection to the Dat
 | `databricks_token`    | The Databricks API token to authenticate with the Unity Catalog API. Use the [secret replacement syntax](../secret-stores) to reference a secret, e.g. `${secrets:my_databricks_token}`.                                                                                                           |
 | `databricks_use_ssl`  | If true, use a TLS connection to connect to the Databricks endpoint. Default is `true`.                                                                                                                                                                                                            |
 | `databricks_auth_mode` | Optional. Pins the authentication flow instead of inferring it from the credentials that are set. One of `auto`, `token`, `m2m`, `u2m` (case-insensitive). Defaults to `auto`. See [Pinning the authentication mode](#pinning-the-authentication-mode).                                            |
+| `databricks_credential_vending` | Optional. When set to `enabled`, the catalog fetches short-lived storage credentials for each table from the Unity Catalog credential vending API, rather than from the [Delta Lake object store parameters](#delta-lake-object-store-parameters). Requires `mode: delta_lake`. One of `enabled`, `disabled`. Defaults to `disabled`. Any other value, or `enabled` with another `mode`, fails the catalog with an error. Vending is not exclusive: when it fails while Spice opens a table, for example because Unity Catalog refuses to vend credentials, Spice logs a warning that contains `falling back to configured storage credentials` and reads the table with the configured storage credentials instead. After a table is open, a failure to renew its vended credentials fails the read and does not fall back. |
 
 To locate the Databricks endpoint, do the following:
 
@@ -185,6 +186,18 @@ The following parameters control resilience and concurrency for the SQL Statemen
 | `backoff_method`             | Backoff strategy for transient HTTP retries. Options: `fibonacci`, `exponential`.                                                   | `fibonacci`  |
 | `statement_max_retries`      | Maximum number of poll retries when waiting for async statement completion.                                                          | `14`         |
 | `disable_on_permanent_error` | When `true`, non-retryable errors (401, 403, 404) permanently disable the connector to prevent a thundering herd of failed requests. | `true`       |
+
+### Request rate control
+
+The following parameters limit the rate of HTTP requests the catalog sends to the Databricks endpoint. One rate limit is shared by the catalog's Unity Catalog API requests and, in `mode: sql_warehouse`, its SQL Statement Execution API requests. Each parameter overrides the matching `runtime.params.http_*` setting. Set them in `params` or `dataset_params`.
+
+| Parameter Name                 | Description                                                                                                                                                                  |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requests_per_second_limit`    | Optional. Maximum HTTP requests per second to the Databricks endpoint. Overrides `runtime.params.http_requests_per_second_limit`.                                             |
+| `requests_per_minute_limit`    | Optional. Maximum HTTP requests per minute to the Databricks endpoint. Overrides `runtime.params.http_requests_per_minute_limit`.                                             |
+| `rate_control_jitter_min`      | Optional. Minimum random delay before HTTP requests when rate control is active. Defaults to `5ms` when a request-rate limit is configured, otherwise `0ms`. Accepts durations like `5ms`.   |
+| `rate_control_jitter_max`      | Optional. Maximum random delay before HTTP requests when rate control is active. Defaults to `10ms` when a request-rate limit is configured, otherwise `0ms`. Accepts durations like `10ms`. |
+| `rate_control_acquire_timeout` | Optional. Maximum time an HTTP request waits for rate-control capacity before it fails. Overrides `runtime.params.http_rate_control_acquire_timeout`. Defaults to `client_timeout`. `0` waits without a bound. Accepts durations like `30s`. |
 
 ### Delta Lake parameters
 
