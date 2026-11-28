@@ -376,15 +376,17 @@ The `refresh_sql` parameter can be updated at runtime on-demand using `PATCH /v1
 
 Columns can be selected in the query via the `SELECT` clause, but only column names are supported. Arbitrary expressions or aliases are not supported.
 
+A `refresh_sql` sent with `PATCH` cannot change the acceleration's columns. It must select `*` or name every column of the acceleration, in the same order, with the same types. A `refresh_sql` that drops, adds, or reorders a column is refused with an error that names the column list to select instead, and the dataset keeps its current `refresh_sql`. In v2.4.3 and earlier, a Cayenne acceleration accepted only `SELECT *` here, and refused a `refresh_sql` that named exactly its columns with an error such as `changing the SELECT statement from 'SELECT id, kind' to 'SELECT id, kind'`.
+
 Example:
 
 ```bash
 curl -i -X PATCH \
      -H "Content-Type: application/json" \
-     -d '{
-           "refresh_sql": "SELECT city, state FROM accelerated_dataset WHERE city = 'Bellevue'"
-         }' \
-     127.0.0.1:8090/v1/datasets/accelerated_dataset/acceleration
+     -d @- \
+     127.0.0.1:8090/v1/datasets/accelerated_dataset/acceleration <<'EOF'
+{"refresh_sql": "SELECT * FROM accelerated_dataset WHERE city = 'Bellevue'"}
+EOF
 ```
 
 Queries that return zero results will fallback to the behavior specified by the [`on_zero_results` parameter](#behavior-on-zero-results), and will not have the `refresh_sql` applied to the results from the fallback. The `refresh_sql` only applies to acceleration refresh tasks.

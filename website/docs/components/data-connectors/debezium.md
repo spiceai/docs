@@ -44,6 +44,16 @@ Upon startup, Spice subscribes to the specified Debezium-managed Kafka topic usi
 
 When its changes stream starts, Spice reads the newest offset of each partition of the topic, and reports the dataset ready only after it has applied every change event up to those offsets. After a restart with a persistent acceleration, the first query after the dataset is ready therefore returns each row's state as of the latest change event on the topic when Spice started, not an older version. Change events produced after the stream starts do not delay readiness. Until the broker returns those offsets, Spice retries with backoff and the dataset stays not ready. A change event that fails to convert counts as applied: Spice reports it as an error rather than waiting for it. In v2.4.2 and earlier, the dataset reported ready after its first batch and could serve older rows while it applied the rest of the topic.
 
+## Change Events That Fail to Decode
+
+Spice decodes each change event in a batch read from Kafka on its own. When an event cannot be decoded, for example because it is missing a required field, Spice skips that event and applies the other events of the batch in order. Each skipped event:
+
+- Logs an error that names the dataset, the Kafka topic, partition, and offset, and the kind of decode error. The log does not include the row or its field values.
+- Increments the `dataset_acceleration_cdc_decode_errors` counter, labeled by `dataset`. See [Observability](../../features/observability/index.md).
+- Sets the dataset's status to `Error`. The status stays `Error` while later events apply, because the acceleration is missing the skipped change, and returns to `Ready` only after a full refresh or an acceleration snapshot load succeeds, or after the runtime restarts.
+
+In v2.4.3 and earlier, one event that failed to decode failed every event in the same batch.
+
 ## Consumer Group Management
 
 The Debezium connector manages consumer groups to ensure data consistency across restarts. Offsets are committed to Kafka, so Spice can track consumption progress.
