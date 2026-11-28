@@ -102,4 +102,18 @@ To delete those rows, run the subquery first and list the values it returns:
 DELETE FROM orders WHERE customer_id IN (17, 42);
 ```
 
+A condition must also read only the target table's own columns, directly or through an alias given to the table. A condition on a value computed for each row, such as the result of a model call like `ai_if`, or on a column of another relation, such as a view's base table, is refused while the statement is planned, before any row changes. For example:
+
+```sql
+DELETE FROM messages WHERE ai_if(body, 'is spam');
+```
+
+fails with an error that names the computed column:
+
+```text
+Failed to delete from table '<table>': the condition reads `<column>`, a value computed for each row, such as the result of a model call (ai_if). The table cannot evaluate a condition on it. Select the rows to affect first, then name them by a condition on the table's own columns. See: https://spiceai.org/docs/reference/sql
+```
+
+To delete those rows, select their keys first, for example with `SELECT id FROM messages WHERE ai_if(body, 'is spam')`, then delete them by key, as in `DELETE FROM messages WHERE id IN (3, 8)`. A model call in an `UPDATE`'s assigned value, rather than its condition, is outside this check, and the table refuses it with its own error. In v2.4.3 and earlier, each table refused a condition on a computed column with its own error, such as `No field named ...`, and a federated SQL source could receive the statement first.
+
 `EXPLAIN` and `EXPLAIN ANALYZE` of a refused statement return the same error. A condition that selects no row, such as `WHERE false` or `WHERE 1 = 0`, changes no row and returns a count of `0`. In v2.4.3 and earlier, such statements were not refused and could change rows the condition did not select.

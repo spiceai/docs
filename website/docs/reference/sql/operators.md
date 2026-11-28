@@ -104,6 +104,7 @@ Modulo (remainder)
 - [~\* (regex case-insensitive match)](#op_re_match_i)
 - [!~ (not regex match)](#op_re_not_match)
 - [!~\* (not regex case-insensitive match)](#op_re_not_match_i)
+- [SIMILAR TO (SQL pattern match)](#op_similar_to)
 
 ### `=` {#op_eq}
 
@@ -355,6 +356,26 @@ SELECT 'foobar' !~~* 'F_o%Br';
 +------------------------------------+
 ```
 
+### `SIMILAR TO` {#op_similar_to}
+
+SQL pattern match. `expr SIMILAR TO pattern` is `true` when the whole string matches `pattern`, not only part of it. In the pattern, `%` matches any sequence of characters, `_` matches exactly one character, and `.` is a literal period. `|` separates alternatives, and parentheses group them. `NOT SIMILAR TO` returns the opposite result.
+
+```sql
+SELECT 'abc' SIMILAR TO 'a%' AS prefix,
+       'x' SIMILAR TO '_' AS one_char,
+       'abc' SIMILAR TO 'b' AS partial,
+       'ab' SIMILAR TO 'a.' AS dot;
++--------+----------+---------+-------+
+| prefix | one_char | partial | dot   |
++--------+----------+---------+-------+
+| true   | true     | false   | false |
++--------+----------+---------+-------+
+```
+
+A pattern such as `'(AUTO|BUILD)%'` matches every string that starts with `AUTO` or `BUILD`. A `SIMILAR TO` with an `ESCAPE` clause is refused with an error that contains `SIMILAR TO does not support escape_char`. Spice evaluates `SIMILAR TO` itself and does not send it to a federated source; see [`SIMILAR TO` and Federation](../../features/query-federation/index.md#similar-to-and-federation).
+
+In v2.4.3 and earlier, `SIMILAR TO` was evaluated as an unanchored regular expression: `%` and `_` were literal characters, `.` matched any character, and a pattern matched anywhere in the string, so `'abc' SIMILAR TO 'a%'` returned `false` and `'abc' SIMILAR TO 'b'` returned `true`. An `ESCAPE` clause was ignored.
+
 ## Logical Operators
 
 - [AND](#and)
@@ -371,6 +392,8 @@ A selected, grouped, or ordered expression, or a `VALUES` cell, has the same 512
 ```text
 Query rejected: a selected, grouped, ordered, or VALUES expression is nested more than 512 levels deep. Simplify the expression (for example, compute part of a long chain of +, || or AND in a subquery).
 ```
+
+The same expression and data type checks run on a dataset's [`refresh_sql`](../../features/data-acceleration/data-refresh.md#refresh-sql), including an override sent to `POST /v1/datasets/{name}/acceleration/refresh` or `PATCH /v1/datasets/{name}/acceleration`, and on a view's `sql`. Refresh SQL that fails them is refused with an error that contains `The provided Refresh SQL is too complex to run`, and a refused override leaves the dataset's refresh SQL unchanged. A view whose SQL fails them does not load, and the runtime keeps serving its other datasets and views. The SQL parser also refuses an expression or a chain of `UNION`, `INTERSECT`, or `EXCEPT` operations that would build a tree more than 2,048 levels deep, with an error that contains `RecursionLimitExceeded`. In v2.4.3 and earlier, an over-deep refresh SQL, view, or set-operation chain could overflow the thread stack and stop the runtime.
 
 Subqueries and common table expressions that read one another have a separate limit of 64 levels. See [Nesting depth limit](./subqueries.md#nesting-depth-limit).
 
