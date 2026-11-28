@@ -236,13 +236,30 @@ rerankers:
 
 ## `dependencies`
 
-A list of dependent Spicepods.
+A list of dependent Spicepods. Each entry is a Spicepod reference, either a spicerack.org slug such as `spiceai/quickstart` or a path under `spicepods/`, written in the short form or as a mapping with `from` and `trust`:
 
 ```yaml
 dependencies:
   - lukekim/demo
-  - spicehq/nfts
+  - from: spicehq/nfts
+    trust: restricted
+  - { from: acme/support, trust: full }
 ```
+
+`trust` sets which components the root `spicepod.yaml` accepts from the dependency:
+
+| Value | Description |
+| --- | --- |
+| `restricted` | Default, and the trust level of the short form. The dependency may declare any component except one that runs a program or loads native code on the host. |
+| `full` | The dependency may declare any component the root Spicepod may. |
+
+A component that runs a program or loads native code on the host is a tool with a `from: mcp:<command>` that starts a local program rather than connecting to an `http://` or `https://` server, an `adbc` dataset or catalog whose driver is given as a path to a library file, or a function with a `build:` command. The runtime leaves such a tool, dataset, or catalog out when it comes from a `restricted` dependency, loads the rest of the dependency, and logs an error that names the component and the entry that trusts it. `spice build` refuses to run a `restricted` dependency's `build:` command.
+
+```
+ERROR runtime: Failed to load tool 'fetch' from Spicepod dependency 'acme/support': the tool starts the program 'docker' on this host, and a dependency may do that only when spicepod.yaml trusts it. To trust it, replace `- acme/support` under `dependencies:` with `- { from: acme/support, trust: full }`. See: https://spiceai.org/docs/reference/spicepod#dependencies
+```
+
+A mapping entry accepts only `from` and `trust`. Another key, or a `trust` value other than `restricted` or `full`, is an error. In v2.4.x and earlier, `dependencies` accepted only the short form and had no trust levels.
 
 ## `views` {#views}
 

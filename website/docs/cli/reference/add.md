@@ -97,3 +97,23 @@ name: Spice AI quickstart
 dependencies:
     - spiceai/quickstart
 ```
+
+### Package Limits
+
+A Spicepod from spicerack.org is downloaded as an archive and checked before anything is installed. `spice add` refuses an archive that exceeds any of these fixed limits, and installs nothing from it:
+
+| Limit | Value |
+| --- | --- |
+| Download size | 256 MiB |
+| Entries in the archive | 10,000 |
+| Total expanded size | 1 GiB |
+
+The archive is extracted in full into a staging directory and then moved into `spicepods/`, so a refused archive leaves no files behind and adds no `dependencies:` entry to `spicepod.yaml`. `spice add` also refuses an archive with an entry outside the Spicepod's directory, such as `../escaped.txt`, and never writes through a symbolic link: when `spicepods/`, the Spicepod's directory, or a directory inside an existing install is a link, the install fails and names the link. For example:
+
+```
+ERROR Failed to install Spicepod 'acme/large-pod' from spicerack.org: the archive expands to 3.0 GiB, more than the 1 GiB a Spicepod package may expand to, so nothing was installed. Check the Spicepod name and retry, or install from a local path with `spice add <path>`. See: https://spiceai.org/docs/cli/reference/add
+```
+
+### Dependencies That Run Programs
+
+A dependency is added as `restricted`, the default [trust level](../../reference/spicepod/index.md#dependencies), which keeps any of its components that start a program, run a `build:` command, or load a native library on the host from being loaded or built. When the added Spicepod declares such a component, `spice add` prints a note that names it and the `dependencies:` entry that trusts the Spicepod, `- { from: <spicepod>, trust: full }`.
