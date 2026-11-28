@@ -21,7 +21,7 @@ spice login [command] [flags]
 
 - `-h`, `--help` Print this help message
 - `-k`, `--key` string API key (for spice.ai)
-- `-o`, `--output` string Where to store the resulting credentials. One of `env` (default; appends to a local `.env` file), `json` (prints the credentials as JSON to stdout), or `keychain` (stores them in the platform keychain, e.g. macOS Keychain).
+- `-o`, `--output` string Where to store the resulting credentials. One of `env` (default; writes them to a local `.env` file), `json` (prints the credentials as JSON to stdout), or `keychain` (stores them in the platform keychain, e.g. macOS Keychain).
 
 :::note
 `--output` applies to `spice login` itself (the Spice.ai login, with or without `--key`). The provider subcommands below always write to `.env`.
@@ -60,6 +60,18 @@ spice login
 ```shell
 spice login --key "<API_KEY>"
 ```
+
+### Credentials File
+
+`spice login` and its provider subcommands write credentials to `.env.local` in the current directory when that file exists, and to `.env` otherwise. The credential keys are added or replaced, and the file is rewritten with one `KEY=value` line per entry, sorted by key. The rewrite can change other entries in the file. Comments and blank lines are dropped, a quoted value that spans several lines, such as a PEM private key, keeps only its first line, and the quotes around a value are removed unless it contains a space, a quote, or `=`, so a value such as `'#abc'` is written back as `#abc`. Keep other values in a file that `spice login` does not write, or back up the file first. The Spice.ai login itself can be stored with `spice login --output keychain` instead. The file is replaced, not edited in place: the new contents are written to a new file beside it, created with mode `0600` (readable only by its owner) on macOS and Linux, then renamed over the old one, so a failure part-way leaves the previous file intact.
+
+The credentials file must be a regular file. When `.env` or `.env.local` is a symbolic link, or is not a regular file, `spice login` writes nothing and exits with an error:
+
+```
+ERROR Failed to update configuration at '.env': it is a symbolic link. `spice login` writes credentials only to a regular file, never through a link, so they cannot land in the file it points to. Replace '.env' with a regular file, or store credentials in the keychain with `spice login --output keychain`. See: https://spiceai.org/docs/cli/reference/login
+```
+
+Replace the link with a regular file, or use `--output keychain`. `spice cloud logout` does not rewrite a linked credentials file either: when the file the link points to still sets a Spice credential, the command fails and names that file, so the lines can be removed by hand. Commands that only read credentials still read a linked `.env`. In v2.4.x and earlier, `spice login` wrote through a linked `.env` to the file it points to.
 
 ### Browser Login Flow
 
