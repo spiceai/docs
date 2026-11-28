@@ -148,6 +148,8 @@ Spice supports the User-to-Machine (U2M) OAuth flow for interactive sign-in agai
 
 When U2M auth is configured, the connector defers initialization until first use. On the first query the runtime opens a browser to complete the Databricks OAuth sign-in, then caches and refreshes the resulting token for subsequent requests.
 
+`databricks_client_id` can be a literal or a reference such as `${secrets:DATABRICKS_CLIENT_ID}` or `${env:DATABRICKS_CLIENT_ID}`: a request is matched to the dataset by the client ID the reference resolves to. In v2.4.x and earlier, a dataset whose client ID was given as a reference was never found by a request.
+
 To learn more about how to set up U2M OAuth, see the [Databricks U2M OAuth docs](https://docs.databricks.com/aws/en/dev-tools/auth/oauth-u2m).
 
 :::note

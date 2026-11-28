@@ -26,7 +26,7 @@ Windows has no managed service. A Windows host runs the instance with `spice run
 
 ## Instance directory
 
-Cloud Connect state belongs to an instance directory, not to the host: the issued identity lives at `<dir>/.spice/identity.json`. Commands act on the directory they run from.
+Cloud Connect state belongs to an instance directory, not to the host: the issued identity lives at `<dir>/.spice/cloud-connect/identity.json`. Commands act on the directory they run from.
 
 ```shell
 cd /srv/edge-analytics
@@ -34,6 +34,31 @@ spice cloud status
 ```
 
 `SPICE_CONFIG_DIR` replaces the derived path entirely, which is how a container places the identity on a mounted volume.
+
+### State directory
+
+Every file Cloud Connect keeps is in `cloud-connect/` inside the config directory (`<dir>/.spice`, or `SPICE_CONFIG_DIR`): the identity, the delivered-secret cache, the persisted deployment, the enrollment draft, the endpoint override, the `spice cloud link` operation journals, and the service manifest. The config directory keeps `runtime.lock`. Spice creates `cloud-connect/` with mode `0700`, so only the account that runs the instance can add or replace files in it. The config directory itself may have any owner and mode, such as a Kubernetes `emptyDir`.
+
+Before `spiced` reads any state file, before a `spice cloud` command changes the state, and when `spice cloud status` reads it, Spice checks `cloud-connect/`:
+
+- A directory owned by this account and not writable by group or other accounts is used.
+- A directory owned by this account that group or other accounts can write loses that write access, and Spice logs it once:
+
+  ```
+  INFO spiced::cloud_connect: Spice Cloud Connect removed group and other write access from its state directory '/srv/app/.spice/cloud-connect' (mode 0775 → 0755), so that only this account can add files there. See: https://spiceai.org/docs/cli/reference/cloud
+  ```
+
+- A directory owned by another account stops `spiced` before it reads a state file. A root-run `spiced` may use a directory owned by one other account when no other account can write to it. The error names the fix:
+
+  ```
+  ERROR spiced: Failed to start: the Spice Cloud Connect state directory '/srv/app/.spice/cloud-connect' is owned by user id 1001, not by this account (user id 1000), so that account could replace its deployment and identity files. Run `chown -R 1000 '/srv/app/.spice/cloud-connect'` as root, or set SPICE_CONFIG_DIR to a directory this account owns. See: https://spiceai.org/docs/cli/reference/cloud
+  ```
+
+- A symbolic link at `cloud-connect` is refused.
+
+Cloud Connect state is kept on Linux and macOS only.
+
+**Upgrading from v2.4.x.** v2.4.x and earlier keep these files directly in `.spice/`. The first `spiced` start, or the first `spice cloud` command that reads the state, moves them into `cloud-connect/`. A `spice` command moves nothing while a runtime holds the instance directory. Only regular files owned by this account or by the config directory's owner move, and a file already in `cloud-connect/` is kept. Any other entry, such as a symbolic link, is left in place and never read. Update any script or tool that reads `.spice/identity.json` or another state file directly to read it from `.spice/cloud-connect/`. The move is one-way: `spiced` and `spice` from v2.4.x and earlier read these files only from `.spice/`, so after the move they find no identity or deployment. Any newer `spice cloud` command that reads the state can make the move, including `spice cloud status` on a stopped instance. Upgrade `spice` and `spiced` together, including the binary an installed service runs, and back up the config directory before the first start of the new version, so a downgrade can restore it. The backup holds the instance identity and its private key, so keep it readable only by the account that runs the instance. A config directory owned by another account and writable by other accounts, that still holds state to move, stops `spiced` with an error that names the fix.
 
 An enrolled directory reconnects on its own. A later `spice run` or `spiced` started there connects with no Cloud Connect flag.
 

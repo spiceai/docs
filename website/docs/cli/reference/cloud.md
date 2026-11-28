@@ -115,7 +115,7 @@ For scripts and CI prefer `SPICE_CLOUD_ORG`, which is scoped to the shell rather
 
 ## Enrolling a directory
 
-An enrolled directory holds an instance identity in `.spice/identity.json`, and that identity is what attaches the instance to a project. Once a directory is enrolled and attached, commands run from it without `--project`.
+An enrolled directory holds an instance identity in `.spice/cloud-connect/identity.json`, and that identity is what attaches the instance to a project. Once a directory is enrolled and attached, commands run from it without `--project`.
 
 ### `link`
 
@@ -145,13 +145,13 @@ Detaches the current directory's instance, releases it in Spice Cloud, removes t
 
 Stop the runtime before running it — `unlink` refuses while an instance is running in the directory.
 
-`link` and `unlink` send the stored Spice Cloud login only to the configured Spice Cloud endpoint: `SPICE_CLOUD_API_URL` when it is set, then the older `SPICE_BASE_URL`, and the default endpoint otherwise. The directory's `.spice/identity.json` may come from someone else, so when it names a different endpoint, both commands stop before sending the stored login to it and print both endpoints. A sign-in renewal that runs first goes to the configured endpoint. To link or unlink an identity on another Spice Cloud endpoint, set `SPICE_CLOUD_API_URL` to that endpoint.
+`link` and `unlink` send the stored Spice Cloud login only to the configured Spice Cloud endpoint: `SPICE_CLOUD_API_URL` when it is set, then the older `SPICE_BASE_URL`, and the default endpoint otherwise. The directory's `.spice/cloud-connect/identity.json` may come from someone else, so when it names a different endpoint, both commands stop before sending the stored login to it and print both endpoints. A sign-in renewal that runs first goes to the configured endpoint. To link or unlink an identity on another Spice Cloud endpoint, set `SPICE_CLOUD_API_URL` to that endpoint.
 
 `unlink` does not delete the project. Delete a project with [`spice cloud project delete`](#project). To remove the service and keep the Cloud identity, use [`spice cloud service uninstall`](#service).
 
 ## Project resolution
 
-Commands that act on a project take `--project <org>/<project>` (alias `--app`). When it is omitted, the project comes from the enrolled instance in the current directory. Only `.spice/identity.json` is consulted; no other file in `.spice` selects a project.
+Commands that act on a project take `--project <org>/<project>` (alias `--app`). When it is omitted, the project comes from the enrolled instance in the current directory. Only `.spice/cloud-connect/identity.json` is consulted; no other file in `.spice` selects a project.
 
 A command with no `--project` and no enrolled identity fails rather than guessing.
 

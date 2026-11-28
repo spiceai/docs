@@ -42,6 +42,8 @@ For CSV, TSV, JSON, and JSONL files, Spice auto-detects both the file format and
 
 Recognized compression suffixes: `.gz` (GZIP), `.bz2` (BZIP2), `.xz` (XZ), `.zst` (ZSTD).
 
+A compressed file made of several concatenated compressed members, such as the output of `cat a.csv.zst b.csv.zst`, is read in full, whether it is on local disk or on an object store (S3, Azure Blob Storage, Google Cloud Storage, or HTTP). In v2.4.x and earlier, a BZIP2, XZ, or ZSTD file of several members on an object store returned only the first member's rows, with no error, and a JSON array file of several members failed with `Truncated record whilst reading string`.
+
 | Path / extension       | Format inferred | Compression inferred |
 | ---------------------- | --------------- | -------------------- |
 | `data.csv.gz`          | `csv`           | `GZIP`               |
