@@ -51,6 +51,14 @@ The ODBC connection string requires the use of an installed and registered drive
 - Unix systems; ODBC driver installations can be managed using [unixODBC](https://www.unixodbc.org/), or directly edited through `/etc/odbc.ini` or `/etc/odbcinst.ini`. For example, in the [Databricks DSN Connection Setup Guide](https://docs.databricks.com/en/integrations/odbc/dsn.html#linux) for Linux.
 - Windows systems; ODBC driver installations are managed using the [ODBC Data Source Administrator](https://support.microsoft.com/en-au/office/administer-odbc-data-sources-b19f856b-5b9b-48c9-8b93-07484bfab5a7).
 
+The driver must be named, not given as a file path. Spice refuses a connection string whose `Driver` value is a path to a library, such as `Driver=/opt/drivers/libpsqlodbcw.so` or `Driver={./psqlodbcw.so}`, and one that names a DSN file with `FILEDSN` or `SAVEFILE`, because the driver manager would load native code from the file. A `Driver` value counts as a path when it contains `/` or `\`, ends in `.so`, `.dylib`, or `.dll`, contains `.so.`, or names a file that exists. The dataset fails to load with:
+
+```
+Accessing an ODBC driver with a file path is not permitted. Install a driver using the system driver manager, and specify the driver name instead. For details, visit: https://spiceai.org/docs/components/data-connectors/odbc
+```
+
+The check applies to every connection string, whether or not `sql_dialect` is set. In v2.4.x and earlier, it ran only when `sql_dialect` was unset, and it refused a `Driver` path only when the path, written without braces, named an existing file.
+
 For an example Unix system with an installed PostgreSQL driver where the contents of `/etc/odbcinst.ini` is:
 
 ```ini

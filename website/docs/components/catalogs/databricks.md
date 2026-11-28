@@ -162,6 +162,20 @@ catalogs:
       databricks_client_secret: ${secrets:DATABRICKS_CLIENT_SECRET}
 ```
 
+### User-to-Machine (U2M) OAuth
+
+A catalog that uses U2M auth, with `databricks_client_id` alone or `databricks_auth_mode: u2m`, is not loaded at startup. It loads on the first request that carries a user's Databricks token for the catalog's client ID, and that request is matched by the client ID the parameter resolves to, so `databricks_client_id` can be a literal or a reference such as `${secrets:DATABRICKS_CLIENT_ID}`.
+
+U2M requires `mode: delta_lake` or `mode: sql_warehouse`, which use the token of each request. A Spark Connect session keeps the token it was built with, so a U2M catalog in `mode: spark_connect`, the default mode, is a configuration error at startup:
+
+```
+User-to-machine (U2M) authentication requires 'mode' to be 'delta_lake' or 'sql_warehouse'. For details, visit: https://spiceai.org/docs/components/catalogs/databricks#params
+```
+
+When a load fails, for example because Databricks refuses the request's token, the request logs a warning with the error, and the catalog is loaded again on a later request. A configuration error removes the catalog and sets its status to error.
+
+In v2.4.x and earlier, a load that failed lost the catalog until the runtime restarted, with no log line, a catalog whose client ID was given as a reference never loaded, and a U2M catalog in `spark_connect` mode was deferred and never loaded.
+
 ## `dataset_params`
 
 The `dataset_params` field is used to configure the dataset-specific parameters for the catalog. The following parameters are supported:

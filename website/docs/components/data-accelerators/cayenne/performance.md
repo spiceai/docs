@@ -254,6 +254,7 @@ The footer cache stores Vortex file metadata, including schemas, statistics, and
 
 - Default: unset — when omitted, DataFusion's default file-metadata-cache limit of 50 MB applies
 - Increase for datasets with many small files
+- A footer is cached when Cayenne writes the file, and when a node first reads a file whose footer is not cached, such as after a restart, from a snapshot, or from files another node wrote. Later queries reuse it instead of reading it from storage again. With `cayenne_segment_cache_mb: 0`, a footer read from storage is not cached when the first read of the file's tail also returns row data, which is the case for most files. In v2.4.x and earlier, a footer read from storage was not cached in that case even with the segment cache enabled, so a node that did not write a file read its footer from storage on every query
 - Each file counts against the limit at its fully expanded size: the serialized footer plus about 4 KB per file, 2.5 KB per top-level column, and 768 bytes per segment. A 20-column file with 100 segments counts about 130 KB plus its serialized footer, so size the cache from column and segment counts, not file count alone
 
 **Segment Cache (`cayenne_segment_cache_mb`) — runtime parameter:**
